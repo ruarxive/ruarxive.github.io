@@ -11,7 +11,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Russia and Russian related',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    Svg: require('@site/static/img/russian-federation.svg').default,
     description: (
       <>
        Russian national digital archive created to preserve Russian and Russia related digital resources.
@@ -20,7 +20,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Digital born',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    Svg: require('@site/static/img/file-type-binary.svg').default,
     description: (
       <>
         We collect websites, individual files, social networks accounts, telegram channels and other digital-born objects.
@@ -29,7 +29,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Open source',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    Svg: require('@site/static/img/file-type-shell.svg').default,
     description: (
       <>
         We use and create open source tools to make digital preservation effective.
