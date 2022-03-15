@@ -8,4 +8,5 @@ sidebar_position: 2
 Данные коллекции подготавливаются в формате планов архивации и последовательно сохраняются.
 
 Список тем и планов архивации 2021 г.: https://drive.google.com/folderview?id=0B5haFpvgzsyhWXVXQXlhdDJtXzA&usp=sharing
+
 План архивации 2022 г.: https://airtable.com/shrO1hise7WgURXg5 
