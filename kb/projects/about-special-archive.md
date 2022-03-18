@@ -2,12 +2,14 @@
 sidebar_position: 2
 ---
 
-# Проекты
+# Планы архивации
 
 Национальный цифровой архив включает инициативы по архивации (консервации) онлайн-сайтов по разным тематическим направлениям: религия, история, экономика, наука и многое другое.
 
 Данные коллекции подготавливаются в формате планов архивации и последовательно сохраняются.
 
-Список тем и планов архивации 2021 г.: https://drive.google.com/folderview?id=0B5haFpvgzsyhWXVXQXlhdDJtXzA&usp=sharing
+## Планов архивации 2021 г.
+https://drive.google.com/folderview?id=0B5haFpvgzsyhWXVXQXlhdDJtXzA&usp=sharing
 
-План архивации 2022 г.: https://airtable.com/shrO1hise7WgURXg5 
+## План архивации 2022 г. 
+https://airtable.com/shrO1hise7WgURXg5 
