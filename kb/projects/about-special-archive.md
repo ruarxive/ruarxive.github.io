@@ -12,5 +12,13 @@ sidebar_position: 2
 ## План архивации на 2021 г.
 https://drive.google.com/folderview?id=0B5haFpvgzsyhWXVXQXlhdDJtXzA&usp=sharing
 
-## План архивации на 2022 г. 
-https://airtable.com/shrO1hise7WgURXg5 
+## План архивации на 2022 г.
+https://airtable.com/shrO1hise7WgURXg5
+
+Там же в плане вы можете найти ссылки на архив сохраненных проектов (__status, storage_url, cloud_url__). 
+
+Если вы знаете, какой сайт/ ресурс может исчезнуть, сообщите нам об этом, чтобы мы успели его сохранить.
+
+Заполните специальную __[форму](https://airtable.com/shriiNZvNhcgaStm6)__.
+
+По всем вопросы пишите нам в Telegram-чат проекта [@ruarxivechat](https://t.me/ruarxivechat).
