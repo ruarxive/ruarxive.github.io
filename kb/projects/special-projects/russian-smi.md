@@ -13,7 +13,8 @@ sidebar_position: 3
 
 - Архив Telegram-канала Новой газеты: https://cdn.ruarxive.org/public/webcollect2022/novayagazeta2022/novayagazeta.ru_telegram/novayagazeta_telegram_20220304.zip
 
-В том числе архивированы спецпроекты. Ознакомиться со всеми сохраненными проектами Новой газеты можно по ссылке: https://airtable.com/shrO1hise7WgURXg5/tblhdXAwIv5AVtN7Y.
+В том числе в нашей коллекции сохранены архивы спецпроектов Новой газеты.
+Ознакомиться со всеми сохраненными проектами Новой газеты можно в общей таблице AirTable по ссылке: https://airtable.com/shrO1hise7WgURXg5/tblhdXAwIv5AVtN7Y.
 
 
-_продолжение следует..._
+_продолжение следует ..._
