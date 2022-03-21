@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# Как сохранить данные из Telegramm
+# Как сохранить данные из Telegram
 
 Чтобы скачать данные из конкретных Telegram-каналов и чатов необходимо воспользоваться версией [Telegram Desktop](https://desktop.telegram.org/).
 
