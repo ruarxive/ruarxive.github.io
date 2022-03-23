@@ -1,11 +1,23 @@
 .features {
   display: flex;
   align-items: center;
-  padding: 2rem 0;
+  padding: 4rem 0;
   width: 100%;
+  /*background: rgb(243,245,247);*/
+  /*background: linear-gradient(0deg, rgba(243,245,247,1) 0%, rgba(255,58,58,1) 100%);*/
+  /*background-color: #4aa8ff;*/
+}
+
+.feature {
+  height: 100%;
+  /*background-color: var(--ifm-background-color);*/
+  /*background-color: white;*/
+  border-radius: .25rem;
+  text-align: left;
 }
 
 .featureSvg {
-  height: 200px;
-  width: 200px;
+  height: 60px;
+  width: 60px;
+  margin-bottom: 1rem;
 }

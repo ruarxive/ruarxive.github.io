@@ -14,7 +14,7 @@ const config = {
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'ruarxive', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  projectName: 'ruarxive_web', // Usually your repo name.
 
   presets: [
     [
@@ -44,27 +44,45 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      // algolia: {
+      //   contextualSearch: true,
+      // },
+      colorMode: {
+        defaultMode: 'light',
+        disableSwitch: true,
+        respectPrefersColorScheme: true,
+      },
       navbar: {
         title: 'Russian national digital archive',
+        hideOnScroll: true,
         logo: {
           alt: 'Ruarxive logo',
           src: 'img/logo.svg',
         },
         items: [
-        {
-          type: 'localeDropdown',
-          position: 'left',
-        },
           {
             type: 'doc',
             docId: 'intro',
             position: 'left',
             label: 'Knowledge base',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
+          {
+            to: '/blog', 
+            label: 'Blog', 
+            position: 'left'
+          },
           {
             href: 'https://github.com/ruarxive/ruarxive_web',
-            label: 'GitHub',
+            label: 'Facebook',
+            position: 'right',
+          },
+          {
+            href: 'https://t.me/ruarxive',
+            label: 'Telegram',
+            position: 'right',
+          },
+          {
+            type: 'localeDropdown',
             position: 'right',
           },
         ],
@@ -123,8 +141,8 @@ const config = {
         htmlLang: 'en-GB',
       },
       // You can omit a locale (e.g. fr) if you don't need to override the defaults
-      fa: {
-        direction: 'rtl',
+      ru: {
+        htmlLang: 'ru-RU',
       },
     },
   },

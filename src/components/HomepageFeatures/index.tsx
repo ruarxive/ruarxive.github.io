@@ -11,7 +11,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Russia and Russian related',
-    Svg: require('@site/static/img/russian-federation.svg').default,
+    Svg: require('@site/static/img/flag-rf.svg').default,
     description: (
       <>
        Russian national digital archive created to preserve Russian and Russia related digital resources.
@@ -20,7 +20,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Digital born',
-    Svg: require('@site/static/img/file-type-binary.svg').default,
+    Svg: require('@site/static/img/preservation.svg').default,
     description: (
       <>
         We collect websites, individual files, social networks accounts, telegram channels and other digital-born objects.
@@ -29,7 +29,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Open source',
-    Svg: require('@site/static/img/file-type-shell.svg').default,
+    Svg: require('@site/static/img/osi.svg').default,
     description: (
       <>
         We use and create open source tools to make digital preservation effective.
@@ -41,12 +41,16 @@ const FeatureList: FeatureItem[] = [
 function Feature({title, Svg, description}: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
-      <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
-      </div>
-      <div className="text--center padding-horiz--md">
-        <h3>{title}</h3>
-        <p>{description}</p>
+      <div className={styles.feature}>
+        {/*<div className="padding-horiz--md">*/}
+        <div>
+          <Svg className={styles.featureSvg} role="img" />
+        </div>
+        {/*<div className="padding-horiz--md">*/}
+        <div>
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </div>
       </div>
     </div>
   );

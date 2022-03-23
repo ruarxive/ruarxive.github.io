@@ -3,11 +3,16 @@
  * and scoped locally.
  */
 
+
 .heroBanner {
+  min-height: 70vh;
   padding: 4rem 0;
-  text-align: center;
+  /*text-align: center;*/
   position: relative;
   overflow: hidden;
+  background-image: url(/img/hero.jpg);
+  background-size: 100% 100%;
+  background-position: center;
 }
 
 @media screen and (max-width: 996px) {
@@ -18,6 +23,6 @@
 
 .buttons {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  /*align-items: center;*/
+  /*justify-content: center;*/
 }
