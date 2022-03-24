@@ -59,10 +59,27 @@
   background-color: rgba(0, 0, 0, 0.3);
 }
 
+.navbar__link .iconExternalLink_node_modules-\@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module{
+  display: none;
+}
+
+.navbar-link-btn{
+  /*background-color: rgb(255, 58, 58);*/
+  margin: 0 var(--ifm-navbar-item-padding-horizontal);
+  background-color: var(--ifm-color-primary);
+  color: white;
+  border-radius: 1rem;
+}
+.navbar-link-btn:hover{
+  color: white;
+  background-color: var(--ifm-color-primary-darker);
+}
+
 
 .footer{
   /*--ifm-footer-background-color:  var(--ifm-color-primary-darkest);*/
   /*--ifm-footer-background-color:  #2B2F77;*/
+  padding: var(--ifm-footer-padding-vertical) 0;
 }
 
 

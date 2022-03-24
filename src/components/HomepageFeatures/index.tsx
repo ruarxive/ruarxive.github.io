@@ -1,6 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import styles from './styles.module.css';
+import Translate, {translate} from '@docusaurus/Translate';
 
 type FeatureItem = {
   title: string;
@@ -10,30 +11,30 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Russia and Russian related',
+    title: <Translate>Russia and Russian related</Translate>,
     Svg: require('@site/static/img/flag-rf.svg').default,
     description: (
-      <>
+      <Translate>
        Russian national digital archive created to preserve Russian and Russia related digital resources.
-      </>
+      </Translate>
     ),
   },
   {
-    title: 'Digital born',
+    title: <Translate>Digital born</Translate>,
     Svg: require('@site/static/img/preservation.svg').default,
     description: (
-      <>
+      <Translate>
         We collect websites, individual files, social networks accounts, telegram channels and other digital-born objects.
-      </>
+      </Translate>
     ),
   },
   {
-    title: 'Open source',
+    title: <Translate>Open source</Translate>,
     Svg: require('@site/static/img/osi.svg').default,
     description: (
-      <>
+      <Translate>
         We use and create open source tools to make digital preservation effective.
-      </>
+      </Translate>
     ),
   },
 ];
@@ -50,6 +51,8 @@ function Feature({title, Svg, description}: FeatureItem) {
         <div>
           <h3>{title}</h3>
           <p>{description}</p>
+          {/*<h3><Translate>Russian national digital archive (ruarxive.org)</Translate></h3>*/}
+          {/*<p><Translate>Digital born should be digital preserved</Translate></p>*/}
         </div>
       </div>
     </div>

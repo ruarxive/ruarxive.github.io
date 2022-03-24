@@ -12,13 +12,16 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero', styles.heroBanner)}>  {/*  hero hero--primary */}
       <div className="container">
-        <h1 className="hero__title">{siteConfig.title}</h1>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
+        {/*<h1 className="hero__title">{siteConfig.title}</h1>*/}
+        {/*<p className="hero__subtitle">{siteConfig.tagline}</p>*/}
+        <p className="margin-bottom--sm"><strong>{siteConfig.url.replace(/^https?:\/\//, '')}</strong></p>
+        <h1 className="hero__title"><Translate>Russian national digital archive</Translate></h1>
+        <p className="hero__subtitle"><Translate>Digital born should be digital preserved</Translate></p>
         <div className={styles.buttons}>
           <Link
             className="button button--primary button--lg"
             to="/kb/intro">
-            Knowledge base
+            <Translate>Knowledge base</Translate>
           </Link>
         </div>
       </div>

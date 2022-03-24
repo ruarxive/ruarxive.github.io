@@ -54,7 +54,7 @@ const config = {
       },
       navbar: {
         title: 'Russian national digital archive',
-        hideOnScroll: true,
+        // hideOnScroll: true,
         logo: {
           alt: 'Ruarxive logo',
           src: 'img/logo.svg',
@@ -63,8 +63,8 @@ const config = {
           {
             type: 'doc',
             docId: 'intro',
-            position: 'left',
             label: 'Knowledge base',
+            position: 'left',
           },
           {
             to: '/blog', 
@@ -73,6 +73,24 @@ const config = {
           },
           {
             href: 'https://github.com/ruarxive/ruarxive_web',
+            label: 'Discussion',
+            position: 'right',
+          },
+          // {
+          //   to: '/donate',
+          //   label: 'Donate',
+          //   className: 'navbar-link-btn',
+          //   position: 'right',
+          // },
+          {
+            type: 'doc',
+            docId: 'donate',
+            label: 'Donate',
+            position: 'right',
+            className: 'navbar-link-btn',
+          },
+          {
+            href: 'https://www.facebook.com/InformationCulture',
             label: 'Facebook',
             position: 'right',
           },
@@ -126,7 +144,8 @@ const config = {
             ],
           },
         ],
-        copyright: `CC-BY 4.0 ${new Date().getFullYear()}. Built with Docusaurus.`,
+        // copyright: `CC-BY 4.0 ${new Date().getFullYear()}. Built with Docusaurus.`,
+        copyright: '<p>Этот проект принадлежит АНО «<a href=\"infoculture.ru\">Информационная культура</a>» (infoculture.ru) infoculture@infoculture.ru</p>',
       },
       prism: {
         theme: lightCodeTheme,
@@ -134,7 +153,7 @@ const config = {
       },
     }),
   i18n: {
-    defaultLocale: 'en',
+    defaultLocale: 'ru',
     locales: ['en', 'ru'],
     localeConfigs: {
       en: {

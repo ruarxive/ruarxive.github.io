@@ -1,0 +1,22 @@
+{
+  "title": {
+    "message": "Russian national digital archive",
+    "description": "The title in the navbar"
+  },
+  "item.label.Knowledge base": {
+    "message": "Knowledge base",
+    "description": "Navbar item with label Knowledge base"
+  },
+  "item.label.Blog": {
+    "message": "Blog",
+    "description": "Navbar item with label Blog"
+  },
+  "item.label.Facebook": {
+    "message": "Facebook",
+    "description": "Navbar item with label Facebook"
+  },
+  "item.label.Telegram": {
+    "message": "Telegram",
+    "description": "Navbar item with label Telegram"
+  }
+}

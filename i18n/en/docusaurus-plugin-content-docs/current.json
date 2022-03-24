@@ -1,15 +1,7 @@
 {
   "version.label": {
-    "message": "Дальше",
+    "message": "Next",
     "description": "The label for version current"
-  },
-  "sidebar.tutorialSidebar.category.Tutorial - Basics": {
-    "message": "Туториал - Основы",
-    "description": "The label for category Tutorial - Basics in sidebar tutorialSidebar"
-  },
-  "sidebar.tutorialSidebar.category.Tutorial - Extras": {
-    "message": "Туториал - Дополнительно",
-    "description": "The label for category Tutorial - Extras in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.Гайды и инструменты": {
     "message": "Гайды и инструменты",
