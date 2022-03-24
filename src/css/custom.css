@@ -4,27 +4,48 @@
  * work well for content-centric websites.
  */
 
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;700&family=Montserrat:wght@400;700&display=swap');
+
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
+  --ifm-color-primary: #0078e6;
+  --ifm-color-primary-dark: #006ccf;
+  --ifm-color-primary-darker: #0066c4;
+  --ifm-color-primary-darkest: #0054a1;
+  --ifm-color-primary-light: #0084fd;
+  --ifm-color-primary-lighter: #0a8aff; 
+  --ifm-color-primary-lightest: #2c9aff;
   --ifm-code-font-size: 95%;
+
+  --ifm-font-family-base: 'IBM Plex Sans', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont,
+  'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+  'Segoe UI Emoji', 'Segoe UI Symbol';
+
+  --ifm-heading-font-family: 'Montserrat', 'IBM Plex Sans', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont,
+  'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+  'Segoe UI Emoji', 'Segoe UI Symbol';
+
+  --ifm-background-color: #F3F5F7;
+  --ifm-navbar-background-color: #F3F5F7;
+  /*--ifm-global-spacing: 2rem;*/
+  --ifm-spacing-horizontal: 4rem;
+  --ifm-navbar-padding-horizontal: var(--ifm-global-spacing);
+
+  --ifm-hero-text-color:  var(--ifm-color-primary-darkest);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
+  --ifm-color-primary: #4aa8ff;
+  --ifm-color-primary-dark: #2998ff;
+  --ifm-color-primary-darker: #1990ff;
+  --ifm-color-primary-darkest: #0078e6;
+  --ifm-color-primary-light: #6bb8ff;
+  --ifm-color-primary-lighter: #7bc0ff;
+  --ifm-color-primary-lightest: #add7ff;
+
+  --ifm-background-color: #0078e6;
+  --ifm-navbar-background-color: var(--ifm-background-color);
 }
 
 .docusaurus-highlight-code-line {
@@ -37,3 +58,29 @@
 [data-theme='dark'] .docusaurus-highlight-code-line {
   background-color: rgba(0, 0, 0, 0.3);
 }
+
+.navbar__link .iconExternalLink_node_modules-\@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module{
+  display: none;
+}
+
+.navbar-link-btn{
+  /*background-color: rgb(255, 58, 58);*/
+  margin: 0 var(--ifm-navbar-item-padding-horizontal);
+  background-color: var(--ifm-color-primary);
+  color: white;
+  border-radius: 1rem;
+}
+.navbar-link-btn:hover{
+  color: white;
+  background-color: var(--ifm-color-primary-darker);
+}
+
+
+.footer{
+  /*--ifm-footer-background-color:  var(--ifm-color-primary-darkest);*/
+  /*--ifm-footer-background-color:  #2B2F77;*/
+  padding: var(--ifm-footer-padding-vertical) 0;
+}
+
+
+

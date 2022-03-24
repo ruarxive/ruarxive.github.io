@@ -14,7 +14,7 @@ const config = {
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'ruarxive', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  projectName: 'ruarxive_web', // Usually your repo name.
 
   presets: [
     [
@@ -44,27 +44,63 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      // algolia: {
+      //   contextualSearch: true,
+      // },
+      colorMode: {
+        defaultMode: 'light',
+        disableSwitch: true,
+        respectPrefersColorScheme: true,
+      },
       navbar: {
         title: 'Russian national digital archive',
+        // hideOnScroll: true,
         logo: {
           alt: 'Ruarxive logo',
           src: 'img/logo.svg',
         },
         items: [
-        {
-          type: 'localeDropdown',
-          position: 'left',
-        },
           {
             type: 'doc',
             docId: 'intro',
-            position: 'left',
             label: 'Knowledge base',
+            position: 'left',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
+          {
+            to: '/blog', 
+            label: 'Blog', 
+            position: 'left'
+          },
           {
             href: 'https://github.com/ruarxive/ruarxive_web',
-            label: 'GitHub',
+            label: 'Discussion',
+            position: 'right',
+          },
+          // {
+          //   to: '/donate',
+          //   label: 'Donate',
+          //   className: 'navbar-link-btn',
+          //   position: 'right',
+          // },
+          {
+            type: 'doc',
+            docId: 'donate',
+            label: 'Donate',
+            position: 'right',
+            className: 'navbar-link-btn',
+          },
+          {
+            href: 'https://www.facebook.com/InformationCulture',
+            label: 'Facebook',
+            position: 'right',
+          },
+          {
+            href: 'https://t.me/ruarxive',
+            label: 'Telegram',
+            position: 'right',
+          },
+          {
+            type: 'localeDropdown',
             position: 'right',
           },
         ],
@@ -108,7 +144,8 @@ const config = {
             ],
           },
         ],
-        copyright: `CC-BY 4.0 ${new Date().getFullYear()}. Built with Docusaurus.`,
+        // copyright: `CC-BY 4.0 ${new Date().getFullYear()}. Built with Docusaurus.`,
+        copyright: '<p>Этот проект принадлежит АНО «<a href=\"infoculture.ru\">Информационная культура</a>» (infoculture.ru) infoculture@infoculture.ru</p>',
       },
       prism: {
         theme: lightCodeTheme,
@@ -116,15 +153,15 @@ const config = {
       },
     }),
   i18n: {
-    defaultLocale: 'en',
+    defaultLocale: 'ru',
     locales: ['en', 'ru'],
     localeConfigs: {
       en: {
         htmlLang: 'en-GB',
       },
       // You can omit a locale (e.g. fr) if you don't need to override the defaults
-      fa: {
-        direction: 'rtl',
+      ru: {
+        htmlLang: 'ru-RU',
       },
     },
   },
