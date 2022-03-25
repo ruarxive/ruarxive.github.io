@@ -20,8 +20,6 @@ https://drive.google.com/folderview?id=0B5haFpvgzsyhWXVXQXlhdDJtXzA&usp=sharing
 
 В ней вы можете найти ссылки на архив сохраненных проектов (__status, storage_url, cloud_url__).
 
-<iframe class="airtable-embed" src="https://airtable.com/embed/shrBoCPyDwQB0HzzJ?backgroundColor=cyan" frameborder="0" onmousewheel="" width="100%" height="533" style="background: transparent; border: 1px solid #ccc;"></iframe>
-
 
 Если вы знаете, какой сайт/ ресурс может исчезнуть, сообщите нам об этом, чтобы мы успели его сохранить. Для этого заполните, пожалуйста, специальную __[форму](https://airtable.com/shriiNZvNhcgaStm6)__.
 
