@@ -34,5 +34,9 @@
   "item.label.Donate": {
     "message": "Поддержать",
     "description": "Navbar item with label Donate"
+  },
+  "item.label.Support project": {
+    "message": "Поддержать",
+    "description": "Navbar item with label Support project"
   }
 }

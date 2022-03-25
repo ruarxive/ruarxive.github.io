@@ -59,6 +59,14 @@
   background-color: rgba(0, 0, 0, 0.3);
 }
 
+/*article .markdown a{
+  border-bottom: 1px solid var(--ifm-link-hover-color);
+}
+
+article .markdown a:hover{
+  text-decoration: none;
+}*/
+
 .navbar__link .iconExternalLink_node_modules-\@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module{
   display: none;
 }
@@ -80,6 +88,16 @@
   /*--ifm-footer-background-color:  var(--ifm-color-primary-darkest);*/
   /*--ifm-footer-background-color:  #2B2F77;*/
   padding: var(--ifm-footer-padding-vertical) 0;
+}
+
+.footer a{
+  color: var(--ifm-background-color);
+  border-bottom: 1px solid rgba(255, 255, 255, .3);
+}
+.footer a:hover{
+  color: var(--ifm-color-primary-lightest);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ifm-color-primary-lightest);
 }
 
 

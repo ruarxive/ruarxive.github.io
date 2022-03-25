@@ -72,7 +72,7 @@ const config = {
             position: 'left'
           },
           {
-            href: 'https://github.com/ruarxive/ruarxive_web',
+            href: 'https://t.me/ruarxivechat',
             label: 'Discussion',
             position: 'right',
           },
@@ -82,22 +82,22 @@ const config = {
           //   className: 'navbar-link-btn',
           //   position: 'right',
           // },
-          {
-            type: 'doc',
-            docId: 'donate',
-            label: 'Donate',
-            position: 'right',
-            className: 'navbar-link-btn',
-          },
-          {
-            href: 'https://www.facebook.com/InformationCulture',
-            label: 'Facebook',
-            position: 'right',
-          },
+          // {
+          //   href: 'https://www.facebook.com/InformationCulture',
+          //   label: 'Facebook',
+          //   position: 'right',
+          // },
           {
             href: 'https://t.me/ruarxive',
             label: 'Telegram',
             position: 'right',
+          },
+          {
+            type: 'doc',
+            docId: 'donate',
+            label: 'Support project',
+            position: 'right',
+            className: 'navbar-link-btn',
           },
           {
             type: 'localeDropdown',
@@ -125,8 +125,8 @@ const config = {
                 href: 'https://t.me/ruarxive',
               },
               {
-                label: 'Twitter',
-                href: 'https://twitter.com/ruarxive',
+                label: 'Telegram chat',
+                href: 'https://t.me/ruarxivechat',
               },
             ],
           },
@@ -144,8 +144,8 @@ const config = {
             ],
           },
         ],
+        copyright: `CC-BY 4.0 ${new Date().getFullYear()}. Built with Docusaurus. <a href=\"https://infoculture.ru\" target=\"_blank\">Information Culture</a>, ${new Date().getFullYear()}`,
         // copyright: `CC-BY 4.0 ${new Date().getFullYear()}. Built with Docusaurus.`,
-        copyright: '<p>Этот проект принадлежит АНО «<a href=\"infoculture.ru\">Информационная культура</a>» (infoculture.ru) infoculture@infoculture.ru</p>',
       },
       prism: {
         theme: lightCodeTheme,
