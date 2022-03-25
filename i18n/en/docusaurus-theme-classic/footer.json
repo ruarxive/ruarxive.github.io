@@ -32,7 +32,11 @@
     "description": "The label of footer link with label=GitHub linking to https://github.com/ruarxive/ruarxive_web"
   },
   "copyright": {
-    "message": "CC-BY 4.0 2022. Built with Docusaurus.",
+    "message": "CC-BY 4.0 2022. Built with Docusaurus. <a href=\"https://infoculture.ru\" target=\"_blank\">Information Culture</a>, 2022",
     "description": "The footer copyright"
+  },
+  "link.item.label.Telegram chat": {
+    "message": "Telegram chat",
+    "description": "The label of footer link with label=Telegram chat linking to https://t.me/ruarxivechat"
   }
 }

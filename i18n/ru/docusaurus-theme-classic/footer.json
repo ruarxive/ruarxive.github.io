@@ -32,7 +32,7 @@
     "description": "The label of footer link with label=GitHub linking to https://github.com/ruarxive/ruarxive_web"
   },
   "copyright": {
-    "message": "CC-BY 4.0 2022. Сделано на Docusaurus.",
+    "message": "CC-BY 4.0 2022. Сделано на Docusaurus. <a href=\"https://infoculture.ru\" target=\"_blank\">АНО «Информационная культура»</a>, 2022",
     "description": "The footer copyright"
   },
   "link.title.Knowledge base": {
@@ -42,5 +42,9 @@
   "link.item.label.Knowledge base": {
     "message": "База знаний",
     "description": "The label of footer link with label=Knowledge base linking to /kb/intro"
+  },
+  "link.item.label.Telegram chat": {
+    "message": "Telegram-чат",
+    "description": "The label of footer link with label=Telegram chat linking to https://t.me/ruarxivechat"
   }
 }

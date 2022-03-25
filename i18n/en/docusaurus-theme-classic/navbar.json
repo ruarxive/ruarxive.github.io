@@ -18,5 +18,17 @@
   "item.label.Telegram": {
     "message": "Telegram",
     "description": "Navbar item with label Telegram"
+  },
+  "item.label.Discussion": {
+    "message": "Discussion",
+    "description": "Navbar item with label Discussion"
+  },
+  "item.label.Donate": {
+    "message": "Donate",
+    "description": "Navbar item with label Donate"
+  },
+  "item.label.Support project": {
+    "message": "Support project",
+    "description": "Navbar item with label Support project"
   }
 }

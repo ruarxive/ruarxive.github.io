@@ -12,7 +12,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: <Translate>Russia and Russian related</Translate>,
-    Svg: require('@site/static/img/flag-rf.svg').default,
+    Svg: require('@site/static/img/ru.svg').default,
     description: (
       <Translate>
        Russian national digital archive created to preserve Russian and Russia related digital resources.
