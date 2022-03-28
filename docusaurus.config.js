@@ -8,13 +8,17 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'Russian national digital archive (ruarxive.org)',
   tagline: 'Digital born should be digital preserved',
-  url: 'https://ruarxive.org',
-  baseUrl: '/',
+  // url: 'https://ruarxive.org',
+  url: 'https://ruarxive.github.io/',
+  // baseUrl: '/',
+  baseUrl: '/ruarxive_web/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'ruarxive', // Usually your GitHub org/user name.
   projectName: 'ruarxive_web', // Usually your repo name.
+  deploymentBranch: 'gh-pages',
+  trailingSlash: false,
 
   presets: [
     [
