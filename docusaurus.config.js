@@ -9,16 +9,17 @@ const config = {
   title: 'Russian national digital archive (ruarxive.org)',
   tagline: 'Digital born should be digital preserved',
   // url: 'https://ruarxive.org',
-  url: 'https://ruarxive.github.io',
+  // url: 'https://ruarxive.github.io',
   // baseUrl: '/',
+  url: 'https://github.com',
   baseUrl: '/ruarxive_web/',
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
-  favicon: 'img/favicon.ico',
   organizationName: 'ruarxive', // Usually your GitHub org/user name.
   projectName: 'ruarxive_web', // Usually your repo name.
   deploymentBranch: 'gh-pages',
   trailingSlash: false,
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'warn',
+  favicon: 'img/favicon.ico',
 
   presets: [
     [
