@@ -9,7 +9,7 @@ const config = {
   title: 'Russian national digital archive (ruarxive.org)',
   tagline: 'Digital born should be digital preserved',
   // url: 'https://ruarxive.org',
-  url: 'https://ruarxive.github.io/',
+  url: 'https://ruarxive.github.io',
   // baseUrl: '/',
   baseUrl: '/ruarxive_web/',
   onBrokenLinks: 'throw',
