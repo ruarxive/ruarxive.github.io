@@ -251,5 +251,17 @@
   },
   "Knowledge base": {
     "message": "Knowledge base"
+  },
+  "Support project": {
+    "message": "Support project"
+  },
+  "Even a small donation will allow the Russian National Digital Archive project to exist longer": {
+    "message": "Even a small donation will allow the Russian National Digital Archive project to exist longer"
+  },
+  "Preserved projects & collections": {
+    "message": "Preserved projects & collections"
+  },
+  "Submit project": {
+    "message": "Submit project"
   }
 }

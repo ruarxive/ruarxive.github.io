@@ -5,6 +5,8 @@ import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './index.module.css';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
+import HomepageSections from '@site/src/components/HomepageSections';
+import HomepageDonate from '@site/src/components/HomepageDonate';
 import Translate, {translate} from '@docusaurus/Translate';
 
 function HomepageHeader() {
@@ -14,7 +16,8 @@ function HomepageHeader() {
       <div className="container">
         {/*<h1 className="hero__title">{siteConfig.title}</h1>*/}
         {/*<p className="hero__subtitle">{siteConfig.tagline}</p>*/}
-        <p className="margin-bottom--sm"><strong>{siteConfig.url.replace(/^https?:\/\//, '')}</strong></p>
+        {/*<p className="margin-bottom--sm"><strong>{siteConfig.url.replace(/^https?:\/\//, '')}</strong></p>*/}
+        <p className="margin-bottom--sm"><strong>{siteConfig.organizationName.replace(/^https?:\/\//, '')}</strong></p>
         <h1 className="hero__title"><Translate>Russian national digital archive</Translate></h1>
         <p className="hero__subtitle"><Translate>Digital born should be digital preserved</Translate></p>
         <div className={styles.buttons}>
@@ -33,11 +36,13 @@ export default function Home(): JSX.Element {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
+      title={`${siteConfig.title}`}
       description="Archive of digital-born websites, data, images, video and other objects">
       <HomepageHeader />
       <main>
         <HomepageFeatures />
+        <HomepageSections />
+        <HomepageDonate />
       </main>
     </Layout>
   );

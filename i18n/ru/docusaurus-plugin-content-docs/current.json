@@ -34,5 +34,13 @@
   "sidebar.tutorialSidebar.category.Специализированные коллекции": {
     "message": "Специализированные коллекции",
     "description": "The label for category Специализированные коллекции in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Инструменты": {
+    "message": "Инструменты",
+    "description": "The label for category Инструменты in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Как собирать архивы": {
+    "message": "Как собирать архивы",
+    "description": "The label for category Как собирать архивы in sidebar tutorialSidebar"
   }
 }

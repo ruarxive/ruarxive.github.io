@@ -251,5 +251,17 @@
   },
   "Russian national digital archive": {
     "message": "Национальный цифровой архив России"
+  },
+  "Preserved projects & collections": {
+    "message": "Сохранённые проекты и коллекции"
+  },
+  "Submit project": {
+    "message": "Форма подачи проекта на архивацию"
+  },
+  "Support project": {
+    "message": "Поддержите проект"
+  },
+  "Even a small donation will allow the Russian National Digital Archive project to exist longer": {
+    "message": "Ваша помощь очень важна для нас! Каждый, даже небольшой, взнос пойдёт на развитие проекта."
   }
 }
