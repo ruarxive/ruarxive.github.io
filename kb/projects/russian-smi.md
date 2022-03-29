@@ -1,5 +1,6 @@
 ---
-sidebar_position: 3
+sidebar_position: 2
+position: 2
 ---
 
 # Архивы контента российских СМИ
