@@ -12,9 +12,9 @@ const config = {
   // url: 'https://ruarxive.github.io',
   // baseUrl: '/',
   url: 'https://github.com',
-  baseUrl: '/ruarxive_web/',
+  baseUrl: '/ruarxive.github.io/',
   organizationName: 'ruarxive', // Usually your GitHub org/user name.
-  projectName: 'ruarxive_web', // Usually your repo name.
+  projectName: 'ruarxive.github.io', // Usually your repo name.
   deploymentBranch: 'gh-pages',
   trailingSlash: false,
   onBrokenLinks: 'throw',
@@ -31,13 +31,13 @@ const config = {
           routeBasePath: 'kb',
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
-          editUrl: 'https://github.com/ruarxuve/ruarxive_web/',
+          editUrl: 'https://github.com/ruarxive/ruarxive.github.io',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            'https://github.com/ruarxuve/ruarxive_web/',
+            'https://github.com/ruarxive/ruarxive.github.io',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
