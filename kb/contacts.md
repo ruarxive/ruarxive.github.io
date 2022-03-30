@@ -1,6 +1,6 @@
 ---
-sidebar_position: 9
-position: 9
+sidebar_position: 11
+position: 11
 ---
 
 # Контакты
@@ -14,4 +14,3 @@ e-mail: infoculture@infoculture.ru
 Телеграм-канал: [t.me/ruarxive](https://t.me/ruarxive)  
 Телеграм-чат: [t.me/ruarxivechat](https://t.me/ruarxivechat)  
 Страница в Facebook: [facebook.com/ruarxive](https://www.facebook.com/ruarxive)  
- 
