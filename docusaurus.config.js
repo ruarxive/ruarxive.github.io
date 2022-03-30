@@ -12,7 +12,7 @@ const config = {
   // url: 'https://ruarxive.github.io',
   // baseUrl: '/',
   url: 'https://github.com',
-  baseUrl: '/ruarxive.github.io/',
+  baseUrl: '/',
   organizationName: 'ruarxive', // Usually your GitHub org/user name.
   projectName: 'ruarxive.github.io', // Usually your repo name.
   deploymentBranch: 'gh-pages',
