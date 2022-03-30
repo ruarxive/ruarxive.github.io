@@ -31,13 +31,12 @@ const config = {
           routeBasePath: 'kb',
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
-          editUrl: 'https://github.com/ruarxive/ruarxive.github.io',
+          // editUrl: 'https://github.com/ruarxive/ruarxive.github.io/edit/main/',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
-          editUrl:
-            'https://github.com/ruarxive/ruarxive.github.io',
+          // editUrl: 'https://github.com/ruarxive/ruarxive.github.io/edit/main/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
