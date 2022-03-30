@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://github.com/ruarxive_web/blog</id>
+    <id>https://github.com/ruarxive.github.io/blog</id>
     <title>Russian national digital archive (ruarxive.org) Blog</title>
     <updated>2022-03-11T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://github.com/ruarxive_web/blog"/>
+    <link rel="alternate" href="https://github.com/ruarxive.github.io/blog"/>
     <subtitle>Russian national digital archive (ruarxive.org) Blog</subtitle>
-    <icon>https://github.com/ruarxive_web/img/favicon.ico</icon>
+    <icon>https://github.com/ruarxive.github.io/img/favicon.ico</icon>
     <entry>
         <title type="html"><![CDATA[Добро пожаловать на Ruarxive]]></title>
         <id>first-welcome-post</id>
-        <link href="https://github.com/ruarxive_web/blog/first-welcome-post"/>
+        <link href="https://github.com/ruarxive.github.io/blog/first-welcome-post"/>
         <updated>2022-03-11T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Ruarxive is a Russian national digital archive project founded to archive Russian/Russia-related websites and other digital born content.]]></summary>
         <content type="html"><![CDATA[<p>Ruarxive is a Russian national digital archive project founded to archive Russian/Russia-related websites and other digital born content.</p>]]></content>
