@@ -1,6 +1,6 @@
 ---
-sidebar_position: 4
-position: 4
+sidebar_position: 5
+position: 5
 ---
 
 # Форма подачи проекта на архивацию
