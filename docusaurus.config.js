@@ -45,6 +45,18 @@ const config = {
     ],
   ],
 
+  plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'about',
+        path: 'about',
+        routeBasePath: 'about',
+        sidebarPath: require.resolve('./sidebars.js'),
+      }, 
+    ],
+  ],
+
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
@@ -69,6 +81,11 @@ const config = {
             docId: 'intro',
             label: 'Knowledge base',
             position: 'left',
+          },
+          {
+            to: '/about/team', 
+            label: 'About', 
+            position: 'left'
           },
           {
             to: '/blog', 
@@ -97,12 +114,18 @@ const config = {
             position: 'right',
           },
           {
-            type: 'doc',
-            docId: 'donate',
-            label: 'Support project',
+            to: '/about/donate', 
+            label: 'Support project', 
             position: 'right',
             className: 'navbar-link-btn',
           },
+          // {
+          //   type: 'doc',
+          //   docId: 'donate',
+          //   label: 'Support project',
+          //   position: 'right',
+          //   className: 'navbar-link-btn',
+          // },
           {
             type: 'localeDropdown',
             position: 'right',
