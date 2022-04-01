@@ -3,7 +3,7 @@ sidebar_position: 2
 position: 1
 ---
 
-# Волонтерам
+# Задачи
 
 По всем вопросы пишите нам в Telegram-чат проекта [@ruarxivechat](https://t.me/ruarxivechat).
 
