@@ -1,6 +1,6 @@
 ---
-sidebar_position: 11
-position: 11
+sidebar_position: 4
+position: 4
 ---
 
 # Контакты

@@ -1,6 +1,6 @@
 ---
-sidebar_position: 10
-position: 10
+sidebar_position: 3
+position: 3
 ---
 
 # Поддержать проект

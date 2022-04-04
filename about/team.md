@@ -1,6 +1,6 @@
 ---
-sidebar_position: 9
-position: 9
+sidebar_position: 2
+position: 2
 ---
 
 # Кто мы
