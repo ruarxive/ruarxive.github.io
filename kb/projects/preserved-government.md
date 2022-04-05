@@ -17,10 +17,20 @@ position: 3
 ## Что уже есть
 
 ### Списки аккаунтов в социальных сетях:
+
+- Сохранены данные 171 аккаунта официальных лиц и политиков РФ из Instagram. Код архивации и список аккаунтов выложены в [репозитории](https://github.com/ruarxive/rugovinstagrams) на Github, а итоговые данные собраны в [архиве](https://cdn.ruarxive.org/public/webcollect2022/govinst2022/_govinstagrams_20220325.zip) объемом в 1.4 GB.
+
+Успешно сохранены все сообщения и метаданные, в ограниченном режиме — изображения и видео. Если вы готовы выступить волонтером, чтобы дополнительно собрать и архивировать медиа-контент, ознакомьтесь с [__Задачей №6__](https://ruarxive.org/kb/volunteers/volunteers-tasks).
+
+За помощь в составлении списка аккаунтов благодарим коллег из [«Трансперенси Интернешнл — Россия»](https://transparency.org.ru/).
+
+
 - Список официальных твиттер аккаунтов: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdEs4U2d5RHh0eFN0UFRCR2xJbkZ0OVE&usp=sharing
+
 - Текущий список каналов на Youtube: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdHNEemRWQS1jckJEdEphSnk0a3ZEbGc&usp=sharing
-- На сегодняшний день собираются данные 52 официальных твиттер-аккаунтов и публикуются здесь:
+
 - База данных «Архивы государственных твиттеров»: http://hubofdata.ru/dataset/govtwitters-archives
+
 - Группа массивов данных «Архивы государственных микроблогов»: http://hubofdata.ru/group/govtwitters
 
 
