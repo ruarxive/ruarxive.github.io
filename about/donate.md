@@ -10,7 +10,6 @@ import TabItem from '@theme/TabItem';
 
 <Tabs>
 
-
   <TabItem value="single" label="Единовременно" default>
     <input type="submit" value="Помочь проекту" className="button button--primary button--lg" onClick={paySingle} />
   </TabItem>
