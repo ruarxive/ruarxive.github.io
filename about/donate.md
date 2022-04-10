@@ -5,9 +5,6 @@ position: 3
 
 # Поддержать проект
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 <Tabs>
 
   <TabItem value="single" label="Единовременно" default>
