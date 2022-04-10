@@ -5,11 +5,38 @@ position: 3
 
 # Поддержать проект
 
-<input type="submit" className="button button--primary button--lg checkout" id="checkout" />
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+
+
+  <TabItem value="single" label="Единовременно" default>
+    <input type="submit" value="Помочь проекту" className="button button--primary button--lg" onClick={paySingle} />
+  </TabItem>
+
+  <TabItem value="monthly" label="Ежемесячно">
+    <input type="submit" value="Помогать проекту ежемесячно" className="button button--primary button--lg" onClick={payMonthly} />
+  </TabItem>
+
+  <TabItem value="bank" label="Банковским переводом">
+
+  	АНО "ИНФОКУЛЬТУРА"  
+  	ИНН 7702389486  
+  	Расчётный счёт 40703 810 8026 2000 0019 в АО "АЛЬФА-БАНК" Г МОСКВА  
+  	БИК 044525593   
+  	к/с 30101810200000000593  
+  	Назначение платежа: добровольный благотворительный взнос  
+
+  </TabItem>
+
+</Tabs>
+
 
 <!-- <Tabs>
 
   <TabItem value="monthly" label="Ежемесячно" default>
+    <input type="submit" value="Помогать проекту ежемесячно" className="button button--primary button--lg" onClick={payMonthly} />
     <form>
       <div class="form-group">
           <label for="monthlycustominput">Укажите сумму пожертвования в рублях</label>
@@ -28,6 +55,7 @@ position: 3
   </TabItem>
 
   <TabItem value="single" label="Единовременно">
+    <input type="submit" value="Помочь проекту" className="button button--primary button--lg" onClick={paySingle} />
     <form>
       <div class="form-group">
           <label for="singletimecustominput">Укажите сумму пожертвования в рублях</label>
@@ -47,18 +75,18 @@ position: 3
 
   <TabItem value="bank" label="Банковским переводом">
 
-  	АНО "ИНФОКУЛЬТУРА"  
-  	ИНН 7702389486  
-  	Расчётный счёт 40703 810 8026 2000 0019 в АО "АЛЬФА-БАНК" Г МОСКВА  
-  	БИК 044525593   
-  	к/с 30101810200000000593  
-  	Назначение платежа: добровольный благотворительный взнос  
+    АНО "ИНФОКУЛЬТУРА"  
+    ИНН 7702389486  
+    Расчётный счёт 40703 810 8026 2000 0019 в АО "АЛЬФА-БАНК" Г МОСКВА  
+    БИК 044525593   
+    к/с 30101810200000000593  
+    Назначение платежа: добровольный благотворительный взнос  
 
   </TabItem>
 
-</Tabs>
+</Tabs> -->
 
-<script src="https://widget.cloudpayments.ru/bundles/cloudpayments"></script>
+<!-- <script src="https://widget.cloudpayments.ru/bundles/cloudpayments"></script>
 <script src="../static/js/payment.js"></script> -->
 
 
@@ -66,8 +94,8 @@ position: 3
 
 
 
-#### Перевести банковским переводом:
+<!-- #### Перевести банковским переводом:
 
 АНО "ИНФОКУЛЬТУРА", ИНН 7702389486  
 Расчётный счёт 40703 810 8026 2000 0019 в АО "АЛЬФА-БАНК" Г МОСКВА, БИК 044525593, к/с 30101810200000000593  
-Назначение платежа: добровольный благотворительный взнос
+Назначение платежа: добровольный благотворительный взнос -->
