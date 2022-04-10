@@ -8,10 +8,10 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'Russian national digital archive (ruarxive.org)',
   tagline: 'Digital born should be digital preserved',
-  // url: 'https://ruarxive.org',
+  url: 'https://ruarxive.org',
   // url: 'https://ruarxive.github.io',
   // baseUrl: '/',
-  url: 'https://github.com',
+  // url: 'https://github.com',
   baseUrl: '/',
   organizationName: 'ruarxive', // Usually your GitHub org/user name.
   projectName: 'ruarxive.github.io', // Usually your repo name.
@@ -55,6 +55,13 @@ const config = {
         sidebarPath: require.resolve('./sidebars.js'),
       }, 
     ],
+  ],
+
+  scripts: [
+    'https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js',
+    'https://widget.cloudpayments.ru/bundles/cloudpayments.js',
+    'https://checkout.cloudpayments.ru/checkout.js',
+    '/js/payment.js',
   ],
 
   themeConfig:
