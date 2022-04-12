@@ -90,7 +90,7 @@ const config = {
             position: 'left',
           },
           {
-            to: '/about/team', 
+            to: '/about/intro', 
             label: 'About', 
             position: 'left'
           },

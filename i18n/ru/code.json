@@ -263,5 +263,22 @@
   },
   "Even a small donation will allow the Russian National Digital Archive project to exist longer": {
     "message": "Ваша помощь очень важна для нас! Каждый, даже небольшой, взнос пойдёт на развитие проекта."
+  },
+  "E-mail": {
+    "message": "Электронная почта"
+  },
+  "required in case of subscription cancellation": {
+    "message": "потребуется в случае отмены подписки"
+  },
+  "Support project monthly": {
+    "message": "Помогать проекту ежемесячно"
+  },
+  "One-time": {
+    "message": "Единовременно",
+    "description": "Single payment"
+  },
+  "Monthly": {
+    "message": "Ежемесячно",
+    "description": "Monthly payment"
   }
 }

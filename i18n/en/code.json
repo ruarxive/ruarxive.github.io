@@ -263,5 +263,42 @@
   },
   "Submit project": {
     "message": "Submit project"
+  },
+  "Помочь проекту": {
+    "message": "Помочь проекту"
+  },
+  "Электронная почта": {
+    "message": "Электронная почта"
+  },
+  "потребуется в случае отмены подписки": {
+    "message": "потребуется в случае отмены подписки"
+  },
+  "Помогать проекту ежемесячно": {
+    "message": "Помогать проекту ежемесячно"
+  },
+  "Единовременно": {
+    "message": "Единовременно",
+    "description": "Single payment"
+  },
+  "Ежемесячно": {
+    "message": "Ежемесячно",
+    "description": "Monthly payment"
+  },
+  "E-mail": {
+    "message": "E-mail"
+  },
+  "required in case of subscription cancellation": {
+    "message": "required in case of subscription cancellation"
+  },
+  "Support project monthly": {
+    "message": "Support project monthly"
+  },
+  "One-time": {
+    "message": "One-time",
+    "description": "Single payment"
+  },
+  "Monthly": {
+    "message": "Monthly",
+    "description": "Monthly payment"
   }
 }
