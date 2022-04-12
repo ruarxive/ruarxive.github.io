@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkrussian_national_digital_archive_ruarxive=self.webpackChunkrussian_national_digital_archive_ruarxive||[]).push([[535],{5641:function(e){e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Ruarxive welcome post","permalink":"/en/blog/first-welcome-post"}]}')}}]);

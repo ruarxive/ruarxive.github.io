@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkrussian_national_digital_archive_ruarxive=self.webpackChunkrussian_national_digital_archive_ruarxive||[]).push([[6021],{3542:function(a){a.exports=JSON.parse('{"allTagsPath":"/blog/tags","slug":"/blog/tags/webarchives","name":"webarchives","count":1,"permalink":"/blog/tags/webarchives"}')}}]);
