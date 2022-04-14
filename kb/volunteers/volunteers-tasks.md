@@ -50,8 +50,12 @@ Wpull — это переделанный wget с расширениями на 
 Есть много Telegram чатов и каналов, которые мы архивируем. Данные экспортируются в JSON формате.
 Нужен инструмент, строящий веб-интерфейс для поиска по архивированным чатам, файлам и т.д.
 
+Проекты в стадии альфа-версии, к которым можно присоединиться:
+- [github.com/shuva10v/tgarchive-viewer](https://github.com/shuva10v/tgarchive-viewer)
+- [github.com/roboteam-digital/telegram-json-ui](https://github.com/roboteam-digital/telegram-json-ui)
 
-### Задача 6. Извлечение изображений, визуализация и поиск по архивам аккаунтов в Instaram
+
+### Задача 6. Извлечение изображений, визуализация и поиск по архивам аккаунтов в Instagram
 Мы собрали архива аккаунтов официальных лиц и политиков РФ в Instagram. Сохранён 171 аккаунт. Код архивации и список инстаграм аккаунтов выложены в [репозитории на Github](https://github.com/ruarxive/rugovinstagrams), а итоговые данные собраны в [архиве](https://cdn.ruarxive.org/public/webcollect2022/govinst2022/_govinstagrams_20220325.zip) объемом 1.4GB.
 
 Успешно были сохранены все сообщения и метаданные, но ограниченно — изображения и видео. Нужно сохранить этот тип контента для этого [списка аккаунтов](https://github.com/ruarxive/rugovinstagrams/blob/main/instagram.csv), например, используя инструмент [Instaloader](https://instaloader.github.io/).
