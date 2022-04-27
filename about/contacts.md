@@ -7,7 +7,7 @@ position: 4
 
 Проект создан и принадлежит [АНО «Информационная культура»](https://infoculture.ru)  
 
-e-mail: infoculture@infoculture.ru  
+e-mail: [infoculture@infoculture.ru](mailto:infoculture@infoculture.ru)
 
 #### Соцсети
 
