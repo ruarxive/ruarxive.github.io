@@ -52,7 +52,7 @@ const config = {
         id: 'about',
         path: 'about',
         routeBasePath: 'about',
-        sidebarPath: require.resolve('./sidebars.js'),
+        // sidebarPath: require.resolve('./sidebars.js'),
       }, 
     ],
   ],
