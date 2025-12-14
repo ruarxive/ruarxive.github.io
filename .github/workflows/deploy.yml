@@ -44,6 +44,7 @@ jobs:
     # Deploy to the github-pages environment
     # IMPORTANT: Configure the environment in repository settings to allow 'main' branch:
     # Settings > Environments > github-pages > Deployment branches > Selected branches > Add 'main'
+    # This triggers deployment to ruarxive.org
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
