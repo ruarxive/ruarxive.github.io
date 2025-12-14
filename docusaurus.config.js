@@ -16,7 +16,7 @@ const config = {
   baseUrl: '/',
   organizationName: 'ruarxive', // Usually your GitHub org/user name.
   projectName: 'ruarxive.github.io', // Usually your repo name.
-  deploymentBranch: 'gh-pages',
+  // deploymentBranch removed - not needed for GitHub Actions Pages deployment
   trailingSlash: false,
   onBrokenLinks: 'throw',
   favicon: 'img/favicon.ico',
