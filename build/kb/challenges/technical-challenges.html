@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ru-RU" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-challenges/technical-challenges" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">Технические вызовы | Национальный цифровой архив России (ruarxive.org)</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" property="og:image" content="https://ruarxive.org/img/hero.jpg"><meta data-rh="true" name="twitter:image" content="https://ruarxive.org/img/hero.jpg"><meta data-rh="true" property="og:url" content="https://ruarxive.org/kb/challenges/technical-challenges"><meta data-rh="true" name="docusaurus_locale" content="ru"><meta data-rh="true" name="docsearch:language" content="ru"><meta data-rh="true" name="keywords" content="цифровой архив, веб-архивация, сохранение цифрового наследия, ruarxive, российский архив, архивация сайтов, архивация telegram, warc, wacz, digital preservation"><meta data-rh="true" name="author" content="Ruarxive, Information Culture"><meta data-rh="true" name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"><meta data-rh="true" name="googlebot" content="index, follow"><meta data-rh="true" name="language" content="Russian"><meta data-rh="true" name="geo.region" content="RU"><meta data-rh="true" property="og:type" content="website"><meta data-rh="true" property="og:locale" content="ru_RU"><meta data-rh="true" property="og:site_name" content="Ruarxive - Национальный цифровой архив России"><meta data-rh="true" property="og:image:width" content="1200"><meta data-rh="true" property="og:image:height" content="630"><meta data-rh="true" property="og:image:type" content="image/jpeg"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" name="twitter:site" content="@ruarxive"><meta data-rh="true" name="twitter:creator" content="@ruarxive"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Технические вызовы | Национальный цифровой архив России (ruarxive.org)"><meta data-rh="true" name="description" content="Технические проблемы, с которыми сталкивается проект Ruarxive при архивации цифровых материалов."><meta data-rh="true" property="og:description" content="Технические проблемы, с которыми сталкивается проект Ruarxive при архивации цифровых материалов."><link data-rh="true" rel="icon" href="/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://ruarxive.org/kb/challenges/technical-challenges"><link data-rh="true" rel="alternate" href="https://ruarxive.org/kb/challenges/technical-challenges" hreflang="ru-RU"><link data-rh="true" rel="alternate" href="https://ruarxive.org/kb/challenges/technical-challenges" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Вызовы и решения","item":"https://ruarxive.org/kb/challenges/"},{"@type":"ListItem","position":2,"name":"Технические вызовы","item":"https://ruarxive.org/kb/challenges/technical-challenges"}]}</script><link rel="alternate" type="application/rss+xml" href="/blog/rss.xml" title="Национальный цифровой архив России (ruarxive.org) RSS Feed">
+<link rel="alternate" type="application/atom+xml" href="/blog/atom.xml" title="Национальный цифровой архив России (ruarxive.org) Atom Feed">
+
+
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://widget.cloudpayments.ru/bundles/cloudpayments.js"></script>
+<script src="https://checkout.cloudpayments.ru/checkout.js"></script>
+<script src="/js/payment.js"></script><link rel="stylesheet" href="/assets/css/styles.6dd5839a.css">
+<script src="/assets/js/runtime~main.0c752b94.js" defer="defer"></script>
+<script src="/assets/js/main.5f2ab532.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>document.documentElement.setAttribute("data-theme","light"),document.documentElement.setAttribute("data-theme-choice","light"),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Перейти к основному содержимому"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Перейти к основному содержимому</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Переключить навигационную панель" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/"><div class="navbar__logo"><img src="/img/logo.svg" alt="Логотип Ruarxive" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/img/logo.svg" alt="Логотип Ruarxive" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Национальный цифровой архив России</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/kb/intro">База знаний</a><a class="navbar__item navbar__link" href="/about/intro">О проекте</a><a class="navbar__item navbar__link" href="/blog">Блог</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://t.me/ruarxivechat" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Обсуждение<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://t.me/ruarxive" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Telegram<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a class="navbar__item navbar__link navbar-link-btn" href="/about/donate">Поддержать проект</a><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="Поиск" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Прокрутка к началу" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/kb/intro"><span title="Главное" class="linkLabel_WmDU">Главное</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/kb/archive-plans"><span title="Планы архивации" class="linkLabel_WmDU">Планы архивации</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/kb/preserved-projects-table"><span title="Сохранённые проекты и коллекции" class="linkLabel_WmDU">Сохранённые проекты и коллекции</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/kb/case-studies"><span title="Кейсы и истории" class="categoryLinkLabel_W154">Кейсы и истории</span></a><button aria-label="Collapse sidebar category &#x27;Кейсы и истории&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/kb/case-studies/government-websites-disappearing"><span title="Исчезновение сайтов государственных органов" class="linkLabel_WmDU">Исчезновение сайтов государственных органов</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/kb/case-studies/bank-closures"><span title="Закрытие банков и исчезновение сайтов" class="linkLabel_WmDU">Закрытие банков и исчезновение сайтов</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/kb/case-studies/platform-migrations"><span title="Миграция платформ и потеря данных" class="linkLabel_WmDU">Миграция платформ и потеря данных</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/kb/case-studies/international-examples"><span title="Международный опыт сохранения цифрового наследия" class="linkLabel_WmDU">Международный опыт сохранения цифрового наследия</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/kb/case-studies/multi-tool-archiving"><span title="Архивация комплексных ресурсов: использование нескольких инструментов" class="linkLabel_WmDU">Архивация комплексных ресурсов: использование нескольких инструментов</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/kb/case-studies/api-archiving-scale"><span title="Архивация крупномасштабных API: опыт работы с государственными системами" class="linkLabel_WmDU">Архивация крупномасштабных API: опыт работы с государственными системами</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/kb/projects"><span title="Коллекции цифровых архивов" class="categoryLinkLabel_W154">Коллекции цифровых архивов</span></a><button aria-label="Expand sidebar category &#x27;Коллекции цифровых архивов&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--active" href="/kb/challenges"><span title="Вызовы и решения" class="categoryLinkLabel_W154">Вызовы и решения</span></a><button aria-label="Collapse sidebar category &#x27;Вызовы и решения&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/kb/challenges/government-archiving-policy"><span title="Политика архивации цифровых материалов в России" class="linkLabel_WmDU">Политика архивации цифровых материалов в России</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/kb/challenges/scale-and-storage"><span title="Масштаб и хранение архивов" class="linkLabel_WmDU">Масштаб и хранение архивов</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/kb/challenges/volunteer-coordination"><span title="Координация волонтёров" class="linkLabel_WmDU">Координация волонтёров</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/kb/challenges/technical-challenges"><span title="Технические вызовы" class="linkLabel_WmDU">Технические вызовы</span></a></li></ul></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/kb/preserved-projects-form"><span title="Форма подачи проекта на архивацию" class="linkLabel_WmDU">Форма подачи проекта на архивацию</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/kb/similar/archiveteam"><span title="Похожие проекты" class="categoryLinkLabel_W154">Похожие проекты</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/kb/guides"><span title="Гайды" class="categoryLinkLabel_W154">Гайды</span></a><button aria-label="Expand sidebar category &#x27;Гайды&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="true" href="/kb/resources/statistics"><span title="Ресурсы" class="categoryLinkLabel_W154">Ресурсы</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/kb/resources/statistics"><span title="Статистика проекта Ruarxive" class="linkLabel_WmDU">Статистика проекта Ruarxive</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/kb/resources/comparisons"><span title="Сравнения и лучшие практики" class="linkLabel_WmDU">Сравнения и лучшие практики</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/kb/instruments"><span title="Инструменты" class="categoryLinkLabel_W154">Инструменты</span></a><button aria-label="Expand sidebar category &#x27;Инструменты&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/kb/volunteers/volunteers-tasks"><span title="Волонтёрам" class="categoryLinkLabel_W154">Волонтёрам</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/kb/about/project-history"><span title="О проекте" class="categoryLinkLabel_W154">О проекте</span></a></div></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Навигационная цепочка текущей страницы"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="Главная страница" class="breadcrumbs__link" href="/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/kb/challenges"><span>Вызовы и решения</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">Технические вызовы</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">Содержание этой страницы</button></div><div class="theme-doc-markdown markdown"><header><h1>Технические вызовы</h1></header>
+<p>Технические проблемы, с которыми сталкивается проект Ruarxive при архивации цифровых материалов.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="основные-вызовы">Основные вызовы<a href="#основные-вызовы" class="hash-link" aria-label="Прямая ссылка на Основные вызовы" title="Прямая ссылка на Основные вызовы" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="большие-архивы-и-интерфейсы">Большие архивы и интерфейсы<a href="#большие-архивы-и-интерфейсы" class="hash-link" aria-label="Прямая ссылка на Большие архивы и интерфейсы" title="Прямая ссылка на Большие архивы и интерфейсы" translate="no">​</a></h3>
+<blockquote>
+<p>&quot;Также я продолжаю искать тех кто поможет мне создать интерфейс над уже накопленными архивами сайтов за последние лет 5&quot;</p>
+</blockquote>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="проблема">Проблема<a href="#проблема" class="hash-link" aria-label="Прямая ссылка на Проблема" title="Прямая ссылка на Проблема" translate="no">​</a></h4>
+<ul>
+<li class="">Накоплены огромные объёмы архивов</li>
+<li class="">Нет удобного интерфейса для доступа</li>
+<li class="">Сложно найти нужную информацию</li>
+<li class="">Требуется навигация по терабайтам данных</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="решения">Решения<a href="#решения" class="hash-link" aria-label="Прямая ссылка на Решения" title="Прямая ссылка на Решения" translate="no">​</a></h4>
+<ol>
+<li class="">
+<p><strong>Веб-интерфейсы</strong></p>
+<ul>
+<li class="">Создание поисковых интерфейсов</li>
+<li class="">Навигация по архивам</li>
+<li class="">Просмотр содержимого</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Индексация</strong></p>
+<ul>
+<li class="">CDX файлы для WARC</li>
+<li class="">Поисковые индексы</li>
+<li class="">Метаданные</li>
+</ul>
+</li>
+<li class="">
+<p><strong>API</strong></p>
+<ul>
+<li class="">Программный доступ</li>
+<li class="">Интеграция с другими системами</li>
+<li class="">Автоматизация</li>
+</ul>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="формат-warc">Формат WARC<a href="#формат-warc" class="hash-link" aria-label="Прямая ссылка на Формат WARC" title="Прямая ссылка на Формат WARC" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="преимущества">Преимущества<a href="#преимущества" class="hash-link" aria-label="Прямая ссылка на Преимущества" title="Прямая ссылка на Преимущества" translate="no">​</a></h4>
+<ul>
+<li class="">Стандартный формат для веб-архивов</li>
+<li class="">Хорошее сжатие</li>
+<li class="">Широко поддерживается</li>
+<li class="">Сохранение структуры сайта</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="ограничения">Ограничения<a href="#ограничения" class="hash-link" aria-label="Прямая ссылка на Ограничения" title="Прямая ссылка на Ограничения" translate="no">​</a></h4>
+<ol>
+<li class="">
+<p><strong>Размер файлов</strong></p>
+<ul>
+<li class="">Могут быть очень большими</li>
+<li class="">Сложность обработки</li>
+<li class="">Требуется много памяти</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Доступ к содержимому</strong></p>
+<ul>
+<li class="">Необходимость специальных инструментов</li>
+<li class="">Сложность поиска</li>
+<li class="">Требуется индексация</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Обработка</strong></p>
+<ul>
+<li class="">Специализированные инструменты</li>
+<li class="">Требуется опыт</li>
+<li class="">Время на обработку</li>
+</ul>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="разработка-инструментов">Разработка инструментов<a href="#разработка-инструментов" class="hash-link" aria-label="Прямая ссылка на Разработка инструментов" title="Прямая ссылка на Разработка инструментов" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="текущие-инструменты">Текущие инструменты<a href="#текущие-инструменты" class="hash-link" aria-label="Прямая ссылка на Текущие инструменты" title="Прямая ссылка на Текущие инструменты" translate="no">​</a></h4>
+<ul>
+<li class=""><strong>tgarc</strong>: Архивация Telegram каналов</li>
+<li class=""><strong>wparc</strong>: Архивация WordPress сайтов</li>
+<li class=""><strong>ydiskarc</strong>: Скачивание Яндекс.Диска</li>
+<li class=""><strong>wget, HTTrack</strong>: Архивация сайтов</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="вызовы">Вызовы<a href="#вызовы" class="hash-link" aria-label="Прямая ссылка на Вызовы" title="Прямая ссылка на Вызовы" translate="no">​</a></h4>
+<ol>
+<li class="">
+<p><strong>Поддержка</strong></p>
+<ul>
+<li class="">Обновление инструментов</li>
+<li class="">Исправление ошибок</li>
+<li class="">Добавление функций</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Документация</strong></p>
+<ul>
+<li class="">Подробные руководства</li>
+<li class="">Примеры использования</li>
+<li class="">Решение проблем</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Тестирование</strong></p>
+<ul>
+<li class="">Проверка на разных сайтах</li>
+<li class="">Обработка ошибок</li>
+<li class="">Оптимизация</li>
+</ul>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="различные-типы-контента">Различные типы контента<a href="#различные-типы-контента" class="hash-link" aria-label="Прямая ссылка на Различные типы контента" title="Прямая ссылка на Различные типы контента" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="веб-сайты">Веб-сайты<a href="#веб-сайты" class="hash-link" aria-label="Прямая ссылка на Веб-сайты" title="Прямая ссылка на Веб-сайты" translate="no">​</a></h4>
+<ul>
+<li class="">Статические HTML</li>
+<li class="">Динамический контент (JavaScript)</li>
+<li class="">Медиа файлы</li>
+<li class="">Базы данных</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="социальные-сети">Социальные сети<a href="#социальные-сети" class="hash-link" aria-label="Прямая ссылка на Социальные сети" title="Прямая ссылка на Социальные сети" translate="no">​</a></h4>
+<ul>
+<li class="">Telegram каналы</li>
+<li class="">Instagram аккаунты</li>
+<li class="">Twitter аккаунты</li>
+<li class="">YouTube каналы</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="специфические-форматы">Специфические форматы<a href="#специфические-форматы" class="hash-link" aria-label="Прямая ссылка на Специфические форматы" title="Прямая ссылка на Специфические форматы" translate="no">​</a></h4>
+<ul>
+<li class="">PDF документы</li>
+<li class="">Видео и аудио</li>
+<li class="">Изображения</li>
+<li class="">Базы данных</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="производительность">Производительность<a href="#производительность" class="hash-link" aria-label="Прямая ссылка на Производительность" title="Прямая ссылка на Производительность" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="скорость-архивации">Скорость архивации<a href="#скорость-архивации" class="hash-link" aria-label="Прямая ссылка на Скорость архивации" title="Прямая ссылка на Скорость архивации" translate="no">​</a></h4>
+<ul>
+<li class="">Большие сайты требуют много времени</li>
+<li class="">Ограничения скорости загрузки</li>
+<li class="">Необходимость оптимизации</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="обработка-данных">Обработка данных<a href="#обработка-данных" class="hash-link" aria-label="Прямая ссылка на Обработка данных" title="Прямая ссылка на Обработка данных" translate="no">​</a></h4>
+<ul>
+<li class="">Большие объёмы данных</li>
+<li class="">Требуется много памяти</li>
+<li class="">Время на обработку</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="хранение">Хранение<a href="#хранение" class="hash-link" aria-label="Прямая ссылка на Хранение" title="Прямая ссылка на Хранение" translate="no">​</a></h4>
+<ul>
+<li class="">Объёмы данных растут</li>
+<li class="">Необходимость масштабирования</li>
+<li class="">Стоимость хранения</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="решения-1">Решения<a href="#решения-1" class="hash-link" aria-label="Прямая ссылка на Решения" title="Прямая ссылка на Решения" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="инструменты-и-технологии">Инструменты и технологии<a href="#инструменты-и-технологии" class="hash-link" aria-label="Прямая ссылка на Инструменты и технологии" title="Прямая ссылка на Инструменты и технологии" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>Автоматизация</strong></p>
+<ul>
+<li class="">Скрипты для автоматической архивации</li>
+<li class="">Планировщики задач</li>
+<li class="">Мониторинг изменений</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Оптимизация</strong></p>
+<ul>
+<li class="">Параллельн ая обработка</li>
+<li class="">Кэширование</li>
+<li class="">Сжатие данных</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Стандартизация</strong></p>
+<ul>
+<li class="">Использование стандартных форматов</li>
+<li class="">Единые подходы</li>
+<li class="">Совместимость</li>
+</ul>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="разработка">Разработка<a href="#разработка" class="hash-link" aria-label="Прямая ссылка на Разработка" title="Прямая ссылка на Разработка" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>Открытый код</strong></p>
+<ul>
+<li class="">Публикация инструментов</li>
+<li class="">Сообщество разработчиков</li>
+<li class="">Совместная разработка</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Документация</strong></p>
+<ul>
+<li class="">Подробные руководства</li>
+<li class="">API документация</li>
+<li class="">Примеры использования</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Тестирование</strong></p>
+<ul>
+<li class="">Автоматические тесты</li>
+<li class="">Проверка на разных платформах</li>
+<li class="">Обработка ошибок</li>
+</ul>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="инфраструктура">Инфраструктура<a href="#инфраструктура" class="hash-link" aria-label="Прямая ссылка на Инфраструктура" title="Прямая ссылка на Инфраструктура" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>Облачное хранение</strong></p>
+<ul>
+<li class="">Масштабируемость</li>
+<li class="">Надёжность</li>
+<li class="">Доступность</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Обработка данных</strong></p>
+<ul>
+<li class="">Вычислительные ресурсы</li>
+<li class="">Параллельная обработка</li>
+<li class="">Оптимизация</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Доступ</strong></p>
+<ul>
+<li class="">Веб-интерфейсы</li>
+<li class="">API</li>
+<li class="">Скачивание архивов</li>
+</ul>
+</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="будущие-вызовы">Будущие вызовы<a href="#будущие-вызовы" class="hash-link" aria-label="Прямая ссылка на Будущие вызовы" title="Прямая ссылка на Будущие вызовы" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="масштабирование">Масштабирование<a href="#масштабирование" class="hash-link" aria-label="Прямая ссылка на Масштабирование" title="Прямая ссылка на Масштабирование" translate="no">​</a></h3>
+<ul>
+<li class="">Рост объёмов данных</li>
+<li class="">Необходимость масштабирования</li>
+<li class="">Оптимизация процессов</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="новые-технологии">Новые технологии<a href="#новые-технологии" class="hash-link" aria-label="Прямая ссылка на Новые технологии" title="Прямая ссылка на Новые технологии" translate="no">​</a></h3>
+<ul>
+<li class="">Изменения в веб-технологиях</li>
+<li class="">Новые форматы</li>
+<li class="">Адаптация инструментов</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="долгосрочное-хранение">Долгосрочное хранение<a href="#долгосрочное-хране ние" class="hash-link" aria-label="Прямая ссылка на Долгосрочное хранение" title="Прямая ссылка на Долгосрочное хранение" translate="no">​</a></h3>
+<ul>
+<li class="">Сохранность на десятилетия</li>
+<li class="">Миграция форматов</li>
+<li class="">Обновление технологий</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="выводы">Выводы<a href="#выводы" class="hash-link" aria-label="Прямая ссылка на Выводы" title="Прямая ссылка на Выводы" translate="no">​</a></h2>
+<ol>
+<li class=""><strong>Технические вызовы</strong>: Множество проблем требуют решения</li>
+<li class=""><strong>Решения</strong>: Использование инструментов, автоматизация, оптимизация</li>
+<li class=""><strong>Разработка</strong>: Необходимость постоянного развития инструментов</li>
+<li class=""><strong>Будущее</strong>: Планирование масштабирования и долгосрочного хранения</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="связанные-материалы">Связанные материалы<a href="#связанные-материалы" class="hash-link" aria-label="Прямая ссылка на Связанные материалы" title="Прямая ссылка на Связанные материалы" translate="no">​</a></h2>
+<ul>
+<li class=""><a class="" href="/kb/instruments/ruarxive-tools">Инструменты Ruarxive</a></li>
+<li class=""><a class="" href="/kb/instruments/file-formats/warc">Форматы архивов: WARC</a></li>
+<li class=""><a class="" href="/kb/instruments/tools/warc-processing">Обработка WARC архивов</a></li>
+<li class=""><a class="" href="/kb/instruments/howto-collect/make-copy-website">Как создать цифровой архив сайтов</a></li>
+</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Страница документа"><a class="pagination-nav__link pagination-nav__link--prev" href="/kb/challenges/volunteer-coordination"><div class="pagination-nav__sublabel">Предыдущая страница</div><div class="pagination-nav__label">Координация волонтёров</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/kb/preserved-projects-form"><div class="pagination-nav__sublabel">Следующая страница</div><div class="pagination-nav__label">Форма подачи проекта на архивацию</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#основные-вызовы" class="table-of-contents__link toc-highlight">Основные вызовы</a><ul><li><a href="#большие-архивы-и-интерфейсы" class="table-of-contents__link toc-highlight">Большие архивы и интерфейсы</a></li><li><a href="#формат-warc" class="table-of-contents__link toc-highlight">Формат WARC</a></li><li><a href="#разработка-инструментов" class="table-of-contents__link toc-highlight">Разработка инструментов</a></li><li><a href="#различные-типы-контента" class="table-of-contents__link toc-highlight">Различные типы контента</a></li><li><a href="#производительность" class="table-of-contents__link toc-highlight">Производительность</a></li></ul></li><li><a href="#решения-1" class="table-of-contents__link toc-highlight">Решения</a><ul><li><a href="#инструменты-и-технологии" class="table-of-contents__link toc-highlight">Инструменты и технологии</a></li><li><a href="#разработка" class="table-of-contents__link toc-highlight">Разработка</a></li><li><a href="#инфраструктура" class="table-of-contents__link toc-highlight">Инфраструктура</a></li></ul></li><li><a href="#будущие-вызовы" class="table-of-contents__link toc-highlight">Будущие вызовы</a><ul><li><a href="#масштабирование" class="table-of-contents__link toc-highlight">Масштабирование</a></li><li><a href="#новые-технологии" class="table-of-contents__link toc-highlight">Новые технологии</a></li><li><a href="#долгосрочное-хранение" class="table-of-contents__link toc-highlight">Долгосрочное хранение</a></li></ul></li><li><a href="#выводы" class="table-of-contents__link toc-highlight">Выводы</a></li><li><a href="#связанные-материалы" class="table-of-contents__link toc-highlight">Связанные материалы</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">База знаний</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/kb/intro">База знаний</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Сообщество</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://t.me/ruarxive" target="_blank" rel="noopener noreferrer" class="footer__link-item">Telegram-канал<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://t.me/ruarxivechat" target="_blank" rel="noopener noreferrer" class="footer__link-item">Telegram-чат<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Дополнительно</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/blog">Блог</a></li><li class="footer__item"><a href="https://github.com/ruarxive/ruarxive_web" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">CC-BY 4.0 2025. Built with Docusaurus. <a href="https://infoculture.ru" target="_blank">Information Culture</a>, 2025</div></div></div></footer></div>
+</body>
+</html>

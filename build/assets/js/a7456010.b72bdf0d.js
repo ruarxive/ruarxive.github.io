@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkrussian_national_digital_archive_ruarxive=globalThis.webpackChunkrussian_national_digital_archive_ruarxive||[]).push([[1235],{8552:a=>{a.exports=JSON.parse('{"name":"docusaurus-plugin-content-pages","id":"default"}')}}]);

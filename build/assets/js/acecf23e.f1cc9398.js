@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkrussian_national_digital_archive_ruarxive=globalThis.webpackChunkrussian_national_digital_archive_ruarxive||[]).push([[1903],{9531:a=>{a.exports=JSON.parse('{"blogBasePath":"/blog","blogTitle":"Blog","authorsListPath":"/blog/authors"}')}}]);
