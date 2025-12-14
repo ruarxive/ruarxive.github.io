@@ -56,3 +56,77 @@ wacz create -o output.wacz my-warc-directory/
 ### Просмотр WACZ
 
 WACZ можно открыть прямо в браузере с помощью [ReplayWeb.page](https://replayweb.page/). Это не требует установки серверного ПО.
+
+## Создание WACZ из WARC
+
+### Использование wacz утилиты
+
+```bash
+# Установка
+pip install wacz
+
+# Создание WACZ из директории с WARC файлами
+wacz create -o archive.wacz /path/to/warc/files/
+
+# С указанием метаданных
+wacz create -o archive.wacz \
+  --title "My Archive" \
+  --description "Archive of example.com" \
+  /path/to/warc/files/
+```
+
+### Использование Browsertrix
+
+Browsertrix автоматически создает WACZ файлы при использовании опции `--generateWACZ`:
+
+```bash
+docker run --rm -v $PWD/data:/crawl/data \
+    webrecorder/browsertrix-crawler crawl \
+    --url https://example.com \
+    --generateWACZ \
+    --collection "My Collection"
+```
+
+## Преобразование WARC в WACZ
+
+### Базовое преобразование
+
+```bash
+# Простое преобразование
+wacz create -o output.wacz input.warc.gz
+
+# Для нескольких файлов
+wacz create -o output.wacz *.warc.gz
+```
+
+### С индексацией
+
+WACZ автоматически создает индексы CDXJ при создании, что позволяет быстро просматривать архив.
+
+## Метаданные WACZ
+
+Файл `datapackage.json` содержит метаданные коллекции:
+
+```json
+{
+  "profile": "data-package",
+  "name": "my-archive",
+  "title": "Archive of example.com",
+  "description": "Complete archive created on 2024-01-01",
+  "resources": [
+    {
+      "path": "archive/data.warc.gz",
+      "name": "data",
+      "format": "warc"
+    }
+  ]
+}
+```
+
+## Связанные материалы
+
+- [Формат WARC](/kb/instruments/file-formats/warc) — базовый формат веб-архивов
+- [Формат CDX](/kb/instruments/file-formats/cdx) — формат индексации
+- [ReplayWeb.page](/kb/instruments/replay/replayweb-page) — просмотр WACZ файлов
+- [Browsertrix](/kb/instruments/tools/browsertricks) — создание WACZ архивов
+- [Обработка WARC](/kb/instruments/tools/warc-processing) — работа с WARC файлами

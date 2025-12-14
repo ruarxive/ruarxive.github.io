@@ -225,6 +225,5 @@ sidebar_position: 3
 ## Связанные материалы
 
 - [История проекта](/kb/about/project-history)
-- [Вызовы и решения](/kb/challenges)
 - [Кейсы и истории](/kb/case-studies)
 - [Инструменты](/kb/instruments)

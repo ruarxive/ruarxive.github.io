@@ -17,6 +17,5 @@ sidebar_position: 1
 
 ## Связанные материалы
 
-- [Вызовы и решения](/kb/challenges)
 - [Проекты](/kb/projects)
 - [История проекта](/kb/about/project-history)

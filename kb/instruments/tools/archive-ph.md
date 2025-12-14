@@ -340,12 +340,19 @@ A: Archive.ph архивирует HTML-страницы. Для PDF лучше 
 
 ---
 
-## Полезные ссылки
+## Ресурсы
 
 - [Archive.ph](https://archive.ph) - главная страница
 - [Список зеркал](https://archive.today) - альтернативные домены
 - [Awesome Data Takeout](https://github.com/ivbeg/awesome-data-takeout) - инструменты для сохранения личных данных
-- [Ruarxive Telegram](https://t.me/ruarxivechat) - сообщество архивистов
+
+## Связанные материалы
+
+- [Быстрый старт: архивация за 5 минут](/kb/guides/quick-start-5min) - для начинающих
+- [Экстренная архивация](/kb/guides/emergency-archiving) - стратегия при кризисных ситуациях
+- [Как создать цифровой архив сайтов](/kb/instruments/howto-collect/make-copy-website) - для полной архивации сайтов
+- [Wget руководство](/kb/guides/wget) - для автоматизированной архивации
+- [SingleFile](/kb/instruments/tools/singlefile) - альтернатива для локального сохранения
 
 ---
 
