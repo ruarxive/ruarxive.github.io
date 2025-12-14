@@ -1,0 +1,54 @@
+{
+  "version.label": {
+    "message": "Текущая",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.Коллекции цифровых архивов": {
+    "message": "Коллекции цифровых архивов",
+    "description": "The label for category 'Коллекции цифровых архивов' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Похожие проекты": {
+    "message": "Похожие проекты",
+    "description": "The label for category 'Похожие проекты' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Гайды": {
+    "message": "Гайды",
+    "description": "The label for category 'Гайды' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Инструменты": {
+    "message": "Инструменты",
+    "description": "The label for category 'Инструменты' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Как собирать архивы": {
+    "message": "Как собирать архивы",
+    "description": "The label for category 'Как собирать архивы' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Как выгружать данные": {
+    "message": "Как выгружать данные",
+    "description": "The label for category 'Как выгружать данные' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Справочник форматов": {
+    "message": "Справочник форматов",
+    "description": "The label for category 'Справочник форматов' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Как сохранить личные данные из соцсетей и сервисов": {
+    "message": "Как сохранить личные данные из соцсетей и сервисов",
+    "description": "The label for category 'Как сохранить личные данные из соцсетей и сервисов' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Программы и утилиты": {
+    "message": "Программы и утилиты",
+    "description": "The label for category 'Программы и утилиты' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Инструменты Ruarxive": {
+    "message": "Инструменты Ruarxive",
+    "description": "The label for category 'Инструменты Ruarxive' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Социальные сети": {
+    "message": "Социальные сети",
+    "description": "The label for category 'Социальные сети' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Волонтёрам": {
+    "message": "Волонтёрам",
+    "description": "The label for category 'Волонтёрам' in sidebar 'tutorialSidebar'"
+  }
+}
