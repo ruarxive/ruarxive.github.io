@@ -87,4 +87,3 @@ tags: [webarchives, government, digital-preservation, russia]
 
 - [Кейс: Исчезновение сайтов государственных органов](/kb/case-studies/government-websites-disappearing)
 - [Проект "Консервированное государство"](/kb/projects/preserved-government)
-- [Политика архивации цифровых материалов](/kb/challenges/government-archiving-policy)

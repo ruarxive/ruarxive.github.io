@@ -189,7 +189,6 @@ tags: [webarchives, digital-preservation, challenges, ruarxive]
 
 ## Связанные материалы
 
-- [Вызовы и решения](/kb/challenges)
 - [История проекта](/kb/about/project-history)
 - [Уроки проекта](/kb/about/lessons-learned)
 - [Кейсы и истории](/kb/case-studies)
