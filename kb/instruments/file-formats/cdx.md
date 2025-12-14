@@ -90,7 +90,7 @@ wb-manager index /path/to/warcs
 
 ### OutbackCDX
 
-[OutbackCDX](/kb/instruments/utilities/outbackcdx) — сервер CDX индексов, который может использоваться как backend для OpenWayback и PYWB.
+OutbackCDX — сервер CDX индексов, который может использоваться как backend для OpenWayback и PYWB.
 
 ## CDXJ формат
 

@@ -154,5 +154,4 @@ DataRefuge — проект, созданный специально для со
 
 - [Кейс: Международные примеры](/kb/case-studies/international-examples)
 - [История проекта](/kb/about/project-history)
-- [Вызовы и решения](/kb/challenges)
 - [Проект Ruarxive](/kb/intro)

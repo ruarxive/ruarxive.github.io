@@ -6,23 +6,23 @@
 
 ### OpenWayback
 
-[OpenWayback](openwayback) — классическая реализация Wayback Machine, используемая многими веб-архивами по всему миру.
+[OpenWayback](/kb/instruments/replay/openwayback) — классическая реализация Wayback Machine, используемая многими веб-архивами по всему миру.
 
 ### PYWB
 
-[PYWB](pywb) — современная Python 3 реализация инструментов воспроизведения веб-архивов.
+[PYWB](/kb/instruments/replay/pywb) — современная Python 3 реализация инструментов воспроизведения веб-архивов.
 
 ### ReplayWeb.page
 
-[ReplayWeb.page](replayweb-page) — браузерный, полностью клиентский движок воспроизведения для локальных и удалённых WARC & WACZ файлов.
+[ReplayWeb.page](/kb/instruments/replay/replayweb-page) — браузерный, полностью клиентский движок воспроизведения для локальных и удалённых WARC & WACZ файлов.
 
 ### InterPlanetary Wayback (ipwb)
 
-[ipwb](ipwb) — воспроизведение веб-архивов с использованием IPFS для распределённого хранения.
+[ipwb](/kb/instruments/replay/ipwb) — воспроизведение веб-архивов с использованием IPFS для распределённого хранения.
 
 ### warc2html
 
-[warc2html](warc2html) — конвертация WARC файлов в статический HTML для офлайн-просмотра.
+[warc2html](/kb/instruments/replay/warc2html) — конвертация WARC файлов в статический HTML для офлайн-просмотра.
 
 ## Выбор инструмента
 

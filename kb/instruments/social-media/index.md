@@ -10,23 +10,23 @@ sidebar_position: 1
 
 ### Twitter
 
-- **[twarc](twarc)** — командная строка и Python библиотека для архивации Twitter JSON данных через Twitter API
+- **[twarc](/kb/instruments/social-media/twarc)** — командная строка и Python библиотека для архивации Twitter JSON данных через Twitter API
 
 ### Facebook
 
-- **[fbarc](fbarc)** — командная строка и Python библиотека для архивации данных из Facebook через Graph API
+- **[fbarc](/kb/instruments/social-media/fbarc)** — командная строка и Python библиотека для архивации данных из Facebook через Graph API
 
 ### Instagram
 
-- **[Instagram архивация](instagram)** — методы архивации контента из Instagram
+- **[Instagram архивация](/kb/instruments/social-media/instagram)** — методы архивации контента из Instagram
 
 ### YouTube
 
-- **[YouTube видео](youtube-video)** — архивация видео с YouTube
+- **[YouTube видео](/kb/instruments/social-media/youtube-video)** — архивация видео с YouTube
 
 ### Множественные платформы
 
-- **[Social Feed Manager](social-feed-manager)** — инструмент для архивации контента из множественных социальных сетей
+- **[Social Feed Manager](/kb/instruments/social-media/social-feed-manager)** — инструмент для архивации контента из множественных социальных сетей
 
 ## Сравнение инструментов
 
@@ -42,14 +42,14 @@ sidebar_position: 1
 
 ### Для одной платформы
 
-- **Twitter**: Используйте [twarc](twarc)
-- **Facebook**: Используйте [fbarc](fbarc)
-- **Instagram**: Используйте [методы архивации Instagram](instagram)
-- **YouTube**: Используйте [YouTube архивацию](youtube-video)
+- **Twitter**: Используйте [twarc](/kb/instruments/social-media/twarc)
+- **Facebook**: Используйте [fbarc](/kb/instruments/social-media/fbarc)
+- **Instagram**: Используйте [методы архивации Instagram](/kb/instruments/social-media/instagram)
+- **YouTube**: Используйте [YouTube архивацию](/kb/instruments/social-media/youtube-video)
 
 ### Для множественных платформ
 
-Используйте [Social Feed Manager](social-feed-manager) для централизованной архивации контента из различных социальных сетей.
+Используйте [Social Feed Manager](/kb/instruments/social-media/social-feed-manager) для централизованной архивации контента из различных социальных сетей.
 
 ## Аутентификация
 
