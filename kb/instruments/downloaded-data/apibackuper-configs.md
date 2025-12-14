@@ -354,6 +354,5 @@ apibackuper run test -p myproject --max-pages 5
 ## Связанные материалы
 
 - [APIBackuper документация](/kb/instruments/downloaded-data/apibackuper)
-- [Руководство по управлению конфигурациями](/kb/guides/configuration-management)
 - [Создание кастомных workflow](/kb/guides/custom-workflows)
 - [Репозиторий конфигураций на GitHub](https://github.com/ruarxive/apibackuper-dataarchive)
