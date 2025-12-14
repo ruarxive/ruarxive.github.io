@@ -1,58 +1,79 @@
 import React from 'react';
 import clsx from 'clsx';
 import styles from './styles.module.css';
-import Translate, {translate} from '@docusaurus/Translate';
+import Translate, { translate } from '@docusaurus/Translate';
 
 type FeatureItem = {
-  title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
+  title: JSX.Element;
+  icon: string;
   description: JSX.Element;
 };
 
 const FeatureList: FeatureItem[] = [
   {
-    title: <Translate>Russia and Russian related</Translate>,
-    Svg: require('@site/static/img/ru.svg').default,
+    title: <Translate>Российское наследие</Translate>,
+    icon: '🇷🇺',
     description: (
       <Translate>
-       Russian national digital archive created to preserve Russian and Russia related digital resources.
+        Национальный цифровой архив России для сохранения российских и связанных с Россией цифровых ресурсов.
       </Translate>
     ),
   },
   {
-    title: <Translate>Digital born</Translate>,
-    Svg: require('@site/static/img/preservation.svg').default,
+    title: <Translate>Цифровые ресурсы</Translate>,
+    icon: '💾',
     description: (
       <Translate>
-        We collect websites, individual files, social networks accounts, telegram channels and other digital-born objects.
+        Собираем сайты, файлы, аккаунты соцсетей, Telegram-каналы и другие цифровые объекты.
       </Translate>
     ),
   },
   {
-    title: <Translate>Open source</Translate>,
-    Svg: require('@site/static/img/osi.svg').default,
+    title: <Translate>Открытый код</Translate>,
+    icon: '⚙️',
     description: (
       <Translate>
-        We use and create open source tools to make digital preservation effective.
+        Используем и создаём инструменты с открытым кодом для эффективной цифровой архивации.
+      </Translate>
+    ),
+  },
+  {
+    title: <Translate>Мульти-форматы</Translate>,
+    icon: '📦',
+    description: (
+      <Translate>
+        Поддержка WARC, WACZ, нативных форматов и специализированных архивных файлов.
+      </Translate>
+    ),
+  },
+  {
+    title: <Translate>15+ инструментов</Translate>,
+    icon: '🛠️',
+    description: (
+      <Translate>
+        Специализированные инструменты для различных платформ и типов контента.
+      </Translate>
+    ),
+  },
+  {
+    title: <Translate>Долгосрочное хранение</Translate>,
+    icon: '🔒',
+    description: (
+      <Translate>
+        Двойное хранение: облачное и офлайн, для максимальной надёжности.
       </Translate>
     ),
   },
 ];
 
-function Feature({title, Svg, description}: FeatureItem) {
+function Feature({ title, icon, description }: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
       <div className={styles.feature}>
-        {/*<div className="padding-horiz--md">*/}
-        <div>
-          <Svg className={styles.featureSvg} role="img" />
-        </div>
-        {/*<div className="padding-horiz--md">*/}
+        <div className={styles.featureIcon}>{icon}</div>
         <div>
           <h3>{title}</h3>
           <p>{description}</p>
-          {/*<h3><Translate>Russian national digital archive (ruarxive.org)</Translate></h3>*/}
-          {/*<p><Translate>Digital born should be digital preserved</Translate></p>*/}
         </div>
       </div>
     </div>

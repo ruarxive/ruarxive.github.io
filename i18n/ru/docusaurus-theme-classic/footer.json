@@ -1,50 +1,38 @@
 {
-  "link.title.Docs": {
-    "message": "Документы",
-    "description": "The title of the footer links column with title=Docs in the footer"
+  "link.title.База знаний": {
+    "message": "База знаний",
+    "description": "The title of the footer links column with title=База знаний in the footer"
   },
-  "link.title.Community": {
+  "link.title.Сообщество": {
     "message": "Сообщество",
-    "description": "The title of the footer links column with title=Community in the footer"
+    "description": "The title of the footer links column with title=Сообщество in the footer"
   },
-  "link.title.More": {
-    "message": "Ещё…",
-    "description": "The title of the footer links column with title=More in the footer"
+  "link.title.Дополнительно": {
+    "message": "Дополнительно",
+    "description": "The title of the footer links column with title=Дополнительно in the footer"
   },
-  "link.item.label.Tutorial": {
-    "message": "Туториал",
-    "description": "The label of footer link with label=Tutorial linking to /docs/intro"
+  "link.item.label.База знаний": {
+    "message": "База знаний",
+    "description": "The label of footer link with label=База знаний linking to /kb/intro"
   },
-  "link.item.label.Telegram channel": {
-    "message": "Канал в Telegram",
-    "description": "The label of footer link with label=Telegram channel linking to https://t.me/ruarxive"
+  "link.item.label.Telegram-канал": {
+    "message": "Telegram-канал",
+    "description": "The label of footer link with label=Telegram-канал linking to https://t.me/ruarxive"
   },
-  "link.item.label.Twitter": {
-    "message": "Twitter",
-    "description": "The label of footer link with label=Twitter linking to https://twitter.com/ruarxive"
+  "link.item.label.Telegram-чат": {
+    "message": "Telegram-чат",
+    "description": "The label of footer link with label=Telegram-чат linking to https://t.me/ruarxivechat"
   },
-  "link.item.label.Blog": {
+  "link.item.label.Блог": {
     "message": "Блог",
-    "description": "The label of footer link with label=Blog linking to /blog"
+    "description": "The label of footer link with label=Блог linking to /blog"
   },
   "link.item.label.GitHub": {
     "message": "GitHub",
     "description": "The label of footer link with label=GitHub linking to https://github.com/ruarxive/ruarxive_web"
   },
   "copyright": {
-    "message": "CC-BY 4.0 2022. Сделано на Docusaurus. <a href=\"https://infoculture.ru\" target=\"_blank\">АНО «Информационная культура»</a>, 2022",
+    "message": "CC-BY 4.0 2025. Built with Docusaurus. <a href=\"https://infoculture.ru\" target=\"_blank\">Information Culture</a>, 2025",
     "description": "The footer copyright"
-  },
-  "link.title.Knowledge base": {
-    "message": "База знаний",
-    "description": "The title of the footer links column with title=Knowledge base in the footer"
-  },
-  "link.item.label.Knowledge base": {
-    "message": "База знаний",
-    "description": "The label of footer link with label=Knowledge base linking to /kb/intro"
-  },
-  "link.item.label.Telegram chat": {
-    "message": "Telegram-чат",
-    "description": "The label of footer link with label=Telegram chat linking to https://t.me/ruarxivechat"
   }
 }

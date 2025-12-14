@@ -1,10 +1,11 @@
 ---
 slug: first-welcome-post
-title: Ruarxive welcome post
+title: Приветственный пост Ruarxive
 authors: ivbeg
-tags: [webarchives, ruarxive, english]
+tags: [webarchives, ruarxive, russian]
 ---
-Ruarxive is a Russian national digital archive project founded to archive Russian/Russia-related websites and other digital born content.
+<!-- truncate -->
+Ruarxive — это проект Национального цифрового архива России, созданный для архивации российских и связанных с Россией веб-сайтов и другого цифрового контента.
 
 Ruarxive - это проект по архивации цифровых ресурсов созданных в России или относящихся к России. Для нас приоритетом является сохранение гибнущих сайтов и иных объектов цифрового культурного наследия.
 

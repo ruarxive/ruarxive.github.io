@@ -1,13 +1,14 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const { themes } = require('prism-react-renderer');
+const lightCodeTheme = themes.github;
+const darkCodeTheme = themes.dracula;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Russian national digital archive (ruarxive.org)',
-  tagline: 'Digital born should be digital preserved',
+  title: 'Национальный цифровой архив России (ruarxive.org)',
+  tagline: 'Цифровое должно быть сохранено в цифровом виде',
   url: 'https://ruarxive.org',
   // url: 'https://ruarxive.github.io',
   // baseUrl: '/',
@@ -18,7 +19,6 @@ const config = {
   deploymentBranch: 'gh-pages',
   trailingSlash: false,
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
 
   presets: [
@@ -41,19 +41,35 @@ const config = {
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
+        sitemap: {
+          changefreq: 'weekly',
+          priority: 0.5,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml',
+        },
       }),
     ],
   ],
 
   plugins: [
     [
+      require.resolve("@easyops-cn/docusaurus-search-local"),
+      ({
+        hashed: true,
+        language: ["ru"],
+        docsRouteBasePath: "kb",
+        docsDir: "kb",
+        blogRouteBasePath: "blog",
+      }),
+    ],
+    [
       '@docusaurus/plugin-content-docs',
       {
         id: 'about',
         path: 'about',
         routeBasePath: 'about',
-        // sidebarPath: require.resolve('./sidebars.js'),
-      }, 
+        sidebarPath: require.resolve('./sidebars-about.js'),
+      },
     ],
   ],
 
@@ -67,6 +83,25 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      // SEO: Open Graph and Twitter Card images
+      image: 'img/hero.jpg',
+      metadata: [
+        {name: 'keywords', content: 'цифровой архив, веб-архивация, сохранение цифрового наследия, ruarxive, российский архив, архивация сайтов, архивация telegram, warc, wacz, digital preservation'},
+        {name: 'author', content: 'Ruarxive, Information Culture'},
+        {name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'},
+        {name: 'googlebot', content: 'index, follow'},
+        {name: 'language', content: 'Russian'},
+        {name: 'geo.region', content: 'RU'},
+        {property: 'og:type', content: 'website'},
+        {property: 'og:locale', content: 'ru_RU'},
+        {property: 'og:site_name', content: 'Ruarxive - Национальный цифровой архив России'},
+        {property: 'og:image:width', content: '1200'},
+        {property: 'og:image:height', content: '630'},
+        {property: 'og:image:type', content: 'image/jpeg'},
+        {name: 'twitter:card', content: 'summary_large_image'},
+        {name: 'twitter:site', content: '@ruarxive'},
+        {name: 'twitter:creator', content: '@ruarxive'},
+      ],
       // algolia: {
       //   contextualSearch: true,
       // },
@@ -76,32 +111,32 @@ const config = {
         respectPrefersColorScheme: false,
       },
       navbar: {
-        title: 'Russian national digital archive',
+        title: 'Национальный цифровой архив России',
         // hideOnScroll: true,
         logo: {
-          alt: 'Ruarxive logo',
+          alt: 'Логотип Ruarxive',
           src: 'img/logo.svg',
         },
         items: [
           {
             type: 'doc',
             docId: 'intro',
-            label: 'Knowledge base',
+            label: 'База знаний',
             position: 'left',
           },
           {
-            to: '/about/intro', 
-            label: 'About', 
+            to: '/about/intro',
+            label: 'О проекте',
             position: 'left'
           },
           {
-            to: '/blog', 
-            label: 'Blog', 
+            to: '/blog',
+            label: 'Блог',
             position: 'left'
           },
           {
             href: 'https://t.me/ruarxivechat',
-            label: 'Discussion',
+            label: 'Обсуждение',
             position: 'right',
           },
           // {
@@ -121,8 +156,8 @@ const config = {
             position: 'right',
           },
           {
-            to: '/about/donate', 
-            label: 'Support project', 
+            to: '/about/donate',
+            label: 'Поддержать проект',
             position: 'right',
             className: 'navbar-link-btn',
           },
@@ -133,42 +168,38 @@ const config = {
           //   position: 'right',
           //   className: 'navbar-link-btn',
           // },
-          {
-            type: 'localeDropdown',
-            position: 'right',
-          },
         ],
       },
       footer: {
         style: 'dark',
         links: [
           {
-            title: 'Knowledge base',
+            title: 'База знаний',
             items: [
               {
-                label: 'Knowledge base',
+                label: 'База знаний',
                 to: '/kb/intro',
               },
             ],
           },
           {
-            title: 'Community',
+            title: 'Сообщество',
             items: [
               {
-                label: 'Telegram channel',
+                label: 'Telegram-канал',
                 href: 'https://t.me/ruarxive',
               },
               {
-                label: 'Telegram chat',
+                label: 'Telegram-чат',
                 href: 'https://t.me/ruarxivechat',
               },
             ],
           },
           {
-            title: 'More',
+            title: 'Дополнительно',
             items: [
               {
-                label: 'Blog',
+                label: 'Блог',
                 to: '/blog',
               },
               {
@@ -188,11 +219,8 @@ const config = {
     }),
   i18n: {
     defaultLocale: 'ru',
-    locales: ['en', 'ru'],
+    locales: ['ru'],
     localeConfigs: {
-      en: {
-        htmlLang: 'en-GB',
-      },
       // You can omit a locale (e.g. fr) if you don't need to override the defaults
       ru: {
         htmlLang: 'ru-RU',

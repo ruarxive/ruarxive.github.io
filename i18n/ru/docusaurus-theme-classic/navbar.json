@@ -3,44 +3,32 @@
     "message": "Национальный цифровой архив России",
     "description": "The title in the navbar"
   },
-  "item.label.Tutorial": {
-    "message": "Туториал",
-    "description": "Navbar item with label Tutorial"
+  "logo.alt": {
+    "message": "Логотип Ruarxive",
+    "description": "The alt text of navbar logo"
   },
-  "item.label.Blog": {
-    "message": "Блог",
-    "description": "Navbar item with label Blog"
-  },
-  "item.label.GitHub": {
-    "message": "GitHub",
-    "description": "Navbar item with label GitHub"
-  },
-  "item.label.Knowledge base": {
+  "item.label.База знаний": {
     "message": "База знаний",
-    "description": "Navbar item with label Knowledge base"
+    "description": "Navbar item with label База знаний"
   },
-  "item.label.Facebook": {
-    "message": "Facebook",
-    "description": "Navbar item with label Facebook"
+  "item.label.О проекте": {
+    "message": "О проекте",
+    "description": "Navbar item with label О проекте"
+  },
+  "item.label.Блог": {
+    "message": "Блог",
+    "description": "Navbar item with label Блог"
+  },
+  "item.label.Обсуждение": {
+    "message": "Обсуждение",
+    "description": "Navbar item with label Обсуждение"
   },
   "item.label.Telegram": {
     "message": "Telegram",
     "description": "Navbar item with label Telegram"
   },
-  "item.label.Discussion": {
-    "message": "Обсуждение",
-    "description": "Navbar item with label Discussion"
-  },
-  "item.label.Donate": {
-    "message": "Поддержать",
-    "description": "Navbar item with label Donate"
-  },
-  "item.label.Support project": {
-    "message": "Поддержать",
-    "description": "Navbar item with label Support project"
-  },
-  "item.label.About": {
-    "message": "О проекте",
-    "description": "Navbar item with label About"
+  "item.label.Поддержать проект": {
+    "message": "Поддержать проект",
+    "description": "Navbar item with label Поддержать проект"
   }
 }

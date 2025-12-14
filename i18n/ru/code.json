@@ -1,27 +1,241 @@
 {
+  "Сохранение российского цифрового наследия": {
+    "message": "Сохранение российского цифрового наследия"
+  },
+  "Архивируем сайты, соцсети и цифровые ресурсы до их исчезновения. 15+ инструментов с открытым кодом, 500+ сохранённых проектов.": {
+    "message": "Архивируем сайты, соцсети и цифровые ресурсы до их исчезновения. 15+ инструментов с открытым кодом, 500+ сохранённых проектов."
+  },
+  "Начать": {
+    "message": "Начать"
+  },
+  "Просмотр архивов": {
+    "message": "Просмотр архивов"
+  },
+  "Предложить проект": {
+    "message": "Предложить проект"
+  },
+  "50+ ТБ архивов • 500+ проектов • Открытый код": {
+    "message": "50+ ТБ архивов • 500+ проектов • Открытый код"
+  },
+  "Веб-сайты": {
+    "message": "Веб-сайты"
+  },
+  "WARC и WACZ архивы сайтов": {
+    "message": "WARC и WACZ архивы сайтов"
+  },
+  "Telegram-каналы": {
+    "message": "Telegram-каналы"
+  },
+  "Полные копии каналов и чатов": {
+    "message": "Полные копии каналов и чатов"
+  },
+  "Социальные сети": {
+    "message": "Социальные сети"
+  },
+  "Instagram, Twitter, VK и другие": {
+    "message": "Instagram, Twitter, VK и другие"
+  },
+  "Видео": {
+    "message": "Видео"
+  },
+  "YouTube и другие видеоплатформы": {
+    "message": "YouTube и другие видеоплатформы"
+  },
+  "Госданные": {
+    "message": "Госданные"
+  },
+  "Открытые государственные данные": {
+    "message": "Открытые государственные данные"
+  },
+  "WordPress-сайты": {
+    "message": "WordPress-сайты"
+  },
+  "Архивация через API": {
+    "message": "Архивация через API"
+  },
+  "Яндекс.Диск": {
+    "message": "Яндекс.Диск"
+  },
+  "Публичные папки и файлы": {
+    "message": "Публичные папки и файлы"
+  },
+  "Экспорт данных": {
+    "message": "Экспорт данных"
+  },
+  "Google, Notion, Slack и другие": {
+    "message": "Google, Notion, Slack и другие"
+  },
+  "Что мы архивируем": {
+    "message": "Что мы архивируем"
+  },
+  "Широкий спектр цифровых ресурсов в различных форматах": {
+    "message": "Широкий спектр цифровых ресурсов в различных форматах"
+  },
+  "Поддержать проект": {
+    "message": "Поддержать проект"
+  },
+  "E-mail": {
+    "message": "E-mail"
+  },
+  "необходим для отмены подписки": {
+    "message": "необходим для отмены подписки"
+  },
+  "Поддерживать проект ежемесячно": {
+    "message": "Поддерживать проект ежемесячно"
+  },
+  "Единовременно": {
+    "message": "Единовременно",
+    "description": "Single payment"
+  },
+  "Ежемесячно": {
+    "message": "Ежемесячно",
+    "description": "Monthly payment"
+  },
+  "Даже небольшое пожертвование позволит проекту Национального цифрового архива России существовать дольше": {
+    "message": "Даже небольшое пожертвование позволит проекту Национального цифрового архива России существовать дольше"
+  },
+  "Российское наследие": {
+    "message": "Российское наследие"
+  },
+  "Национальный цифровой архив России для сохранения российских и связанных с Россией цифровых ресурсов.": {
+    "message": "Национальный цифровой архив России для сохранения российских и связанных с Россией цифровых ресурсов."
+  },
+  "Цифровые ресурсы": {
+    "message": "Цифровые ресурсы"
+  },
+  "Собираем сайты, файлы, аккаунты соцсетей, Telegram-каналы и другие цифровые объекты.": {
+    "message": "Собираем сайты, файлы, аккаунты соцсетей, Telegram-каналы и другие цифровые объекты."
+  },
+  "Открытый код": {
+    "message": "Открытый код"
+  },
+  "Используем и создаём инструменты с открытым кодом для эффективной цифровой архивации.": {
+    "message": "Используем и создаём инструменты с открытым кодом для эффективной цифровой архивации."
+  },
+  "Мульти-форматы": {
+    "message": "Мульти-форматы"
+  },
+  "Поддержка WARC, WACZ, нативных форматов и специализированных архивных файлов.": {
+    "message": "Поддержка WARC, WACZ, нативных форматов и специализированных архивных файлов."
+  },
+  "15+ инструментов": {
+    "message": "15+ инструментов"
+  },
+  "Специализированные инструменты для различных платформ и типов контента.": {
+    "message": "Специализированные инструменты для различных платформ и типов контента."
+  },
+  "Долгосрочное хранение": {
+    "message": "Долгосрочное хранение"
+  },
+  "Двойное хранение: облачное и офлайн, для максимальной надёжности.": {
+    "message": "Двойное хранение: облачное и офлайн, для максимальной надёжности."
+  },
+  "Идентификация": {
+    "message": "Идентификация"
+  },
+  "Сообщество выявляет ресурсы, которым грозит исчезновение": {
+    "message": "Сообщество выявляет ресурсы, которым грозит исчезновение"
+  },
+  "Архивация": {
+    "message": "Архивация"
+  },
+  "Автоматизированные инструменты захватывают содержимое": {
+    "message": "Автоматизированные инструменты захватывают содержимое"
+  },
+  "Хранение": {
+    "message": "Хранение"
+  },
+  "Двойное хранение: облако и офлайн-копии": {
+    "message": "Двойное хранение: облако и офлайн-копии"
+  },
+  "Доступ": {
+    "message": "Доступ"
+  },
+  "Публичный каталог и доступ к данным": {
+    "message": "Публичный каталог и доступ к данным"
+  },
+  "Как это работает": {
+    "message": "Как это работает"
+  },
+  "Простой и прозрачный процесс цифровой архивации": {
+    "message": "Простой и прозрачный процесс цифровой архивации"
+  },
+  "Как архивировать сайт": {
+    "message": "Как архивировать сайт"
+  },
+  "Пошаговое руководство по архивации веб-сайтов": {
+    "message": "Пошаговое руководство по архивации веб-сайтов"
+  },
+  "Формат WARC": {
+    "message": "Формат WARC"
+  },
+  "Всё о формате веб-архивов WARC": {
+    "message": "Всё о формате веб-архивов WARC"
+  },
+  "Архивация Telegram": {
+    "message": "Архивация Telegram"
+  },
+  "Инструмент tgarc для сохранения Telegram-каналов": {
+    "message": "Инструмент tgarc для сохранения Telegram-каналов"
+  },
+  "Инструменты Ruarxive": {
+    "message": "Инструменты Ruarxive"
+  },
+  "Собственные инструменты для архивации": {
+    "message": "Собственные инструменты для архивации"
+  },
+  "Выгрузка данных": {
+    "message": "Выгрузка данных"
+  },
+  "Как выгружать данные из различных сервисов": {
+    "message": "Как выгружать данные из различных сервисов"
+  },
+  "Идентификация форматов": {
+    "message": "Идентификация форматов"
+  },
+  "Инструменты для определения типов файлов": {
+    "message": "Инструменты для определения типов файлов"
+  },
+  "Популярные разделы": {
+    "message": "Популярные разделы"
+  },
+  "Сохранённые проекты": {
+    "message": "Сохранённые проекты"
+  },
+  "Просмотрите каталог из 500+ архивированных проектов": {
+    "message": "Просмотрите каталог из 500+ архивированных проектов"
+  },
+  "Сообщите нам о ресурсе, который нужно сохранить": {
+    "message": "Сообщите нам о ресурсе, который нужно сохранить"
+  },
+  "База знаний": {
+    "message": "База знаний"
+  },
+  "Руководства по инструментам и методам цифровой архивации": {
+    "message": "Руководства по инструментам и методам цифровой архивации"
+  },
+  "Перейти": {
+    "message": "Перейти"
+  },
+  "Архивированных проектов": {
+    "message": "Архивированных проектов"
+  },
+  "Сохранённых данных": {
+    "message": "Сохранённых данных"
+  },
+  "Активных инструментов": {
+    "message": "Активных инструментов"
+  },
+  "Участников сообщества": {
+    "message": "Участников сообщества"
+  },
   "theme.ErrorPageContent.title": {
-    "message": "Страница сломалась.",
+    "message": "На странице произошёл сбой.",
     "description": "The title of the fallback page when the page crashed"
   },
-  "theme.ErrorPageContent.tryAgain": {
-    "message": "Попробуйте снова",
-    "description": "The label of the button to try again when the page crashed"
-  },
-  "theme.NotFound.title": {
-    "message": "Страница не найдена",
-    "description": "The title of the 404 page"
-  },
-  "theme.NotFound.p1": {
-    "message": "К сожалению, мы не смогли найти запрашиваемую вами страницу.",
-    "description": "The first paragraph of the 404 page"
-  },
-  "theme.NotFound.p2": {
-    "message": "Пожалуйста, обратитесь к владельцу сайта, с которого вы перешли на эту ссылку, чтобы сообщить ему, что ссылка не работает.",
-    "description": "The 2nd paragraph of the 404 page"
-  },
-  "theme.AnnouncementBar.closeButtonAriaLabel": {
-    "message": "Закрыть",
-    "description": "The ARIA label for close button of announcement bar"
+  "theme.BackToTopButton.buttonAriaLabel": {
+    "message": "Прокрутка к началу",
+    "description": "The ARIA label for the back to top button"
   },
   "theme.blog.archive.title": {
     "message": "Архив",
@@ -30,10 +244,6 @@
   "theme.blog.archive.description": {
     "message": "Архив",
     "description": "The page & hero description of the blog archive page"
-  },
-  "theme.BackToTopButton.buttonAriaLabel": {
-    "message": "Наверх",
-    "description": "The ARIA label for the back to top button"
   },
   "theme.blog.paginator.navAriaLabel": {
     "message": "Навигация по странице списка блогов",
@@ -47,18 +257,6 @@
     "message": "Предыдущие записи",
     "description": "The label used to navigate to the older blog posts page (next page)"
   },
-  "theme.blog.post.readingTime.plurals": {
-    "message": "{readingTime} мин. чтения",
-    "description": "Pluralized label for \"{readingTime} min read\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
-  },
-  "theme.blog.post.readMoreLabel": {
-    "message": "Читать дальше о {title}",
-    "description": "The ARIA label for the link to full blog posts from excerpts"
-  },
-  "theme.blog.post.readMore": {
-    "message": "Читать дальше",
-    "description": "The label used in blog post item excerpts to link to full blog posts"
-  },
   "theme.blog.post.paginator.navAriaLabel": {
     "message": "Навигация по странице поста блога",
     "description": "The ARIA label for the blog posts pagination"
@@ -71,60 +269,32 @@
     "message": "Предыдущий пост",
     "description": "The blog post button label to navigate to the older/next post"
   },
-  "theme.blog.sidebar.navAriaLabel": {
-    "message": "Навигация по последним постам в блоге",
-    "description": "The ARIA label for recent posts in the blog sidebar"
-  },
-  "theme.CodeBlock.copyButtonAriaLabel": {
-    "message": "Скопировать в буфер обмена",
-    "description": "The ARIA label for copy code blocks button"
-  },
-  "theme.CodeBlock.copied": {
-    "message": "Скопировано",
-    "description": "The copied button label on code blocks"
-  },
-  "theme.CodeBlock.copy": {
-    "message": "Скопировать",
-    "description": "The copy button label on code blocks"
-  },
-  "theme.blog.post.plurals": {
-    "message": "{count} запись|{count} записи|{count} записей",
-    "description": "Pluralized label for \"{count} posts\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
-  },
-  "theme.blog.tagTitle": {
-    "message": "{nPosts} с тегом \"{tagName}\"",
-    "description": "The title of the page for a blog tag"
-  },
   "theme.tags.tagsPageLink": {
     "message": "Посмотреть все теги",
     "description": "The label of the link targeting the tag list page"
   },
-  "theme.colorToggle.ariaLabel": {
-    "message": "Переключиться между тёмной и светлой темой (сейчас {mode})",
-    "description": "The ARIA label for the navbar color mode toggle"
-  },
-  "theme.colorToggle.ariaLabel.mode.dark": {
-    "message": "тёмная тема",
-    "description": "The name for the dark color mode"
+  "theme.colorToggle.ariaLabel.mode.system": {
+    "message": "системный режим",
+    "description": "The name for the system color mode"
   },
   "theme.colorToggle.ariaLabel.mode.light": {
-    "message": "светлая тема",
+    "message": "Светлый режим",
     "description": "The name for the light color mode"
   },
-  "theme.docs.DocCard.categoryDescription": {
-    "message": "{count} элементов",
+  "theme.colorToggle.ariaLabel.mode.dark": {
+    "message": "Тёмный режим",
+    "description": "The name for the dark color mode"
+  },
+  "theme.colorToggle.ariaLabel": {
+    "message": "Переключение между темным и светлым режимом (сейчас используется {mode})",
+    "description": "The ARIA label for the color mode toggle"
+  },
+  "theme.docs.DocCard.categoryDescription.plurals": {
+    "message": "{count} элемент|{count} элемента|{count} элементов",
     "description": "The default description for a category card in the generated index about how many items this category includes"
   },
-  "theme.docs.sidebar.expandButtonTitle": {
-    "message": "Развернуть сайдбар",
-    "description": "The ARIA label and title attribute for expand button of doc sidebar"
-  },
-  "theme.docs.sidebar.expandButtonAriaLabel": {
-    "message": "Развернуть сайдбар",
-    "description": "The ARIA label and title attribute for expand button of doc sidebar"
-  },
   "theme.docs.paginator.navAriaLabel": {
-    "message": "Навигация по странице документации",
+    "message": "Страница документа",
     "description": "The ARIA label for the docs pagination"
   },
   "theme.docs.paginator.previous": {
@@ -135,24 +305,19 @@
     "message": "Следующая страница",
     "description": "The label used to navigate to the next doc"
   },
-  "theme.docs.sidebar.collapseButtonTitle": {
-    "message": "Свернуть сайдбар",
-    "description": "The title attribute for collapse button of doc sidebar"
+  "theme.docs.breadcrumbs.navAriaLabel": {
+    "message": "Навигационная цепочка текущей страницы",
+    "description": "The ARIA label for the breadcrumbs"
   },
-  "theme.docs.sidebar.collapseButtonAriaLabel": {
-    "message": "Свернуть сайдбар",
-    "description": "The title attribute for collapse button of doc sidebar"
-  },
-  "theme.DocSidebarItem.toggleCollapsedCategoryAriaLabel": {
-    "message": "Toggle the collapsible sidebar category '{label}'",
-    "description": "The ARIA label to toggle the collapsible sidebar category"
+  "theme.docs.versionBadge.label": {
+    "message": "Версия: {versionLabel}"
   },
   "theme.docs.tagDocListPageTitle.nDocsTagged": {
-    "message": "One doc tagged|{count} docs tagged",
+    "message": "Одна страница|{count} страницы|{count} страниц",
     "description": "Pluralized label for \"{count} docs tagged\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
   },
   "theme.docs.tagDocListPageTitle": {
-    "message": "{nDocsTagged} with \"{tagName}\"",
+    "message": "{nDocsTagged} с тегом \"{tagName}\"",
     "description": "The title of the page for a docs tag"
   },
   "theme.docs.versions.unreleasedVersionLabel": {
@@ -171,15 +336,12 @@
     "message": "последней версии",
     "description": "The label used for the latest version suggestion link label"
   },
-  "theme.docs.versionBadge.label": {
-    "message": "Версия: {versionLabel}"
-  },
   "theme.common.editThisPage": {
     "message": "Отредактировать эту страницу",
     "description": "The link label to edit the current page"
   },
   "theme.common.headingLinkTitle": {
-    "message": "Прямая ссылка на этот заголовок",
+    "message": "Прямая ссылка на {heading}",
     "description": "Title for link to heading"
   },
   "theme.lastUpdated.atDate": {
@@ -194,91 +356,239 @@
     "message": "Последнее обновление{atDate}{byUser}",
     "description": "The sentence used to display when a page has been last updated, and by who"
   },
-  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
-    "message": "← Перейти к главному меню",
-    "description": "The label of the back button to return to main menu, inside the mobile navbar sidebar secondary menu (notably used to display the docs sidebar)"
-  },
   "theme.navbar.mobileVersionsDropdown.label": {
     "message": "Версии",
     "description": "The label for the navbar versions dropdown on mobile view"
   },
-  "theme.common.skipToMainContent": {
-    "message": "Перейти к основному содержимому",
-    "description": "The skip to content label used for accessibility, allowing to rapidly navigate to main content with keyboard tab/enter navigation"
+  "theme.NotFound.title": {
+    "message": "Страница не найдена",
+    "description": "The title of the 404 page"
   },
   "theme.tags.tagsListLabel": {
     "message": "Теги:",
     "description": "The label alongside a tag list"
   },
-  "theme.TOCCollapsible.toggleButtonLabel": {
-    "message": "Содержание этой страницы",
-    "description": "The label used by the button on the collapsible TOC component"
+  "theme.AnnouncementBar.closeButtonAriaLabel": {
+    "message": "Закрыть",
+    "description": "The ARIA label for close button of announcement bar"
+  },
+  "theme.admonition.caution": {
+    "message": "предупреждение",
+    "description": "The default label used for the Caution admonition (:::caution)"
+  },
+  "theme.admonition.danger": {
+    "message": "осторожно",
+    "description": "The default label used for the Danger admonition (:::danger)"
+  },
+  "theme.admonition.info": {
+    "message": "к сведению",
+    "description": "The default label used for the Info admonition (:::info)"
+  },
+  "theme.admonition.note": {
+    "message": "примечание",
+    "description": "The default label used for the Note admonition (:::note)"
+  },
+  "theme.admonition.tip": {
+    "message": "подсказка",
+    "description": "The default label used for the Tip admonition (:::tip)"
+  },
+  "theme.admonition.warning": {
+    "message": "предупреждение",
+    "description": "The default label used for the Warning admonition (:::warning)"
+  },
+  "theme.blog.sidebar.navAriaLabel": {
+    "message": "Навигация по последним постам в блоге",
+    "description": "The ARIA label for recent posts in the blog sidebar"
+  },
+  "theme.DocSidebarItem.expandCategoryAriaLabel": {
+    "message": "Expand sidebar category '{label}'",
+    "description": "The ARIA label to expand the sidebar category"
+  },
+  "theme.DocSidebarItem.collapseCategoryAriaLabel": {
+    "message": "Collapse sidebar category '{label}'",
+    "description": "The ARIA label to collapse the sidebar category"
+  },
+  "theme.IconExternalLink.ariaLabel": {
+    "message": "(opens in new tab)",
+    "description": "The ARIA label for the external link icon"
+  },
+  "theme.NavBar.navAriaLabel": {
+    "message": "Main",
+    "description": "The ARIA label for the main navigation"
   },
   "theme.navbar.mobileLanguageDropdown.label": {
     "message": "Языки",
     "description": "The label for the mobile language switcher dropdown"
   },
+  "theme.NotFound.p1": {
+    "message": "К сожалению, мы не смогли найти запрашиваемую вами страницу.",
+    "description": "The first paragraph of the 404 page"
+  },
+  "theme.NotFound.p2": {
+    "message": "Пожалуйста, обратитесь к владельцу сайта, с которого вы перешли на эту ссылку, чтобы сообщить ему, что ссылка не работает.",
+    "description": "The 2nd paragraph of the 404 page"
+  },
+  "theme.TOCCollapsible.toggleButtonLabel": {
+    "message": "Содержание этой страницы",
+    "description": "The label used by the button on the collapsible TOC component"
+  },
+  "theme.blog.post.readMore": {
+    "message": "Читать дальше",
+    "description": "The label used in blog post item excerpts to link to full blog posts"
+  },
+  "theme.blog.post.readMoreLabel": {
+    "message": "Подробнее о {title}",
+    "description": "The ARIA label for the link to full blog posts from excerpts"
+  },
+  "theme.blog.post.readingTime.plurals": {
+    "message": "{readingTime} мин. чтения|{readingTime} мин. чтения|{readingTime} мин. чтения",
+    "description": "Pluralized label for \"{readingTime} min read\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.CodeBlock.wordWrapToggle": {
+    "message": "Переключить перенос по строкам",
+    "description": "The title attribute for toggle word wrapping button of code block lines"
+  },
+  "theme.CodeBlock.copy": {
+    "message": "Скопировать",
+    "description": "The copy button label on code blocks"
+  },
+  "theme.CodeBlock.copied": {
+    "message": "Скопировано",
+    "description": "The copied button label on code blocks"
+  },
+  "theme.CodeBlock.copyButtonAriaLabel": {
+    "message": "Скопировать в буфер обмена",
+    "description": "The ARIA label for copy code blocks button"
+  },
+  "theme.docs.sidebar.collapseButtonTitle": {
+    "message": "Свернуть сайдбар",
+    "description": "The title attribute for collapse button of doc sidebar"
+  },
+  "theme.docs.sidebar.collapseButtonAriaLabel": {
+    "message": "Свернуть сайдбар",
+    "description": "The title attribute for collapse button of doc sidebar"
+  },
+  "theme.docs.sidebar.navAriaLabel": {
+    "message": "Docs sidebar",
+    "description": "The ARIA label for the sidebar navigation"
+  },
+  "theme.docs.breadcrumbs.home": {
+    "message": "Главная страница",
+    "description": "The ARIA label for the home page in the breadcrumbs"
+  },
+  "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
+    "message": "Закрыть панель навигации",
+    "description": "The ARIA label for close button of mobile sidebar"
+  },
+  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
+    "message": "← Перейти к главному меню",
+    "description": "The label of the back button to return to main menu, inside the mobile navbar sidebar secondary menu (notably used to display the docs sidebar)"
+  },
+  "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
+    "message": "Переключить навигационную панель",
+    "description": "The ARIA label for hamburger menu button of mobile navigation"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
+    "message": "Expand the dropdown",
+    "description": "The ARIA label of the button to expand the mobile dropdown navbar item"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
+    "message": "Collapse the dropdown",
+    "description": "The ARIA label of the button to collapse the mobile dropdown navbar item"
+  },
+  "theme.docs.sidebar.expandButtonTitle": {
+    "message": "Развернуть сайдбар",
+    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  },
+  "theme.docs.sidebar.expandButtonAriaLabel": {
+    "message": "Развернуть сайдбар",
+    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  },
+  "theme.SearchBar.noResultsText": {
+    "message": "Нет результатов"
+  },
+  "theme.SearchBar.seeAllOutsideContext": {
+    "message": "Показать все результаты вне \"{context}\""
+  },
+  "theme.SearchBar.searchInContext": {
+    "message": "Показать все результаты в \"{context}\""
+  },
+  "theme.SearchBar.seeAll": {
+    "message": "Показать все результаты"
+  },
+  "theme.SearchBar.label": {
+    "message": "Поиск",
+    "description": "The ARIA label and placeholder for search button"
+  },
+  "theme.SearchPage.existingResultsTitle": {
+    "message": "Результаты поиска по запросу \"{query}\"",
+    "description": "The search page title for non-empty query"
+  },
+  "theme.SearchPage.emptyResultsTitle": {
+    "message": "Поиск по документации",
+    "description": "The search page title for empty query"
+  },
+  "theme.SearchPage.searchContext.everywhere": {
+    "message": "Везде"
+  },
+  "theme.SearchPage.documentsFound.plurals": {
+    "message": "Найден 1 документ|Найдено {count} документа|Найдено {count} документов",
+    "description": "Pluralized label for \"{count} documents found\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.SearchPage.noResultsText": {
+    "message": "Документы не найдены",
+    "description": "The paragraph for empty search result"
+  },
+  "theme.blog.post.plurals": {
+    "message": "{count} запись|{count} записи|{count} записей",
+    "description": "Pluralized label for \"{count} posts\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.blog.tagTitle": {
+    "message": "{nPosts} с тегом \"{tagName}\"",
+    "description": "The title of the page for a blog tag"
+  },
+  "theme.blog.author.pageTitle": {
+    "message": "{authorName} - {nPosts}",
+    "description": "The title of the page for a blog author"
+  },
+  "theme.blog.authorsList.pageTitle": {
+    "message": "Авторы",
+    "description": "The title of the authors page"
+  },
+  "theme.blog.authorsList.viewAll": {
+    "message": "Посмотреть всех авторов",
+    "description": "The label of the link targeting the blog authors page"
+  },
+  "theme.blog.author.noPosts": {
+    "message": "Этот автор ещё не написал ни одного поста.",
+    "description": "The text for authors with 0 blog post"
+  },
+  "theme.contentVisibility.unlistedBanner.title": {
+    "message": "Страница не в списке",
+    "description": "The unlisted content banner title"
+  },
+  "theme.contentVisibility.unlistedBanner.message": {
+    "message": "Эта страница не в списке. Поисковые системы не будут её индексировать, и доступ к ней имеют только пользователи с прямой ссылкой.",
+    "description": "The unlisted content banner message"
+  },
+  "theme.contentVisibility.draftBanner.title": {
+    "message": "Черновик",
+    "description": "The draft content banner title"
+  },
+  "theme.contentVisibility.draftBanner.message": {
+    "message": "Эта страница является черновиком. Она будет видна только в режиме разработки и будет исключена из продакшн-сборки.",
+    "description": "The draft content banner message"
+  },
+  "theme.ErrorPageContent.tryAgain": {
+    "message": "Попробуйте ещё раз",
+    "description": "The label of the button to try again rendering when the React error boundary captures an error"
+  },
+  "theme.common.skipToMainContent": {
+    "message": "Перейти к основному содержимому",
+    "description": "The skip to content label used for accessibility, allowing to rapidly navigate to main content with keyboard tab/enter navigation"
+  },
   "theme.tags.tagsPageTitle": {
     "message": "Теги",
     "description": "The title of the tag list page"
-  },
-  "Russia and Russian related": {
-    "message": "Российский"
-  },
-  "Russian national digital archive created to preserve Russian and Russia related digital resources.": {
-    "message": "Национальный цифровой архив России создан для консервации и архивации ключевых российских цифровых ресурсов."
-  },
-  "Digital born": {
-    "message": "Цифровой"
-  },
-  "We collect websites, individual files, social networks accounts, telegram channels and other digital-born objects.": {
-    "message": "Мы собираем веб-сайты, отдельные файлы, аккаунты соцсетей, телеграм-каналы и другие цифровые ресурсы."
-  },
-  "Open source": {
-    "message": "Открытый"
-  },
-  "We use and create open source tools to make digital preservation effective.": {
-    "message": "Мы используем и создаём инструменты с открытым исходным кодом для эффективной цифровой архивации."
-  },
-  "Russian national digital archive (ruarxive.org)": {
-    "message": "Национальный цифровой архив России (ruarxive.org)"
-  },
-  "Digital born should be digital preserved": {
-    "message": "Цифровым данным — цифровые архивы"
-  },
-  "Knowledge base": {
-    "message": "База знаний"
-  },
-  "Russian national digital archive": {
-    "message": "Национальный цифровой архив России"
-  },
-  "Preserved projects & collections": {
-    "message": "Сохранённые проекты и коллекции"
-  },
-  "Submit project": {
-    "message": "Форма подачи проекта на архивацию"
-  },
-  "Support project": {
-    "message": "Поддержите проект"
-  },
-  "Even a small donation will allow the Russian National Digital Archive project to exist longer": {
-    "message": "Ваша помощь очень важна для нас! Каждый, даже небольшой, взнос пойдёт на развитие проекта."
-  },
-  "E-mail": {
-    "message": "Электронная почта"
-  },
-  "required in case of subscription cancellation": {
-    "message": "потребуется в случае отмены подписки"
-  },
-  "Support project monthly": {
-    "message": "Помогать проекту ежемесячно"
-  },
-  "One-time": {
-    "message": "Единовременно",
-    "description": "Single payment"
-  },
-  "Monthly": {
-    "message": "Ежемесячно",
-    "description": "Monthly payment"
   }
 }

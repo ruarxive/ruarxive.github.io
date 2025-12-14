@@ -1,41 +1,64 @@
-# Website
+# Ruarxive Website
 
-This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
+![Build Status](https://github.com/ruarxive/ruarxive_web/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/github/license/ruarxive/ruarxive_web)
+![Docusaurus](https://img.shields.io/badge/built%20with-Docusaurus-green)
+
+The official website and knowledge base for the **Russian National Digital Archive (Ruarxive)**, built with [Docusaurus 3](https://docusaurus.io/).
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js version 18 or higher.
+- npm (comes with Node.js).
 
 ### Installation
 
-```
-$ yarn
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/ruarxive/ruarxive_web.git
+cd ruarxive_web
+npm install
 ```
 
 ### Local Development
 
-```
-$ yarn start
-```
+Start the development server:
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
-
-### Build
-
-```
-$ yarn build
+```bash
+npm start
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+This starts a local development server at `http://localhost:3000`. Most changes are reflected live without restarting the server.
 
-### Deployment
+### Building for Production
 
-Using SSH:
+Generate static content into the `build` directory:
 
-```
-$ USE_SSH=true yarn deploy
-```
-
-Not using SSH:
-
-```
-$ GIT_USER=<Your GitHub username> yarn deploy
+```bash
+npm run build
 ```
 
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+## 🛠️ Project Structure
+
+- `/kb` - Knowledge Base documentation files (Markdown/MDX).
+- `/blog` - Blog posts.
+- `/src` - React components and pages.
+- `/i18n` - Translations (Russian is default, English supported).
+
+## 🧪 Code Quality
+
+This project uses ESLint and Prettier to ensure code quality.
+
+- **Lint**: `npm run lint`
+- **Format**: `npm run format`
+
+## 🤝 Contributing
+
+we welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to submit pull requests.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

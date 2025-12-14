@@ -28,7 +28,7 @@ function PaymentSingleBtn() {
   function handleSubmit(e) {
     e.preventDefault();
     // console.log(+sum);
-    var widget = new cp.CloudPayments();
+    const widget = new cp.CloudPayments();
     widget.pay('auth', // или 'charge'
       { //options
         publicId: 'pk_3018668db11eb861d16c3d8a73bf1', //id из личного кабинета
@@ -64,7 +64,7 @@ function PaymentSingleBtn() {
       <div className={'row row--no-gutters margin-bottom--md'}>
         <div className={'col'}>
           <CurrencyInput
-            placeholder="Please enter a number"
+            placeholder="Введите сумму"
             defaultValue={1000}
             value={sum}
             allowDecimals={false}
@@ -83,7 +83,7 @@ function PaymentSingleBtn() {
         <div className={'col'}>
           <button type="submit" className={clsx('button button--primary button--lg', styles.donateBtn)}>
             <Translate>
-              Support project
+              Поддержать проект
             </Translate>
           </button>
         </div>
@@ -119,7 +119,7 @@ function PaymentMonthlyBtn() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    var widget = new cp.CloudPayments();
+    const widget = new cp.CloudPayments();
     widget.pay('auth', // или 'charge'
       { //options
         publicId: 'pk_3018668db11eb861d16c3d8a73bf1', //id из личного кабинета
@@ -159,7 +159,7 @@ function PaymentMonthlyBtn() {
       <div className={'row row--no-gutters margin-bottom--xs'}>
         <div className={'col'}>
           <CurrencyInput
-            placeholder="Please enter a number"
+            placeholder="Введите сумму"
             defaultValue={1000}
             value={sum}
             allowDecimals={false}
@@ -177,14 +177,14 @@ function PaymentMonthlyBtn() {
       <div className={'row row--no-gutters margin-bottom--md'}>
         <div className={'col'}>
           <label style={{color: 'black'}}>
-            <Translate>E-mail</Translate><span style={{color: 'red'}}>*</span> <span className={styles.donateDisclaimer}>(<Translate>required in case of subscription cancellation</Translate>)</span>
+            <Translate>E-mail</Translate><span style={{color: 'red'}}>*</span> <span className={styles.donateDisclaimer}>(<Translate>необходим для отмены подписки</Translate>)</span>
           </label>
           <input type="email" className={styles.donateInput} onChange={handleChange2} required/>
         </div>
       </div>
       <div className={'row row--no-gutters'}>
         <div className={'col'}>
-          <button type="submit" className={clsx('button button--primary button--lg', styles.donateBtn)}><Translate>Support project monthly</Translate></button>
+          <button type="submit" className={clsx('button button--primary button--lg', styles.donateBtn)}><Translate>Поддерживать проект ежемесячно</Translate></button>
         </div>
       </div>
     </form>
@@ -207,7 +207,7 @@ export default function Donate(): JSX.Element {
               value="single" 
               label={
                 translate({
-                  message: 'One-time',
+                  message: 'Единовременно',
                   description: 'Single payment',
                 })
               } 
@@ -221,7 +221,7 @@ export default function Donate(): JSX.Element {
               value="monthly" 
               label={
                 translate({
-                  message: 'Monthly',
+                  message: 'Ежемесячно',
                   description: 'Monthly payment',
                 })
               } 
@@ -246,7 +246,7 @@ export default function Donate(): JSX.Element {
         <div className={'card__footer padding-top--none'}>
           <div className={styles.donateDisclaimer}>
             <p>
-              Нажатие кнопки означает согласие с <a href="https://www.infoculture.ru/wp-content/uploads/2019/01/Publichnaja-oferta-dlja-pozhertvovanii-.docx" target="_blank">договором оферты</a>
+              Нажатие кнопки означает согласие с <a href="https://www.infoculture.ru/wp-content/uploads/2019/01/Publichnaja-oferta-dlja-pozhertvovanii-.docx" target="_blank" rel="noreferrer">договором оферты</a>
             </p>
             {/*<p>Вы также можете помочь проекту через банковский перевод по реквизитам:</p>
             <p>

@@ -12,12 +12,12 @@ export default function HomepageDonate(): JSX.Element {
           <div className={clsx('col col--6')}>
             <h2 className={styles.donateTitle}>
               <Translate>
-                Support project
+                Поддержать проект
               </Translate>
             </h2>
             <p className={styles.donateSubtitle}>
               <Translate>
-                Even a small donation will allow the Russian National Digital Archive project to exist longer
+                Даже небольшое пожертвование позволит проекту Национального цифрового архива России существовать дольше
               </Translate>
             </p>
           </div>
