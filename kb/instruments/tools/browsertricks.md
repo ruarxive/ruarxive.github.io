@@ -55,3 +55,110 @@ Browsertricks поддерживает скрипты "поведения" (beha
 
 > [!WARNING]
 > Будьте осторожны при архивации личных аккаунтов. Агрессивный кроулинг может привести к блокировке аккаунта социальной сетью.
+
+## Сравнение с другими браузерными кроулерами
+
+### Brozzler
+
+[Brozzler](../tools/brozzler) — распределённый веб-кроулер, использующий реальный браузер (Chrome или Chromium).
+
+*   **Отличия от Browsertrix**:
+    *   Поддержка распределённой архитектуры
+    *   Интеграция с Redis для координации
+    *   Более сложная настройка
+    *   Подходит для больших проектов
+
+### Squidwarc
+
+[Squidwarc](../tools/squidwarc) — высококачественный интерактивный архивный кроулер, использующий Chrome или Chrome Headless.
+
+*   **Отличия от Browsertrix**:
+    *   Фокус на интерактивном архивировании
+    *   Прямое управление Chrome
+    *   Подходит для сложных SPA приложений
+
+## Browsertrix Cloud
+
+Browsertrix Cloud — облачный сервис от Webrecorder для командной работы с веб-архивами.
+
+*   **Возможности**:
+    *   Планирование кроулов
+    *   Управление коллекциями
+    *   Совместная работа
+    *   API для автоматизации
+
+*   **Использование**: Для организаций, которым нужен управляемый сервис без самостоятельного развёртывания
+
+## Best practices для behaviors
+
+### Автоматический скроллинг
+
+```bash
+--behaviors autoscroll
+```
+
+Полезно для:
+*   Ленты новостей
+*   Социальных сетей
+*   Страниц с бесконечной прокруткой
+
+### Автовоспроизведение медиа
+
+```bash
+--behaviors autoplay
+```
+
+Полезно для:
+*   Видео-сайтов
+*   Аудио-плееров
+*   Интерактивного контента
+
+### Комбинирование behaviors
+
+```bash
+--behaviors autoscroll,autoplay,clickAll
+```
+
+## Примеры конфигураций
+
+### Архивация социальной сети
+
+```bash
+docker run --rm -v $PWD/data:/crawl/data \
+    webrecorder/browsertrix-crawler crawl \
+    --url https://example-social-network.com/user/profile \
+    --generateWACZ \
+    --behaviors autoscroll,autoplay \
+    --limit 1000 \
+    --collection "Social Network Archive"
+```
+
+### Архивация SPA приложения
+
+```bash
+docker run --rm -v $PWD/data:/crawl/data \
+    webrecorder/browsertrix-crawler crawl \
+    --url https://spa-app.example.com \
+    --generateWACZ \
+    --behaviors autoscroll \
+    --waitFor 5000 \
+    --collection "SPA Archive"
+```
+
+### Архивация с аутентификацией
+
+```bash
+docker run --rm -v $PWD/data:/crawl/data \
+    -v $PWD/cookies.txt:/crawl/cookies.txt \
+    webrecorder/browsertrix-crawler crawl \
+    --url https://private-site.com \
+    --generateWACZ \
+    --cookies /crawl/cookies.txt \
+    --collection "Private Site Archive"
+```
+
+## Связанные материалы
+
+- [Другие браузерные кроулеры](/kb/instruments/tools)
+- [Формат WACZ](/kb/instruments/file-formats/wacz)
+- [ReplayWeb.page для просмотра](/kb/instruments/replay/replayweb-page)

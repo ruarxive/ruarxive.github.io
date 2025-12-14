@@ -47,6 +47,23 @@ npm run build
 - `/blog` - Blog posts.
 - `/src` - React components and pages.
 - `/i18n` - Translations (Russian is default, English supported).
+- `/static` - Static assets (images, PDFs, etc.).
+
+## 📚 Recent Updates
+
+### December 2025
+
+- **Course Section**: Added comprehensive digital archiving course with lectures DH.1-DH.4
+  - Improved text readability using pdfplumber for PDF extraction
+  - Embedded PDF presentations directly in course pages
+  - Fixed URL encoding issues for files with spaces and Cyrillic characters
+
+- **Content Improvements**:
+  - Enhanced course pages with structured, readable content
+  - Fixed PDF presentation links and embedded viewers
+  - Improved navigation and cross-references
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed change history.
 
 ## 🧪 Code Quality
 

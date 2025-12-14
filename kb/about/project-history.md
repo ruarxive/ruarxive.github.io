@@ -199,5 +199,4 @@ sidebar_position: 2
 
 - [О проекте](/about/intro)
 - [Кейсы и истории](/kb/case-studies)
-- [Вызовы и решения](/kb/challenges)
 - [Проекты](/kb/projects)
