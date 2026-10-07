@@ -1,5 +1,10 @@
 ---
+title: Экстренная архивация
+sidebar_label: Экстренная архивация
 sidebar_position: 3
+last_updated: 2026-10-07
+description: "Стратегия и тактика экстренной архивации сайтов и каналов под угрозой исчезновения: приоритеты, инструменты, координация, безопасность."
+keywords: [экстренная архивация, кризисная архивация, приоритеты, координация, безопасность архивиста]
 ---
 
 # Экстренная архивация: когда счет идет на часы
@@ -180,7 +185,7 @@ sidebar_position: 3
 
 | Инструмент | Что архивирует | Скорость | Сложность |
 |-----------|----------------|----------|-----------|
-| [Archive.ph](../instruments/tools/archive-ph) | Веб-страницы | ⚡⚡⚡ 30 сек | ★☆☆ |
+| [Archive.ph](/kb/instruments/tools/archive-ph) | Веб-страницы | ⚡⚡⚡ 30 сек | ★☆☆ |
 | Telegram Desktop | Каналы/чаты TG | ⚡⚡ 2-10 мин | ★☆☆ |
 | Screenshot tools | Любой визуал | ⚡⚡⚡ мгновенно | ★☆☆ |
 | Browser "Save As" | Одна страница | ⚡⚡⚡ 10 сек | ★☆☆ |
@@ -189,9 +194,9 @@ sidebar_position: 3
 
 | Инструмент | Что архивирует | Скорость | Сложность |
 |-----------|----------------|----------|-----------|
-| [HTTrack](../instruments/howto-collect/make-copy-website#httrack) | Целые сайты | ⚡⚡ часы | ★★☆ |
-| [yt-dlp](../instruments/social-media/youtube-video) | Видео | ⚡⚡ минуты-часы | ★★☆ |
-| [wget](../guides/wget) | Сайты, файлы | ⚡⚡ часы | ★★★ |
+| [HTTrack](/kb/instruments/howto-collect/make-copy-website#httrack) | Целые сайты | ⚡⚡ часы | ★★☆ |
+| [yt-dlp](/kb/instruments/social-media/youtube-video) | Видео | ⚡⚡ минуты-часы | ★★☆ |
+| [wget](/kb/guides/wget) | Сайты, файлы | ⚡⚡ часы | ★★★ |
 | Data Takeout | Личные данные | ⚡ дни* | ★☆☆ |
 
 *Data Takeout требует ожидания ответа от сервиса
@@ -201,7 +206,9 @@ sidebar_position: 3
 - **snscrape** - соцсети (Twitter, Instagram, VK, Reddit)
 - **gallery-dl** - галереи изображений
 - **Browsertrix Crawler** - сложные JS-сайты
-- **Conifer** - интерактивные страницыПодробные гайды: [Инструменты](../instruments/)
+- **Conifer** - интерактивные страницы
+
+Подробные гайды: [Инструменты](/kb/instruments/)
 
 ---
 
@@ -378,7 +385,7 @@ shasum -a 256 archive.zip
 
 ### Пример 3: Удаление видео с YouTube
 
-**Ситуация:** Канал  удаляется модерацией (copyright strike)
+**Ситуация:** Канал удаляется модерацией (copyright strike)
 
 **Действия:**
 - Автор скачал все видео через yt-dlp за ночь
@@ -452,9 +459,9 @@ shasum -a 256 archive.zip
 
 ### Инструменты
 
-- [Быстрый старт: архивация за 5 минут](./quick-start-5min)
-- [Archive.ph: полное руководство](../instruments/tools/archive-ph)
-- [Инструменты Ruarxive](../instruments/)
+- [Быстрый старт: архивация за 5 минут](/kb/guides/quick-start-5min)
+- [Archive.ph: полное руководство](/kb/instruments/tools/archive-ph)
+- [Инструменты Ruarxive](/kb/instruments/)
 
 ### Хранилища
 

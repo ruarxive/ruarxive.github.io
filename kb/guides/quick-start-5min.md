@@ -1,5 +1,10 @@
 ---
+title: "Быстрый старт: архивация за 5 минут"
+sidebar_label: Быстрый старт за 5 минут
 sidebar_position: 2
+last_updated: 2026-10-07
+description: "Минимальные рецепты архивации веб-страниц, Telegram-каналов, соцсетей и сайтов — когда время критично, а опыта мало."
+keywords: [быстрый старт, архивация, archive.ph, telegram, data takeout]
 ---
 
 # Быстрый старт: архивация за 5 минут
@@ -181,7 +186,7 @@ sidebar_position: 2
 wget --mirror --convert-links --adjust-extension --page-requisites --no-parent https://example.com
 ```
 
-Подробнее: [Руководство по wget](../guides/wget)
+Подробнее: [Руководство по wget](/kb/guides/wget)
 
 ---
 
@@ -220,10 +225,10 @@ wget --mirror --convert-links --adjust-extension --page-requisites --no-parent h
 
 После того как экстренная ситуация разрешена, изучите:
 
-- [Введение в цифровую архивацию](../intro.md) - базовые концепции
-- [Archive.ph: полное руководство](../instruments/tools/archive-ph) - все возможности
-- [Экстренная архивация: когда счет идет на часы](./emergency-archiving) - подробный гайд
-- [Как создать цифровой архив сайтов](../instruments/howto-collect/make-copy-website) - продвинутые методы
+- [Введение в цифровую архивацию](/kb/intro) - базовые концепции
+- [Archive.ph: полное руководство](/kb/instruments/tools/archive-ph) - все возможности
+- [Экстренная архивация: когда счет идет на часы](/kb/guides/emergency-archiving) - подробный гайд
+- [Как создать цифровой архив сайтов](/kb/instruments/howto-collect/make-copy-website) - продвинутые методы
 
 ---
 

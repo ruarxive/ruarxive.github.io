@@ -1,6 +1,8 @@
 ---
 sidebar_position: 7
 description: "Практический пайплайн: wparc собирает сайт на WordPress через REST API, metawarc индексирует коллекцию в DuckDB и поднимает локальный веб-replay"
+last_updated: 2026-10-07
+title: "Пайплайн wparc → metawarc: от WP-сайта к индексируемому архиву"
 ---
 
 # Пайплайн wparc → metawarc: от WP-сайта к индексируемому архиву

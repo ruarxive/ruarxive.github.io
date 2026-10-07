@@ -1,3 +1,9 @@
+---
+title: Warcworker
+sidebar_label: Warcworker
+description: Docker-обёртка над Squidwarc с очередью заданий, веб-интерфейсом и REST API для управления множественными архивациями
+---
+
 # Warcworker
 
 **Warcworker** — это открытый, dockerized, queued, high fidelity веб-архиватор на основе Squidwarc с простым веб-интерфейсом.

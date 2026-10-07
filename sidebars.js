@@ -36,12 +36,39 @@ const sidebars = {
     {
       type: 'category',
       label: 'Гайды',
+      collapsed: false,
+      link: { type: 'doc', id: 'guides/index' },
       items: [
         'guides/index',
-        'guides/quick-start-5min',
-        'guides/emergency-archiving',
-        'guides/wget',
-        'guides/custom-workflows',
+        {
+          type: 'category',
+          label: 'Быстрый старт',
+          key: 'guides-quickstart',
+          collapsed: false,
+          items: [
+            'guides/quick-start-5min',
+            'guides/emergency-archiving',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Инструменты',
+          key: 'guides-tools',
+          collapsed: false,
+          items: [
+            'guides/wget',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Продвинутые темы',
+          key: 'guides-advanced',
+          collapsed: false,
+          items: [
+            'guides/custom-workflows',
+            'guides/warc-workflow',
+          ],
+        },
       ],
     },
     {
@@ -80,21 +107,81 @@ const sidebars = {
           label: 'Программы и утилиты',
           items: [
             'instruments/tools/index',
-            'instruments/tools/tdl',
-            'instruments/tools/archive-ph',
-            'instruments/tools/browsertrix',
-            'instruments/tools/warc-processing',
-            'instruments/tools/heritrix',
-            'instruments/tools/httrack',
-            'instruments/tools/wpull',
-            'instruments/tools/grab-site',
-            'instruments/tools/singlefile',
-            'instruments/tools/archivebox',
-            'instruments/tools/brozzler',
-            'instruments/tools/squidwarc',
-            'instruments/tools/warcprox',
-            'instruments/tools/warcworker',
-            'instruments/tools/web-curator-tool',
+            {
+              type: 'category',
+              label: 'Браузерные кроулеры',
+              items: [
+                'instruments/tools/browsertrix',
+                'instruments/tools/brozzler',
+                'instruments/tools/squidwarc',
+                'instruments/tools/warcworker',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'HTTP-кроулеры',
+              items: [
+                'instruments/tools/heritrix',
+                'instruments/tools/wpull',
+                'instruments/tools/wget',
+                'instruments/tools/httrack',
+                'instruments/tools/grab-site',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Моментальное сохранение',
+              items: [
+                'instruments/tools/archive-ph',
+                'instruments/tools/singlefile',
+                'instruments/tools/webscrapbook',
+                'instruments/tools/monolith',
+                'instruments/tools/obelisk',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'HTTP-утилиты',
+              items: [
+                'instruments/tools/curl',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Архивные системы',
+              items: [
+                'instruments/tools/archivebox',
+                'instruments/tools/wallabag',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'WARC-инфраструктура',
+              items: [
+                'instruments/tools/warc-processing',
+                'instruments/tools/warcprox',
+                'instruments/tools/warc2zim',
+                'instruments/tools/solrwayback',
+                'instruments/tools/shine',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Управление архивацией',
+              items: [
+                'instruments/tools/web-curator-tool',
+                'instruments/tools/internet-archive-cli',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Специализированные загрузчики',
+              items: [
+                'instruments/tools/tdl',
+                'instruments/tools/yt-dlp',
+                'instruments/tools/gallery-dl',
+              ],
+            },
           ],
         },
         {
@@ -117,14 +204,44 @@ const sidebars = {
           label: 'Справочник форматов',
           items: [
             'instruments/file-formats/index',
-            'instruments/file-formats/warc',
-            'instruments/file-formats/wacz',
-            'instruments/file-formats/cdx',
-            'instruments/file-formats/bagit',
-            'instruments/file-formats/premis',
-            'instruments/file-formats/mets',
-            'instruments/file-formats/format-registries',
-            'instruments/file-formats/identification-tools',
+            {
+              type: 'category',
+              label: 'Контейнеры веб-архивов',
+              items: [
+                'instruments/file-formats/warc',
+                'instruments/file-formats/wacz',
+                'instruments/file-formats/cdx',
+                'instruments/file-formats/mhtml',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Метаданные и упаковка',
+              items: [
+                'instruments/file-formats/premis',
+                'instruments/file-formats/mets',
+                'instruments/file-formats/bagit',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Специализированные архивы',
+              items: [
+                'instruments/file-formats/pdfa',
+                'instruments/file-formats/mbox',
+                'instruments/file-formats/siard',
+                'instruments/file-formats/jp2',
+                'instruments/file-formats/iiif',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Идентификация форматов',
+              items: [
+                'instruments/file-formats/identification-tools',
+                'instruments/file-formats/format-registries',
+              ],
+            },
           ],
         },
         {
@@ -156,6 +273,7 @@ const sidebars = {
             'instruments/data-take-out/dto-instagram',
             'instruments/data-take-out/dto-facebook',
             'instruments/data-take-out/dto-twitter',
+            'instruments/data-take-out/dto-vk',
             'instruments/data-take-out/dto-youtube',
             'instruments/data-take-out/dto-yandex',
             'instruments/data-take-out/dto-google',

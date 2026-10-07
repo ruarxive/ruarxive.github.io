@@ -1,3 +1,9 @@
+---
+title: Warcprox
+sidebar_label: Warcprox
+description: MITM-прокси для записи всего HTTP/S трафика браузера в WARC-файлы в реальном времени, интегрируется с Brozzler
+---
+
 # Warcprox
 
 **Warcprox** — это WARC-writing MITM (Man-In-The-Middle) HTTP/S прокси-сервер для транзакционной архивации.

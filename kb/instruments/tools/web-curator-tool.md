@@ -1,3 +1,9 @@
+---
+title: Web Curator Tool
+sidebar_label: Web Curator Tool
+description: "Open-source система workflow для селективной веб-архивации в библиотеках: номинация → одобрение → архивация → валидация → публикация"
+---
+
 # Web Curator Tool
 
 **Web Curator Tool** — это open-source система управления workflow для селективной веб-архивации.

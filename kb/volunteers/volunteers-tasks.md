@@ -1,5 +1,8 @@
 ---
 sidebar_position: 1
+last_updated: 2026-10-07
+title: Задачи
+description: По всем вопросы пишите нам в Telegram-чат проекта @ruarxivechat.
 ---
 
 # Задачи

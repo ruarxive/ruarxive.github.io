@@ -1,3 +1,9 @@
+---
+title: Heritrix
+sidebar_label: Heritrix
+description: Эталонный веб-кроулер архивного качества от Internet Archive, создаёт WARC-файлы с тонкой настройкой через XML
+---
+
 # Heritrix
 
 **Heritrix** — это открытый, расширяемый, масштабируемый веб-кроулер архивного качества, разработанный Internet Archive.

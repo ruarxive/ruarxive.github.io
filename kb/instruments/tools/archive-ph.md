@@ -1,5 +1,8 @@
 ---
-sidebar_position: 4
+title: Archive.ph
+sidebar_label: Archive.ph (archive.today)
+sidebar_position: 1
+description: Бесплатный веб-сервис для моментального создания неизменяемых снимков веб-страниц за 10–30 секунд без регистрации
 ---
 
 # Archive.ph: полное руководство

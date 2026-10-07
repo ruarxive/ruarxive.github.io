@@ -108,7 +108,7 @@
 | **Just Solve It** | Archive Team | Широкий спектр | Постоянные | Для документирования |
 | **Game File Format Central** | Сообщество | Игровые форматы | Постоянные | Для игровых архивов |
 
-## Best practices
+## Рекомендации
 
 ### Выбор регистра
 
@@ -148,4 +148,9 @@
 
 - [Идентификация форматов](/kb/instruments/file-formats/identification-tools)
 - [Тестовые файлы](/kb/resources/test-files)
+- [PDF/A](/kb/instruments/file-formats/pdfa) — формат архивации документов
+- [JP2](/kb/instruments/file-formats/jp2) — формат для архивации изображений
+- [MBOX](/kb/instruments/file-formats/mbox) — формат для архивации электронной почты
+- [SIARD](/kb/instruments/file-formats/siard) — формат для архивации реляционных баз данных
+- [IIIF](/kb/instruments/file-formats/iiif) — стандарт доставки изображений
 - [Форматы архивов](/kb/instruments/file-formats)

@@ -1,6 +1,8 @@
 ---
 sidebar_position: 4
 last_updated: 2026-10-07
+title: Facebook
+description: Архивация Facebook требует специального подхода — платформа активно ограничивает сбор
 ---
 
 # Facebook

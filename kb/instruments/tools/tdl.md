@@ -1,3 +1,9 @@
+---
+title: tdl
+sidebar_label: tdl (Telegram Downloader)
+description: Высокопроизводительный загрузчик Telegram-каналов и чатов на Go с поддержкой защищённого контента и экспортом в JSON
+---
+
 # tdl (Telegram Downloader)
 
 **tdl** — это мощный инструмент командной строки и библиотека на языке Go для скачивания и управления данными в Telegram.

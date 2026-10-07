@@ -1,3 +1,9 @@
+---
+title: F(b)arc
+description: F(b)arc — это командная строка и Python библиотека для архивации данных из Facebook через Graph API.
+last_updated: 2026-10-07
+---
+
 # F(b)arc
 
 **F(b)arc** — это командная строка и Python библиотека для архивации данных из Facebook через Graph API.

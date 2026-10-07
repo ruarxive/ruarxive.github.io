@@ -1,7 +1,7 @@
 ---
 title: Browsertrix
 sidebar_label: Browsertrix Crawler
-last_updated: 2026-10-07
+description: Современный кроулер от Webrecorder на базе реального Chrome для архивации JavaScript-сайтов и SPA с генерацией WACZ
 ---
 
 # Browsertrix

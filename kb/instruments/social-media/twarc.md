@@ -1,3 +1,9 @@
+---
+title: twarc
+description: twarc — это командная строка и Python библиотека для архивации Twitter JSON данных.
+last_updated: 2026-10-07
+---
+
 # twarc
 
 **twarc** — это командная строка и Python библиотека для архивации Twitter JSON данных.

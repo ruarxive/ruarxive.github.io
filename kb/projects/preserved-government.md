@@ -1,5 +1,8 @@
 ---
 sidebar_position: 3
+last_updated: 2026-10-07
+title: Консервированное государство/ Preserved government
+description: В России архивация официальных веб-ресурсов, социальных сетей и иных материалов полностью отсутствует. Со стороны государства нет требований к обязательному долгосрочному сохранен…
 ---
 
 # Консервированное государство/ Preserved government
@@ -40,12 +43,10 @@ sidebar_position: 3
 
 Успешно сохранены все сообщения и метаданные, в ограниченном режиме — изображения и видео. Если вы готовы выступить волонтером, чтобы дополнительно собрать и архивировать медиа-контент, ознакомьтесь с [__Задачей №6__](https://ruarxive.org/kb/volunteers/volunteers-tasks).
 
-За помощь в составлении списка аккаунтов благодарим коллег из [«Трансперенси Интернешнл — Россия»](https://transparency.org.ru/).
 
+- Список официальных твиттер аккаунтов: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdEs4U2d5RHh0eFN0UFRCR2xJbkZ0OVE&usp=sharing *(legacy, может потребовать доступ; проверено 2025-08)*
 
-- Список официальных твиттер аккаунтов: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdEs4U2d5RHh0eFN0UFRCR2xJbkZ0OVE&usp=sharing *(legacy, может потребовать доступ)*
-
-- Текущий список каналов на Youtube: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdHNEemRWQS1jckJEdEphSnk0a3ZEbGc&usp=sharing *(legacy, может потребовать доступ)*
+- Текущий список каналов на Youtube: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdHNEemRWQS1jckJEdEphSnk0a3ZEbGc&usp=sharing *(legacy, может потребовать доступ; проверено 2025-08)*
 
 - База данных «Архивы государственных твиттеров»: http://hubofdata.ru/dataset/govtwitters-archives
 
@@ -58,7 +59,7 @@ sidebar_position: 3
 
 Совокупный объём архивов 88 сайтов составляет 22 ГБ в запакованном виде и до 300 ГБ в распакованном.
 
-- Список собранных архивов: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdDJlczBoc095QmdLV25pY2NtSFRDaFE&usp=sharing *(legacy, может потребовать доступ)*
+- Список собранных архивов: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdDJlczBoc095QmdLV25pY2NtSFRDaFE&usp=sharing *(legacy, может потребовать доступ; проверено 2025-08)*
 - 1940 наборов данных в Хабе открытых данных в разделе «Архивы сайтов»: https://hubofdata.ru/dataset/?__no_cache__=True&groups=webarchive
 
 Некоторые ресурсы плохо подходят для архивации, например они неудобны в использовании,поэтому мы архивируем их, преобразуя в базы данных. Таким образом уже архивированы:

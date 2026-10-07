@@ -1,5 +1,8 @@
 ---
 sidebar_position: 3
+last_updated: 2026-10-07
+title: Уроки проекта Ruarxive
+description: Опыт и выводы, полученные за годы работы по сохранению цифрового наследия России.
 ---
 
 # Уроки проекта Ruarxive
