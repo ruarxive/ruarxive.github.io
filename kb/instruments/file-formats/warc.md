@@ -164,5 +164,5 @@ for content_type in sorted(sizes.keys()):
 - [Обработка WARC](/kb/instruments/tools/warc-processing) — библиотеки и инструменты для работы с WARC
 - [Инструменты воспроизведения](/kb/instruments/replay) — просмотр WARC архивов
 - [Heritrix](/kb/instruments/tools/heritrix) — создание WARC файлов
-- [Browsertrix](/kb/instruments/tools/browsertricks) — создание WARC/WACZ архивов
+- [Browsertrix](/kb/instruments/tools/browsertrix) — создание WARC/WACZ архивов
 - [grab-site](/kb/instruments/tools/grab-site) — создание WARC файлов

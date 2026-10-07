@@ -128,5 +128,5 @@ WACZ автоматически создает индексы CDXJ при соз
 - [Формат WARC](/kb/instruments/file-formats/warc) — базовый формат веб-архивов
 - [Формат CDX](/kb/instruments/file-formats/cdx) — формат индексации
 - [ReplayWeb.page](/kb/instruments/replay/replayweb-page) — просмотр WACZ файлов
-- [Browsertrix](/kb/instruments/tools/browsertricks) — создание WACZ архивов
+- [Browsertrix](/kb/instruments/tools/browsertrix) — создание WACZ архивов
 - [Обработка WARC](/kb/instruments/tools/warc-processing) — работа с WARC файлами

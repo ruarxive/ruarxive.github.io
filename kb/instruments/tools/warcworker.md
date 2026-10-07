@@ -151,5 +151,5 @@ docker run -d \
 ## Связанные материалы
 
 - [Squidwarc для сравнения](/kb/instruments/tools/squidwarc)
-- [Browsertrix для организаций](/kb/instruments/tools/browsertricks)
+- [Browsertrix для организаций](/kb/instruments/tools/browsertrix)
 - [Управление заданиями](/kb/guides/custom-workflows)

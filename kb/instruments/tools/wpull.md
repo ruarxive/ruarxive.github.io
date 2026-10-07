@@ -194,5 +194,5 @@ wpull --recursive \
 ## Связанные материалы
 
 - [Wget для сравнения](/kb/guides/wget)
-- [Browsertrix для JavaScript сайтов](/kb/instruments/tools/browsertricks)
+- [Browsertrix для JavaScript сайтов](/kb/instruments/tools/browsertrix)
 - [Формат WARC](/kb/instruments/file-formats/warc)

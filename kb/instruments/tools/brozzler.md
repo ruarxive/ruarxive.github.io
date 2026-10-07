@@ -158,5 +158,5 @@ brozzler-worker --warcprox-address=localhost:8000
 
 ## Связанные материалы
 
-- [Browsertrix для сравнения](/kb/instruments/tools/browsertricks)
+- [Browsertrix для сравнения](/kb/instruments/tools/browsertrix)
 - [Формат WARC](/kb/instruments/file-formats/warc)

@@ -145,6 +145,6 @@ squidwarc --url https://example.com \
 
 ## Связанные материалы
 
-- [Browsertrix для автоматизации](/kb/instruments/tools/browsertricks)
+- [Browsertrix для автоматизации](/kb/instruments/tools/browsertrix)
 - [Интерактивная архивация](/kb/guides/custom-workflows)
 - [Формат WARC](/kb/instruments/file-formats/warc)

@@ -54,7 +54,7 @@ sidebar_position: 1
 Если у вас уже есть опыт:
 
 1. **[Экстренная архивация](/kb/guides/emergency-archiving)** — стратегии для кризисных ситуаций
-2. **[Browsertrix](/kb/instruments/tools/browsertricks)** — архивация JavaScript-сайтов
+2. **[Browsertrix](/kb/instruments/tools/browsertrix)** — архивация JavaScript-сайтов
 3. **[Формат WARC](/kb/instruments/file-formats/warc)** — понимание форматов архивов
 
 ### Для экспертов

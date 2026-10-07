@@ -178,6 +178,6 @@ archivebox remove --older-than=365
 
 ## Связанные материалы
 
-- [Browsertrix для организаций](/kb/instruments/tools/browsertricks)
+- [Browsertrix для организаций](/kb/instruments/tools/browsertrix)
 - [Wget для простых случаев](/kb/guides/wget)
 - [Личные архивы](/kb/guides/quick-start-5min)
