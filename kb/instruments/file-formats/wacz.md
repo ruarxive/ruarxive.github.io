@@ -51,7 +51,7 @@ pip install wacz
 wacz create -o output.wacz my-warc-directory/
 ```
 
-Также WACZ автоматически создается инструментом [Browsertricks](../tools/browsertricks).
+Также WACZ автоматически создается инструментом [Browsertrix](../tools/browsertrix).
 
 ### Просмотр WACZ
 

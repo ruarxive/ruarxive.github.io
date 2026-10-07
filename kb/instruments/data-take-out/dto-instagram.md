@@ -12,4 +12,4 @@ Instagram позволяет выбрать формат представлен�
 
 Чтобы запустить процесс и скачать свои данные уже из заблокированного Instagram, рекомендуем воспользоваться VPN. 
 
-![Data take out Instagram](/images/image2.png)​
+![Data take out Instagram](/images/image2.png)

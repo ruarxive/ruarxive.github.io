@@ -11,10 +11,10 @@ Facebook имеет специальный инструмент для скач�
 - JSON — формат данных для чтения компьютером, необходим для анализа данных.
 
 
-![Data take out Facebook: formats](/images/image1.png)​
+![Data take out Facebook: formats](/images/image1.png)
 
 Выбор информации для скачивания: сообщения, друзья и подписчики, журналы данных, публикации, публичные страницы, мероприятия, посещенные места, комментарии и реакции, группы, сообщества и другое.
 
 Можно скачать полную копию или указать определенные типы данных или диапазоны дат.
 
-![Data take out Facebook: type of information](/images/image4.png)​
+![Data take out Facebook: type of information](/images/image4.png)

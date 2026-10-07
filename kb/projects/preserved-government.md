@@ -1,8 +1,6 @@
 ---
 sidebar_position: 3
-position: 3
 ---
-
 
 # Консервированное государство/ Preserved government
 
@@ -45,9 +43,9 @@ position: 3
 За помощь в составлении списка аккаунтов благодарим коллег из [«Трансперенси Интернешнл — Россия»](https://transparency.org.ru/).
 
 
-- Список официальных твиттер аккаунтов: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdEs4U2d5RHh0eFN0UFRCR2xJbkZ0OVE&usp=sharing
+- Список официальных твиттер аккаунтов: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdEs4U2d5RHh0eFN0UFRCR2xJbkZ0OVE&usp=sharing *(legacy, может потребовать доступ)*
 
-- Текущий список каналов на Youtube: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdHNEemRWQS1jckJEdEphSnk0a3ZEbGc&usp=sharing
+- Текущий список каналов на Youtube: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdHNEemRWQS1jckJEdEphSnk0a3ZEbGc&usp=sharing *(legacy, может потребовать доступ)*
 
 - База данных «Архивы государственных твиттеров»: http://hubofdata.ru/dataset/govtwitters-archives
 
@@ -60,7 +58,7 @@ position: 3
 
 Совокупный объём архивов 88 сайтов составляет 22 ГБ в запакованном виде и до 300 ГБ в распакованном.
 
-- Список собранных архивов: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdDJlczBoc095QmdLV25pY2NtSFRDaFE&usp=sharing
+- Список собранных архивов: https://docs.google.com/spreadsheet/ccc?key=0AphaFpvgzsyhdDJlczBoc095QmdLV25pY2NtSFRDaFE&usp=sharing *(legacy, может потребовать доступ)*
 - 1940 наборов данных в Хабе открытых данных в разделе «Архивы сайтов»: https://hubofdata.ru/dataset/?__no_cache__=True&groups=webarchive
 
 Некоторые ресурсы плохо подходят для архивации, например они неудобны в использовании,поэтому мы архивируем их, преобразуя в базы данных. Таким образом уже архивированы:

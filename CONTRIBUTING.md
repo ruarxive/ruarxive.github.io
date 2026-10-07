@@ -1,47 +1,128 @@
 # Contributing to Ruarxive Website
 
-Thank you for your interest in contributing to the Ruarxive project! We welcome contributions from everyone.
+Спасибо за интерес к проекту Ruarxive! Мы рады вкладу от всех — от исследователей
+до разработчиков и редакторов.
 
-## Getting Started
+## Структура репозитория
 
-1.  **Fork the repository** on GitHub.
-2.  **Clone your fork** locally:
-    ```bash
-    git clone https://github.com/YOUR_USERNAME/ruarxive_web.git
-    cd ruarxive_web
-    ```
-3.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
-4.  **Create a branch** for your feature or fix:
-    ```bash
-    git checkout -b feature/amazing-feature
-    ```
+- `/kb/` — база знаний на Docusaurus. Markdown-файлы, разбитые по категориям.
+- `/about/` — страницы верхнего уровня (О проекте, Команда, Поддержать).
+- `/blog/` — посты блога с датой в имени файла (формат `YYYY-MM-DD-slug.md`).
+- `/static/` — статические ресурсы (изображения, файлы для скачивания).
+- `/src/` — React-компоненты и стили Docusaurus.
+- `/i18n/` — переводы интерфейса.
 
-## Making Changes
+## Документация: как редактировать базу знаний
 
-- **Documentation**: Edits to the Knowledge Base go in the `/kb` folder. Blog posts go in `/blog`.
-- **Code**: React components are in `/src`.
-- **Styles**: Custom CSS is in `/src/css`.
+### Быстрые правки
 
-### Code Style
-We use ESLint and Prettier. Please run the following before committing:
+1. Откройте нужный файл в `kb/` на GitHub.
+2. Нажмите ✏️ (Edit this file) → отредактируйте → **Propose changes**.
+3. Создайте Pull Request с описанием правки.
 
-```bash
-npm run format
-npm run lint
+### Новые статьи
+
+1. Скопируйте файл [`docs/_template.md`](./docs/_template.md).
+2. Поместите копию в подходящую папку внутри `kb/`.
+3. Укажите `sidebar_position`, `title`, `sidebar_label`.
+4. Добавьте docId в [`sidebars.js`](./sidebars.js).
+5. Сделайте PR.
+
+## Правила для авторов
+
+### Структура статьи
+
+Каждая статья должна содержать:
+
+1. **Заголовок H1** — короткое название.
+2. **Вводный абзац** — о чём статья и для кого.
+3. **Основные разделы** — не более 4 уровней вложенности.
+4. **Блок «Связанные материалы»** в конце — ссылки на смежные статьи.
+
+Рекомендуемая структура практических гайдов:
+
+```
+# Название
+
+> Краткое описание в одном предложении (можно в callout).
+
+## Когда использовать
+- Сценарий 1
+- Сценарий 2
+
+## Когда НЕ использовать
+- Сценарий 3
+
+## Шаги / Инструкция
+1. ...
+2. ...
+
+## Связанные материалы
+- [Ссылка 1](#)
 ```
 
-## Submitting a Pull Request
+### Стиль
 
-1.  **Push your branch** to GitHub:
-    ```bash
-    git push origin feature/amazing-feature
-    ```
-2.  Open a **Pull Request** on the main repository.
-3.  Ensure the **CI checks** pass.
+- Пишите **по-русски**, простой язык, без канцеляризмов.
+- Термины на английском — в скобках при первом упоминании: «архив (WARC)».
+- Длины строк — до 120 символов.
+- Используйте `> **Примечание:**` для важных замечаний.
+- Используйте admonitions Docusaurus: `:::warning`, `:::tip`, `:::info`.
+
+### Frontmatter
+
+Каждая статья должна иметь frontmatter:
+
+```yaml
+---
+title: Название статьи
+sidebar_position: 1  # порядок в сайдбаре
+sidebar_label: Краткая метка (опционально)
+last_updated: 2026-10-07  # дата последней проверки
+---
+```
+
+### Обязательные проверки
+
+Перед созданием PR убедитесь:
+
+- [ ] Все ссылки внутри `/kb/` указывают на существующие файлы.
+- [ ] Внешние ссылки ведут на HTTPS и не битые.
+- [ ] Изображения в `static/img/` (или `static/images/`).
+- [ ] Нет полей `position` — только `sidebar_position`.
+- [ ] Нет опечаток: «Browsertricks» → «Browsertrix», «HTTPA» → «HTTrack».
+- [ ] Указан `last_updated`.
+
+## Код
+
+### Установка
+
+```bash
+npm install
+```
+
+### Локальный запуск
+
+```bash
+npm start
+```
+
+Сайт будет доступен на http://localhost:3000/.
+
+### Проверка перед коммитом
+
+```bash
+npm run lint
+npm run format
+npm run build  # полная сборка
+```
 
 ## Reporting Issues
 
-If you find a bug or have a suggestion, please open an issue in the [GitHub Issue Tracker](https://github.com/ruarxive/ruarxive_web/issues).
+Нашли баг или есть предложение? Откройте issue в
+[GitHub Issue Tracker](https://github.com/ruarxive/ruarxive_web/issues).
+
+## Лицензия
+
+Все материалы, кроме отдельно помеченных, распространяются под CC-BY 4.0.
+См. файл [LICENSE](./LICENSE).
