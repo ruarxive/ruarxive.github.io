@@ -1,3 +1,9 @@
+---
+title: Instagram
+description: Архивация Instagram сложна из-за агрессивных анти-бот мер платформы.
+last_updated: 2026-10-07
+---
+
 # Instagram
 
 Архивация Instagram сложна из-за агрессивных анти-бот мер платформы.

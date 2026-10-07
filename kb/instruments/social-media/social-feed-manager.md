@@ -1,3 +1,9 @@
+---
+title: Social Feed Manager
+description: Social Feed Manager — это open-source программное обеспечение, которое позволяет пользователям создавать коллекции из социальных медиа через публичные API Twitter, Tumblr, Flickr…
+last_updated: 2026-10-07
+---
+
 # Social Feed Manager
 
 **Social Feed Manager** — это open-source программное обеспечение, которое позволяет пользователям создавать коллекции из социальных медиа через публичные API Twitter, Tumblr, Flickr и Sina Weibo.

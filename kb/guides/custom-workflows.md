@@ -1,5 +1,10 @@
 ---
+title: Создание кастомных workflow для архивации
+sidebar_label: Кастомные workflow
 sidebar_position: 4
+last_updated: 2026-10-07
+description: "Как объединить несколько инструментов Ruarxive и сторонние утилиты в автоматизированные процессы архивации на bash и Python."
+keywords: [workflow, автоматизация, bash, python, расписание, retry, логирование]
 ---
 
 # Создание кастомных workflow для архивации

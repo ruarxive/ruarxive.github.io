@@ -110,6 +110,26 @@ Contact-Email: john@example.com
 Bagging-Date: 2024-01-01
 ```
 
+Полный набор стандартных полей определён в [RFC 8493 §2.2.2](https://tools.ietf.org/html/rfc8493#section-2.2.2). Наиболее употребительные:
+
+- `Source-Organization` — организация-источник данных
+- `Contact-Name`, `Contact-Email`, `Contact-Phone`
+- `External-Identifier` — внешний идентификатор (DOI, ISBN, архивный шифр)
+- `External-Description` — краткое описание содержимого
+- `Bagging-Date`, `Bagging-Software`, `Bag-Size`, `Bag-Group-Identifier`
+- `Payload-Oxum` — общий объём payload в байтах и количество файлов (OctetStream Sum)
+- `Bag-Count` — порядковый номер в серии (для многосериевых наборов)
+
+### Дополнительные файлы: `fetch.txt` и `tagmanifest-*`
+
+**`fetch.txt`** — опциональный файл, в котором перечислены файлы, размещённые вне директории `data/`, но логически принадлежащие архиву (например, слишком большие видео или ресурсы по URL). Утилиты валидации подтягивают их и проверяют контрольные суммы. Это критично для архивов, где часть материалов хранится на отдельном хранилище (Yandex Object Storage, S3 и т. п.).
+
+```
+sha256=abf3... https://storage.example.ru/video.mp4 104857600
+```
+
+**`tagmanifest-*`** — помимо MD5, спецификация разрешает `sha256`, `sha512` и `sha1`. Рекомендуется использовать `sha256` или `sha512` как устойчивые к коллизиям.
+
 ## Использование в архивации
 
 ### Упаковка WARC файлов
@@ -149,7 +169,17 @@ bagit.py --validate my-bag
 *   Системы передачи данных
 *   Инструменты обработки
 
-## Best practices
+## Профили BagIt
+
+Базовая спецификация (RFC 8493) намеренно минимальна. Конкретные репозитории публикуют **профили BagIt** — расширения, фиксирующие обязательные поля, тип хешей, дополнительные tag-файлы и допустимые ограничения:
+
+- [APTrust Profile](https://aptrust.org/wp-content/uploads/2020/06/BagIt-Profile-APTrust.pdf) — крупнейший профиль для академических архивов.
+- [BTRS Profile](https://tools.ietf.org/html/rfc8493) — базовый, отражает саму спецификацию.
+- [Duracloud Profile](https://wiki.lyrasis.org/display/DSP/DuraCloud+BagIt+Profile) — для облачных репозиториев.
+
+Профиль объявляется в `bag-info.txt` через поле `BagIt-Profile-Version`, что позволяет принимающей стороне проверить соответствие.
+
+## Рекомендации
 
 ### Организация
 
@@ -159,7 +189,7 @@ bagit.py --validate my-bag
 
 ### Контрольные суммы
 
-*   Используйте MD5 или SHA-256
+*   Используйте SHA-256 (или SHA-512) — MD5 устарел и неустойчив к коллизиям
 *   Регулярно проверяйте целостность
 *   Обновляйте манифесты при изменении
 
@@ -171,7 +201,7 @@ bagit.py --validate my-bag
 
 ## Ресурсы
 
-*   [BagIt спецификация](https://tools.ietf.org/html/rfc8493)
+*   [BagIt спецификация (RFC 8493)](https://tools.ietf.org/html/rfc8493)
 *   [BagIt Python библиотека](https://github.com/LibraryOfCongress/bagit-python)
 *   [BagIt документация](https://github.com/LibraryOfCongress/bagit)
 
@@ -179,4 +209,4 @@ bagit.py --validate my-bag
 
 - [Формат WARC](/kb/instruments/file-formats/warc)
 - [Метаданные PREMIS](/kb/instruments/file-formats/premis)
-- [Передача архивов](/kb/guides/custom-workflows)
+- [Кастомные workflow для архивации](/kb/guides/custom-workflows)

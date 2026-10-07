@@ -1,3 +1,9 @@
+---
+title: Squidwarc
+sidebar_label: Squidwarc
+description: Высококачественный интерактивный кроулер с прямым управлением Chrome через DevTools Protocol для сложных веб-приложений
+---
+
 # Squidwarc
 
 **Squidwarc** — это открытый, высококачественный, интерактивный архивный кроулер, использующий Chrome или Chrome Headless напрямую.

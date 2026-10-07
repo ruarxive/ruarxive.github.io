@@ -1,17 +1,20 @@
 # Ruarxive Website
 
 ![Build Status](https://github.com/ruarxive/ruarxive_web/actions/workflows/ci.yml/badge.svg)
+![Deploy Status](https://github.com/ruarxive/ruarxive_web/actions/workflows/deploy.yml/badge.svg)
 ![License](https://img.shields.io/github/license/ruarxive/ruarxive_web)
 ![Docusaurus](https://img.shields.io/badge/built%20with-Docusaurus-green)
 
 The official website and knowledge base for the **Russian National Digital Archive (Ruarxive)**, built with [Docusaurus 3](https://docusaurus.io/).
 
+Сайт проекта: **[ruarxive.org](https://ruarxive.org/)**
+
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js version 18 or higher.
-- npm (comes with Node.js).
+- Node.js version **22** (см. `.github/workflows/deploy.yml`).
+- npm (поставляется вместе с Node.js).
 
 ### Installation
 
@@ -25,57 +28,78 @@ npm install
 
 ### Local Development
 
-Start the development server:
+Запустите dev-сервер:
 
 ```bash
 npm start
 ```
 
-This starts a local development server at `http://localhost:3000`. Most changes are reflected live without restarting the server.
+Сайт будет доступен на `http://localhost:3000`. Большинство изменений подхватываются на лету без перезапуска.
 
 ### Building for Production
 
-Generate static content into the `build` directory:
+Сгенерировать статический билд в каталоге `build/`:
 
 ```bash
 npm run build
 ```
 
+Локально посмотреть production-билд:
+
+```bash
+npm run serve
+```
+
 ## 🛠️ Project Structure
 
-- `/kb` - Knowledge Base documentation files (Markdown/MDX).
-- `/blog` - Blog posts.
-- `/src` - React components and pages.
-- `/i18n` - Translations (Russian is default, English supported).
-- `/static` - Static assets (images, PDFs, etc.).
+- `/kb` — база знаний (Markdown/MDX): гайды, кейсы, инструменты, форматы, кейс-стади, разделы для пользователей, волонтёров, юридические вопросы и т. д.
+- `/blog` — посты блога.
+- `/src` — React-компоненты и кастомные страницы (формы Airtable, таблицы, интерактивные элементы).
+- `/i18n` — переводы интерфейса (по умолчанию — русский, поддерживается английский).
+- `/static` — статические ресурсы (изображения, PDF, файлы).
+- `/sidebars.js` — структура сайдбара базы знаний.
+- `/docusaurus.config.js` — конфигурация Docusaurus (тема, плагины, аналитика).
 
 ## 📚 Recent Updates
 
-### December 2025
+### Октябрь 2026 — масштабная ревизия базы знаний
 
-- **Course Section**: Added comprehensive digital archiving course with lectures DH.1-DH.4
-  - Improved text readability using pdfplumber for PDF extraction
-  - Embedded PDF presentations directly in course pages
-  - Fixed URL encoding issues for files with spaces and Cyrillic characters
+- **Раздел инструментов Ruarxive**: добавлены страницы `metawarc` и `metawarc-mcp`; описана цепочка `wparc → metawarc`.
+- **Гайды**: переработан раздел, добавлены `warc-workflow.md`, обновлены `quick-start`, `emergency-archiving`, `custom-workflows`, `wget`.
+- **Справочник форматов**: добавлены страницы про `iiif`, `jp2`, `mbox`, `mhtml`, `pdfa`, `siard`; приведены к единому виду `warc`, `wacz`, `cdx`, `bagit`, `premis`, `mets`.
+- **Инструменты (сторонние)**: добавлены `curl`, `internet-archive-cli`, `monolith`, `obelisk`, `shine`, `solrwayback`, `wallabag`, `warc2zim`, `webscrapbook`, `wget`; обновлены существующие страницы; переработан индекс со сценариями выбора.
+- **Соцсети и data-take-out**: расширены `instagram.md`, `dto-telegram`, `dto-facebook`, `dto-instagram`, `dto-twitter`, `dto-google`, `dto-yandex`, `dto-notion`, `dto-slack`, `dto-youtube`; добавлен `dto-vk`.
+- **Сайдбар (`sidebars.js`)**: подключены ранее «висячие» категории (`file-formats`, `replay`, `downloaded-data`), новые инструменты и форматы; устранены конфликты ярлыков.
+- **Контент**: переписаны кейс-стади (`bank-closures`, `platform-migrations`, `government-websites-disappearing`, `international-examples`, `multi-tool-archiving`, `api-archiving-scale`, `wparc-to-metawarc-pipeline`), проекты, раздел «О проекте» (`project-history`, `lessons-learned`).
+- **CI/CD**: обновлены GitHub Actions до Node.js 22 и `actions/upload-pages-artifact@v5`.
 
-- **Content Improvements**:
-  - Enhanced course pages with structured, readable content
-  - Fixed PDF presentation links and embedded viewers
-  - Improved navigation and cross-references
-
-See [CHANGELOG.md](CHANGELOG.md) for detailed change history.
+См. [CHANGELOG.md](CHANGELOG.md) для подробной истории изменений.
 
 ## 🧪 Code Quality
 
-This project uses ESLint and Prettier to ensure code quality.
+В проекте используются ESLint и Prettier.
 
 - **Lint**: `npm run lint`
 - **Format**: `npm run format`
+- **TypeScript check**: `npm run typecheck`
+
+## 🚢 Deployment
+
+Деплой автоматический — при каждом push в `main` (или `master`) GitHub Actions собирает сайт и публикует его в GitHub Pages (окружение `github-pages`). URL публикации настраивается в workflow и обычно соответствует `ruarxive.org` (см. `static/CNAME`).
+
+PR в `main`/`master` дополнительно прогоняются через `ci.yml` (тестовый билд).
 
 ## 🤝 Contributing
 
-we welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to submit pull requests.
+We welcome contributions! Подробности — в [CONTRIBUTING.md](CONTRIBUTING.md).
+
+Основные принципы работы с контентом:
+
+- База знаний живёт в `/kb`; одна страница = один `.md`-файл с frontmatter (`title`, `description`, `sidebar_position`, при необходимости `last_updated`).
+- Боковое меню — вручную в `/sidebars.js`. Если вы добавили новую страницу, не забудьте подключить её в сайдбаре, иначе она не попадёт в билд.
+- Иконки/изображения кладите в `/static/img/...`.
+- Перед PR локально убедитесь, что `npm run build` отрабатывает без ошибок.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.

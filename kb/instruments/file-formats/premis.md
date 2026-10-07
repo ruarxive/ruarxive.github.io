@@ -1,4 +1,4 @@
-# PREMIS (Preservation Metadata)
+# PREMIS
 
 **PREMIS (Preservation Metadata Implementation Strategies)** — это стандарт метаданных для цифрового сохранения, разработанный для документирования информации, необходимой для долгосрочного сохранения цифровых объектов.
 
@@ -19,11 +19,46 @@ PREMIS определяет набор основных метаданных, к
 
 PREMIS определяет пять основных сущностей:
 
-1. **Intellectual Entity**: Интеллектуальный объект (например, веб-сайт)
-2. **Object**: Цифровой объект (файл, битстрим)
-3. **Event**: Событие (действие, выполненное над объектом)
-4. **Agent**: Агент (человек, организация, программное обеспечение)
-5. **Rights**: Права (информация о правах доступа)
+1. **Intellectual Entity**: Интеллектуальный объект (например, веб-сайт, книга, фильм)
+2. **Object**: Цифровой объект — файл, битстрим или их представление. Бывает трёх типов: `file` (файл с метаданными), `bitstream` (битстрим как объект), `representation` (составной объект из нескольких файлов)
+3. **Event**: Событие — действие, выполненное над объектом (захват, миграция, проверка целостности)
+4. **Agent**: Агент — человек, организация или программное обеспечение, выполнившее событие
+5. **Rights**: Права — информация о правах доступа к объекту (лицензии, разрешения, ограничения)
+
+### Intellectual Entity vs Object
+
+Различие между ними принципиально для веб-архивов:
+
+- **Intellectual Entity** = то, что мы понимаем как «единицу» архива (сайт госоргана, профиль в соцсети, выпуск новостей).
+- **Object** = то, что физически лежит на диске (WARC-файл, набор скриншотов, исходный JSON).
+
+Один Intellectual Entity состоит из одного или нескольких Object. PREMIS позволяет связать их через `linkingEventIdentifier` и `linkingAgentIdentifier`.
+
+### Rights (права доступа)
+
+Сущность Rights описывает правовой режим объекта. Стандартные категории rights statements:
+
+- **copyright** — авторские права на объект
+- **license** — лицензия (Creative Commons, GNU и т. п.)
+- **statutory** — правовое основание доступа (например, закон об архивах)
+- **other** — иные права (патент, товарный знак, договорные ограничения)
+
+Пример:
+
+```xml
+<premis:rightsStatement>
+  <premis:rightsStatementIdentifier>
+    <premis:rightsStatementIdentifierType>UUID</premis:rightsStatementIdentifierType>
+    <premis:rightsStatementIdentifierValue>...</premis:rightsStatementIdentifierValue>
+  </premis:rightsStatementIdentifier>
+  <premis:rightsBasis>license</premis:rightsBasis>
+  <premis:rightsGranted>
+    <premis:act>reproduce</premis:act>
+    <premis:restriction>Allow</premis:restriction>
+  </premis:rightsGranted>
+  <premis:linkingObjectIdentifierValue>123e4567-...</premis:linkingObjectIdentifierValue>
+</premis:rightsStatement>
+```
 
 ### Пример структуры
 
@@ -79,10 +114,26 @@ PREMIS можно использовать для документировани
 
 ### METS
 
-PREMIS часто используется вместе с METS для структурирования метаданных:
+PREMIS часто используется вместе с METS: METS описывает структуру коллекции, а PREMIS встраивается в секцию `mets:amdSec`. Например, `digiprovMD` содержит информацию о происхождении, `rightsMD` — о правах.
 
-*   METS предоставляет структуру
-*   PREMIS предоставляет метаданные сохранения
+```xml
+<mets:amdSec>
+  <mets:digiprovMD ID="DP1">
+    <mets:mdWrap MDTYPE="PREMIS">
+      <mets:xmlData>
+        <premis:event>...</premis:event>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:digiprovMD>
+  <mets:rightsMD ID="RT1">
+    <mets:mdWrap MDTYPE="PREMIS">
+      <mets:xmlData>
+        <premis:rightsStatement>...</premis:rightsStatement>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:rightsMD>
+</mets:amdSec>
+```
 
 ### BagIt
 
@@ -95,34 +146,34 @@ my-bag/
 └── premis.xml
 ```
 
-## Best practices
+## Рекомендации
 
 ### Документирование событий
 
 *   Записывайте все важные события
-*   Включайте временные метки
+*   Включайте временные метки (UTC)
 *   Документируйте агентов (инструменты, люди)
 
 ### Метаданные объектов
 
-*   Записывайте идентификаторы объектов
-*   Включайте информацию о форматах
-*   Документируйте контрольные суммы
+*   Записывайте идентификаторы объектов (UUID или ARK)
+*   Включайте информацию о форматах (PUID из PRONOM)
+*   Документируйте контрольные суммы (SHA-256)
 
 ### Права доступа
 
-*   Документируйте права на архивы
+*   Документируйте права на архивы (категория + basis)
 *   Включайте информацию о лицензиях
 *   Записывайте ограничения доступа
 
 ## Ресурсы
 
 *   [PREMIS Data Dictionary](https://www.loc.gov/standards/premis/)
-*   [PREMIS спецификация](https://www.loc.gov/standards/premis/v3/premis-3-0-final.pdf)
+*   [PREMIS спецификация v3.0](https://www.loc.gov/standards/premis/v3/premis-3-0-final.pdf)
 *   [PREMIS примеры](https://www.loc.gov/standards/premis/examples.html)
 
 ## Связанные материалы
 
 - [Метаданные METS](/kb/instruments/file-formats/mets)
 - [BagIt для упаковки](/kb/instruments/file-formats/bagit)
-- [Создание метаданных](/kb/guides/custom-workflows)
+- [Кастомные workflow для архивации](/kb/guides/custom-workflows)
