@@ -30,6 +30,7 @@ const sidebars = {
         'case-studies/international-examples',
         'case-studies/multi-tool-archiving',
         'case-studies/api-archiving-scale',
+        'case-studies/wparc-to-metawarc-pipeline',
       ],
     },
     {
@@ -54,10 +55,24 @@ const sidebars = {
           label: 'Инструменты Ruarxive',
           items: [
             'instruments/ruarxive-tools/index',
-            'instruments/ruarxive-tools/tgarc',
-            'instruments/ruarxive-tools/wparc',
-            'instruments/ruarxive-tools/ydiskarc',
-            'instruments/ruarxive-tools/filegetter',
+            {
+              type: 'category',
+              label: 'Сбор данных',
+              items: [
+                'instruments/ruarxive-tools/tgarc',
+                'instruments/ruarxive-tools/wparc',
+                'instruments/ruarxive-tools/ydiskarc',
+                'instruments/ruarxive-tools/filegetter',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Обработка и анализ',
+              items: [
+                'instruments/ruarxive-tools/metawarc',
+                'instruments/ruarxive-tools/metawarc-mcp',
+              ],
+            },
           ],
         },
         {
@@ -205,7 +220,6 @@ const sidebars = {
         'resources/stats-snapshot',
         'resources/statistics',
         'resources/comparisons',
-        'resources/format-registries',
         'resources/test-files',
       ],
     },

@@ -1,6 +1,27 @@
+---
+title: Wpull
+sidebar_label: Wpull
+description: Форк Wget от Archive Team с нативной поддержкой WARC, HTTP/2 и расширяемостью через Python-плагины
+---
+
 # Wpull
 
 **Wpull** — это альтернатива/замена Wget, разработанная Archive Team специально для веб-архивации.
+
+## Когда использовать
+
+✅ Подходит, если нужно:
+
+- снимать сайт по ссылкам (а не через структурированный API) сразу в **WARC**;
+- работать с современными HTTPS-сайтами: HTTP/2, SNI, LetsEncrypt;
+- расширять логику через **Python-плагины** (например, кастомные правила выбора URL);
+- поддерживать современные версии Wget — обычный Wget 1.x уже давно не успевает за вебом.
+
+❌ Не лучший выбор, если:
+
+- сайт на WordPress с открытым REST API — возьмите [wparc](/kb/instruments/ruarxive-tools/wparc) (структурированный JSON вместо HTML);
+- нужен JS-рендеринг — [Browsertrix Crawler](/kb/instruments/tools/browsertrix) или [Brozzler](/kb/instruments/tools/brozzler);
+- нужен replay-режим — добавьте [metawarc](/kb/instruments/ruarxive-tools/metawarc) (`serve`) или [pywb](/kb/instruments/replay/pywb) к полученному WARC.
 
 ## Описание
 
@@ -182,9 +203,18 @@ wpull --recursive \
 
 ## Ограничения
 
-*   Менее стабилен, чем Wget
-*   Ограниченная поддержка JavaScript (лучше использовать Browsertrix)
-*   Требует Python окружения
+*   Менее стабилен, чем Wget — Archive Team нередко меняет точки внимания, рекомендуется фиксировать версию.
+*   Ограниченная поддержка JavaScript (для JS-heavy сайтов лучше [Browsertrix Crawler](/kb/instruments/tools/browsertrix) или [Brozzler](/kb/instruments/tools/brozzler)).
+*   Требует Python-окружения.
+*   Не умеет автоматически вытаскивать медиа с CDN-доменов, на которые ссылается сайт — нужны явные `--span-hosts` / `--hostnames`.
+*   Не сохраняет API-ответы в чистом виде (только HTML-представления).
+
+## Что дальше
+
+- Проиндексировать полученный WARC: [metawarc index](/kb/instruments/ruarxive-tools/metawarc).
+- Найти фразу по извлечённому тексту: [metawarc search](/kb/instruments/ruarxive-tools/metawarc).
+- Поднять локальный replay: [metawarc serve](/kb/instruments/ruarxive-tools/metawarc) либо [pywb](/kb/instruments/replay/pywb).
+- Передать в AI-агента через MCP: [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp).
 
 ## Ресурсы
 

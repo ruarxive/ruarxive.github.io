@@ -1,6 +1,26 @@
+---
+title: SingleFile
+sidebar_label: SingleFile
+description: Браузерное расширение и CLI для сохранения полной веб-страницы со всеми ресурсами в один самодостаточный HTML-файл
+---
+
 # SingleFile
 
 **SingleFile** — это браузерное расширение для Firefox/Chrome и CLI инструмент для сохранения полной копии веб-страницы в один HTML файл.
+
+## Когда использовать
+
+✅ Подходит, если нужно:
+
+- сохранить **одну страницу** со всеми CSS/JS/изображениями/шрифтами в один самодостаточный HTML (идеально для пересылки «как PDF, но живой»);
+- работать в браузере вручную (архивист зашёл → одна кнопка → файл);
+- сохранять SPA, потому что SingleFile выполняет JS перед сериализацией.
+
+❌ Не подходит, если:
+
+- нужна массовая архивация по расписанию — для этого [Browsertrix Crawler](/kb/instruments/tools/browsertrix) или [wparc](/kb/instruments/ruarxive-tools/wparc);
+- нужен стандартный WARC — SingleFile отдаёт HTML, а не WARC;
+- сайт блокирует headless-браузеры — SingleFile через CLI использует Puppeteer/Playwright и палится на anti-bot.
 
 ## Описание
 
@@ -105,10 +125,17 @@ single-file https://example.com \
 
 ## Ограничения
 
-*   Один файл может быть очень большим
-*   Не подходит для больших сайтов
-*   Не создаёт WARC файлы
-*   Ограниченная поддержка динамического контента
+*   Один файл может быть очень большим (десятки МБ) — для страниц с длинной лентой или видео.
+*   Не подходит для больших сайтов и рекурсивного обхода.
+*   Не создаёт WARC файлы — если нужен WARC, используйте [Browsertrix](/kb/instruments/tools/browsertrix) или [wparc](/kb/instruments/ruarxive-tools/wparc).
+*   Динамический контент ниже viewport (ленивая загрузка) сохраняется, только если дождаться — нужен `--max-wait-time` или `--browser-cookies-file`.
+*   При сериализации SingleFile встраивает ресурсы как `data:` URI — это удобно для пересылки, но плохо для долгосрочного хранения: gzip не сожмёт data-URI эффективно.
+
+## Что дальше
+
+- Хотите стандартный WARC и поиск по тексту — добавьте [metawarc](/kb/instruments/ruarxive-tools/metawarc) (`index-content --text` + `search`).
+- Нужно сравнить с другими «однофайловыми» архиваторами — см. таблицу выше и внешние проекты [monolith](https://github.com/Y2Z/monolith), [obelisk](https://github.com/go-shiori/obelisk).
+- Регулярная автоматизация — [Browsertrix Crawler](/kb/instruments/tools/browsertrix).
 
 ## Ресурсы
 

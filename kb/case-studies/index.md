@@ -14,6 +14,7 @@ sidebar_position: 1
 - [Закрытие банков](/kb/case-studies/bank-closures) - Сохранение данных при закрытии финансовых организаций
 - [Архивация комплексных ресурсов](/kb/case-studies/multi-tool-archiving) - Использование нескольких инструментов для архивации сложных ресурсов
 - [Архивация крупномасштабных API](/kb/case-studies/api-archiving-scale) - Опыт работы с государственными API и большими объёмами данных
+- [Пайплайн wparc → metawarc](/kb/case-studies/wparc-to-metawarc-pipeline) - От WP-сайта к индексируемому архиву за один заход
 
 ## Связанные материалы
 

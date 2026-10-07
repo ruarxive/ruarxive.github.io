@@ -1,6 +1,27 @@
+---
+title: Brozzler
+sidebar_label: Brozzler
+description: Распределённый веб-кроулер на реальном Chrome с координацией воркеров через Redis для крупных проектов архивации
+---
+
 # Brozzler
 
 **Brozzler** — это распределённый веб-кроулер, использующий реальный браузер (Chrome или Chromium) для захвата страниц и встроенных URL.
+
+## Когда использовать
+
+✅ Подходит, если нужно:
+
+- архивировать **крупный JS-heavy сайт** и **распределить нагрузку** на несколько машин с координацией через Redis;
+- снимать страницы реальным Chrome/Chromium (а не headless-Puppeteer), что устойчивее к anti-bot;
+- писать WARC через интегрированный [Warcprox](/kb/instruments/tools/warcprox);
+- иметь долгоиграющие задания (дни-недели) с persistent state в Redis.
+
+❌ Не лучший выбор, если:
+
+- задача маленькая — для одиночной машины проще [Browsertrix Crawler](/kb/instruments/tools/browsertrix) с веб-интерфейсом и WACZ на выходе;
+- нужно только релейнуть WARC — возьмите [Warcprox](/kb/instruments/tools/warcprox) напрямую без Brozzler;
+- инфраструктура без Redis — без него не запустится.
 
 ## Описание
 
@@ -156,7 +177,24 @@ brozzler-worker --warcprox-address=localhost:8000
 *   [GitHub репозиторий](https://github.com/internetarchive/brozzler)
 *   [Документация](https://github.com/internetarchive/brozzler/wiki)
 
+## Что дальше
+
+- Если вы не уверены, нужен ли Brozzler — посмотрите сравнительную таблицу с [Browsertrix Crawler](/kb/instruments/tools/browsertrix) выше.
+- Полученный WARC проиндексируйте через [metawarc](/kb/instruments/ruarxive-tools/metawarc) для поиска по тексту и метаданных.
+- Или подключите [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp) к Claude/Cursor для работы с коллекцией из агента.
+
+## Ограничения
+
+- **Требуется Redis** — без него не работает.
+- **Реальный Chrome** — высокая потребность в RAM/диске; на маленьких VPS не запустится.
+- **WARC пишется через Warcprox** — это +1 компонент в стеке, нужна корректная настройка `--warcprox-address`.
+- **Без WACZ** — если нужен WACZ (zip с WARC + метаданными), [Browsertrix Crawler](/kb/instruments/tools/browsertrix) умеет из коробки.
+- **Нет веб-интерфейса по умолчанию** — есть CLI и Redis-инспекция, но не «открыл в браузере и нажал Start».
+
 ## Связанные материалы
 
 - [Browsertrix для сравнения](/kb/instruments/tools/browsertrix)
+- [Warcprox](/kb/instruments/tools/warcprox) — прокси для записи WARC
+- [metawarc](/kb/instruments/ruarxive-tools/metawarc) — индексация и поиск
+- [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp) — для AI-агентов
 - [Формат WARC](/kb/instruments/file-formats/warc)
