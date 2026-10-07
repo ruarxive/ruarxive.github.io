@@ -1,6 +1,27 @@
+---
+title: grab-site
+sidebar_label: grab-site
+description: Кроулер Archive Team с WARC-выводом, веб-дашбордом и динамически обновляемыми ignore-паттернами
+---
+
 # grab-site
 
 **grab-site** — это веб-кроулер, разработанный специально для архивистов, с WARC выводом, дашбордом для всех кроулов и динамическими паттернами игнорирования.
+
+## Когда использовать
+
+✅ Подходит, если нужно:
+
+- поднять **WARC-кроулер** с **дашбордом** для мониторинга всех текущих и завершённых кроулов;
+- использовать **динамически обновляемые ignore-паттерны** — менять правила на лету, без перезапуска кроула;
+- массово архивировать сайты Archive Team-style (это основной инструмент AT для срочных архиваций);
+- получить WARC-файлы сразу на выходе.
+
+❌ Не лучший выбор, если:
+
+- нужна **JS-рендеринг** — grab-site не рендерит SPA, только статические HTML-страницы; для JS-heavy — [Browsertrix Crawler](/kb/instruments/tools/browsertrix) или [Brozzler](/kb/instruments/tools/brozzler);
+- нужна **распределённая архитектура** — grab-site однопроцессный; для масштаба — [Brozzler](/kb/instruments/tools/brozzler) с Redis;
+- нужна **веб-интеграция с replay** — добавьте [metawarc](/kb/instruments/ruarxive-tools/metawarc) (`serve`) или [pywb](/kb/instruments/replay/pywb).
 
 ## Описание
 
@@ -122,6 +143,19 @@ grab-site поддерживает динамическое обновление
 *   Установите разумные лимиты глубины
 *   Используйте ignore patterns для экономии ресурсов
 *   Мониторьте размер WARC файлов
+
+## Ограничения
+
+- **Не выполняет JavaScript** — только статический HTML. Для SPA используйте [Browsertrix Crawler](/kb/instruments/tools/browsertrix).
+- **Однопроцессный** — не масштабируется на несколько машин; для распределённой архивации — [Brozzler](/kb/instruments/tools/brozzler).
+- **Требует Python 2.7 или 3.x + зависимости** — на минимальном VPS может не запуститься (нужен Chromium для некоторых фич).
+- **Archive Team-специфика** — лучше всего работает для AT-стиля быстрых срочных архиваций; для долгосрочных проектов может быть менее удобен, чем [Heritrix](/kb/instruments/tools/heritrix) или [Browsertrix](/kb/instruments/tools/browsertrix).
+
+## Что дальше
+
+- Полученный WARC проиндексируйте через [metawarc](/kb/instruments/ruarxive-tools/metawarc) для поиска по тексту и метаданных PDF/OOXML.
+- Подключите AI-агента через [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp) для безопасного read-only-доступа к коллекции.
+- Поднимите локальный replay: [metawarc serve](/kb/instruments/ruarxive-tools/metawarc) или [pywb](/kb/instruments/replay/pywb).
 
 ## Ресурсы
 

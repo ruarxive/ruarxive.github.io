@@ -1,4 +1,9 @@
 {
     "label": "Инструменты Ruarxive",
-    "position": 5
+    "position": 5,
+    "link": {
+        "type": "generated-index",
+        "title": "Инструменты Ruarxive",
+        "description": "Сбор, индексация, поиск и анализ WARC-коллекций. Все проекты с открытым кодом под MIT/Apache-2.0."
+    }
 }
