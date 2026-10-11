@@ -138,3 +138,286 @@ metawarc serve --dbfile collection.db
 - [WARC-инфраструктура](/kb/instruments/tools) — все инструменты раздела.
 - [wparc](./wparc), [tgarc](./tgarc), [ydiskarc](./ydiskarc), [filegetter](./filegetter) — сборщики Ruarxive.
 - [Все инструменты Ruarxive](/kb/instruments/ruarxive-tools)
+- [metawarc MCP-сервер](./metawarc-mcp) — для AI-агентов.
+- [metawarc REST API](./metawarc-rest) — для интеграций.
+- [metawarc cookbook](./metawarc-cookbook) — практические рецепты.
+- [metawarc extractors (plugin API)](./metawarc-extractors) — кастомные экстракторы.
+
+---
+
+# Расширенные разделы
+
+## Конфигурация через переменные окружения
+
+metawarc читает настройки из переменных окружения (префикс `METAWARC_`):
+
+| Переменная | Значение по умолчанию | Зачем |
+|:---|:---|:---|
+| `METAWARC_BEARER_TOKEN` | unset | Bearer-token для REST/MCP. Если не задан — анонимный доступ (только localhost). |
+| `METAWARC_LIMIT_MAX_RECORDS` | 500 | Максимум записей в `/records/list` |
+| `METAWARC_SEARCH_MAX` | 100 | Максимум результатов в `/records/search` |
+| `METAWARC_JOB_MAX_CONCURRENT` | 4 | Параллельных batch-job'ов |
+| `METAWARC_JOB_TIMEOUT` | 300 с | Таймаут одного job'а |
+| `METAWARC_PAYLOAD_MAX` | 100 МБ | Максимальный payload в `/records/get/data` |
+| `METAWARC_INDEX_WORKERS` | 1 | Параллельных потоков индексирования |
+| `METAWARC_INDEX_BATCH` | 10000 | Размер батча для `/records` |
+| `METAWARC_EXTRACTION_TIMEOUT` | 60 с | Таймаут одного экстрактора на одну запись |
+
+### Примеры
+
+```bash
+# Production — параллельно + с таймаутами
+export METAWARC_JOB_MAX_CONCURRENT=8
+export METAWARC_JOB_TIMEOUT=3600
+export METAWARC_INDEX_WORKERS=4
+
+# Высокая нагрузка — увеличить лимиты
+export METAWARC_LIMIT_MAX_RECORDS=1000
+export METAWARC_PAYLOAD_MAX=500M
+
+# Защита — уменьшить
+export METAWARC_PAYLOAD_MAX=50M
+export METAWARC_JOB_TIMEOUT=60
+
+# Запуск
+metawarc serve --dbfile collection.db
+```
+
+## Флаг `--unsafe-where`
+
+По умолчанию metawarc запрещает сырой SQL в запросах. Это безопасно, но иногда нужно сделать ad-hoc-аналитику в ноутбуке.
+
+```bash
+# Безопасно: bound параметры
+metawarc list-records --dbfile collection.db --mimes text/html --limit 100
+
+# ❌ ОПАСНО: прямой SQL — может привести к эксфильтрации или DoS
+metawarc list-records --dbfile collection.db --unsafe-where "raw_sql_here"
+```
+
+**Когда использовать:**
+
+- ✅ Локальный анализ в Jupyter с локальной БД.
+- ✅ Исследовательские запросы, которые не влезают в allowlist.
+- ❌ **Никогда** на production-сервере.
+- ❌ **Никогда** через REST/MCP-эндпойнт (не экспонируется вообще).
+
+Подробности — в [CHANGELOG безопасности](https://github.com/ruarxive/metawarc/blob/master/SECURITY.md).
+
+## Команда `dump` — форматы выгрузки
+
+`metawarc dump` поддерживает три выходных формата:
+
+### CSV (по умолчанию)
+
+```bash
+metawarc dump --dbfile collection.db \
+  --exts pdf --mime application/pdf \
+  --limit 100 \
+  --output ./exported-files \
+  --format csv
+```
+
+В `./exported-files/`:
+
+- `data.csv` — манифест с метаданными.
+- `*.pdf` — скачанные файлы.
+- `manifest.sha256` — SHA-256 каждого файла.
+
+### JSON Lines
+
+```bash
+metawarc dump --dbfile collection.db \
+  --exts jpg,png \
+  --format jsonl \
+  --output ./exported-images
+```
+
+Каждая строка — JSON с записью из архива + payload в base64:
+
+```jsonl
+{"record_id":"rec_1","url":"https://...","mime":"image/jpeg","length":12345,"data":"<base64>"}
+```
+
+### Parquet (для аналитики)
+
+```bash
+metawarc dump --dbfile collection.db \
+  --mimes application/pdf \
+  --format parquet \
+  --output ./analytics-export
+```
+
+Выход:
+
+```
+analytics-export/
+└── data-00000.parquet
+└── data-00001.parquet
+└── _metadata  # метаданные Parquet
+```
+
+Parquet — columnar-формат; быстро анализируется в DuckDB, Spark, Pandas.
+
+## Replay — детали
+
+Команда `metawarc serve` запускает встроенный replay на `/replay/...`.
+
+### URL-формат
+
+```
+GET /replay/<штамп>mp_/<URL>
+```
+
+Где `<штамп>`:
+
+| Значение | Что показывает |
+|:---|:---|
+| `20260315102345` | Конкретный момент |
+| `202603*` | Все снимки за март 2026 |
+| `*-` | Все снимки (острожно) |
+| (пусто) | Ближайший снимок к текущему моменту |
+
+Пример:
+
+```
+http://127.0.0.1:8000/replay/20260315102345mp_/https://example.com/news/article
+```
+
+### Что rewrites
+
+Replay вносит следующие правки в HTML/JS для правильного воспроизведения:
+
+- **Ссылки** — все `<a href>`, `<img src>`, `<script src>`, CSS `url()` перенаправлены на локальный replay.
+- **Редиректы** — заменены на `meta refresh` или JS-редирект на replay-аналог.
+- **Post-кнопки и формы** — `action` атрибуты переписаны.
+- **Кириллица в URL** — корректно сериализуется, не ломается при редиректах.
+
+### Что НЕ поддерживается
+
+- ❌ Полная JS-rewriting (как Wombat в pywb): если страница генерирует URL через JavaScript после загрузки, они могут не пройти через rewrite.
+- ❌ WebSocket-соединения.
+- ❌ Видео-стримы и live-эфиры.
+- ❌ Cookies в браузере через Replay — изоляция между страницами не идеальна.
+
+Для полноценного Wombat-style replay — экспортируйте CDXJ и поднимите [pywb](/kb/instruments/replay/pywb).
+
+### Защита от перегрузки
+
+При большом числе снимков и большом размере страниц — replay может стать медленным. Включите кэш:
+
+```bash
+# Через nginx (loopback перед metawarc)
+location /replay/ {
+    proxy_pass http://127.0.0.1:8000;
+    proxy_cache_valid 200 1d;
+    proxy_cache replay_zone;
+    add_header X-Cache-Status $upstream_cache_status;
+}
+```
+
+## Job subsystem — детали
+
+`metawarc jobs` — долгоиграющие batch-задачи, результаты которых не помещаются в обычный HTTP-запрос.
+
+### Виды задач (на ноябрь 2026)
+
+- `export-records` — выгрузка подмножества записей.
+- `export-cdxj` — генерация CDXJ для [pywb](/kb/instruments/replay/pywb).
+- `index-content` — извлечение метаданных из payload-ов.
+
+### CLI
+
+```bash
+# Submit
+metawarc jobs submit export-records --format csv \
+  --filter '{"mime":"application/pdf","limit":5000}' \
+  --dbfile collection.db
+
+# Список
+metawarc jobs list --dbfile collection.db --status completed
+
+# Статус
+metawarc jobs get job_xyz789 --dbfile collection.db
+
+# Ждать завершения (long-polling)
+metawarc jobs wait job_xyz789 --poll 2 --timeout 600
+
+# Отменить
+metawarc jobs cancel job_xyz789 --dbfile collection.db
+```
+
+### Жизненный цикл
+
+```
+[pending] → [running] → [completed]
+                ↓
+            [failed] / [cancelled]
+```
+
+Job остаётся после завершения — можно посмотреть результат или повторить выгрузку.
+
+### Состояние и лимиты
+
+```bash
+# Конкурентность: сколько job'ов одновременно
+export METAWARC_JOB_MAX_CONCURRENT=8
+
+# Таймаут job'а
+export METAWARC_JOB_TIMEOUT=3600
+
+# Состояние job'ов переживает рестарт metawarc
+# Хранится в <dbfile>.data/jobs/<job_id>/state.json
+```
+
+### Когда использовать job'ы
+
+✅ Подходит:
+
+- **Массовая выгрузка** (тысячи записей, минуты-часы).
+- **ETL в ClickHouse / PostgreSQL / S3**.
+- **CDXJ-индексация** для pywb.
+- **Любые операции**, не влезающие в 30 с.
+
+❌ Не подходит:
+
+- **Одиночная запись** — через `/records/get/data`.
+- **Аналитика в реальном времени** — нужен DuckDB-WARC.
+- **Когда REST'у нужно немедленно ответить**.
+
+## Как выбрать интерфейс: REST vs MCP vs CLI
+
+| Критерий | CLI | REST | MCP | Прямой SQL |
+|:---|:-:|:-:|:-:|:-:|
+| **Цель** | Скрипты, CI/CD | Дашборды, ETL | AI-агенты | Исследования |
+| **Аутентификация** | - | Bearer-token | stdio / loopback | - |
+| **Real-time** | ❌ | ⚠️ | ❌ | ✅ |
+| **Долгие операции** | job'ы | job'ы | read-only | free-form |
+| **Безопасность** | ✅ | ⚠️ нужен bearer | ✅ (read-only) | ✅ только локально |
+| **Когда выбирать** | Любой сценарий | Web-интеграция | AI-агент | Ноутбук, ad-hoc |
+
+**Рекомендация команды Ruarxive:**
+
+1. **Скрипты автоматизации** → CLI.
+2. **Web-дашборды** → REST за reverse proxy.
+3. **AI-агенты** → MCP.
+4. **Аналитика в Jupyter** → прямой SQL через DuckDB.
+5. **Долгие выгрузки** → jobs (через CLI или REST).
+
+## Совместимость и миграция Schema v2
+
+Schema v2 — стабильная с 2025 года. Если у вас каталог **до Schema v2**, `metawarc doctor --auto-migrate` автоматически выполнит миграцию с резервной копией.
+
+```bash
+metawarc doctor collection.db
+# Если нужна миграция:
+metawarc doctor collection.db --auto-migrate --backup-dir /var/backups/metawarc/
+```
+
+Резервная копия переименовывается в `collection.db.v1-backup-<timestamp>`. Подробнее — [документация по миграции](https://ruarxive.org/metawarc/operations/migration).
+
+## Что НЕ документировано здесь
+
+- Подробный CLI-референс с **полным списком флагов** для каждой команды — [ruarxive.org/metawarc/commands](https://ruarxive.org/metawarc/commands/).
+- Полная OpenAPI-схема REST API — `/docs` в работающем сервере.
+- Cookbook для разработчиков metawarc — [ruarxive.org/metawarc/development](https://ruarxive.org/metawarc/development).

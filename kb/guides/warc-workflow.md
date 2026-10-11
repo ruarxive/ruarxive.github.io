@@ -250,8 +250,110 @@ wayback --collections my-collections
 
 Если у вас есть простое статическое хранилище (S3, CDN, GitHub Pages), WACZ можно хостить как обычный файл и отдавать через ReplayWeb.Page по URL. Это дешевле, чем держать pywb, но не даёт полнотекстового поиска.
 
+#### Минимальный сценарий
+
+1. Загрузите WACZ на статический хостинг (S3, R2, GitHub Pages, Contabo Storage, Selectel Cloud Storage).
+2. Сделайте файл публично доступным.
+3. Поделитесь ссылкой в формате:
+
+```
+https://replayweb.page/?source=https://archive.example.org/data/my-archive.wacz
+```
+
+Пользователь переходит по ссылке, ReplayWeb.Page скачивает WACZ и открывает его в браузере.
+
+#### Настройка CORS для S3 / R2
+
+Браузер делает cross-origin запрос на S3, поэтому нужны CORS-заголовки. Для AWS S3:
+
+```json
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET", "HEAD"],
+    "AllowedOrigins": ["https://replayweb.page"],
+    "ExposeHeaders": ["Content-Range", "Content-Length"],
+    "MaxAgeSeconds": 3000
+  }
+]
+```
+
+Для Cloudflare R2 в настройках bucket → CORS Policy вставьте:
+
+```json
+[
+  {
+    "AllowedOrigins": ["https://replayweb.page"],
+    "AllowedMethods": ["GET", "HEAD"],
+    "AllowedHeaders": ["Range"],
+    "ExposeHeaders": ["Content-Range", "Content-Length"]
+  }
+]
+```
+
+#### CloudFront / Cloudflare CDN
+
+Поднимите CDN перед origin'ом для ускорения раздачи большого WACZ по всему миру.
+
+CloudFront:
+
+```
+Origin: my-bucket.s3.amazonaws.com
+Behaviors:
+  - PathPattern: /data/*.wacz
+    ViewerProtocolPolicy: redirect-to-https
+    CachePolicy: Managed-CachingOptimized
+    Compress: Yes (если `.gz` внутри архива — нет)
+```
+
+Cloudflare Cache Rules для `/data/*.wacz`:
+
+```
+Expression: http.request.uri.path wildcard r"data/.*\.wacz$"
+Action: Cache eligible
+Edge TTL: 1 month
+Browser TTL: 1 day
+```
+
+#### Лимиты хостеров
+
+| Хостер | Макс. размер файла | Стоимость хранения |
+|:---|:---|:---|
+| AWS S3 | 5 ТБ | ~$23/TB/мес (Standard) |
+| Cloudflare R2 | 5 ТБ (по запросу больше) | $15/TB/мес, без egress |
+| GitHub Pages | 100 МБ на файл | Бесплатно для публичных репо |
+| Backblaze B2 | 5 ТБ | $6/TB/мес |
+| Selectel Cloud Storage | 5 ТБ | От 990 ₽/мес за 1 ТБ |
+
+Для архивов > 5 ТБ — разбейте WACZ на несколько файлов (см. ниже).
+
+#### Разбиение большого WACZ на части
+
+```bash
+# Разбить 100 ГБ WACZ на куски по 5 ГБ
+split -b 5G big-archive.wacz big-archive-part-
+
+# Получите:
+#   big-archive-part-aa, big-archive-part-ab, ...
+```
+
+Каждая часть доступна по своей ссылке. ReplayWeb.Page откроет только часть файла, но без CDXJ-индекса будет сканировать всю часть целиком при поиске.
+
+> **Лучше:** собрать `big-archive.cdxj` отдельно через `cdxj-indexer` и разложить в ту же директорию.
+
+#### Сравнение self-hosted pywb vs статического WACZ
+
+| Сценарий | Self-hosted pywb | Статический WACZ |
+|:---|:---|:---|
+| Стоимость | VPS $5–50/мес + администрирование | $5–30/мес за хранение, ноль администрирования |
+| Полнотекстовый поиск | Да (через SolrWayback/Shine) | Нет (CDXJ-индекс только по URL) |
+| Поддержка больших архивов | Легко масштабируется | Разбиение на куски |
+| Логирование и аудит | Полное | Минимальное (access-логи CDN) |
+| HTTPS и домен | Свой сертификат | Автоматически от CDN |
+| Безопасность данных | Контроль на своём сервере | Зависит от политики хостера |
+
 :::tip Совет
-Для публичных архивов Ruarxive использует комбинацию: WACZ на CDN + ReplayWeb.Page в качестве интерфейса. Подробности — в [пользовательском разделе «Как открыть WARC»](/kb/users/open-warc).
+Для публичных архивов Ruarxive использует комбинацию: WACZ на CDN + ReplayWeb.Page в качестве интерфейса, а CDXJ-индекс рядом. Подробности — в [пользовательском разделе «Как открыть WARC»](/kb/users/open-warc).
 :::
 
 ## Чек-лист готовности к публикации

@@ -67,6 +67,10 @@ const sidebars = {
           items: [
             'guides/custom-workflows',
             'guides/warc-workflow',
+            'guides/preflight-checklist',
+            'guides/collection-strategies',
+            'guides/warc-deduplication',
+            'guides/link-graph-analysis',
           ],
         },
       ],
@@ -77,6 +81,7 @@ const sidebars = {
       collapsed: false,
       items: [
         'instruments/index',
+        'instruments/landscape-2026',
         {
           type: 'category',
           label: 'Инструменты Ruarxive',
@@ -97,7 +102,10 @@ const sidebars = {
               label: 'Обработка и анализ',
               items: [
                 'instruments/ruarxive-tools/metawarc',
+                'instruments/ruarxive-tools/metawarc-rest',
                 'instruments/ruarxive-tools/metawarc-mcp',
+                'instruments/ruarxive-tools/metawarc-cookbook',
+                'instruments/ruarxive-tools/metawarc-extractors',
               ],
             },
           ],
@@ -163,6 +171,10 @@ const sidebars = {
                 'instruments/tools/warc2zim',
                 'instruments/tools/solrwayback',
                 'instruments/tools/shine',
+                'instruments/tools/duckdb-warc',
+                'instruments/tools/warchaeology',
+                'instruments/tools/warc-safe',
+                'instruments/tools/warc-gpt',
               ],
             },
             {
@@ -171,6 +183,10 @@ const sidebars = {
               items: [
                 'instruments/tools/web-curator-tool',
                 'instruments/tools/internet-archive-cli',
+                'instruments/tools/wayback-api',
+                'instruments/tools/waybackpy',
+                'instruments/tools/auto-archiver',
+                'instruments/tools/pastpage',
               ],
             },
             {
@@ -197,6 +213,8 @@ const sidebars = {
             'instruments/social-media/fbarc',
             'instruments/social-media/twarc',
             'instruments/social-media/social-feed-manager',
+            'instruments/social-media/tiktok',
+            'instruments/social-media/mastodon',
           ],
         },
         {
@@ -254,6 +272,7 @@ const sidebars = {
             'instruments/replay/openwayback',
             'instruments/replay/ipwb',
             'instruments/replay/warc2html',
+            'instruments/replay/memento',
           ],
         },
         {
@@ -279,6 +298,7 @@ const sidebars = {
             'instruments/data-take-out/dto-google',
             'instruments/data-take-out/dto-notion',
             'instruments/data-take-out/dto-slack',
+            'instruments/data-take-out/dto-whatsapp',
           ],
         },
         {
@@ -299,6 +319,8 @@ const sidebars = {
       items: [
         'users/index',
         'users/open-warc',
+        'users/inspect-warc',
+        'users/large-warc',
         'users/citation',
       ],
     },
@@ -329,6 +351,7 @@ const sidebars = {
         'similar/common-crawl',
         'similar/perma-cc',
         'similar/international-archives',
+        'similar/russian-independent-media-archives',
       ],
     },
     {

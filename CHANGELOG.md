@@ -5,7 +5,112 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
-## [Unreleased] — Октябрь 2026: масштабная ревизия базы знаний
+## [Unreleased] — Ноябрь 2026: PR1 — Replay и Internet Archive
+
+### Добавлено
+
+- **Раздел воспроизведения архивов (`kb/instruments/replay/`)** — расширен под приоритеты голосования сообщества (53 % «как воспроизводить архивы»):
+  - `pywb.md` — переписан как пошаговый гайд с нуля (5-минутный запуск, CDX API, Memento API, multi-collection, производительность, деплой через nginx).
+  - `replayweb-page.md` — расширен: сценарии для больших WACZ (десятки ГБ), аннотации, экспорт страниц, сравнение версий, статический хостинг.
+  - `index.md` — переработан: сравнительная таблица по размеру архива и формату деплоя, матрица возможностей.
+  - `memento.md` — **новая страница**: стандарт RFC 7089, TimeGate, TimeMap, Memento Aggregator, программные обёртки (waybackpy), браузерные расширения (Mink, PastPage).
+
+- **Wayback Machine API (`kb/instruments/tools/wayback-api.md`)** — **новая страница-справочник**: SavePageNow, CDX API, Availability API, Memento API, S3-подобный API, rate limits, программные обёртки (waybackpy, cdx_toolkit, duckdb-web-archive-cdx), сценарии использования.
+
+- **Internet Archive (`kb/similar/internet-archive.md`)** — расширен: RIMA (Russian Independent Media Archive), доступ при блокировках (VPN, Tor, onion), S3 API, таблица протоколов, юридические аспекты загрузки.
+
+- **Похожие проекты (`kb/similar/index.md`)** — переработан в карту открытых сервисов с сравнительной таблицей «куда залить / откуда достать», обновлённой структурой под голос 51 % (Internet Archive и аналоги).
+
+- **WARC-файл: от сырого архива до публикации (`kb/guides/warc-workflow.md`)** — расширен раздел «Хостинг статического WACZ»: минимальный сценарий, настройка CORS для S3/R2, CloudFront/Cloudflare CDN, лимиты хостеров, разбиение большого WACZ на части, сравнение с self-hosted pywb.
+
+### Изменено
+
+- **Сайдбар (`sidebars.js`)**:
+  - Подключены новые страницы: `instruments/tools/wayback-api` (в раздел «Управление архивацией»), `instruments/replay/memento` (в «Воспроизведение архивов»), `instruments/landscape-2026` (в корень «Инструменты»), `similar/russian-independent-media-archives` (в «Похожие проекты»), `guides/preflight-checklist` и `guides/collection-strategies` (в «Продвинутые темы»).
+  - Сравнительная таблица в `instruments/replay/index.md` структурирована по размеру архива.
+
+### Добавлено (PR2)
+
+- **Ландшафтная карта 2026 (`kb/instruments/landscape-2026.md`)** — **новая страница**: обзор всех инструментов и инициатив по 4 столпам (capture, storage, access, analysis), deprecated-инструменты, активные в 2026 сообщества и организации.
+
+- **Российские независимые архивы СМИ (`kb/similar/russian-independent-media-archives.md`)** — **новая страница**: RIMA, PEN America, «Архив „Холода"», «Медуза», «Дождь», юридические аспекты архивации.
+
+- **Preflight-чеклист (`kb/guides/preflight-checklist.md`)** — **новая страница**: 12-частный чек-лист перед запуском кроулера (цель, scope, инструменты, юр. ограничения, расписание, хранение, мониторинг, пост-обработка).
+
+- **Стратегии сбора (`kb/guides/collection-strategies.md`)** — **новая страница**: 8 параметров стратегии, шаблоны для разных классов сайтов, метрики успеха, антипаттерны.
+
+### Добавлено (PR3)
+
+- **Auto-Archiver (Bellingcat) (`kb/instruments/tools/auto-archiver.md`)** — **новая страница**: Bellingcat OSINT-инструмент для workflow-архивации из Google Sheets, CSV, Telegram. Интеграция с yt-dlp, Browsertrix, instaloader. Сценарии использования.
+
+- **Waybackpy (`kb/instruments/tools/waybackpy.md`)** — **новая страница**: Python-обёртка для Wayback Machine API. Базовый и асинхронный режим, CLI, реальные сценарии (link-rot отчёты, цитирование, RSS-бэкапы).
+
+- **PastPage (`kb/instruments/tools/pastpage.md`)** — **новая страница**: браузерное расширение для Chrome/Firefox, автоматически находящее архивные копии страниц в Wayback, Archive.today, Perma.cc и других Memento-совместимых архивах.
+
+- **TikTok (`kb/instruments/social-media/tiktok.md`)** — **новая страница**: методы архивации TikTok через yt-dlp, TikTokApi, snscrape, официальный Research API. Юридические ограничения.
+
+- **Mastodon, Bluesky, Threads (`kb/instruments/social-media/mastodon.md`)** — **новая страница**: архивация открытых протоколов (ActivityPub, AT Protocol). Программный доступ без аутентификации, скрейпинг, этические ограничения.
+
+### Добавлено (PR4)
+
+- **DuckDB-WARC / DuckDB-CDX (`kb/instruments/tools/duckdb-warc.md`)** — **новая страница**: SQL-запросы к WARC и CDX Internet Archive / Common Crawl через DuckDB. Сравнение с традиционными инструментами, интеграция с Ruarxive metawarc.
+
+- **WARC-GPT (`kb/instruments/tools/warc-gpt.md`)** — **новая страница**: RAG-инструмент Harvard LIL для анализа коллекций WARC через LLM. Архитектура, embedding-провайдеры, реальные сценарии, ограничения и галлюцинации.
+
+- **Warchaeology (`kb/instruments/tools/warchaeology.md`)** — **новая страница**: IIPC-утилиты для инспекции, валидации, дедупликации, фильтрации WARC. warc-survey, warc-dedup, warc-validate, warc-filter, warc-indexer-cdxj.
+
+- **WARC-Safe (`kb/instruments/tools/warc-safe.md`)** — **новая страница**: первый open-source сканер вирусов и NSFW-контента для WARC от UNT. Интеграция с SolrWayback и UK Web Archive, форматы отчётов.
+
+- **«Вскрытие» WARC/WACZ (`kb/users/inspect-warc.md`)** — **новая страница** для пользователей: как достать нужную страницу или URL из WARC. warcdump, warcio, Python-скрипты для типовых задач.
+
+- **Работа с большими WARC (`kb/users/large-warc.md`)** — **новая страница**: стратегии для архивов > 10 ГБ. Стриминг, шардинг, DuckDB-WARC, CDXJ-индексирование, реальные бенчмарки на 173-ГБ Эхо Москвы.
+
+### Добавлено (PR5) и PR6 начало
+
+- **Глоссарий (`kb/glossary.md`)** — **расширен**: добавлено ~60 терминов (WARC 1.1, WACZ Signing, Memento, ActivityPub, AT Protocol, NDSA Levels, OAIS, AIP/DIP/SIP, hash chain, fixity check, дублирование, sharding, streaming и др.).
+
+- **WhatsApp (`kb/instruments/data-take-out/dto-whatsapp.md`)** — **новая страница**: экспорт данных WhatsApp через встроенный чат-export, GDPR-запрос, WhatsApp Business API, локальные бэкапы, Selenium/Playwright, Auto-Archiver. Юридические ограничения.
+
+- **twarc v2 (`kb/instruments/social-media/twarc.md`)** — **переработан**: обновлён под Twitter API v2 (тарифы Free/Basic $100/Pro $5 000/Academic), гибридный v1+v2, новый JSON-формат, hydration, list/thread/conversation, изменения 2023–2026.
+
+- **Common Crawl (`kb/similar/common-crawl.md`)** — **переработан**: подробный обзор WARC/WAT/WET, доступ через S3 и HuggingFace, программный доступ (cdx_toolkit, DuckDB, Spark, Athena), сценарии для русского веба, ограничения, сравнение с IA.
+
+### Добавлено (PR6 финал)
+
+- **Главная страница БЗ (`kb/intro.md`)** — **переработана**: карта путей по 11 сценариям (экстренная архивация, открытие WARC, сбор своего, загрузка в IA, соцсети, анализ больших архивов, поиск в архиве, форматы, обучение, помощь проекту), справочник форматов за 60 секунд, раздел «как устроена БЗ», прямые ссылки на 90+ страниц.
+
+- **Perma.cc (`kb/similar/perma-cc.md`)** — **переработан**: подробная страница — академический/юридический фокус, форматы сохранения (скриншот + WACZ + HTML + JSON), API v1 с curl/Python примерами, сценарии использования (научные статьи, юридические заключения, OSINT), сравнение с Wayback Machine по 10+ признакам.
+
+- **WARC-дедупликация (`kb/guides/warc-deduplication.md`)** — **новая страница**: глубокое покрытие — алгоритмы (payload-digest, URL, SURT, similarity), инструменты (warchaeology, DuckDB-WARC, pywb, cc-mr-job), реальные сценарии (Эхо Москвы 173 ГБ → 80 ГБ), anti-patterns, интеграция в Ruarxive-pipeline.
+
+- **Анализ ссылочного графа (`kb/guides/link-graph-analysis.md`)** — **новая страница**: WAT/WARC как источник, инструменты (Hyphe, WebGraph, NetworkX, Gephi, DuckDB), метрики (PageRank, centrality, communities), сценарии (экосистема СМИ, обнаружение бот-сетей, академические сообщества), подводные камни (масштаб, динамическая природа, nofollow), best practices.
+
+### Исправлено
+
+- `kb/intro.md`: ссылка на `/kb/volunteers` (категория без документа) заменена на `/kb/volunteers/volunteers-tasks`.
+
+### Добавлено (покрытие metawarc v2.0.3)
+
+- **metawarc REST API (`kb/instruments/ruarxive-tools/metawarc-rest.md`)** — **новая страница**: полный справочник 12 эндпойнтов (`/health`, `/warcs/list`, `/records/list`, `/records/get/record/...`, `/records/get/headers/...`, `/records/get/data/...`, `/records/search`, `/jobs*`). С curl и Python примерами, bearer-token авторизацией, лимитами, конфигурацией через env.
+
+- **metawarc cookbook (`kb/instruments/ruarxive-tools/metawarc-cookbook.md`)** — **новая страница**: 12 практических рецептов: каталог PDF в CSV, полнотекстовый поиск, link-graph, инкрементальная индексация через cron, REST API для дашборда, ETL в ClickHouse, pywb+metawarc параллельно, бэкапы, bulk index, diff снимков.
+
+- **metawarc extractors (`kb/instruments/ruarxive-tools/metawarc-extractors.md`)** — **новая страница**: Plugin API для кастомных экстракторов (ExtractorBase, registry, entry_points, упаковка плагина). Полный пример с FB2-extractor'ом, контракт и гарантии (read-only, bounded execution, таймауты).
+
+- **`metawarc.md` — расширен разделами:** конфигурация через переменные окружения (10+ env-vars), `--unsafe-where` (когда и почему опасно), `dump` с примерами для CSV/JSONL/Parquet, replay-детали (URL-формат, rewrite-правила, что не поддерживается), `jobs` (жизненный цикл, CLI, лимиты), матрица выбора интерфейса (CLI vs REST vs MCP vs SQL), Schema v2 миграция.
+
+- **Российские независимые архивы СМИ (`kb/similar/russian-independent-media-archives.md`)** — **новая страница**: RIMA, PEN America, «Архив „Холода"», «Медуза», «Дождь», IStories, юридические аспекты архивации.
+
+- **Preflight-чеклист (`kb/guides/preflight-checklist.md`)** — **новая страница**: 12-частный чек-лист перед запуском кроулера (цель, scope, инструменты, юр. ограничения, расписание, хранение, мониторинг, пост-обработка).
+
+- **Стратегии сбора (`kb/guides/collection-strategies.md`)** — **новая страница**: 8 параметров стратегии, шаблоны для разных классов сайтов, метрики успеха, антипаттерны.
+
+### Исправлено
+
+- `kb/similar/index.md`: фронтматтер `description` обёрнут в кавычки (YAML-парсер не принимал некотированное значение с двоеточием).
+- `kb/instruments/tools/wayback-api.md`: проверены все внутренние ссылки на страницы Ruarxive (`pywb`, `memento`, `internet-archive`, `common-crawl`, `perma-cc`, `warc`, `wacz`, `cdx`, `replayweb-page`, `warc-workflow`, `metawarc`, `browsertrix`).
+
+## [2026-10-07] — Октябрь 2026: масштабная ревизия базы знаний
 
 ### Добавлено
 
