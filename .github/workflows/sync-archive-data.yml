@@ -1,0 +1,56 @@
+name: Sync archive data
+
+# Updates the homepage archive statistics from the website export of ruarxive-db
+# (data/datasets/site/). ruarxive-db sends `ruarxive-db-updated` with the commit SHA
+# after its export changes; the workflow can also be started manually.
+
+on:
+  repository_dispatch:
+    types: [ruarxive-db-updated]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: ruarxive-db commit or branch
+        required: false
+        default: main
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: sync-archive-data
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync and deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Fetch ruarxive-db export
+        env:
+          REF: ${{ github.event.client_payload.sha || inputs.ref || 'main' }}
+        run: node scripts/sync-archive-data.mjs --remote --ref "$REF"
+
+      - name: Commit and deploy if changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REF: ${{ github.event.client_payload.sha || inputs.ref || 'main' }}
+        run: |
+          files="src/data/archive-stats.json static/data/archive-domains.json"
+          if git diff --quiet -- $files; then
+            echo "Archive data unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add $files
+          git commit -m "data: обновить статистику архива из ruarxive-db ($REF)"
+          git push
+          gh workflow run deploy.yml --ref "$GITHUB_REF_NAME"
