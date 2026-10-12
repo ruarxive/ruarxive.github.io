@@ -21,6 +21,13 @@ const config = {
   onBrokenLinks: 'throw',
   favicon: 'img/favicon.ico',
 
+  // Enable ```mermaid code block rendering via @docusaurus/theme-mermaid
+  // (off by default; without this, MDX loader won't transform mermaid fences
+  // into <mermaid> JSX elements and the diagrams stay as plain code blocks)
+  markdown: {
+    mermaid: true,
+  },
+
   presets: [
     [
       'classic',
