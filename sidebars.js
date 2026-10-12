@@ -31,6 +31,7 @@ const sidebars = {
         'case-studies/multi-tool-archiving',
         'case-studies/api-archiving-scale',
         'case-studies/wparc-to-metawarc-pipeline',
+        'case-studies/russia-resources-disappearing',
       ],
     },
     {
@@ -71,6 +72,7 @@ const sidebars = {
             'guides/collection-strategies',
             'guides/warc-deduplication',
             'guides/link-graph-analysis',
+            'guides/dynamic-ajax-sites',
           ],
         },
       ],
@@ -175,6 +177,8 @@ const sidebars = {
                 'instruments/tools/warchaeology',
                 'instruments/tools/warc-safe',
                 'instruments/tools/warc-gpt',
+                'instruments/tools/archivespark',
+                'instruments/tools/cdx-summary',
               ],
             },
             {
@@ -187,6 +191,8 @@ const sidebars = {
                 'instruments/tools/waybackpy',
                 'instruments/tools/auto-archiver',
                 'instruments/tools/pastpage',
+                'instruments/tools/hyphe',
+                'instruments/tools/wikiteam',
               ],
             },
             {
@@ -196,6 +202,10 @@ const sidebars = {
                 'instruments/tools/tdl',
                 'instruments/tools/yt-dlp',
                 'instruments/tools/gallery-dl',
+                'instruments/tools/youtube-dl-gui',
+                'instruments/tools/hitomi-downloader',
+                'instruments/tools/firedm',
+                'instruments/tools/dvd',
               ],
             },
           ],
@@ -215,6 +225,7 @@ const sidebars = {
             'instruments/social-media/social-feed-manager',
             'instruments/social-media/tiktok',
             'instruments/social-media/mastodon',
+            'instruments/social-media/max',
           ],
         },
         {
@@ -352,6 +363,11 @@ const sidebars = {
         'similar/perma-cc',
         'similar/international-archives',
         'similar/russian-independent-media-archives',
+        'similar/datarefuge',
+        'similar/climate-mirror',
+        'similar/eot-archive',
+        'similar/sucho',
+        'similar/awesome-catalogs',
       ],
     },
     {
@@ -379,6 +395,7 @@ const sidebars = {
         'about/index',
         'about/project-history',
         'about/lessons-learned',
+        'about/conferences',
       ],
     },
     {

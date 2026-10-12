@@ -60,7 +60,7 @@ flowchart LR
 | [Squidwarc](/kb/instruments/tools/squidwarc) | Node.js + CDP | npm | Точное управление через DevTools Protocol | Стабильный |
 | [Brozzler](/kb/instruments/tools/brozzler) | Python | Docker | Распределённый через Redis | Стабильный |
 | [Warcworker](/kb/instruments/tools/warcworker) | Node.js | Docker | Squidwarc + очередь + UI | Стабильный |
-| [Crocoite](https://github.com/PieceOfJake/crocoite) | Python | pip | Скриншоты + DOM + WARC | Экспериментальный |
+| [Crocoite](https://github.com/crocoite/crocoite) | Python | pip | Скриншоты + DOM + WARC | Экспериментальный |
 | [WAIL](https://github.com/machawk1/wail) | Python | GUI | One-click Heritrix + pywb | Нишевый |
 
 ### HTTP-кроулеры (без JavaScript)
@@ -87,7 +87,7 @@ flowchart LR
 | [Auto-Archiver (Bellingcat)](https://github.com/bellingcat/auto-archiver) | Workflow OSINT | Активно развивается |
 | [twarc](/kb/instruments/social-media/twarc) | Twitter JSON | Только legacy v2 API |
 | [fbarc](/kb/instruments/social-media/fbarc) | Facebook | Ограниченно (API заблокирован) |
-| [Social Feed Manager](https://github.com/sfm-tools/sfm) | Multiple platforms | Нишевый |
+| [Social Feed Manager](https://github.com/gwu-libraries/social-feed-manager) | Multiple platforms | Нишевый |
 
 ### Моментальное сохранение
 
@@ -160,7 +160,7 @@ flowchart LR
 | [Shine](/kb/instruments/tools/shine) | Полнотекстовый поиск, до 100 ГБ | **Стабильный** |
 | [SolrWayback](/kb/instruments/tools/solrwayback) | Полнотекстовый поиск, от 100 ГБ | **Стабильный** |
 | [ArchiveSpark](https://github.com/helgeho/ArchiveSpark) | Spark-кластер | Нишевый |
-| [Warclight](https://github.com/projectblacklight/warclight) | Blacklight-фронтенд | Нишевый |
+| [Warclight](https://github.com/archivesunleashed/warclight) | Blacklight-фронтенд | Нишевый |
 
 ### Постоянные ссылки
 
@@ -177,18 +177,18 @@ flowchart LR
 | Инструмент | Что делает | Статус |
 |:---|:---|:---|
 | ⭐ [metawarc](/kb/instruments/ruarxive-tools/metawarc) | DuckDB-индекс + метаданные | **Стабильный** |
-| ⭐ [metawarc-mcp](https://github.com/ruarxive/metawarc-mcp) | MCP-сервер для LLM | **Стабильный** |
+| ⭐ [metawarc-mcp](/kb/instruments/ruarxive-tools/metawarc-mcp) | MCP-сервер для LLM | **Стабильный** |
 | [warc-processing](/kb/instruments/tools/warc-processing) | Библиотеки (warcio, jwarc) | **Стабильный** |
-| [Warchaeology](https://github.com/iipc/warchaeology) | Валидация, дедупликация | Стабильный |
+| [Warchaeology](/kb/instruments/tools/warchaeology) | Валидация, дедупликация | Стабильный |
 | [Warcbench](https://github.com/harvard-lil/warcbench) | Исследование, трансформация | Экспериментальный |
-| [DuckDB-warc](https://github.com/commoncrawl/duckdb-warc) | SQL к WARC | Активно развивается |
-| [duckdb-web-archive-cdx](https://github.com/commoncrawl/duckdb-web-archive-cdx) | SQL к CDX IA/CC | Активно развивается |
+| [DuckDB-warc](https://github.com/harvard-lil/duckdb-warc) | SQL к WARC | Активно развивается |
+| [duckdb-web-archive-cdx](/kb/instruments/tools/duckdb-warc) | SQL к CDX IA/CC | Активно развивается |
 
 ### Защита и контроль качества
 
 | Инструмент | Что делает | Статус |
 |:---|:---|:---|
-| [WARC-Safe](https://digital.library.unt.edu/ark:/67531/metadc2472470/) | Антивирус + NSFW | Стабильный |
+| [WARC-Safe](https://web.archive.org/web/2026/https://digital.library.unt.edu/ark:/67531/metadc2472470/) | Антивирус + NSFW | Стабильный |
 | [warcvalid](https://github.com/iipc/jwarc) | Валидация WARC 1.1 | **Стабильный** |
 
 ### AI и RAG
@@ -196,7 +196,7 @@ flowchart LR
 | Инструмент | Что делает | Статус |
 |:---|:---|:---|
 | [WARC-GPT](https://github.com/harvard-lil/warc-gpt) | RAG по коллекции | Экспериментальный |
-| [metawarc-mcp](https://github.com/ruarxive/metawarc-mcp) | Интерфейс для LLM | Экспериментальный |
+| [metawarc-mcp](/kb/instruments/ruarxive-tools/metawarc-mcp) | Интерфейс для LLM | Экспериментальный |
 | [WARC-Bench](https://sanjari-orb.github.io/warc-bench/) | Бенчмарк для AI-агентов | Активно развивается |
 
 ### Link-graph анализ
@@ -224,7 +224,7 @@ flowchart LR
 |:---|:---|
 | [IIPC](https://netpreserve.org/) | Стандарты (WARC, CDX), конференции, обучение |
 | [Webrecorder](https://webrecorder.io/) | Browsertrix, ReplayWeb.page, pywb, WACZ-стандарт |
-| [Internet Archive](https://archive.org/) | Wayback Machine, RIMA, S3 API |
+| [Internet Archive](https://archive.org/) | Wayback Machine, S3 API |
 | [Bellingcat](https://www.bellingcat.com/) | OSINT-инструменты, Auto-Archiver |
 | [Archive Team](http://www.archiveteam.org/) | Экстренные волонтёрские архивы |
 | [Harvard Library Innovation Lab](https://lil.law.harvard.edu/) | WARC-GPT, Scoop, Perma.cc |
@@ -276,7 +276,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Auto-Archiver + yt-dlp"] --> B["RIMA"] --> C["metawarc"] --> D["warc-gpt"]
+    A["Auto-Archiver + yt-dlp"] --> B["metawarc"] --> C["warc-gpt"]
 ```
 
 ### Для национального архива
