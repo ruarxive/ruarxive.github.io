@@ -15,34 +15,13 @@ Wget, Browsertrix, wpull, Heritrix и почти любой краулер со�
 
 ## Полный pipeline
 
-```
-┌──────────────┐
-│  Скачивание  │  wget / Browsertrix / wpull
-│  (WARC.gz)   │
-└──────┬───────┘
-       ↓
-┌──────────────┐
-│ Валидация    │  warcvalid / jwarc — целостность и соответствие стандарту
-└──────┬───────┘
-       ↓
-┌──────────────┐
-│ Индексация   │  cdxj-indexer / warcio → CDXJ-файл
-└──────┬───────┘
-       ↓
-┌──────────────┐
-│ Обогащение   │  metawarc — извлечение ссылок, заголовков, mime
-│ метаданными  │
-└──────┬───────┘
-       ↓
-┌──────────────┐
-│ Упаковка     │  wacz → ZIP с WARC + CDXJ + datapackage.json
-│ в WACZ       │
-└──────┬───────┘
-       ↓
-┌──────────────┐
-│ Публикация   │  ReplayWeb.Page / pywb / IPWB
-│ в плеер      │
-└──────────────┘
+```mermaid
+flowchart TB
+    A["Скачивание<br/>(WARC.gz)<br/><i>wget / Browsertrix / wpull</i>"] --> B["Валидация<br/><i>warcvalid / jwarc</i><br/>целостность и соответствие стандарту"]
+    B --> C["Индексация<br/><i>cdxj-indexer / warcio</i><br/>→ CDXJ-файл"]
+    C --> D["Обогащение метаданными<br/><i>metawarc</i><br/>извлечение ссылок, заголовков, mime"]
+    D --> E["Упаковка в WACZ<br/><i>wacz</i><br/>ZIP с WARC + CDXJ + datapackage.json"]
+    E --> F["Публикация в плеер<br/><i>ReplayWeb.Page / pywb / IPWB</i>"]
 ```
 
 ## 1. Скачивание

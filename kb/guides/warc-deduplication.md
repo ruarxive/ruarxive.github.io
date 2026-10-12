@@ -229,16 +229,12 @@ WARC-дедупликация не уменьшает количество ун�
 
 ## Интеграция в pipeline Ruarxive
 
-```
-[wparc / Browsertrix]
-    ↓
-[warc-dedup --revisit]
-    ↓
-[WACZ-индексирование]
-    ↓
-[metawarc: построение DuckDB-каталога]
-    ↓
-[pywb публикация]
+```mermaid
+flowchart TB
+    A["wparc / Browsertrix"] --> B["warc-dedup --revisit"]
+    B --> C["WACZ-индексирование"]
+    C --> D["metawarc: построение DuckDB-каталога"]
+    D --> E["pywb публикация"]
 ```
 
 Каждый этап имеет свою цель:

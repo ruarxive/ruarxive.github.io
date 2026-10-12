@@ -384,18 +384,14 @@ with open("/tmp/today.csv") as f:
 
 ### Архитектура
 
-```
-[WARC файлы на S3]
-     │
-     ├──→ metawarc index → DuckDB-каталог
-     │                       ↓
-     │              metawarc serve (REST + MCP)
-     │
-     └──→ metawarc export-cdxj → CDXJ индекс
-                                     ↓
-                              pywb (CDXJ + WARC)
-                                     ↓
-                          https://playback.ruarxive.org/
+```mermaid
+flowchart TB
+    S3["WARC файлы на S3"]
+    S3 --> A["metawarc index<br/>→ DuckDB-каталог"]
+    A --> A2["metawarc serve<br/>(REST + MCP)"]
+    S3 --> B["metawarc export-cdxj<br/>→ CDXJ индекс"]
+    B --> C["pywb (CDXJ + WARC)"]
+    C --> D["https://playback.ruarxive.org/"]
 ```
 
 ### Команды

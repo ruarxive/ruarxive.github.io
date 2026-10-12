@@ -15,16 +15,37 @@ last_updated: 2026-11-09
 
 Любая архивная система делает четыре вещи:
 
-```
-┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
-│   CAPTURE    │ → │   STORAGE    │ → │    ACCESS    │ → │   ANALYSIS   │
-│  (сбор)      │   │  (хранение)  │   │  (доступ)    │   │  (анализ)    │
-└──────────────┘   └──────────────┘   └──────────────┘   └──────────────┘
-       ↓                   ↓                  ↓                  ↓
-  Browsertrix          pywb             ReplayWeb         SolrWayback
-  wget, Heritrix       S3, R2           Wayback           metawarc
-  wparc                Backblaze        Perma.cc          warc-gpt
-  yt-dlp               + IA             Memento           DuckDB-warc
+```mermaid
+flowchart LR
+    subgraph Capture["CAPTURE · сбор"]
+        direction TB
+        C1["Browsertrix ⭐"]
+        C2["wget · Heritrix"]
+        C3["wparc ⭐"]
+        C4["yt-dlp"]
+    end
+    subgraph Storage["STORAGE · хранение"]
+        direction TB
+        S1["pywb"]
+        S2["S3 · R2"]
+        S3["Backblaze"]
+        S4["+ Internet Archive ⭐"]
+    end
+    subgraph Access["ACCESS · доступ"]
+        direction TB
+        A1["ReplayWeb.page ⭐"]
+        A2["Wayback Machine"]
+        A3["Perma.cc"]
+        A4["Memento"]
+    end
+    subgraph Analysis["ANALYSIS · анализ"]
+        direction TB
+        N1["SolrWayback"]
+        N2["metawarc ⭐"]
+        N3["warc-gpt"]
+        N4["DuckDB-warc"]
+    end
+    Capture --> Storage --> Access --> Analysis
 ```
 
 Команда Ruarxive использует **Ruarxive-стек** (отмечен ⭐), остальное — стороннее.
@@ -232,38 +253,44 @@ last_updated: 2026-11-09
 
 ### Для новичка (1–3 сайта)
 
-```
-Archive.ph → SingleFile → ReplayWeb.page
+```mermaid
+flowchart LR
+    A["Archive.ph"] --> B["SingleFile"] --> C["ReplayWeb.page"]
 ```
 
 ### Для активиста (один сайт, регулярный сбор)
 
-```
-Browsertrix → S3 → ReplayWeb.page
+```mermaid
+flowchart LR
+    A["Browsertrix"] --> B["S3"] --> C["ReplayWeb.page"]
 ```
 
 ### Для университетской библиотеки
 
-```
-Web Curator Tool → Heritrix → pywb + SolrWayback → Backblaze B2
+```mermaid
+flowchart LR
+    A["Web Curator Tool"] --> B["Heritrix"] --> C["pywb + SolrWayback"] --> D["Backblaze B2"]
 ```
 
 ### Для OSINT-журналиста
 
-```
-Auto-Archiver + yt-dlp → RIMA → metawarc → warc-gpt
+```mermaid
+flowchart LR
+    A["Auto-Archiver + yt-dlp"] --> B["RIMA"] --> C["metawarc"] --> D["warc-gpt"]
 ```
 
 ### Для национального архива
 
-```
-Distributed Brozzler + Warcprox → pywb + SolrWayback → S3 Standard + IA
+```mermaid
+flowchart LR
+    A["Distributed Brozzler + Warcprox"] --> B["pywb + SolrWayback"] --> C["S3 Standard + IA"]
 ```
 
 ### Для Ruarxive
 
-```
-Wget / wparc / Browsertrix / tgarc → metawarc → S3 + IA + offline
+```mermaid
+flowchart LR
+    A["Wget / wparc / Browsertrix / tgarc"] --> B["metawarc"] --> C["S3 + IA + offline"]
 ```
 
 ## См. также

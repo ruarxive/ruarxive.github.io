@@ -69,17 +69,12 @@ SolrWayback решает все эти задачи:
 
 ## Архитектура
 
-```
-┌──────────┐     ┌──────────────┐     ┌─────────────┐
-│  WARC    │ ──▶ │  Solr Index  │ ◀── │ SolrWayback │
-│  files   │     │  (Lucene)    │     │   Web UI    │
-└──────────┘     └──────────────┘     └─────────────┘
-                       ▲
-                       │
-                 ┌──────────┐
-                 │  pywb    │
-                 │  (replay)│
-                 └──────────┘
+```mermaid
+flowchart LR
+    WARC["WARC files"] --> Solr["Solr Index<br/>(Lucene)"]
+    Solr --> UI["SolrWayback<br/>Web UI"]
+    pywb["pywb<br/>(replay)"] --> Solr
+    pywb --> UI
 ```
 
 SolrWayback не заменяет Solr — он **обёртка** вокруг Solr + pywb + CDX. Устанавливается рядом.

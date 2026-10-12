@@ -55,6 +55,13 @@ const config = {
     ],
   ],
 
+  themes: [
+    [
+      require.resolve("@docusaurus/theme-mermaid"),
+      ({ mermaid: { theme: { light: 'default', dark: 'dark' } } }),
+    ],
+  ],
+
   plugins: [
     [
       require.resolve("@easyops-cn/docusaurus-search-local"),

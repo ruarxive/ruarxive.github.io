@@ -73,12 +73,11 @@ last_updated: 2026-11-09
 
 ## Общий пайплайн: от записи до публикации
 
-```
-WARC/WACZ → ReplayWeb.page (быстрая проверка)
-            ↓
-       pywb (публичный хостинг)
-            ↓
-       SolrWayback / Shine (полнотекстовый поиск)
+```mermaid
+flowchart TB
+    A["WARC/WACZ"] --> B["ReplayWeb.page<br/><i>быстрая проверка</i>"]
+    B --> C["pywb<br/><i>публичный хостинг</i>"]
+    C --> D["SolrWayback / Shine<br/><i>полнотекстовый поиск</i>"]
 ```
 
 Реальные сценарии Ruarxive:
