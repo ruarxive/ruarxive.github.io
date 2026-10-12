@@ -4,45 +4,51 @@ import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './index.module.css';
-import HomepageFeatures from '@site/src/components/HomepageFeatures';
-import HomepageSections from '@site/src/components/HomepageSections';
-import HomepageDonate from '@site/src/components/HomepageDonate';
-import HomepageStats from '@site/src/components/HomepageStats';
-import HomepageQuickLinks from '@site/src/components/HomepageQuickLinks';
-import HomepageContentTypes from '@site/src/components/HomepageContentTypes';
+import HomepageSearch from '@site/src/components/HomepageSearch';
+import HomepageActions from '@site/src/components/HomepageActions';
+import HomepageDashboard from '@site/src/components/HomepageDashboard';
+import HomepageCollections from '@site/src/components/HomepageCollections';
 import HomepageHowItWorks from '@site/src/components/HomepageHowItWorks';
+import HomepageNews from '@site/src/components/HomepageNews';
+import HomepagePaths from '@site/src/components/HomepagePaths';
 import SEO from '@site/src/components/SEO';
-import Translate, { translate } from '@docusaurus/Translate';
+import stats from '@site/src/data/archive-stats.json';
+import { COLLECTION_FORMS, RESOURCE_FORMS, count, formatBytes } from '@site/src/utils/format';
+import { sourcesPeriod } from '@site/src/utils/archiveStats';
+
+const pageDescription =
+  'Национальный цифровой архив России: сохраняем сайты, Telegram-каналы, соцсети и открытые данные, которым грозит исчезновение, и делаем архивы открытыми. Поиск по архиву, запрос на архивацию, база знаний по веб-архивации.';
 
 function HomepageHeader() {
-  const { siteConfig } = useDocusaurusContext();
+  const { totals } = stats;
   return (
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
-        <p className="margin-bottom--sm"><strong>{siteConfig.organizationName.replace(/^https?:\/\//, '')}</strong></p>
-        <h1 className="hero__title"><Translate>Сохранение российского цифрового наследия</Translate></h1>
-        <p className="hero__subtitle">
-          <Translate>Архивируем сайты, соцсети и цифровые ресурсы до их исчезновения. 15+ инструментов с открытым кодом, 500+ сохранённых проектов.</Translate>
+        <p className="margin-bottom--sm">
+          <strong>ruarxive</strong>
+        </p>
+        <h1 className="hero__title">Сохранение российского цифрового наследия</h1>
+        <p className={clsx('hero__subtitle', styles.heroSubtitle)}>
+          Сохраняем сайты, Telegram-каналы, соцсети и данные, которым грозит исчезновение, — и делаем архивы
+          открытыми. Проект АНО «Информационная культура».
         </p>
         <div className={styles.buttons}>
-          <Link
-            className="button button--primary button--lg"
-            to="/kb/intro">
-            <Translate>Начать</Translate>
+          <Link className="button button--primary button--lg" to="#request">
+            Сообщить об исчезающем ресурсе
           </Link>
-          <Link
-            className="button button--secondary button--lg"
-            to="/kb/preserved-projects-table">
-            <Translate>Просмотр архивов</Translate>
+          <Link className="button button--secondary button--lg" to="#donate">
+            Поддержать проект
           </Link>
-          <Link
-            className="button button--outline button--lg"
-            to="/kb/preserved-projects-form">
-            <Translate>Предложить проект</Translate>
+          <Link className="button button--outline button--primary button--lg" to="#search">
+            Найти в архиве
           </Link>
         </div>
         <p className={styles.heroStats}>
-          <Translate>50+ ТБ архивов • 500+ проектов • Открытый код</Translate>
+          <Link to="#stats">
+            {formatBytes(totals.bytes)} • {count(totals.domains, RESOURCE_FORMS)} •{' '}
+            {count(totals.collections, COLLECTION_FORMS)}
+          </Link>{' '}
+          — по последним известным спискам файлов хранилища ({sourcesPeriod()}), часть папок не учтена
         </p>
       </div>
     </header>
@@ -51,12 +57,9 @@ function HomepageHeader() {
 
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
-  const pageDescription = "Архивируем сайты, соцсети и цифровые ресурсы до их исчезновения. 15+ инструментов с открытым кодом, 500+ сохранённых проектов, 50+ ТБ архивов. Национальный цифровой архив России для сохранения российского цифрового наследия.";
-  
+
   return (
-    <Layout
-      title={`${siteConfig.title}`}
-      description={pageDescription}>
+    <Layout title={siteConfig.title} description={pageDescription}>
       <SEO
         title="Ruarxive - Национальный цифровой архив России | Сохранение цифрового наследия"
         description={pageDescription}
@@ -73,13 +76,13 @@ export default function Home(): JSX.Element {
       />
       <HomepageHeader />
       <main>
-        <HomepageStats />
-        <HomepageQuickLinks />
-        <HomepageContentTypes />
-        <HomepageFeatures />
+        <HomepageSearch />
+        <HomepageActions />
+        <HomepageDashboard />
+        <HomepageCollections />
         <HomepageHowItWorks />
-        <HomepageSections />
-        <HomepageDonate />
+        <HomepageNews />
+        <HomepagePaths />
       </main>
     </Layout>
   );

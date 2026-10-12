@@ -90,6 +90,7 @@ const config = {
         sidebarPath: require.resolve('./sidebars-about.js'),
       },
     ],
+    [require.resolve('./plugins/homepage-news.js'), { limit: 4 }],
   ],
 
   scripts: [

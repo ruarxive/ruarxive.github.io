@@ -30,11 +30,19 @@
   margin-top: 1.5rem;
 }
 
+.heroSubtitle {
+  max-width: 760px;
+}
+
 .heroStats {
   margin-top: 1.5rem;
   font-size: 1.1rem;
   color: var(--ifm-color-emphasis-700);
   font-weight: 500;
+}
+
+.heroStats a {
+  font-weight: 700;
 }
 
 @media screen and (max-width: 768px) {

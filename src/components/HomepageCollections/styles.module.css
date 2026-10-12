@@ -1,0 +1,51 @@
+.collections {
+  padding: 3.5rem 0;
+  background: var(--ifm-background-color);
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.subtitle {
+  max-width: 760px;
+  color: var(--ifm-color-emphasis-700);
+  margin-bottom: 1.5rem;
+}
+
+.column {
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.25rem;
+  background: white;
+  border-radius: var(--ifm-card-border-radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.period {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ifm-color-primary);
+  margin-bottom: 0.35rem;
+}
+
+.cardTitle {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.description {
+  flex-grow: 1;
+  color: var(--ifm-color-emphasis-800);
+}
+
+.sources {
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-600);
+}

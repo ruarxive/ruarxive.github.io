@@ -1,0 +1,38 @@
+.paths {
+  padding: 3.5rem 0;
+  background: var(--ifm-background-color);
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.subtitle {
+  color: var(--ifm-color-emphasis-700);
+  margin-bottom: 1.5rem;
+}
+
+.column {
+  margin-bottom: 1.5rem;
+}
+
+.pathTitle {
+  font-size: 1.15rem;
+  margin-bottom: 0.35rem;
+}
+
+.description {
+  font-size: 0.95rem;
+  color: var(--ifm-color-emphasis-700);
+  margin-bottom: 0.5rem;
+}
+
+.links {
+  padding-left: 1.1rem;
+  margin: 0;
+}
+
+.links li {
+  margin-bottom: 0.25rem;
+}

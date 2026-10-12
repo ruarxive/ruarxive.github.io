@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-12",
+  "sources": [
+    {
+      "kind": "snapshot",
+      "file": "files_20251213_174144.jsonl.zst",
+      "url": "https://github.com/ruarxive/ruarxive-db",
+      "date": "2025-12-13",
+      "dirs": [
+        "OGDHub",
+        "datacollect",
+        "ftpmirrors",
+        "mirrors",
+        "webarchive",
+        "webcollect",
+        "webcollect2017",
+        "wikicollect"
+      ],
+      "files": 62639,
+      "bytes": 8022580225775,
+      "skippedRows": 0
+    },
+    {
+      "kind": "registry",
+      "file": "allarchives_20231212.csv.zst",
+      "url": "https://cdn.ruarxive.org/public/allarchives.csv",
+      "date": "2023-12-12",
+      "dirs": [
+        "dataportals",
+        "nkr",
+        "webcollect2018",
+        "webcollect2019",
+        "webcollect2020",
+        "webcollect2021",
+        "webcollect2022",
+        "webcollect2023",
+        "webtimedcoll"
+      ],
+      "files": 25959,
+      "bytes": 5917884488469,
+      "skippedRows": 18
+    }
+  ],
+  "unknownDirs": [
+    "apibackuper",
+    "armenia2024",
+    "mirrors2010",
+    "webcollect2024",
+    "webcollect2025"
+  ],
+  "catalog": {
+    "url": "https://github.com/ruarxive/ruarxive-db",
+    "collections": 88,
+    "records": 2641,
+    "uncatalogued": 108
+  },
+  "totals": {
+    "bytes": 13940464714244,
+    "files": 88598,
+    "domains": 3322,
+    "collections": 182
+  },
+  "byYear": [
+    {
+      "year": "2008",
+      "bytes": 246784,
+      "files": 1
+    },
+    {
+      "year": "2009",
+      "bytes": 179712,
+      "files": 3
+    },
+    {
+      "year": "2010",
+      "bytes": 1544340452,
+      "files": 9
+    },
+    {
+      "year": "2011",
+      "bytes": 3301376,
+      "files": 15
+    },
+    {
+      "year": "2012",
+      "bytes": 7808475972,
+      "files": 103
+    },
+    {
+      "year": "2013",
+      "bytes": 117086851661,
+      "files": 12444
+    },
+    {
+      "year": "2014",
+      "bytes": 655390550188,
+      "files": 3318
+    },
+    {
+      "year": "2015",
+      "bytes": 324974232138,
+      "files": 16530
+    },
+    {
+      "year": "2016",
+      "bytes": 812443438157,
+      "files": 2168
+    },
+    {
+      "year": "2017",
+      "bytes": 6038031434063,
+      "files": 28683
+    },
+    {
+      "year": "2018",
+      "bytes": 797553086757,
+      "files": 12825
+    },
+    {
+      "year": "2019",
+      "bytes": 13742390700,
+      "files": 79
+    },
+    {
+      "year": "2020",
+      "bytes": 1470653057296,
+      "files": 5358
+    },
+    {
+      "year": "2021",
+      "bytes": 387161758421,
+      "files": 431
+    },
+    {
+      "year": "2022",
+      "bytes": 981134883731,
+      "files": 6292
+    },
+    {
+      "year": "2023",
+      "bytes": 2324503585417,
+      "files": 327
+    },
+    {
+      "year": "2024",
+      "bytes": 620517662,
+      "files": 5
+    },
+    {
+      "year": "2025",
+      "bytes": 7812383757,
+      "files": 7
+    }
+  ],
+  "formats": [
+    {
+      "key": "warc",
+      "label": "WARC",
+      "bytes": 10615361474541
+    },
+    {
+      "key": "db",
+      "label": "Базы данных",
+      "bytes": 913115006777
+    },
+    {
+      "key": "index",
+      "label": "Индексы CDX",
+      "bytes": 45701732874
+    },
+    {
+      "key": "packed",
+      "label": "Архивы (7z, xz, zip и др.)",
+      "bytes": 1790961648277
+    },
+    {
+      "key": "log",
+      "label": "Логи сбора",
+      "bytes": 309791624613
+    },
+    {
+      "key": "other",
+      "label": "Прочее",
+      "bytes": 265533227162
+    }
+  ],
+  "topCollections": [
+    {
+      "name": "gov",
+      "title": "Государственные сайты",
+      "bytes": 2559466445839,
+      "files": 7154,
+      "domains": 196,
+      "dir": ""
+    },
+    {
+      "name": "deathwatch",
+      "title": "Мониторинг закрытия сайтов",
+      "bytes": 1741027442934,
+      "files": 31,
+      "domains": 5,
+      "dir": ""
+    },
+    {
+      "name": "moscowgov",
+      "title": "Сайты правительства Москвы",
+      "bytes": 1051305639500,
+      "files": 4019,
+      "domains": 183,
+      "dir": "webcollect2017/moscowgov/"
+    },
+    {
+      "name": "gov2020",
+      "title": null,
+      "bytes": 821846805331,
+      "files": 598,
+      "domains": 33,
+      "dir": "webcollect2020/gov2020/"
+    },
+    {
+      "name": "gov2018",
+      "title": null,
+      "bytes": 795626699777,
+      "files": 5707,
+      "domains": 253,
+      "dir": "webcollect2018/gov2018/"
+    },
+    {
+      "name": "mvd",
+      "title": "МВД",
+      "bytes": 631628961126,
+      "files": 306,
+      "domains": 9,
+      "dir": "webcollect2017/mvd/"
+    },
+    {
+      "name": "ikmo",
+      "title": null,
+      "bytes": 581849475042,
+      "files": 113,
+      "domains": 19,
+      "dir": "webcollect2023/ikmo/"
+    },
+    {
+      "name": "ras",
+      "title": "Российская академия наук",
+      "bytes": 396389570004,
+      "files": 698,
+      "domains": 32,
+      "dir": "webcollect2017/ras/"
+    },
+    {
+      "name": "kremlin",
+      "title": "Администрация Президента РФ",
+      "bytes": 383917902183,
+      "files": 236,
+      "domains": 9,
+      "dir": "webcollect2017/kremlin/"
+    },
+    {
+      "name": "duma",
+      "title": "Государственная Дума",
+      "bytes": 365802493470,
+      "files": 1116,
+      "domains": 61,
+      "dir": ""
+    }
+  ]
+}
