@@ -131,7 +131,7 @@ ZIP-пакет, в котором лежат WARC-файлы, индекс CDXJ,
 
 Ruarxive (Национальный цифровой архив) — инициатива АНО «Инфокультура». Архивация сайтов госорганов ведётся с начала 2010-х годов, с 2016 года архивы публикуются группами данных на hubofdata.ru, с 2017 года работает сайт ruarxive.org, а в марте 2022 года проект перезапущен вместе с Telegram-каналом [@ruarxive](https://t.me/ruarxive). Подробнее — в [истории проекта](/kb/about/project-history); цифры по отдельным коллекциям — в [сводке статистики](/kb/resources/stats-snapshot), а реестр исчезающих ресурсов — в кейсе [«Исчезающие российские ресурсы»](/kb/case-studies/russia-resources-disappearing).
 
-1. **Сообщить о ресурсе под угрозой** — [форма](https://airtable.com/shriiNZvNhcgaStm6) или [Telegram-чат](https://t.me/ruarxivechat).
+1. **Сообщить о ресурсе под угрозой** — [запрос на архивацию](/kb/preserved-projects-form) через GitHub или [Telegram-чат](https://t.me/ruarxivechat).
 2. **Передать архив** — если ресурс уже исчез, но есть дамп.
 3. **[Помочь деньгами](https://www.infoculture.ru/donation)** — на сервера и хранение.
 4. **Помочь руками** — задачи в разделе [Волонтёрам](/kb/volunteers/volunteers-tasks).

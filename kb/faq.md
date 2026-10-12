@@ -48,7 +48,7 @@ HTTP-запросами, ответами и метаданными. **WACZ** �
 ими. См. [Авторское право](/kb/legal/copyright).
 
 ### Что делать, если нужного сайта нет в каталоге?
-Заполните [форму](https://airtable.com/shriiNZvNhcgaStm6) или сообщите в
+Отправьте [запрос на архивацию](/kb/preserved-projects-form) через GitHub или сообщите в
 [Telegram-чат](https://t.me/ruarxivechat).
 
 ## Об архивации

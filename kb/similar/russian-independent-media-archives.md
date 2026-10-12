@@ -70,7 +70,7 @@ Wayback Machine, archive.today, национальные веб-архивы (с
 
 1. Соберите сайт в WARC — см. [Wget: сайт в WARC](/kb/guides/wget) или [Browsertrix](/kb/instruments/tools/browsertrix); для сайтов на WordPress — [wparc](/kb/instruments/ruarxive-tools/wparc), для Telegram-каналов — [tgarc](/kb/instruments/ruarxive-tools/tgarc).
 2. Сохраните копию в нескольких местах.
-3. Сообщите о ресурсе через [форму](https://airtable.com/shriiNZvNhcgaStm6) или в [чате Ruarxive](https://t.me/ruarxivechat).
+3. Сообщите о ресурсе через [запрос на архивацию](/kb/preserved-projects-form) или в [чате Ruarxive](https://t.me/ruarxivechat).
 
 ## Специфика архивации
 

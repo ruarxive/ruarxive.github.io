@@ -168,7 +168,7 @@ https://example.com/admin/,❌,❌,0,none
 - [ ] **Локально на диск** — для тестового прогона.
 - [ ] **S3 / R2 / Backblaze** — для долгосрочного хранения.
 - [ ] **Internet Archive** — для публикации (если у вас есть на это права).
-- [ ] **Ruarxive** — для общественно значимых российских ресурсов: сообщите о ресурсе через [форму](https://airtable.com/shriiNZvNhcgaStm6) или в [чат](https://t.me/ruarxivechat).
+- [ ] **Ruarxive** — для общественно значимых российских ресурсов: сообщите о ресурсе через [запрос на архивацию](/kb/preserved-projects-form) или в [чат](https://t.me/ruarxivechat).
 - [ ] **Не сохранять** — если цель прогона — просто проверить качество.
 
 ### Структура каталогов
@@ -199,7 +199,7 @@ archive-name/
 
 ### Куда сообщать о ходе
 
-- **Ruarxive** — сообщить о ресурсе через [форму](https://airtable.com/shriiNZvNhcgaStm6); уже сохранённое — в [таблице](https://airtable.com/shrO1hise7WgURXg5).
+- **Ruarxive** — сообщить о ресурсе через [запрос на архивацию](/kb/preserved-projects-form); уже сохранённое — в [таблице](https://airtable.com/shrO1hise7WgURXg5).
 - **Telegram-чат** — если нужны помощники.
 - **GitHub** — если используются инструменты Ruarxive (issue).
 

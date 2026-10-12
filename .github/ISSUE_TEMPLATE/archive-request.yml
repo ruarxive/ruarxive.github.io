@@ -1,0 +1,60 @@
+name: Запрос на архивацию
+description: Сообщить о сайте или цифровом ресурсе, которому грозит исчезновение
+title: "[Архивация] "
+labels: ["archive-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Спасибо, что помогаете сохранить цифровое наследие. Мы берём ресурс в работу, если:
+
+        1. он представляет общественную ценность — даже для небольшой группы людей;
+        2. у него есть существенный риск исчезновения в ближайшее время — от дней до месяцев.
+
+        Если ресурс может исчезнуть в ближайшие часы, продублируйте запрос в Telegram-чат [@ruarxivechat](https://t.me/ruarxivechat).
+
+        Запрос публичный: не указывайте здесь данные, которые нельзя раскрывать.
+  - type: input
+    id: url
+    attributes:
+      label: Адрес ресурса
+      description: Ссылка на сайт, Telegram-канал, аккаунт в соцсети, набор данных и т. п.
+      placeholder: https://example.ru
+    validations:
+      required: true
+  - type: dropdown
+    id: resource-type
+    attributes:
+      label: Тип ресурса
+      options:
+        - Сайт
+        - Telegram-канал или чат
+        - Аккаунт в соцсети
+        - Видео или аудио
+        - Набор данных, файлы, документы
+        - Другое
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Почему ресурс ценен и почему может исчезнуть
+      description: Что на нём опубликовано, кому это важно, какие признаки угрозы (ликвидация организации, блокировка, смена платформы, объявление о закрытии).
+    validations:
+      required: true
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Насколько срочно
+      options:
+        - Может исчезнуть в ближайшие дни
+        - В ближайшие недели
+        - В ближайшие месяцы
+        - Не знаю
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Дополнительно
+      description: Разделы, которые особенно важно сохранить; известные копии; нужна ли авторизация; ваш контакт для связи, если хотите.
