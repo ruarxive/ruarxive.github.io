@@ -1,304 +1,153 @@
 ---
 title: WARC-Safe — антивирусная и NSFW-проверка архивов
 sidebar_label: WARC-Safe
-description: "WARC-Safe — первый open-source сканер вирусов и NSFW-контента для WARC-файлов от UNT. Интеграция с SolrWayback, UK Web Archive."
-last_updated: 2026-11-09
-keywords: [warc-safe, antivirus, nsfw, virus, scanner, archive, unt]
+description: "WARC-Safe — открытый инструмент Национальной библиотеки Люксембурга для поиска вирусов (ClamAV) и NSFW-изображений в ARC/WARC-файлах: проверка из командной строки и REST-сервер."
+last_update:
+  date: 2026-10-12
+keywords: [warc-safe, antivirus, nsfw, virus, scanner, archive, bnl, luxembourg]
 ---
 
 # WARC-Safe — антивирусная и NSFW-проверка архивов
 
-[WARC-Safe](https://digital.library.unt.edu/ark:/67531/metadc2472470/) — первый open-source сканер для проверки WARC-файлов на **вирусы** и **NSFW-контент** (Not-Safe-For-Work). Разработан в [University of North Texas](https://digital.library.unt.edu/). Особенно важен для **публичных архивов**, где нет модерации каждого файла.
+[WARC-Safe](https://github.com/natliblux/warc-safe) — программа на Python, которая проверяет ARC/WARC-файлы на **вирусы** (через демон ClamAV `clamd`) и на **NSFW-контент** (насилие и обнажённость на изображениях, через ML-классификатор). Разработана в Национальной библиотеке Люксембурга (Bibliothèque nationale de Luxembourg, BnL; авторы — Yves Maurer и László Tóth), лицензия GPL-3.0, репозиторий создан в 2024 году.
 
-> **Главная идея:** новый WARC из массовой архивации потенциально может содержать вредоносный код (с заархивированных сайтов) или NSFW-контент. WARC-Safe проверяет архив автоматически — так же, как почтовый сервис проверяет вложения.
+Доклад Л. Тота о WARC-Safe хранится в [UNT Digital Library](https://digital.library.unt.edu/ark:/67531/metadc2472470/): там лежат материалы конференций IIPC. University of North Texas к разработке отношения не имеет.
 
 ## Зачем нужен
 
-| Сценарий | Риск без WARC-Safe |
-|:---|:---|
-| **Публичный архив** (доступен через pywb) | Пользователь получает 200 со страницей, на которой эксплойт через XSS |
-| **WARC в публичном S3** | Злоумышленник загружает файл с малварью в HTML-теле, затем скармливает исследователям |
-| **Корпоративный архив** | Архивирование скомпрометированного сайта → заражение инфраструктуры при индексации |
-| **Демо архива на конференции** | Случайный показ NSFW-страницы |
+Массовая веб-архивация собирает всё подряд, в том числе вредоносные файлы со взломанных сайтов и изображения, которые нельзя показывать без предупреждения. Перед публикацией коллекции (через [pywb](/kb/instruments/replay/pywb), [SolrWayback](/kb/instruments/tools/solrwayback) или выкладкой WARC) полезно знать, какие записи стоит проверить вручную.
 
-WARC-Safe решает это:
+Что умеет WARC-Safe:
 
-- **Антивирусная проверка** через ClamAV (или другие движки).
-- **NSFW-детекция** через ML-классификатор (NSFWJS, GantMan).
-- **Отчёт** с указанием, какие записи проблемные.
-
-## Архитектура
-
-```mermaid
-flowchart TB
-    A["WARC файл"] --> B["WARC-Safe extractor<br/>(warcio)"]
-    B --> C["ClamAV<br/>daemon"]
-    B --> D["NSFWJS<br/>ML model"]
-    C --> E["JSON-отчёт per WARC запись<br/>+ сводный CSV для коллекции"]
-    D --> E
-```
+- проверяет записи WARC антивирусом ClamAV;
+- оценивает изображения (TIFF, JPEG, PNG, SVG, WEBP) NSFW-классификатором и выдаёт `nsfw_score` от 0 до 1;
+- работает со сжатыми и несжатыми файлами;
+- проверяет одну запись по смещению;
+- в режиме сервера отдаёт результаты в JSON по REST API;
+- с июня 2026 года совместим с функцией обогащения полей Solr в [netarchivesuite/warc-indexer](https://github.com/netarchivesuite/warc-indexer): данные о вирусах и NSFW можно добавить в Solr-индекс при индексации.
 
 ## Установка
 
-### Быстрая установка
+Нужен Python 3.9+. Пакета на PyPI нет: проект ставится из репозитория.
 
 ```bash
-pip install warc-safe
-```
-
-Для работы нужны:
-
-- Python 3.10+ (рекомендуется 3.11+).
-- ClamAV (`brew install clamav` / `apt install clamav-daemon`).
-- ~2 ГБ RAM для ML-моделей.
-
-### Полная установка (с dev-окружением)
-
-```bash
-git clone https://github.com/unt-libraries/warc-safe
+git clone https://github.com/natliblux/warc-safe
 cd warc-safe
-pip install -e .
-clamav-daemon &
+pip install -r requirements.txt
 ```
+
+NSFW-классификатор — пакет `NSFWDetection` из `requirements.txt`. При первом запуске модель скачивается в домашний каталог пользователя.
+
+Для антивирусной проверки нужен демон ClamAV. В Ubuntu (по README):
+
+```bash
+apt-get install clamav clamav-daemon -y
+
+# первая настройка: остановить обновлятор, скачать базы, запустить снова
+systemctl stop clamav-freshclam
+freshclam
+systemctl start clamav-freshclam
+```
+
+Базы сигнатур время от времени обновляют командой `freshclam`.
+
+> Команды сверены с README и `app.py` репозитория natliblux/warc-safe (октябрь 2026).
 
 ## Использование
 
-### CLI
+### Проверка из командной строки
 
 ```bash
-# Проверить один WARC
-warc-safe scan /path/to/archive.warc.gz
+# антивирусная проверка
+python app.py --test-av /path/to/archive.warc.gz
 
-# С выводом в JSON
-warc-safe scan /path/to/archive.warc.gz --json > report.json
+# NSFW-проверка
+python app.py --test-nsfw /path/to/archive.warc.gz
 
-# С выводом в CSV
-warc-safe scan /path/to/archive.warc.gz --csv > report.csv
-
-# Проверить несколько WARC
-warc-safe scan /path/to/warcs/*.warc.gz --csv > all-reports.csv
-
-# Только вирусы (без NSFW)
-warc-safe scan /path/to/archive.warc.gz --only-virus
-
-# Только NSFW
-warc-safe scan /path/to/archive.warc.gz --only-nsfw
+# только одна запись, начиная со смещения
+python app.py --test-nsfw /path/to/archive.warc.gz --offset 12345
 ```
 
-### Python API
+Результат выводится таблицей в терминал.
 
-```python
-from warc_safe import Scanner
-
-scanner = Scanner(
-    virus_scanner="clamav",
-    nsfw_model="nsfwjs",
-    clamav_socket="/var/run/clamav/clamd.ctl",
-)
-
-# Сканировать один файл
-report = scanner.scan_file("archive.warc.gz")
-for finding in report.findings:
-    print(finding.url, finding.threat_type, finding.confidence)
-
-# Сканировать коллекцию
-for report in scanner.scan_directory("./warcs/"):
-    print(f"{report.filename}: {len(report.findings)} проблем")
-```
-
-### Конфигурация
-
-`config.yaml`:
-
-```yaml
-virus_scanner:
-  engine: "clamav"
-  socket: "/var/run/clamav/clamd.ctl"
-  fallback: "clamd-cli"  # если сокет не работает
-
-nsfw_detector:
-  engine: "nsfwjs"
-  model: "Inferse/nsfwjs-v2"
-  threshold: 0.6
-
-logging:
-  level: "info"
-  format: "json"
-
-output:
-  default_format: "json"
-  default_path: "./reports/"
-```
-
-## Что обнаруживается
-
-### Вирусы и малварь
-
-- HTML/JavaScript с известными эксплойтами (CVE-2024-XXXX и др.).
-- Файлы EICAR тест-сигнатуры (стандарт для проверки антивируса).
-- Macro malware в документах.
-- Любой сигнатурный вирус в файлах внутри WARC.
-
-ClamAV обновляет базы ежедневно; freshness проверки настраивается.
-
-### NSFW-контент
-
-- Изображения (NSFWJS или YOLO-based).
-- Категории: porn, hentai, sexy (настраивается).
-- Порог уверенности (по умолчанию 0.6).
-- Не применяется к тексту (только изображения и метаданные).
-
-## Интеграция с SolrWayback
-
-WARC-Safe интегрирован с [SolrWayback](/kb/instruments/tools/solrwayback) — после индексации WARC, прежде чем пользователи смогут искать, проверка применяется автоматически:
+### Режим сервера
 
 ```bash
-# В pipeline SolrWayback
-solrwayback-indexer archive.warc.gz --prescan=warc-safe
+python app.py --host 127.0.0.1 --server 8123
 ```
 
-## Интеграция с UK Web Archive
+По умолчанию сервер слушает `0.0.0.0`. Если запускаете его не в изолированной сети, явно укажите `--host 127.0.0.1`. Эндпоинты (все — POST, параметр `file_path` — абсолютный путь к WARC, доступному серверу через файловую систему):
 
-[UK Web Archive](https://www.webarchive.org.uk/) использует WARC-Safe в production для защиты от известных угроз.
-
-## Защищаемые сценарии
-
-### Сценарий 1. Публичный Ruarxive-архив
+- `test_nsfw` — только NSFW;
+- `test_antivirus` — только вирусы;
+- `test_all` — обе проверки.
 
 ```bash
-#!/bin/bash
-# publish-archive.sh
-set -e
-
-ARCHIVE=$1
-
-echo "[validate]"
-warc-validate "$ARCHIVE"
-
-echo "[virus-scan]"
-warc-safe scan "$ARCHIVE" --json > /tmp/scan.json
-if python -c "import json,sys;d=json.load(open('/tmp/scan.json'));sys.exit(0 if d['total_threats']==0 else 1)"; then
-  echo "[safe] публикуем в S3..."
-  aws s3 cp "$ARCHIVE" "s3://ruarxive-public/..."
-else
-  echo "[WARNING] угрозы обнаружены, проверить вручную"
-  cat /tmp/scan.json
-  exit 2
-fi
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"file_path": "/data/warcs/archive.warc.gz"}' \
+  localhost:8123/test_all
 ```
 
-### Сценарий 2. CI/CD для ежедневных архивов
+Для проверки одной записи в JSON добавляется поле `offset`.
 
-```cron
-# Каждое утро — проверка вчерашних архивов
-0 6 * * *  cd /opt/ruarxive && warc-safe scan /data/archives/$(date -d 'yesterday' +%Y-%m-%d)/*.warc.gz --csv > /var/log/warc-safe/daily.csv
-```
+### Формат ответа
 
-### Сценарий 3. Real-time на загрузке в pywb
-
-Демонстрирует интеграцию с pywb через webhook после успешной валидации:
-
-```bash
-warc-safe scan archive.warc.gz \
-  --json \
-  --on-success "wb-manager add my-coll archive.warc.gz" \
-  --on-threat "echo 'THREAT FOUND' | mail -s 'WARC threat' admin@ruarxive.org"
-```
-
-## Отчёт и алертинг
-
-### Формат отчёта
+Корневой элемент — `results`, ключи — `WARC-Record-ID` записей:
 
 ```json
 {
-  "filename": "archive.warc.gz",
-  "scanned_at": "2026-11-09T12:00:00Z",
-  "summary": {
-    "total_records": 12345,
-    "scanned_records": 11000,
-    "skipped_records": 1345,
-    "threats_found": 3,
-    "scan_duration_seconds": 90
-  },
-  "findings": [
-    {
-      "url": "https://infected-site.example/payload.html",
-      "threat_type": "virus",
-      "engine": "clamav",
-      "signature": "Win.Test.Eicar",
-      "confidence": 1.0,
-      "warc_record_id": "<urn:uuid:abc>"
-    },
-    {
-      "url": "https://example.com/nsfw/image.jpg",
-      "threat_type": "nsfw-image",
-      "engine": "nsfwjs",
-      "category": "porn",
-      "confidence": 0.87,
-      "warc_record_id": "<urn:uuid:def>"
+  "results": {
+    "<urn:uuid:ec2aa5f2-391e-530a-a9ed-b44f944fdcb9>": {
+      "av_details": null,
+      "is_virus": false,
+      "filename": "picture.jpg",
+      "mime": "image/jpeg",
+      "is_nsfw": true,
+      "nsfw_score": 0.7569
     }
-  ]
+  }
 }
 ```
 
-### Алертинг
+Поля записи: `filename`, `mime`, `av_details`, `is_virus`, `is_nsfw`, `nsfw_score`, при ошибке — `err`. При запросе с `offset` возвращается один объект; если запись не изображение и ClamAV её тип не поддерживает, ответ будет `{}`.
+
+## Точность
+
+Авторы предупреждают, что классификатор даёт ложные срабатывания (например, на медицинских изображениях) и пропускает часть NSFW-изображений. Поэтому лучше ориентироваться на `nsfw_score` и задавать порог под свою коллекцию, а не полагаться только на `is_nsfw`. Опубликованных метрик точности нет. Результат проверки — повод для ручного просмотра, а не автоматического удаления.
+
+## Пример встраивания в конвейер
+
+Проверка коллекции перед публикацией: сервер WARC-Safe запущен локально, скрипт отправляет каждый файл и сохраняет ответы.
 
 ```bash
-# Email при обнаружении угроз
-warc-safe scan archive.warc.gz --csv | \
-  awk -F, 'NR>1 && $3>0 {print}' | \
-  mail -s "WARC-Safe: $ARCHIVE — угрозы найдены" admin@ruarxive.org
+for f in /data/warcs/*.warc.gz; do
+  curl -s -X POST -H "Content-Type: application/json" \
+    -d "{\"file_path\": \"$f\"}" localhost:8123/test_all \
+    > "reports/$(basename "$f").json"
+done
+
+# записи с вирусами
+jq -r '.results | to_entries[] | select(.value.is_virus) | .key' reports/*.json
 ```
 
-## Точность и false positives
+## Ограничения
 
-| Тип | Точность | False positive rate |
-|:---|:---|:---|
-| ClamAV | ~95 % известных угроз | < 0.1 % |
-| NSFW (NSFWJS) | ~90 % очевидных случаев | ~3–5 % (фото искусства, медицина) |
-
-**Что делать с false positives:**
-
-- Пометить вручную и сохранить.
-- Использовать `tag` вместо удаления.
-- Настроить threshold для NSFW (выше — меньше false positives).
-
-## Когда использовать
-
-✅ Подходит:
-
-- **Публичные веб-архивы** перед публикацией.
-- **Публичные репозитории WARC** (Academic Torrents, IA).
-- **Корпоративные коллекции** для внутренней безопасности.
-- **OSINT-архивы** при работе с непроверенным контентом.
-- **Демо на конференциях** — гарантия, что не покажут вредонос.
-- **Compliance** (GDPR, COPPA) — доказательство должной проверки.
-
-❌ Не подходит:
-
-- **Малые приватные архивы** — overhead не оправдан.
-- **Полная замена модерации** — это дополнение к модерации, не замена.
-- **Анализ видеофайлов** — нужны специализированные инструменты.
-- **Realtime per-page** — это batch-инструмент.
-
-## Юридический аспект
-
-> [!TIP]
-> Проведение антивирусной и NSFW-проверки показывает **должную осмотрительность** (due diligence) архиватора. Это критично для публичных архивов в случае претензий правообладателей или провайдеров.
+- Проверяются только изображения (NSFW) и файлы, которые понимает ClamAV; текст и видео не анализируются.
+- Сервер должен иметь доступ к WARC-файлам по файловой системе: загрузка файла через API не предусмотрена.
+- Антивирусная проверка на практике предполагает Linux с `clamd`.
 
 ## Ресурсы
 
-- [WARC-Safe на UNT Digital Library](https://digital.library.unt.edu/ark:/67531/metadc2472470/)
-- [GitHub проекта](https://github.com/unt-libraries/warc-safe)
-- [ClamAV documentation](https://www.clamav.net/)
-- [NSFWJS project](https://github.com/infinitered/nsfwjs)
-- [SolrWayback интеграция](https://github.com/netarchivesuite/solrwayback)
+- [GitHub: natliblux/warc-safe](https://github.com/natliblux/warc-safe)
+- [Доклад о WARC-Safe в UNT Digital Library](https://digital.library.unt.edu/ark:/67531/metadc2472470/) ([снимок в Wayback Machine](https://web.archive.org/web/20260205211246/https://digital.library.unt.edu/ark:/67531/metadc2472470/))
+- [netarchivesuite/warc-indexer](https://github.com/netarchivesuite/warc-indexer) — индексатор для Solr с поддержкой обогащения полей
+- [ClamAV](https://www.clamav.net/)
 
 ## Связанные материалы
 
-- [Warchaeology](/kb/instruments/tools/warchaeology) — общие инструменты.
+- [Warchaeology](/kb/instruments/tools/warchaeology) — просмотр и валидация WARC
 - [WARC-файл: формат](/kb/instruments/file-formats/warc)
-- [SolrWayback](/kb/instruments/tools/solrwayback) — куда интегрируется.
-- [WARC-файл: от сырого архива до публикации](/kb/guides/warc-workflow) — где в pipeline.
-- [Ландшафт 2026](/kb/instruments/landscape-2026) — где WARC-Safe.
-- [Правовые вопросы](/kb/legal/copyright) — из-за чего важно сканировать.
+- [SolrWayback](/kb/instruments/tools/solrwayback) — поиск по Solr-индексу
+- [WARC-файл: от сырого архива до публикации](/kb/guides/warc-workflow)
+- [Ландшафт 2026](/kb/instruments/landscape-2026)
+- [Правовые вопросы](/kb/legal/copyright)

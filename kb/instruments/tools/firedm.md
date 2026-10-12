@@ -1,49 +1,54 @@
 ---
 title: FireDM
 sidebar_label: FireDM
-description: "Кросс-платформенная GUI-загрузчик видео на Python+PyQt поверх youtube-dl/yt-dlp."
-last_updated: 2026-10-12
-keywords: [firedm, gui, python, media downloader]
+description: "FireDM — открытый менеджер загрузок файлов и видео на Python (Tkinter, libcurl, youtube-dl). Репозиторий удалён, проект не развивается с 2022 года."
+last_update:
+  date: 2026-10-12
+keywords: [firedm, gui, python, менеджер загрузок, youtube-dl]
 ---
 
 # FireDM
 
-[FireDM](https://github.com/firedm/FireDM) — открытый загрузчик медиа с GUI на основе Python+PyQt, работающий поверх youtube-dl / yt-dlp / собственных экстракторов.
+:::warning Проект удалён и не поддерживается
+Репозиторий `github.com/firedm/FireDM` удалён (GitHub отвечает 404), последняя версия — 2022.4.14 (апрель 2022 года). Встроенные youtube-dl/yt-dlp не обновляются вместе с приложением, поэтому скачивание с YouTube и других видеосайтов может не работать. Для новых задач используйте [yt-dlp](/kb/instruments/tools/yt-dlp) или одну из поддерживаемых [GUI-обёрток](/kb/instruments/tools/youtube-dl-gui); для изображений и галерей — [gallery-dl](/kb/instruments/tools/gallery-dl).
+:::
+
+FireDM — открытый менеджер загрузок (по задумке — аналог Internet Download Manager) на Python. Интерфейс написан на **Tkinter** (библиотека `awesometkinter`), загрузка идёт через **libcurl** (`pycurl`), а сведения о видео извлекаются с помощью youtube-dl и yt-dlp. Помимо GUI есть режим командной строки (`firedm -h`).
+
+Снимок страницы репозитория от 9 апреля 2022 года сохранён в [Wayback Machine](https://web.archive.org/web/20220409015626/https://github.com/firedm/FireDM).
 
 ## Когда использовать
 
-✅ Подходит, если:
+✅ Может пригодиться, если:
 
-- нужен **кросс-платформенный** GUI (Windows / Linux / macOS);
-- важен **открытый исходный код** без рекламы и трекеров;
-- нужен лёгкий интерфейс без излишеств.
+- у вас уже установлен FireDM и нужно докачать обычные файлы (не видео) с поддержкой многопоточности и докачки.
 
 ❌ Не подходит:
 
-- для сложных сценариев с большой очередью и продвинутым планированием — лучше подходят [Hitomi Downloader](/kb/instruments/tools/hitomi-downloader) или CLI.
+- для архивации видео с YouTube и других платформ — устаревшие экстракторы часто не работают;
+- для новых установок — проект не получает исправлений, в том числе исправлений безопасности.
 
 ## Установка
 
-```bash
-pip install firedm
-```
-
-Или из исходников:
+Пакет по-прежнему доступен на [PyPI](https://pypi.org/project/firedm/) (версия 2022.4.14, требуется Python 3.6+):
 
 ```bash
-git clone https://github.com/firedm/FireDM.git
-cd FireDM
-pip install -r requirements.txt
-python FireDM.py
+python3 -m pip install firedm
 ```
 
-## Возможности
+Для сборки `pycurl` в Linux нужны системные пакеты (`libcurl4-openssl-dev`, `libssl-dev`), для GUI — `python3-tk`, для склейки видео — `ffmpeg`.
 
-- **Поддержка youtube-dl/yt-dlp** — все обновления форматов автоматические.
-- **Докачка**: при обрыве связи файлы докачиваются.
-- **Пакетная загрузка**: списки URL в txt.
-- **Proxy**: HTTP / SOCKS / Tor.
-- **CAPTCHA-обход**: некоторые виды простых капч.
+> Сведения сверены с описанием пакета на PyPI (версия 2022.4.14, октябрь 2026).
+
+## Возможности (по описанию версии 2022.4.14)
+
+- многопоточная загрузка с разбиением файла на сегменты;
+- докачка прерванных загрузок;
+- скачивание видео и плейлистов через youtube-dl, включая HLS-потоки;
+- субтитры и запись метаданных в файл;
+- планировщик загрузок, ограничение скорости, число одновременных загрузок;
+- cookies-файлы, авторизация по логину и паролю;
+- контрольные суммы MD5 и SHA256.
 
 ## Связанные материалы
 
@@ -52,4 +57,4 @@ python FireDM.py
 
 ## Источник
 
-- [Публикация в Telegram-канале Ruarxive #10 (07.03.2022)](https://t.me/ruarxive/10).
+- [Публикация в Telegram-канале Ruarxive #10 (07.03.2022)](https://t.me/ruarxive/10) — подборка инструментов для сохранения видео с YouTube.

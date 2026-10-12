@@ -1,89 +1,92 @@
 ---
 title: monolith
 sidebar_label: monolith
-description: Быстрый CLI на Rust для сохранения веб-страницы со всеми ресурсами в один HTML-файл, включая CSS, изображения и шрифты
+description: "monolith — быстрый CLI на Rust для сохранения веб-страницы со всеми ресурсами (CSS, изображения, шрифты, JS) в один HTML-файл или в MHTML."
+last_update:
+  date: 2026-10-12
 ---
 
 # monolith
 
-**monolith** — компактный CLI-инструмент, написанный на Rust, для сохранения веб-страницы в **один самодостаточный HTML-файл** со всеми встроенными ресурсами (CSS, изображениями, шрифтами, JS). Альтернатива [SingleFile](singlefile) для командной строки и скриптов.
+**monolith** — компактный инструмент командной строки на Rust для сохранения веб-страницы в **один самодостаточный HTML-файл**: CSS, изображения, шрифты и JavaScript встраиваются в документ как data URL. Может также сохранять страницу в формате **MHTML**. Альтернатива [SingleFile](/kb/instruments/tools/singlefile) для командной строки и скриптов. Лицензия — CC0-1.0 (общественное достояние).
 
 Сайт: [github.com/Y2Z/monolith](https://github.com/Y2Z/monolith)
 
 ## Зачем нужен
 
-Когда нужна **одна страница** без зависимостей — одним файлом, без сетевых запросов, без сюрпризов с CDN-блокировками. Главные отличия от SingleFile:
+Когда нужна **одна страница** без внешних зависимостей — одним файлом, который откроется в браузере без сети. Главные отличия от SingleFile:
 
-- **Чистый CLI** — без браузерного расширения, без JavaScript-движка.
-- **Не выполняет JS** — статичный снимок HTML в момент загрузки.
-- **Очень быстрый** — написан на Rust, обрабатывает страницу за секунды.
-- **Минимальные зависимости** — один бинарник.
+- **Чистый CLI** — без браузерного расширения и без JavaScript-движка.
+- **Не выполняет JS** — сохраняется HTML в том виде, в каком его отдал сервер.
+- **Быстрый** — написан на Rust.
+- **Один бинарник** без зависимостей.
 
 Где незаменим:
 - **Скрипты и автоматизация** — без браузера.
-- **Docker-окружения** — alpine-образ с monolith ≈ 5 МБ.
-- **Серверы без GUI** — крошечный размер и нулевые зависимости.
+- **Серверы без графического интерфейса**.
 - **Быстрые разовые задачи** — «сохрани эту страницу одной командой».
 
 ## Возможности
 
-- **Один файл** — все CSS, изображения, шрифты, JS inline.
-- **Опциональное удаление**:
-  - JavaScript (`--no-js`).
-  - Изображений (`--no-images`).
-  - Видео/аудио (`--no-audio`, `--no-video`).
-  - CSS (`--no-css`).
-- **Base64-кодирование** ресурсов в HTML.
-- **Извлечение и замена** — `-e` (CSS-блок из внешнего файла) и `-r` (replace string).
-- **User-Agent** настраивается.
-- **Cookies** через заголовки.
-- **HTTP прокси**.
-- **Output в файл или stdout** для пайпов.
-- **TUI-режим** — интерактивное сохранение в терминале (опционально).
-- **HTML-санитизация** — удаление опасных элементов (`-s`).
-- **Кросс-компиляция** — Linux, macOS, Windows, FreeBSD, OpenBSD, NetBSD, Solaris.
+- **Один файл** — CSS, изображения, шрифты, JS встраиваются в HTML.
+- **Формат MHTML** (`-m`) вместо HTML.
+- **Выборочное удаление**: JavaScript (`-j`), изображения (`-i`), CSS (`-c`), шрифты (`-F`), фреймы (`-f`), аудио (`-a`), видео (`-v`).
+- **Изоляция документа** (`-I`) — сохранённая страница не будет обращаться к сети.
+- **Белые и чёрные списки доменов** для загрузки ресурсов (`-d`, `-B`).
+- **Свой User-Agent** (`-u`) и **cookies из файла** (`-C`, формат Netscape).
+- **Прокси** — через переменные окружения `https_proxy`, `http_proxy`, `no_proxy`.
+- **Вывод в файл или stdout** для пайпов; чтение HTML из stdin.
+- **Метаданные**: по умолчанию в файл добавляется комментарий с исходным URL и временем сохранения (`-M` отключает).
+- **Графический интерфейс** — отдельная программа `monolith-gui` (собирается с функцией `gui`).
 
 ## Когда использовать
 
 ✅ Подходит для:
 
-- **Сохранения одной страницы** в скрипте или cron-задаче.
-- **Server-side рендеринга** без headless-браузера.
-- **CI/CD** — сохранение отчётов, документации, выгрузок.
-- **Docker** — alpine-контейнер с monolith.
-- **Быстрой обработки списка URL** в bash-пайплайне.
+- **сохранения одной страницы** в скрипте или cron-задаче;
+- **CI/CD** — сохранение отчётов, документации;
+- **быстрой обработки списка URL** в bash-пайплайне.
 
 ❌ Не подходит для:
 
-- **Современных SPA** с обязательным JS (React, Vue без SSR) — страница будет пустой каркас.
-- **Сайтов с защитой от ботов** (Cloudflare, Incapsula) — нет headless-браузера для обхода.
-- **Страниц за авторизацией** — поддержка cookies ограничена.
-- **Сложных медиа** (видео-плееры, интерактивные графики) — сохраняется как есть, без интерактива.
+- **современных SPA** с обязательным JS (React, Vue без SSR) — сохранится пустой каркас; в README предлагается предварительно получить DOM через headless Chromium (см. ниже);
+- **сайтов с защитой от ботов** — monolith не выполняет JavaScript-проверки; обходить защиту нельзя, используйте другие источники копии;
+- **рекурсивного обхода сайта** — monolith сохраняет одну страницу;
+- **сложных медиа** (видеоплееры, интерактивные графики) — сохраняются без интерактивности.
 
 ## Установка
 
 ### Через пакетные менеджеры
 
 ```bash
-# macOS
+# macOS / Linux (Homebrew)
 brew install monolith
 
-# Debian/Ubuntu (AUR или скачать .deb)
-# https://github.com/Y2Z/monolith/releases
-
-# Arch
-yay -S monolith
-# или
+# Arch Linux
 sudo pacman -S monolith
 
+# Alpine Linux
+apk add monolith
+
+# Snap
+snap install monolith
+
 # Nix
-nix-env -i monolith
+nix-env -iA nixpkgs.monolith
 
 # FreeBSD
 pkg install monolith
+
+# Windows
+winget install --id=Y2Z.Monolith -e
+# или
+choco install monolith
+scoop install main/monolith
 ```
 
-### Cargo (из исходников)
+Для Debian README предлагает APT-репозиторий [pkg.haus](https://pkg.haus) (`sudo apt install monolith` после его подключения).
+
+### Cargo
 
 ```bash
 cargo install monolith
@@ -91,19 +94,27 @@ cargo install monolith
 
 ### Готовые бинарники
 
+В релизах публикуются бинарники `monolith-linux-x86_64`, `monolith-linux-aarch64`, `monolith-linux-armhf` и `monolith.exe`:
+
 ```bash
-# Linux x86_64
-curl -L https://github.com/Y2Z/monolith/releases/latest/download/monolith-linux-x86_64.tar.gz \
-  | tar -xz -C /usr/local/bin/ monolith
-chmod +x /usr/local/bin/monolith
+sudo curl -L -o /usr/local/bin/monolith \
+  https://github.com/Y2Z/monolith/releases/latest/download/monolith-linux-x86_64
+sudo chmod +x /usr/local/bin/monolith
+monolith -V
 ```
 
 ### Docker
 
+Готовый образ в README не публикуется — его собирают из репозитория:
+
 ```bash
-docker run --rm -v $(pwd):/data ghcr.io/y2z/monolith \
-  https://example.com > /data/page.html
+git clone https://github.com/Y2Z/monolith.git
+cd monolith
+docker build -t y2z/monolith .
+sudo install -b dist/run-in-container.sh /usr/local/bin/monolith
 ```
+
+> Команды и параметры сверены с README и `src/main.rs` репозитория `Y2Z/monolith` версии 2.11.3 (октябрь 2026).
 
 ## Использование
 
@@ -111,228 +122,228 @@ docker run --rm -v $(pwd):/data ghcr.io/y2z/monolith \
 
 ```bash
 # В файл
+monolith https://example.com -o page.html
+
+# В stdout
 monolith https://example.com > page.html
 
-# Или с -o
-monolith -o page.html https://example.com
+# Имя файла из заголовка страницы и времени
+monolith https://example.com -o %title%.%timestamp%.html
+```
+
+### В формате MHTML
+
+```bash
+monolith -m https://example.com -o page.mhtml
 ```
 
 ### Удалить JavaScript
 
 ```bash
-monolith --no-js https://example.com > page.html
+monolith -j https://example.com -o page.html
 ```
 
-Полезно для: очистки от трекеров, экономии места, страниц без полезного JS.
+Полезно для очистки от трекеров, экономии места и для страниц, где JS не нужен для отображения содержимого.
 
 ### Удалить изображения
 
 ```bash
-monolith --no-images https://example.com > page.html
+monolith -i https://example.com -o page.html
 ```
 
-### Удалить всё «тяжёлое» для текстового архива
+### Оставить только текст и вёрстку
 
 ```bash
-monolith --no-js --no-images --no-video --no-audio --no-css \
-  https://example.com > page-text.html
+monolith -j -i -v -a -F https://example.com -o page-text.html
 ```
 
-Останется чистый текст со встроенными шрифтами и базовой вёрсткой.
+Останутся HTML и встроенный CSS; если убрать и CSS (`-c`), останется только текст с базовой разметкой.
 
 ### Cookies
 
 ```bash
-monolith -c "session=abc123; auth=xyz789" https://example.com
+monolith -C cookies.txt https://example.com/private -o page.html
 ```
+
+Cookies передаются только файлом в формате Netscape (его можно экспортировать из браузера расширением). Внимание: `-c` (строчная) — это `--no-css`, а не cookies.
+
+Для HTTP Basic-авторизации логин и пароль указываются в URL: `monolith https://user:password@example.com -o page.html`.
 
 ### User-Agent
 
 ```bash
 monolith -u "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" \
-  https://example.com
+  https://example.com -o page.html
 ```
 
 ### Через прокси
 
 ```bash
-monolith --proxy-host 127.0.0.1 --proxy-port 8080 https://example.com
+https_proxy=http://127.0.0.1:8080 monolith https://example.com -o page.html
 ```
 
-### HTML-санитизация (удалить `<script>`, `<iframe>` и т.д.)
+### Только ресурсы с указанных доменов
 
 ```bash
-monolith -s https://example.com > clean.html
+# Загружать ресурсы только с example.com и www.example.com
+monolith -I -d example.com -d www.example.com https://example.com -o example-only.html
+
+# Не загружать ресурсы с перечисленных доменов (например, рекламных)
+monolith -I -B -d .googleusercontent.com -d googleanalytics.com -d .google.com \
+  https://example.com -o example-no-ads.html
 ```
 
-### Заменить строку в HTML (например, убрать трекеры)
+### Страницы, которые строятся JavaScript-ом
+
+monolith не выполняет JavaScript, но может обработать DOM, полученный от headless Chromium (пример из README):
 
 ```bash
-monolith -r "google-analytics.com" "blocked.local" https://example.com
+chromium --headless --window-size=1920,1080 --run-all-compositor-stages-before-draw \
+  --virtual-time-budget=9000 --incognito --dump-dom https://github.com \
+  | monolith - -I -b https://github.com -o github.html
 ```
 
-### Извлечь внешний CSS и заменить его inline-блоком
-
-```bash
-monolith -e "https://example.com/style.css" -r "stylesheet-link" "inline-style" \
-  https://example.com
-```
-
-### Batch-обработка списка URL
+### Обработка списка URL
 
 ```bash
 # urls.txt — один URL на строку
-while read url; do
-  filename=$(echo "$url" | sed 's|https://||;s|/|_|g').html
-  monolith "$url" > "$filename"
+while read -r url; do
+  filename=$(echo "$url" | sed 's|https\?://||;s|/|_|g').html
+  monolith "$url" -o "$filename"
 done < urls.txt
 ```
 
-### Сохранение в stdout для пайпа
+### Вывод в пайп
 
 ```bash
-# Передать в gzip, загрузить по S3, отправить в архив
 monolith https://example.com | gzip > page.html.gz
 monolith https://example.com | aws s3 cp - s3://my-bucket/page.html
 ```
 
-## Конфигурация
+## Параметры
 
-monolith намеренно минималистичен — конфиг-файла нет. Все настройки через CLI-флаги.
-
-Полный список опций:
-
-```bash
-monolith --help
-```
+Конфигурационного файла нет, всё задаётся флагами. Полный список — `monolith --help`.
 
 | Флаг | Описание |
 | :--- | :--- |
-| `-o, --output <file>` | Сохранить в файл |
+| `-o, --output <file>` | Записать в файл (`-` — в stdout) |
+| `-m, --mhtml` | Сохранить в формате MHTML |
 | `-u, --user-agent <ua>` | User-Agent |
-| `-c, --cookie <cookies>` | Cookies (header формат) |
-| `--proxy-host`, `--proxy-port` | Прокси |
-| `--timeout <seconds>` | Таймаут HTTP |
-| `--no-css` | Удалить CSS |
-| `--no-js` | Удалить JavaScript |
-| `--no-images` | Удалить изображения |
-| `--no-video` | Удалить видео |
-| `--no-audio` | Удалить аудио |
-| `--no-fonts` | Удалить шрифты |
-| `--no-frames` | Удалить iframe |
-| `-i, --isolate` | Изолировать страницу (CSS-неймспейсы) |
-| `-s, --sanitize` | Удалить потенциально опасные элементы |
-| `-e, --extract <url>` | Извлечь ресурс, заменить его в HTML |
-| `-r, --replace <from> <to>` | Заменить строку в HTML |
-| `-t, --transform <rules>` | Трансформации (CSS/JS) |
-| `-a, --allow-attributes` | Разрешить определённые HTML-атрибуты |
-| `-b, --base-url <url>` | Базовый URL для относительных путей |
-| `-l, --language <code>` | Accept-Language |
-| `-k, --insecure` | Игнорировать TLS-ошибки |
+| `-C, --cookie-file <file>` | Cookies из файла (формат Netscape) |
+| `-t, --timeout <seconds>` | Таймаут сетевого запроса (по умолчанию 120 секунд) |
+| `-b, --base-url <url>` | Базовый URL для относительных ссылок |
+| `-d, --domain <domain>` | Домены для белого (или, с `-B`, чёрного) списка |
+| `-B, --blacklist-domains` | Считать домены из `-d` чёрным списком |
+| `-I, --isolate` | Изолировать документ от сети |
+| `-c, --no-css` | Удалить CSS |
+| `-j, --no-js` | Удалить JavaScript |
+| `-i, --no-images` | Удалить изображения |
+| `-v, --no-video` | Удалить видео |
+| `-a, --no-audio` | Удалить аудио |
+| `-F, --no-fonts` | Удалить веб-шрифты |
+| `-f, --no-frames` | Удалить фреймы и iframe |
+| `-n, --unwrap-noscript` | Заменить элементы NOSCRIPT их содержимым |
+| `-e, --ignore-errors` | Игнорировать сетевые ошибки |
+| `-E, --encoding <charset>` | Принудительная кодировка |
+| `-k, --insecure` | Принимать недействительные TLS-сертификаты |
+| `-M, --no-metadata` | Не добавлять комментарий с URL и временем сохранения |
+| `-D, --create-dirs` | Создавать недостающие каталоги в пути вывода |
+| `-q, --quiet` | Тихий режим |
+| `-V, --version` | Версия |
 
 ## Сравнение с другими инструментами
 
 | Инструмент | Язык | JS | CLI | Расширение | Скорость |
 | :--- | :--- | :---: | :---: | :---: | :--- |
 | **monolith** | Rust | ❌ | ✅ | ❌ | ⚡ Очень быстро |
-| **[SingleFile](singlefile)** | JavaScript | ✅ | ⚠️ | ✅ | 🟡 Средне |
-| **[Obelisk](obelisk)** | Go | ❌ | ✅ | ❌ | ⚡ Быстро |
-| **[monolith (Python)](https://github.com/monolith-software/monolith-py)** | Python | ❌ | ✅ | ❌ | 🟡 Медленнее |
-| **[HTTrack](httrack)** | C | ❌ | ✅ | ❌ GUI | 🟡 Медленно (но с рекурсией) |
-| **MHTML (Chrome встроенный)** | — | ✅ | ❌ | ✅ | ⚡ Встроенный |
+| **[SingleFile](/kb/instruments/tools/singlefile)** | JavaScript | ✅ | ⚠️ | ✅ | 🟡 Средне |
+| **[Obelisk](/kb/instruments/tools/obelisk)** | Go | ❌ | ✅ | ❌ | ⚡ Быстро |
+| **[HTTrack](/kb/instruments/tools/httrack)** | C | ❌ | ✅ | ❌ (есть GUI) | 🟡 Медленнее (но с рекурсией) |
+| **MHTML (встроен в Chrome)** | — | ✅ | ❌ | ✅ | ⚡ Встроенный |
 
 ### Когда monolith лучше всех
 
-- Нужен **один бинарник без зависимостей** (≈ 5 МБ).
-- **Скрипт на сервере** без GUI и без Node.js.
-- Хочется **минимальный, предсказуемый результат** — без JS-рендера.
-- **Docker-контейнер** минимального размера.
+- Нужен **один бинарник без зависимостей**.
+- **Скрипт на сервере** без графического интерфейса и без Node.js.
+- Нужен **минимальный, предсказуемый результат** без выполнения JS.
 
 ### Когда лучше SingleFile
 
 - Страница с **обязательным JS** (SPA, динамическая загрузка).
 - Нужно **расширение браузера** для интерактивной работы.
-- Хочется **точное соответствие** тому, что видит пользователь.
+- Нужно **точное соответствие** тому, что видит пользователь.
 
 ### Когда лучше Obelisk
 
 - Нужен **Go в стеке** (единый язык).
-- Хочется **API/библиотеку** для интеграции.
+- Нужна **библиотека** для встраивания в собственный код.
 
 ## Best practices
 
-### 1. Всегда удаляйте JS для долгосрочного хранения
+### 1. Удаляйте JS для долгосрочного хранения
 
 ```bash
-monolith --no-js https://example.com > archive/page.html
+monolith -j https://example.com -o archive/page.html
 ```
 
-JavaScript — главный источник нестабильности архивов: ссылки CDN умирают, API меняются, рекламные скрипты блокируются.
+JavaScript — главный источник нестабильности сохранённых страниц: скрипты обращаются к внешним API и CDN, которые со временем перестают работать.
 
-### 2. Используйте в пайплайнах с другими инструментами
+### 2. Если нужен WARC — используйте другие инструменты
 
-```bash
-# Сохранить страницу + сжать + положить в WARC
-monolith --no-js https://example.com | \
-  gzip > /tmp/page.html.gz
-
-warc-tools -i /tmp/page.html.gz -o archive.warc.gz
-```
+monolith создаёт HTML или MHTML, а не WARC. Если нужен WARC той же страницы, сохраните её через [Wget](/kb/instruments/tools/wget) (`--warc-file`) или [Browsertrix Crawler](/kb/instruments/tools/browsertrix); в Python запрос и ответ в WARC записывает библиотека `warcio`.
 
 ### 3. Указывайте осмысленный User-Agent
 
 ```bash
-monolith -u "Mozilla/5.0 (compatible; RuarxiveBot/1.0; +https://ruarxive.org)" URL
+monolith -u "Mozilla/5.0 (compatible; MyArchiveBot/1.0; +https://example.org/contact)" URL
 ```
 
-### 4. Таймаут обязателен
+### 4. Настройте таймаут
 
 ```bash
-monolith --timeout 30 URL
+monolith -t 30 URL -o page.html
 ```
 
-Без таймаута может «висеть» на медленных ответах.
+По умолчанию таймаут на каждый ресурс — 120 секунд; для массовых задач его разумно уменьшить.
 
 ### 5. Для массовых выгрузок — параллелизм
 
 ```bash
 # 4 параллельных процесса
-cat urls.txt | xargs -n 1 -P 4 -I {} \
-  sh -c 'monolith "$1" > "out/$(echo $1 | tr / _).html"' _ {}
+cat urls.txt | xargs -P 4 -I {} \
+  sh -c 'monolith "$1" -o "out/$(echo "$1" | tr / _).html"' _ {}
 ```
 
-### 6. Валидируйте выход
+Не увеличивайте параллелизм без необходимости, чтобы не перегружать сайт.
+
+### 6. Проверяйте результат
 
 ```bash
-# Проверить, что HTML не пустой и содержит ожидаемое
-monolith https://example.com > page.html
+monolith https://example.com -o page.html
 test -s page.html && grep -q "<title>" page.html && echo "OK"
 ```
 
 ## Ограничения
 
-- **Нет JavaScript-рендера** — современные SPA сохранятся пустыми.
+- **Нет выполнения JavaScript** — современные SPA сохранятся пустыми.
 - **Нет рекурсивного обхода** — одна страница за раз.
-- **Нет браузерной авторизации** — cookies передаются вручную.
-- **Не обходит Cloudflare и подобные** — нужен прокси с реальным браузером.
-- **Большие страницы** (несколько МБ) могут съесть память.
-- **Бинарные форматы** (PDF, видео) сохраняются как base64 в HTML — непрактично.
-- **Один URL за раз** — для массовых выгрузок нужен wrapper-скрипт.
+- **Нет браузерной авторизации** — cookies передаются вручную через файл.
+- **Большие страницы** (несколько МБ ресурсов) занимают много памяти.
+- **Бинарные ресурсы** (видео, аудио) встраиваются как base64 — файл сильно растёт.
+- **Не пишет WARC**.
 
 ## Ресурсы
 
-- [GitHub: monolith](https://github.com/Y2Z/monolith) — исходный код.
+- [GitHub: monolith](https://github.com/Y2Z/monolith) — исходный код и README.
 - [Releases](https://github.com/Y2Z/monolith/releases) — готовые бинарники.
-- [README](https://github.com/Y2Z/monolith/blob/master/README.md) — полная документация.
-- [Y2Z/monolith на crates.io](https://crates.io/crates/monolith) — пакет Rust.
-- [Discussion](https://github.com/Y2Z/monolith/discussions) — вопросы и tips.
+- [monolith на crates.io](https://crates.io/crates/monolith) — пакет Rust.
 
 ## Связанные материалы
 
-- **[SingleFile](singlefile)** — для страниц с обязательным JS.
-- **[Obelisk](obelisk)** — Go-альтернатива.
-- **[WebScrapBook](webscrapbook)** — для коллекций с структурой.
-- **[Wget](wget)** — для рекурсивного обхода сайтов.
-- **[Архивация в Docker](/kb/guides/custom-workflows)** — monolith в контейнерах.
+- **[SingleFile](/kb/instruments/tools/singlefile)** — для страниц с обязательным JS.
+- **[Obelisk](/kb/instruments/tools/obelisk)** — альтернатива на Go.
+- **[WebScrapBook](/kb/instruments/tools/webscrapbook)** — для коллекций со структурой.
+- **[Wget](/kb/instruments/tools/wget)** — для рекурсивного обхода сайтов.
+- **[Пользовательские workflow](/kb/guides/custom-workflows)** — monolith в скриптах.
 - **[Экстренная архивация](/kb/guides/emergency-archiving)** — быстрый захват одной страницы.
 - **[Формат MHTML](/kb/instruments/file-formats/mhtml)** — альтернативный формат одной страницы.

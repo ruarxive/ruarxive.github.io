@@ -1,207 +1,234 @@
 ---
 title: ArchiveBox
 sidebar_label: ArchiveBox
-description: Самохостинг персонального веб-архива из RSS, закладок и списков URL с веб-интерфейсом и множественными методами захвата
+description: "ArchiveBox — самостоятельно размещаемый персональный веб-архив: сохраняет страницы из списков URL, закладок и RSS сразу несколькими способами (HTML, PDF, скриншот, WARC, медиа) и даёт веб-интерфейс с полнотекстовым поиском."
+last_update:
+  date: 2026-10-12
 ---
 
 # ArchiveBox
 
-**ArchiveBox** — это инструмент для создания аддитивного архива из RSS-лент, закладок и ссылок, используя wget, Chrome headless и другие методы.
+**[ArchiveBox](https://archivebox.io/)** — открытый (MIT) инструмент для ведения собственного веб-архива. Он принимает ссылки по одной, списками, из закладок, истории браузера и RSS-лент и сохраняет каждую страницу сразу несколькими способами: wget-копия с WARC, SingleFile, PDF, скриншот, DOM, текст, медиа через yt-dlp и т. д.
 
 ## Когда использовать
 
 ✅ Подходит, если нужно:
 
-- поднять **персональный веб-архив** из Pocket/Pinboard/закладок браузера, RSS-лент и простого списка URL;
-- иметь **веб-интерфейс** для просмотра и поиска по архиву;
-- использовать **множественные методы** захвата одновременно (wget, headless Chrome, SingleFile, media-скраперы);
-- постепенно накапливать архив (аддитивно добавлять новые ссылки).
+- поднять **персональный веб-архив** из закладок браузера, экспортов сервисов закладок, RSS-лент и простого списка URL;
+- иметь **веб-интерфейс** для просмотра и полнотекстового поиска по архиву;
+- сохранять страницу **несколькими способами одновременно**, чтобы хотя бы один сработал;
+- постепенно накапливать архив, добавляя новые ссылки по расписанию.
 
 ❌ Не лучший выбор, если:
 
-- нужен стандартный **WARC** на выходе — ArchiveBox хранит в своей SQLite + наборе файлов, конвертация нетривиальна;
-- задача корпоративного масштаба — для команд лучше [Browsertrix Crawler](/kb/instruments/tools/browsertrix);
-- нужен API для интеграции с другими инструментами — ArchiveBox API есть, но он не предназначен для массовых запросов.
+- нужен **глубокий обход целого сайта** — ArchiveBox рассчитан на отдельные страницы и небольшую глубину (`--depth` до 4); для сайтов целиком лучше [Browsertrix Crawler](/kb/instruments/tools/browsertrix), [wget](/kb/instruments/tools/wget) или [Heritrix](/kb/instruments/tools/heritrix);
+- нужен **единый WARC/WACZ на всю коллекцию** — ArchiveBox пишет WARC отдельно для каждого снимка (см. ниже);
+- задача корпоративного масштаба с командной работой — посмотрите на сервис [Browsertrix](/kb/instruments/tools/browsertrix).
 
 ## Описание
 
-ArchiveBox (ранее Bookmark Archiver) создаёт локальный архив веб-контента из различных источников, сохраняя его в стандартных форматах.
+ArchiveBox (ранее Bookmark Archiver) хранит архив в обычной папке: индекс — база SQLite `index.sqlite3`, а для каждого снимка (Snapshot) создаётся каталог с файлами в стандартных форматах (HTML, PNG, PDF, JSON, TXT, WARC, MP4).
 
 ### Особенности
 
-*   **Множественные источники**: RSS, закладки, ссылки
-*   **Множественные методы**: wget, Chrome headless, и другие
-*   **Аддитивность**: Добавляет новые материалы в существующий архив
-*   **Веб-интерфейс**: Удобный веб-интерфейс для просмотра
+*   **Множество источников**: URL, списки в TXT/CSV/JSON/HTML/Markdown, закладки в формате Netscape, RSS, расширение для браузера, мобильные и настольные приложения.
+*   **Множество методов захвата** (плагины): wget (с WARC), Chrome (DOM, PDF, скриншот, MHTML), SingleFile, Readability/Mercury (текст статьи), yt-dlp, gallery-dl, git и др.
+*   **Аддитивность**: новые ссылки добавляются к существующему архиву.
+*   **Веб-интерфейс, CLI, REST API**.
+
+:::warning Отправка ссылок в Internet Archive
+По умолчанию ArchiveBox отправляет каждую добавленную ссылку в Wayback Machine (`ARCHIVEDOTORG_ENABLED=True`). Если вы архивируете закрытые или чувствительные материалы, отключите это: `archivebox config --set ARCHIVEDOTORG_ENABLED=False`.
+:::
 
 ## Установка
 
-### Через Docker (рекомендуется)
+### Через Docker Compose (рекомендуется)
 
 ```bash
-docker run -v $PWD/data:/data archivebox/archivebox init
-docker run -v $PWD/data:/data archivebox/archivebox add 'https://example.com'
+mkdir -p ~/archivebox/data && cd ~/archivebox
+curl -fsSL 'https://docker-compose.archivebox.io' > docker-compose.yml
+docker compose pull
+docker compose up -d --wait
+docker compose exec archivebox archivebox add 'https://example.com'
+```
+
+Веб-интерфейс откроется на порту 5797; при первом входе в `/admin/` создаётся учётная запись администратора.
+
+### Через docker run
+
+```bash
+mkdir -p ~/archivebox/data && cd ~/archivebox/data
+docker run -d --name archivebox -v $PWD:/data -p 5797:5797 archivebox/archivebox:dev
+docker exec archivebox archivebox add 'https://example.com'
 ```
 
 ### Локальная установка
 
+Нужен Python 3.13. Пакет ставится через pip или uv:
+
 ```bash
 pip install archivebox
-archivebox init
+mkdir -p ~/archivebox/data && cd ~/archivebox/data
+archivebox init      # создать коллекцию в пустой папке
+archivebox install   # установить зависимости (Chrome, SingleFile, yt-dlp и др.)
 archivebox add 'https://example.com'
 ```
 
+> Команды сверены с README и `archivebox --help` версии 0.9.73 (октябрь 2026).
+
 ## Использование
+
+Все команды выполняются из папки коллекции.
 
 ### Добавление URL
 
 ```bash
 archivebox add 'https://example.com'
+
+# со страницами, на которые ссылается указанная (на 1 переход)
+archivebox add --depth=1 'https://example.com'
 ```
 
-### Добавление из файла
+### Добавление из файла или потока
+
+ArchiveBox извлекает ссылки из любого текста, переданного на вход:
 
 ```bash
 archivebox add < urls.txt
+echo 'https://example.com' | archivebox add
 ```
 
 ### Добавление из RSS
 
+Пример из README:
+
 ```bash
-archivebox add --depth=0 'https://example.com/feed.xml'
+archivebox add --depth=1 --plugins=parse_rss_urls "file://$HOME/Downloads/some_feed.xml"
 ```
+
+Для регулярного импорта ленты используйте встроенный планировщик:
+
+```bash
+archivebox schedule --add --every=daily --depth=1 'https://example.com/feed.xml'
+```
+
+### Закладки и экспорты сервисов
+
+Закладки, экспортированные из браузера в формате Netscape HTML, и экспорты сервисов (Pinboard, Instapaper, Shaarli, Wallabag и др.) добавляются так же:
+
+```bash
+archivebox add < bookmarks.html
+```
+
+Сервис Pocket закрыт в 2025 году, но ранее сделанные экспорты можно импортировать тем же способом.
 
 ### Веб-интерфейс
 
 ```bash
-archivebox server
+archivebox server 0.0.0.0:5797
 ```
 
-Откройте браузер на `http://localhost:8000`.
+Откройте `http://localhost:5797/`.
 
-## Методы архивации
+## Методы архивации и настройка
 
-ArchiveBox использует несколько методов для максимального покрытия:
+Каждый метод — это плагин, который включается и выключается параметром `*_ENABLED`. Основные:
 
-1. **wget**: Для статических сайтов
-2. **Chrome headless**: Для JavaScript сайтов
-3. **SingleFile**: Для сохранения в один HTML файл
-4. **PDF**: Для создания PDF версий
-5. **Screenshot**: Скриншоты страниц
-6. **DOM snapshot**: Сохранение DOM
+| Параметр | Что сохраняет |
+| :--- | :--- |
+| `WGET_ENABLED`, `WGET_WARC_ENABLED` | wget-копия страницы и **WARC** (`wget/warc/….warc.gz` в папке снимка) |
+| `SINGLEFILE_ENABLED` | страница в одном HTML-файле |
+| `PDF_ENABLED` | PDF через Chrome |
+| `SCREENSHOT_ENABLED` | скриншот |
+| `DOM_ENABLED` | HTML после выполнения JavaScript |
+| `READABILITY_ENABLED`, `MERCURY_ENABLED` | текст статьи |
+| `YTDLP_ENABLED` | видео и аудио |
+| `ARCHIVEDOTORG_ENABLED` | отправка URL в Wayback Machine |
 
-### Настройка методов
-
-```bash
-# В config.json
-{
-  "SAVE_WGET": true,
-  "SAVE_CHROME": true,
-  "SAVE_SINGLEFILE": true,
-  "SAVE_PDF": true,
-  "SAVE_SCREENSHOT": true,
-  "SAVE_DOM": true
-}
-```
-
-## Интеграция с источниками
-
-### RSS ленты
+Конфигурация хранится в файле `ArchiveBox.conf` в папке коллекции (формат INI) или задаётся переменными окружения. Изменять её удобно командой `archivebox config`:
 
 ```bash
-archivebox add --depth=0 'https://example.com/feed.xml'
-```
-
-### Закладки браузера
-
-```bash
-# Экспорт закладок из браузера, затем:
-archivebox add bookmarks.html
-```
-
-### Pocket
-
-```bash
-archivebox add pocket_export.html
-```
-
-### Pinboard
-
-```bash
-archivebox add pinboard_export.json
+archivebox config                              # показать всю конфигурацию
+archivebox config --get WGET_WARC_ENABLED
+archivebox config --set PDF_ENABLED=False
+archivebox config --set YTDLP_ENABLED=False
 ```
 
 ## Веб-интерфейс
 
-Веб-интерфейс ArchiveBox предоставляет:
+Веб-интерфейс ArchiveBox позволяет:
 
-*   Просмотр всех заархивированных страниц
-*   Поиск по архиву
-*   Фильтрация по дате, домену, тегам
-*   Статистика архива
-*   Управление архивом
+*   просматривать все снимки и результаты каждого метода;
+*   искать по архиву, в том числе по полному тексту сохранённых страниц;
+*   фильтровать по дате, домену, тегам;
+*   добавлять ссылки и управлять архивом.
+
+Полнотекстовый поиск работает через один из бэкендов — ripgrep, Sonic или SQLite FTS5 (параметр `SEARCH_BACKEND_ENGINE`); настройка описана в [вики](https://github.com/ArchiveBox/ArchiveBox/wiki/Setting-up-Search).
 
 ## Сравнение
 
 | Инструмент | Источники | Методы | Веб-интерфейс | Рекомендация |
 | :--- | :--- | :--- | :--- | :--- |
 | **ArchiveBox** | Множественные | Множественные | Да | **Для личных архивов** |
-| **Browsertrix** | URL | Один (Chrome) | Да (Cloud) | Для организаций |
-| **Wget** | URL | Один | Нет | Для простых случаев |
+| **[Browsertrix Crawler](/kb/instruments/tools/browsertrix)** | URL | Браузер (WARC/WACZ) | В сервисе Browsertrix | Для сайтов целиком и организаций |
+| **[Wget](/kb/instruments/tools/wget)** | URL | Один (с WARC) | Нет | Для простых случаев |
 
 ### Когда использовать ArchiveBox
 
-*   Личные архивы из закладок и RSS
-*   Нужен веб-интерфейс для просмотра
-*   Множественные источники данных
-*   Аддитивное накопление архива
+*   Личные архивы из закладок и RSS.
+*   Нужен веб-интерфейс для просмотра и поиска.
+*   Важно сохранить страницу несколькими способами.
+*   Аддитивное накопление архива.
 
 ### Когда использовать другие инструменты
 
-*   Большие проекты архивации (используйте Browsertrix)
-*   Нужен WARC формат (используйте специализированные инструменты)
-*   Простые случаи (используйте Wget)
+*   Архивация сайтов целиком (Browsertrix Crawler, wget, Heritrix).
+*   Нужен один WARC/WACZ на всю коллекцию для передачи в другой архив.
+*   Простые разовые задачи (wget).
 
 ## Best practices
 
 ### Регулярное обновление
 
+Вместо cron можно использовать `archivebox schedule` (см. выше) — расписание выполняется тем же процессом, что и `archivebox server`. Если нужен cron:
+
 ```bash
-# Добавьте в crontab
-0 2 * * * cd /path/to/archivebox && archivebox add < new_urls.txt
+0 2 * * * cd /path/to/archivebox/data && archivebox add < new_urls.txt
 ```
 
 ### Резервное копирование
 
 ```bash
-# Резервное копирование данных
-tar -czf archivebox-backup.tar.gz data/
+tar -czf archivebox-backup.tar.gz -C ~/archivebox data/
 ```
 
-### Очистка старых записей
+### Удаление записей
 
 ```bash
-archivebox remove --older-than=365
+# удалить снимки, добавленные до указанного момента (Unix-время)
+archivebox remove --before=1704067200 --yes
+
+# удалить снимки по домену
+archivebox remove --filter-type=domain example.com --yes
 ```
 
 ## Ограничения
 
-*   **Не создаёт WARC-файлы напрямую** — формат хранения собственный (SQLite + файлы). Для WARC-совместимого архива используйте [Browsertrix Crawler](/kb/instruments/tools/browsertrix) (даёт WACZ) или [wparc](/kb/instruments/ruarxive-tools/wparc).
-*   Может быть медленным для больших объёмов (тысячи URL в одном запуске).
-*   Требует много места на диске — каждая страница дублируется в нескольких форматах (HTML, PDF, screenshot, media).
-*   Не подходит для больших организационных проектов (нет распределённого режима, нет audit log).
-*   Поиск работает только по SQLite-метаданным и заголовкам — для полнотекстового поиска по сохранённым страницам нужно подключать внешний движок.
+*   **WARC пишется для каждого снимка отдельно** (через wget), а не одним файлом на коллекцию. Для единого WARC/WACZ используйте [Browsertrix Crawler](/kb/instruments/tools/browsertrix) или [wget](/kb/instruments/tools/wget) с `--warc-file`.
+*   Может работать медленно на больших объёмах (тысячи URL за один запуск).
+*   Требует много места на диске — каждая страница хранится в нескольких форматах; по README — от ~1 до ~50 ГБ на 1000 снимков, в основном в зависимости от сохранения видео.
+*   Не рассчитан на глубокий обход сайтов и на распределённую работу.
 
 ## Что дальше
 
-- Если нужен поиск по тексту заархивированных страниц — экспортируйте архив и проиндексируйте через [metawarc](/kb/instruments/ruarxive-tools/metawarc).
-- Если нужна интеграция с AI-агентами — [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp).
-- Если задача переросла личный масштаб — мигрируйте на [Browsertrix Crawler](/kb/instruments/tools/browsertrix) с WACZ-выходом.
+- WARC-файлы из папок снимков можно проиндексировать через [metawarc](/kb/instruments/ruarxive-tools/metawarc).
+- Для работы с коллекцией из AI-агентов — [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp).
+- Если задача переросла личный масштаб — переходите на [Browsertrix Crawler](/kb/instruments/tools/browsertrix) с WACZ на выходе.
 
 ## Ресурсы
 
-*   [GitHub репозиторий](https://github.com/ArchiveBox/ArchiveBox)
-*   [Документация](https://github.com/ArchiveBox/ArchiveBox/wiki)
+*   [Репозиторий на GitHub](https://github.com/ArchiveBox/ArchiveBox)
+*   [Вики с документацией](https://github.com/ArchiveBox/ArchiveBox/wiki) и [документация API](https://docs.archivebox.io/)
 *   [Веб-сайт](https://archivebox.io/)
 
 ## Связанные материалы

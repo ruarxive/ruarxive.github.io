@@ -2,41 +2,45 @@
 title: Работа с большими WARC-файлами (10+ ГБ)
 sidebar_label: "Большие WARC"
 sidebar_position: 4
-description: "Стратегии работы с архивами в десятки и сотни ГБ. Стриминг, шардинг, DuckDB, индексы. Как открыть 173-ГБ архив Эха Москвы."
-last_updated: 2026-11-09
+description: "Как работать с веб-архивами в десятки и сотни ГБ: потоковое чтение, индекс вместо полного прохода, разбиение по границам записей, SQL по индексу, публикация через pywb и WACZ."
+last_update:
+  date: 2026-10-12
 keywords: [large, big, warc, streaming, sharding, memory, performance]
 ---
 
 # Работа с большими WARC-файлами (10+ ГБ)
 
-Большая часть архивов Ruarxive и Internet Archive имеет размер от нескольких ГБ до сотен ГБ. Например, архив «Эха Москвы» — ~173 ГБ. Для работы с такими файлами нужны специальные подходы — обычные инструменты «прочитать всё в RAM» не работают.
+Архивы бывают очень большими. Например, WARC-файл сайта «Эха Москвы» в коллекции Ruarxive занимает 186 234 035 346 байт — около 173 ГиБ ([проект «Эхо Москвы»](/kb/projects/echomsk)). Для таких файлов подходы «прочитать всё в память» и «открыть в браузере» не работают.
 
-## Зачем нужны специальные подходы
+## Какие проблемы возникают
 
 | Проблема | Когда появляется |
 |:---|:---|
-| `MemoryError` | Python пытается загрузить весь WARC в RAM |
-| «Бесконечное» чтение | Python не может быстро проиграть 173 ГБ gzip на медленном диске |
-| «Не могу grep'нуть» | ripgrep/warcdump работают, но медленно |
-| «CDX не строится» | Память кончается на этапе индексирования |
-| Replay «висит» | ReplayWeb.page не справляется с одним файлом > 50 ГБ |
+| `MemoryError` | Программа пытается загрузить весь файл или большую запись в память |
+| Очень долгий проход | Любой поиск без индекса требует распаковать весь gzip-поток |
+| Долгое открытие в ReplayWeb.page | WARC без индекса читается в браузере целиком |
+| Нельзя «просто разрезать» | `.warc.gz` — последовательность gzip-записей; байтовая нарезка ломает их |
 
-## Стратегия 1: Никогда не читать весь файл
+Главное правило: **один раз пройдите файл и постройте индекс, дальше работайте с индексом**.
 
-### Стриминг через warcio
+## Стратегия 1: потоковое чтение
+
+### Итерация по записям через warcio
 
 ```python
 from warcio.archiveiterator import ArchiveIterator
 
 with open("huge-archive.warc.gz", "rb") as stream:
     for record in ArchiveIterator(stream):
-        # Обработка одной записи, без загрузки всего файла
+        # Обрабатываем одну запись за раз
         process(record)
 ```
 
-`ArchiveIterator` — генератор. Python читает архив порциями по мере итерации. **Не нужно загружать весь файл в RAM.**
+`ArchiveIterator` читает файл последовательно, по одной записи, и не загружает весь архив в память.
 
-### Запись в файл поточно
+### Запись тела ответа на диск порциями
+
+`record.content_stream()` — поток с методом `read()`, а не итератор: конструкция `for chunk in record.content_stream()` падает с `TypeError: 'LimitReader' object is not iterable`. Читайте блоками:
 
 ```python
 from warcio.archiveiterator import ArchiveIterator
@@ -48,238 +52,258 @@ with open("huge-archive.warc.gz", "rb") as stream, \
             continue
         url = record.rec_headers.get_header("WARC-Target-URI", "")
         if "specific-page" in url:
-            for chunk in record.content_stream():
+            body = record.content_stream()
+            while chunk := body.read(1024 * 1024):
                 out.write(chunk)
             break
 ```
 
-Вместо `record.content_stream().read()` (которая загрузит страницу в RAM), побайтовый write стримит запись на диск.
+То же самое делает `shutil.copyfileobj(record.content_stream(), out)`. В отличие от `record.content_stream().read()` без аргумента, тело не загружается в память целиком.
 
-## Стратегия 2: Шардинг (разбиение на части)
+## Стратегия 2: индекс один раз — потом быстрые запросы
 
-### Разбить WARC на меньшие файлы
+### CDXJ-индекс для replay-систем
 
-```bash
-# Split WARC.gz на куски по 1 ГБ
-split -b 1G huge-archive.warc.gz part-
-
-# Или по числу записей
-# (специализированные утилиты — see ниже)
-
-# Получите:
-#   part-aa, part-ab, part-ac, ...
-```
-
-Каждый кусок можно обрабатывать отдельно.
-
-### Разбить по содержимому (логический шардинг)
+[cdxj-indexer](https://github.com/webrecorder/cdxj-indexer) (Webrecorder, пакет на PyPI) строит индекс в формате CDXJ: `SURT TIMESTAMP {json}`, где в JSON есть URL, MIME-тип, статус, дайджест, длина и смещение записи в файле.
 
 ```bash
-# Отфильтровать WARC по URL-паттерну
-warcfilter --url-prefix='https://example.com/news/' \
-  huge-archive.warc.gz -o news-only.warc.gz
+pip install cdxj-indexer
 
-warcfilter --url-prefix='https://example.com/blog/' \
-  huge-archive.warc.gz -o blog-only.warc.gz
+# Индекс CDXJ (для pywb и других replay-систем)
+cdxj-indexer --sort huge.warc.gz > huge.cdxj
+
+# Классический CDX11 (для OpenWayback и старых инструментов)
+cdxj-indexer -11 --sort huge.warc.gz > huge.cdx
 ```
 
-Это называется **partition by subject**. Помогает при анализе отдельных тем.
-
-### Разбить WACZ (для ReplayWeb.page)
-
-ReplayWeb.page стримит WACZ; но всё равно индекс CDXJ загружается в память. Для файлов > 50 ГБ:
+Поиск по индексу — обычными текстовыми утилитами, по ключу SURT (`com,example)/путь`):
 
 ```bash
-# Перепаковать с ограничением
-cdxj-indexer huge.wacz > huge.cdxj
-# Используем --split-size при упаковке
-wacz create --split-size 5G \
-  --filename huge-split.wacz \
-  huge.warc.gz huge.cdxj
+grep '^com,example)/news/' huge.cdxj
 ```
 
-## Стратегия 3: DuckDB-WARC (SQL для больших файлов)
+### Индекс в JSON Lines для анализа
 
-[DuckDB-WARC](/kb/instruments/tools/duckdb-warc) — лучший инструмент для SQL-запросов по большим WARC благодаря columnar streaming.
+`warcio index` выводит по JSON-объекту на запись с выбранными полями. Такой файл удобно анализировать через `jq` или DuckDB:
+
+```bash
+warcio index \
+  -f warc-type,warc-target-uri,warc-date,http:status,http:content-type,length,offset,warc-payload-digest \
+  huge.warc.gz > huge.index.jsonl
+```
+
+Здесь `offset` и `length` — смещение и длина (сжатой) записи в файле. По смещению запись можно потом достать без полного прохода:
+
+```bash
+# Тело ответа из записи по смещению 123456789
+warcio extract --payload huge.warc.gz 123456789 > page.html
+```
+
+Время построения индекса зависит от диска и процессора и для сотен гигабайт исчисляется часами; замерьте на своём железе на части файла, прежде чем планировать работу.
+
+## Стратегия 3: SQL по индексу (DuckDB)
+
+[DuckDB](https://duckdb.org/) читает JSON Lines напрямую, так что по индексу из предыдущего шага можно делать SQL-запросы. Файл индекса намного меньше самого архива.
 
 ```python
 import duckdb
 
-con = duckdb.connect()
-con.sql("INSTALL duckdb_warc FROM community; LOAD duckdb_warc;")
-
-# Запрос к 173 ГБ архиву — DuckDB не загружает в RAM, стримит
-result = con.sql("""
-    SELECT
-        url,
-        content_type,
-        length,
-        warc_date
-    FROM read_warc('echo-msk.warc.gz')
-    WHERE response_code = 200
-      AND content_type LIKE 'text/html%'
-    ORDER BY length DESC
+print(duckdb.sql("""
+    SELECT "warc-target-uri" AS url,
+           "http:content-type" AS content_type,
+           CAST(length AS BIGINT) AS record_length,
+           "warc-date" AS date
+    FROM read_json_auto('huge.index.jsonl')
+    WHERE "warc-type" = 'response'
+      AND "http:status" = '200'
+      AND "http:content-type" LIKE 'text/html%'
+    ORDER BY record_length DESC
     LIMIT 10
-""").df()
+"""))
 ```
 
-DuckDB справляется с файлами 100+ ГБ благодаря:
+Для чтения самих WARC из DuckDB есть отдельные расширения — community-расширение `warc` (функция `parse_warc()` для отдельных записей) и `harvard-lil/duckdb-warc`, которое собирают из исходников; подробности и ограничения — на странице [DuckDB-WARC](/kb/instruments/tools/duckdb-warc).
 
-- **Columnar execution** — обрабатывает по колонкам, не по строкам.
-- **Streaming + spilling** — если запрос не помещается в RAM, DuckDB сбрасывает на диск.
-- **Parquet sidecar** — сохранение метаданных в Parquet ускоряет последующие запросы.
+> Примеры этого раздела проверены на warcio 1.8.1, cdxj-indexer 1.5.0 и DuckDB 1.5.6 (октябрь 2026).
 
-## Стратегия 4: Построить CDXJ-индекс один раз
+## Стратегия 4: разбиение на части
 
-Для файла размером 173 ГБ индексирование через `warc-indexer-cdxj` занимает 5–20 минут. **После этого все запросы по URL идут мгновенно.**
+:::danger Не режьте .warc.gz и .wacz по байтам
+`split -b 1G huge.warc.gz part-` даёт куски, которые ни один инструмент не прочитает: граница проходит посреди gzip-записи. Все части, кроме первой, начинаются с «мусора». То же с WACZ — это ZIP-архив, и его половина не является валидным ZIP.
+:::
+
+### По границам записей
+
+Скрипт ниже копирует записи в новые файлы и начинает следующий файл, когда текущий превысил заданный размер. Каждая часть — полноценный WARC.
+
+```python
+import sys
+from warcio.archiveiterator import ArchiveIterator
+from warcio.warcwriter import WARCWriter
+
+src, limit = sys.argv[1], int(float(sys.argv[2]) * 1024**3)  # размер части в ГБ
+
+part, out, writer = 0, None, None
+with open(src, "rb") as stream:
+    for record in ArchiveIterator(stream):
+        if out is None or out.tell() >= limit:
+            if out:
+                out.close()
+            part += 1
+            out = open(f"part-{part:04d}.warc.gz", "wb")
+            writer = WARCWriter(out, gzip=True)
+        writer.write_record(record)
+if out:
+    out.close()
+print(f"частей: {part}")
+```
 
 ```bash
-# Шаг 1: однократное индексирование
-warc-indexer-cdxj huge.warc.gz > huge.cdxj
-
-# Шаг 2: мгновенные поиски
-grep "specific-page" huge.cdxj
-grep "WARC-Target-URI: https://example.com/news/" huge.cdxj
+python split_warc.py huge.warc.gz 5     # части примерно по 5 ГБ
+warcio check part-0001.warc.gz          # проверить результат
 ```
 
-Файл CDXJ для 173 ГБ обычно ~100–500 МБ; легко помещается в RAM.
+Учтите: пара `request`/`response` одной страницы может оказаться в разных частях. Для replay это не страшно, если все части проиндексированы вместе.
 
-## Стратегия 5: WACZ на SSD + ReplayWeb.page
+Обратная операция для `.warc.gz` простая: файлы можно склеить командой `cat a.warc.gz b.warc.gz > all.warc.gz` — каждая запись сжата отдельно, поэтому результат остаётся валидным WARC.
 
-Для разового просмотра большого WACZ (например, 173 ГБ Эхо Москвы):
+### По содержимому (логическое разбиение)
 
-1. Скопируйте WACZ на NVMe SSD.
-2. Убедитесь, что CDXJ есть внутри WACZ (Browsertrix добавляет автоматически).
-3. Откройте в [ReplayWeb.page](https://replayweb.page/).
-4. Первый запуск — индексирование (5–15 мин), потом мгновенный доступ.
+`warcfilter` из [warctools](https://github.com/internetarchive/warctools) отбирает записи по регулярному выражению и пишет результат в stdout (несжатым WARC):
 
-На HDD ReplayWeb.page будет работать, но **очень медленно** при случайном доступе.
+```bash
+pip install warctools
+
+# Только записи с URL раздела /news/
+warcfilter -U '^https://example\.com/news/' huge-archive.warc.gz > news-only.warc
+
+# Только HTML-ответы
+warcfilter -H 'text/html' huge-archive.warc.gz > html-only.warc
+```
+
+### Части для ReplayWeb.page
+
+Если архив нужно смотреть в браузере, упакуйте каждую часть в отдельный WACZ:
+
+```bash
+pip install wacz
+wacz create -o part-0001.wacz --detect-pages part-0001.warc.gz
+```
+
+## Стратегия 5: WACZ + ReplayWeb.page
+
+ReplayWeb.page читает WARC целиком, чтобы построить индекс, а WACZ — нет: индекс уже внутри, и плеер подгружает только нужные ресурсы ([документация](https://replayweb.page/docs/user-guide/)). Для большого архива:
+
+1. Упакуйте WARC в WACZ (`wacz create -o archive.wacz archive.warc.gz`) или соберите сразу WACZ через Browsertrix.
+2. Для локального просмотра держите файл на SSD и используйте [ReplayWeb.page Desktop](https://github.com/webrecorder/replayweb.page/releases).
+3. Для публикации разместите WACZ на сервере с поддержкой HTTP Range-запросов и CORS.
 
 ## Стратегия 6: pywb для публичного доступа
 
-[pywb](/kb/instruments/replay/pywb) спроектирован для больших коллекций:
+[pywb](/kb/instruments/replay/pywb) работает с WARC на сервере и не требует загрузки архива в браузер:
 
-```yaml
-# config.yaml
-collections:
-  echo-msk:
-    archive_paths: /data/echo-msk/archive/
-    index_paths: /data/echo-msk/indexes/
-    recurse: true
+```bash
+pip install pywb
+wb-manager init echo-msk
+wb-manager add echo-msk /data/echo.msk.ru.warc.gz   # копирует файл и строит индекс
+wayback -p 8080
 ```
 
-pywb строит CDXJ при первом обращении, кеширует в Redis.
+`wb-manager add` копирует файл в каталог коллекции; если архив уже лежит на нужном диске, можно описать коллекцию в `config.yaml` через `index_paths` и `archive_paths` и построить индекс через `cdxj-indexer` (см. страницу pywb). Для очень больших индексов документация pywb рекомендует внешний индекс OutbackCDX.
 
-## Стратегия 7: Выборочное скачивание (Sub-WARC)
+## Стратегия 7: выборочное скачивание
 
-Часто нужно не весь архив, а конкретная часть. Не скачивайте всё:
+Часто нужен не весь архив, а его часть.
 
 ### Из Wayback Machine
 
+CDX API Wayback Machine отдаёт список снимков, а модификатор `id_` в URL снимка — исходный ответ без переписывания ссылок (не WARC):
+
 ```bash
-# Скачать только снимки одной страницы
-curl 'https://web.archive.org/cdx/search/cdx?url=example.com/page&output=json&limit=100' \
-  | python3 -c "
-import json, sys
-records = json.load(sys.stdin)
-for r in records[1:]:
-    timestamp, url = r[1], r[2]
-    print(f'https://web.archive.org/web/{timestamp}id_/{url}')
-" \
-  | xargs -I {} curl -s -o '{}.warc.gz' '{}'
+curl -s 'https://web.archive.org/cdx/search/cdx?url=example.com/page&output=json&limit=20' \
+  | jq -r '.[1:][] | "\(.[1]) \(.[2])"' \
+  | while read -r ts url; do
+      curl -s -o "page-$ts.html" "https://web.archive.org/web/${ts}id_/${url}"
+      sleep 2
+    done
 ```
 
-### Из локального архива
+Подробнее об API — [Wayback Machine API](/kb/instruments/tools/wayback-api).
+
+### Из локального архива — под-WARC
+
+Записи из `ArchiveIterator` можно сразу записать в новый WARC:
 
 ```python
 from warcio.archiveiterator import ArchiveIterator
+from warcio.warcwriter import WARCWriter
 
-target_url = "https://example.com/specific-page"
-with open("huge.warc.gz", "rb") as stream, \
-     open("sub-warc.warc.gz", "wb") as out:
-    # Использовать warcio.WARCWriter для записи
-    from warcio.warcwriter import WARCWriter
-    writer = WARCWriter(out)
+prefix = "https://example.com/specific-page"
+with open("huge.warc.gz", "rb") as stream, open("sub.warc.gz", "wb") as out:
+    writer = WARCWriter(out, gzip=True)
     for record in ArchiveIterator(stream):
         url = record.rec_headers.get_header("WARC-Target-URI", "")
-        if target_url in url:
-            # Записать эту запись в новый WARC
-            # (нужно сначала прочитать record, потом записать)
-            pass
+        if url.startswith(prefix):
+            writer.write_record(record)
 ```
 
-## Стратегия 8: Распараллеливание на нескольких машинах
+Если смещения нужных записей уже известны из индекса, используйте `warcio extract` — так не придётся проходить файл целиком.
 
-Для 1 ТБ+ коллекций — используйте распределённые решения:
+### Из архива «Эха Москвы»
+
+Для архива «Эха» опубликован CDX-индекс `echo.msk.ru.cdx.zip` (около 2,7 МБ). По нему можно проверить, есть ли нужные страницы, ещё до скачивания 173-гигабайтного файла. Ссылки — на странице [проекта «Эхо Москвы»](/kb/projects/echomsk).
+
+## Стратегия 8: распределённая обработка
+
+Для коллекций в терабайты используют распределённые инструменты:
 
 | Инструмент | Когда |
 |:---|:---|
-| [Brozzler](/kb/instruments/tools/brozzler) | Распределённый сбор (для записи) |
-| Spark + ArchiveSpark | Распределённый анализ |
-| [Common Crawl](https://commoncrawl.org/) | Уже распределено по WARC |
+| [ArchiveSpark](/kb/instruments/tools/archivespark) | Распределённый анализ WARC на Spark |
+| [Archives Unleashed Toolkit](https://github.com/archivesunleashed/aut) | Анализ веб-архивов на Spark: извлечение текста, ссылок, статистика |
+| [Brozzler](/kb/instruments/tools/brozzler) | Распределённый **сбор** (не анализ) |
 
-Для 100-ГБ коллекции Ruarxive пока хватает одно-машинного решения с SSD.
+## Железо
 
-## Бенчмарки производительности (2026)
+Конкретные требования зависят от задачи. Общие ориентиры:
 
-Типичная конфигурация для Ruarxive: 32 ГБ RAM, NVMe SSD.
+- Для последовательного прохода главное — скорость диска; SSD заметно быстрее HDD, особенно при произвольном доступе по смещениям.
+- Память нужна под индекс и обрабатываемую запись, а не под весь архив: при потоковой обработке хватает обычного рабочего компьютера.
+- Свободное место планируйте с запасом: индекс, распакованные части и копии быстро занимают десятки гигабайт.
 
-| Операция | Размер WARC | Время | Замечания |
-|:---|---:|:---|:---|
-| `warcdump` (листинг) | 173 ГБ | ~30 мин | read-only |
-| `warc-indexer-cdxj` | 173 ГБ | ~15 мин | однократно |
-| DuckDB-WARC `SELECT url` | 173 ГБ | ~2 мин | стриминг |
-| DuckDB-WARC `GROUP BY domain` | 173 ГБ | ~10 мин | heavier |
-| ReplayWeb.page первый запуск | 173 ГБ | ~10 мин | индексирование |
-| ReplayWeb.page с CDXJ | 173 ГБ | ~2 мин | кешировано |
-| pywb первая страница | 173 ГБ | ~5 с | с Redis |
+## Чего избегать
 
-## Железо и инфраструктура
-
-| Размер коллекции | Рекомендуемое железо |
-|:---|:---|
-| до 10 ГБ | 8 ГБ RAM, любой диск |
-| 10–100 ГБ | 16–32 ГБ RAM, NVMe SSD |
-| 100 ГБ – 1 ТБ | 64 ГБ RAM, NVMe SSD RAID, возможно Redis |
-| 1–10 ТБ | распределённое хранилище + CDN |
-
-Ruarxive в текущей инфраструктуре обслуживает ~0.5–1 ТБ архивов на одном сервере с Redis + NVMe.
-
-## Anti-patterns
-
-❌ `python -c "open('huge.warc.gz', 'rb').read()"` — загрузит весь файл в RAM.
-❌ `pandas.read_csv('huge.csv')` для CSV-индекса того же размера — OutOfMemory.
-❌ `cat huge.warc.gz | grep url` — I/O bottleneck на огромных файлах.
-❌ Хранить WARC-индексы в tar/zip — замедляет доступ.
-❌ Использовать HDD для ReplayWeb.page с WACZ > 10 ГБ.
+❌ `open('huge.warc.gz', 'rb').read()` — загрузит весь файл в память.
+❌ `record.content_stream().read()` для записей в гигабайты — читайте блоками.
+❌ `split -b ...` для `.warc.gz` и `.wacz` — части нельзя будет прочитать.
+❌ `gunzip huge.warc.gz` «для удобства» — распакованный файл в несколько раз больше, а смещения из индексов перестают совпадать.
+❌ Повторный полный проход по архиву для каждого вопроса — постройте индекс один раз.
 
 ## Когда использовать
 
 ✅ Подходит:
 
-- **Архивы > 10 ГБ** — без специальных подходов не обойтись.
-- **Публичные коллекции** для исследователей.
-- **Регулярно используемые наборы данных** — стоит вложиться в инфраструктуру.
-- **Multi-user доступ** — pywb с Redis обязателен.
+- **Архивы больше 10 ГБ** — без этих приёмов работа становится очень медленной.
+- **Подготовка публичных коллекций** для исследователей.
+- **Регулярно используемые наборы данных** — стоит один раз вложиться в индексы.
 
 ❌ Не подходит:
 
-- **Архивы < 1 ГБ** — overhead не оправдан.
-- **Разовое открытие файла** — проще через ReplayWeb.page.
-- **Если у вас только HDD** — перенесите на SSD или используйте S3.
+- **Архивы до 1 ГБ** — проще открыть в [ReplayWeb.page](https://replayweb.page/).
+- **Разовое открытие файла** — см. [Как открыть WARC](/kb/users/open-warc).
 
 ## Ресурсы
 
-- [warcio documentation](https://github.com/webrecorder/warcio)
+- [warcio](https://github.com/webrecorder/warcio)
+- [cdxj-indexer](https://github.com/webrecorder/cdxj-indexer)
+- [warctools](https://github.com/internetarchive/warctools)
 - [DuckDB-WARC](/kb/instruments/tools/duckdb-warc)
-- [pywb — настройка для больших коллекций](/kb/instruments/replay/pywb)
+- [pywb — настройка коллекций](/kb/instruments/replay/pywb)
 - [ReplayWeb.page — большие WACZ](/kb/instruments/replay/replayweb-page)
-- [WARC-Safe — сканирование](/kb/instruments/tools/warc-safe)
 
 ## Связанные материалы
 
-- [Вскрытие WARC — листинг и извлечение](/kb/users/inspect-warc)
-- [WARC-файл: формат](/kb/instruments/file-formats/warc)
+- [«Вскрытие» WARC — листинг и извлечение](/kb/users/inspect-warc)
+- [Формат WARC](/kb/instruments/file-formats/warc)
 - [WARC-файл: от сырого архива до публикации](/kb/guides/warc-workflow)
-- [DuckDB-WARC — SQL-запросы](/kb/instruments/tools/duckdb-warc)
 - [Ландшафт 2026](/kb/instruments/landscape-2026)

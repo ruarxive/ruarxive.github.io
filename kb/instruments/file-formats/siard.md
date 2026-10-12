@@ -1,42 +1,56 @@
+---
+title: SIARD
+description: "SIARD — открытый формат архивации реляционных баз данных Швейцарского федерального архива: версии 1.0–2.2, структура архива, бесплатная SIARD Suite и DBPTK."
+last_update:
+  date: 2026-10-12
+---
+
 # SIARD
 
-**SIARD (Software-Independent Archiving of Relational Databases)** — формат архивации реляционных баз данных, разработанный Федеральным архивом Швейцарии. Используется для долгосрочного сохранения структурированных данных: государственных реестр, учётных систем, статистических баз.
+**SIARD (Software-Independent Archiving of Relational Databases)** — открытый формат архивации реляционных баз данных, разработанный Федеральным архивом Швейцарии (Swiss Federal Archives, BAR/SFA). Используется для долгосрочного сохранения структурированных данных: государственных реестров, учётных систем, статистических баз.
 
 ## Зачем нужен SIARD
 
-Реляционные СУБД привязаны к конкретному ПО (Oracle, PostgreSQL, MS SQL, MariaDB). Через 10-15 лет ПО может стать недоступным или его поддержка прекратится. SIARD описывает базу в виде стандартного ZIP-архива с XML-метаданными и плоскими файлами, который можно прочитать через любой текстовый редактор или стандартный инструмент.
+Реляционные СУБД привязаны к конкретному ПО (Oracle, PostgreSQL, MS SQL, MariaDB). Через 10–15 лет ПО может стать недоступным или его поддержка прекратится. SIARD описывает базу в виде ZIP-архива (ZIP64) с XML-метаданными и XML-файлами данных, который можно прочитать без исходной СУБД. Формат основан на открытых стандартах XML, SQL:2008, Unicode и ZIP64.
 
-## Версии стандарта
+## Версии формата
 
-- **SIARD 1.0** (2012) — первая версия, фиксированный XML-словарь для Oracle и MS SQL.
-- **SIARD 2.0** (2020) — современная версия, расширенная поддержка типов данных, улучшенная работа с LOB.
+| Версия | PUID в PRONOM | Примечания |
+| :--- | :--- | :--- |
+| **SIARD 1.0** | `fmt/161` | Первая версия; принята как швейцарский стандарт электронного правительства [eCH-0165](https://www.ech.ch/de/ech/ech-0165) |
+| **SIARD 2.0** | `fmt/995` | Новая редакция формата, разработанная при участии проекта E-ARK |
+| **SIARD 2.1** | `fmt/1196` | Уточнения версии 2.0 |
+| **SIARD 2.2** | `fmt/1777` | Актуальная версия; её поддерживает текущая SIARD Suite |
+
+Идентификаторы сверены с сигнатурным файлом DROID V125. Спецификация SIARD 2.2 опубликована на [странице SIARD Suite](https://www.bar.admin.ch/en/siard-suite-en) Федерального архива Швейцарии.
 
 ## Структура архива
 
 ```
-archive.siard/
+archive.siard
 ├── header/
-│   └── metadata.xml       # метаданные архива (имя БД, описание, даты, агент)
-├── content/
-│   └── metadata.xml       # описание схемы, таблиц, типов данных
-└── content/schema0/
-    ├── table1/
-    │   ├── table1.xml     # данные таблицы в формате XML
-    │   └── lob/
-    │       ├── 0/         # LOB первой записи
-    │       │   ├── record_1.bin
-    │       │   └── record_2.txt
-    │       └── 1/
-    │           └── record_3.png
-    └── table2/
-        └── table2.xml
+│   ├── metadata.xml        # описание базы: схемы, таблицы, типы, ключи, представления, пользователи
+│   └── metadata.xsd        # XML-схема для metadata.xml
+└── content/
+    └── schema0/
+        ├── table0/
+        │   ├── table0.xml  # данные таблицы
+        │   ├── table0.xsd  # XML-схема данных этой таблицы
+        │   └── lob3/       # большие объекты (BLOB/CLOB) столбца, вынесенные в отдельные файлы
+        │       ├── record0.bin
+        │       └── record1.txt
+        └── table1/
+            ├── table1.xml
+            └── table1.xsd
 ```
 
 **Ключевые компоненты:**
 
-* **`metadata.xml`** — XML-описание всей базы: схемы, таблицы, типы колонок, ограничения, индексы, триггеры.
-* **`<table>.xml`** — данные каждой таблицы в виде XML, с одной строкой на запись. Значения base64-кодируются встроенно или выносятся в `lob/`.
-* **`lob/`** — папка с большими объектами (BLOB/CLOB), извлечёнными из базы и сохранёнными как отдельные файлы с оригинальной кодировкой.
+* **`header/metadata.xml`** — XML-описание всей базы: схемы, таблицы, типы колонок, первичные и внешние ключи, представления, хранимые процедуры, пользователи и привилегии.
+* **`content/schemaN/tableN/tableN.xml`** — данные таблицы в виде XML (одна запись — одна строка таблицы) и рядом XML-схема `tableN.xsd`.
+* **`lobN/`** — каталоги с большими объектами (BLOB/CLOB), которые хранятся отдельными файлами вместо встраивания в XML.
+
+Имена каталогов (`schema0`, `table0`, `lob3`) — служебные; реальные имена схем и таблиц хранятся в `metadata.xml`. Так устроены архивы, создаваемые SIARD Suite (имена каталогов сверены с исходным кодом `siard-api`).
 
 ## Что сохраняется
 
@@ -45,8 +59,8 @@ archive.siard/
 | Схемы | полностью |
 | Таблицы | полностью |
 | Типы колонок | полностью |
-| Первичные и внешние ключи | как XML-ограничения |
-| Индексы | опционально (могут быть исключены) |
+| Первичные и внешние ключи | как описание в метаданных |
+| Индексы | опционально |
 | Триггеры | опционально |
 | Хранимые процедуры и функции | как исходный код (если поддерживается) |
 | Представления (views) | опционально |
@@ -54,46 +68,36 @@ archive.siard/
 
 ## Инструменты
 
-### SIARD Suite (коммерческий)
+### SIARD Suite (Федеральный архив Швейцарии)
 
-[SIARD Suite](https://www.deepfinity.com/products/siard-suite) — основной коммерческий инструмент, поддерживающий Oracle, MS SQL, PostgreSQL, MariaDB, Access.
+[SIARD Suite](https://www.bar.admin.ch/en/siard-suite-en) — официальный инструмент Федерального архива Швейцарии. Распространяется **бесплатно**, исходный код открыт под лицензией CDDL-1.0 в репозитории [sfa-siard/siard-suite](https://github.com/sfa-siard/siard-suite) (актуальный релиз — 2.2.x). В состав входят:
 
-### SIARD Format Library (Java, открытый)
+- графическое приложение для архивации, восстановления, поиска и экспорта;
+- утилиты командной строки `siard-from-db` (выгрузка базы в SIARD) и `siard-to-db` (загрузка SIARD обратно в СУБД);
+- Java-API для чтения и записи SIARD-файлов (модуль `siard-api`).
 
-Открытая Java-библиотека для чтения SIARD-архивов — [github.com/sfa-siard/siard-lib](https://github.com/sfa-siard/siard-lib).
+Поддерживаемые СУБД (по данным Федерального архива): MS Access 2007+, DB2, MySQL/MariaDB 5.5+, Oracle 10+, PostgreSQL 11+, SQL Server 2012+. Требуется Java. Параметры командной строки описаны в руководстве пользователя на странице SIARD Suite.
 
-```java
-SiardArchive archive = SiardArchiveImpl.fromFile(new File("archive.siard"));
-for (Schema schema : archive.getSchemas()) {
-    for (Table table : schema.getTables()) {
-        for (Record record : table.getRecords()) {
-            System.out.println(record);
-        }
-    }
-}
-```
+Ранее компоненты публиковались в отдельных репозиториях (`SiardGui`, `SiardCmd`, `SiardApi`, `JdbcPostgres` и др. в организации [sfa-siard](https://github.com/sfa-siard)); репозиторий `SiardGui` помечен как неподдерживаемый и заменён `siard-suite`.
 
-### DBPreservation (от CERN)
+### DBPTK (Database Preservation Toolkit)
 
-[DBPreservation](https://github.com/Marinerer/DBPreservation) — инструмент для конвертации PostgreSQL/MySQL в SIARD 2.0.
+[DBPTK Developer](https://github.com/keeps/dbptk-developer) — открытый (LGPL-3.0) инструмент компании KEEP Solutions для конвертации баз данных (MySQL/MariaDB, PostgreSQL, Oracle, SQL Server, Access и других через JDBC) в форматы SIARD 1, SIARD 2 и SIARD-DK и загрузки сохранённых баз обратно в СУБД. Сайт проекта: [database-preservation.com](https://database-preservation.com/).
 
-### Postgres → SIARD вручную
+Пример выгрузки PostgreSQL в SIARD 2 (из README проекта):
 
 ```bash
-# Через pg_dump + собственный скрипт упаковки
-pg_dump --no-owner --schema-only database > schema.sql
-psql database -c "COPY (SELECT * FROM table1) TO '/tmp/table1.csv' CSV HEADER"
-# далее упаковываем CSV → XML по схеме SIARD
+java -jar "-Dfile.encoding=UTF-8" dbptk-app-x.y.z.jar migrate \
+  --import postgresql --import-hostname=localhost \
+  --import-database="example_db" --import-username=username --import-password="p4ssw0rd" \
+  --export siard-2 --export-file=example.siard
 ```
+
+> Команда взята из README dbptk-developer (релиз 4.4.1, октябрь 2026).
 
 ## Валидация
 
-Для проверки соответствия SIARD-архива спецификации используется валидатор [SIARD Format Library](https://github.com/sfa-siard/siard-lib). Он проверяет:
-
-- Корректность структуры ZIP-архива
-- Соответствие `metadata.xml` XSD-схеме
-- Наличие всех файлов данных, на которые ссылается метаданные
-- Корректность кодировок
+Базовая проверка — XML Schema-валидация `header/metadata.xml` и XML-файлов таблиц по XSD-схемам, которые лежат в самом архиве (например, утилитой `xmllint` после распаковки). Открытие архива в SIARD Suite или пробная загрузка его обратно в СУБД (`siard-to-db`, DBPTK) показывает, что данные действительно восстанавливаются.
 
 ## Сценарии использования в Ruarxive
 
@@ -103,19 +107,19 @@ psql database -c "COPY (SELECT * FROM table1) TO '/tmp/table1.csv' CSV HEADER"
 
 ## Рекомендации
 
-*   Используйте **SIARD 2.0** — современная версия с лучшей поддержкой типов.
-*   Перед упаковкой прогоняйте БД через `VACUUM FULL` (PostgreSQL) или аналог — это уменьшит размер архива.
+*   Используйте **SIARD 2.2** — актуальную версию формата, поддерживаемую SIARD Suite.
+*   Для выгрузки используйте готовые инструменты (SIARD Suite, DBPTK), а не самописные скрипты: ручная сборка архива почти неизбежно приводит к несоответствию спецификации.
 *   Включайте **только нужные схемы** — архив всего инстанса часто избыточен.
-*   Сохраняйте **документацию схемы** (`README` с описанием таблиц и их смысла) внутри SIARD-контейнера как дополнительный файл.
+*   Сохраняйте **документацию схемы** (описание таблиц и их смысла): SIARD позволяет добавлять описания объектов в `metadata.xml`, а внешнюю документацию можно положить рядом в пакет BagIt.
 *   Упаковывайте SIARD в **BagIt** для метаданных архива и контрольных сумм.
-*   Проверяйте через Siegfried, что файлы внутри SIARD-архива идентифицируются как ожидаемые форматы (изображения, документы).
+*   Проверяйте через Siegfried, что SIARD-файл идентифицируется ожидаемой версией формата.
 
 ## Ресурсы
 
-*   [SIARD 2.0 спецификация](https://www.bar.admin.ch/dam/de/themen/unterlagen-aerzen/digitale-archivierung/technische-grundlagen/siard-2.0/Standard/SIARD-2.0-Format-Specification_de.pdf) (на немецком, есть англоязычный перевод)
-*   [SIARD Format Library](https://github.com/sfa-siard/siard-lib)
-*   [SIARD Suite (commercial)](https://www.deepfinity.com/products/siard-suite)
-*   [DBPreservation](https://github.com/Marinerer/DBPreservation)
+*   [SIARD Suite на сайте Федерального архива Швейцарии](https://www.bar.admin.ch/en/siard-suite-en) — программа, руководство и спецификация SIARD 2.2
+*   [sfa-siard/siard-suite](https://github.com/sfa-siard/siard-suite) — исходный код
+*   [eCH-0165: SIARD Format Specification](https://www.ech.ch/de/ech/ech-0165)
+*   [DBPTK Developer](https://github.com/keeps/dbptk-developer)
 
 ## Связанные материалы
 

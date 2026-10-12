@@ -1,407 +1,284 @@
 ---
 title: Kiwix (warc2zim, zimit)
 sidebar_label: Kiwix (warc2zim, zimit)
-description: Конвертация WARC в формат ZIM для офлайн-чтения через Kiwix, инструменты warc2zim, zimit, zimwriterfs
+description: "Конвертация WARC в формат ZIM для офлайн-чтения в Kiwix: warc2zim, zimit (обход сайта сразу в ZIM через Browsertrix Crawler), zimwriterfs и kiwix-serve."
+last_update:
+  date: 2026-10-12
 ---
 
 # Kiwix (warc2zim, zimit, zimwriterfs)
 
-**Kiwix** — open-source экосистема для офлайн-чтения веб-контента. В центре — формат **ZIM** (сжатый, полностью-индексированный, читается через Kiwix-приложения). Для архивистов ключевые инструменты — **warc2zim** (конвертация WARC в ZIM), **zimit** (краулинг сразу в ZIM через Browsertrix) и **zimwriterfs** (создание ZIM из локальной HTML-папки).
+**Kiwix** — открытая экосистема для офлайн-чтения веб-контента. В её центре формат **ZIM**: один сжатый файл со встроенным полнотекстовым индексом, который читают приложения Kiwix. Инструменты для архивистов развивает проект openZIM:
+
+- **warc2zim** — конвертация WARC в ZIM;
+- **zimit** — обход сайта браузером (через Browsertrix Crawler) с результатом сразу в ZIM;
+- **zimwriterfs** — упаковка локальной папки с HTML в ZIM.
 
 Сайт: [kiwix.org](https://kiwix.org/)
 
 ## Зачем нужен
 
-WARC — это **«сырой» архив** для долгосрочного хранения. Но обычный пользователь не может его открыть без pywb, OpenWayback или ReplayWeb.page. **ZIM — это «потребительский» формат**:
+WARC — «сырой» архивный формат для долгосрочного хранения: без pywb или ReplayWeb.page обычный пользователь его не откроет. ZIM — формат для читателя:
 
-- **Один файл** — весь архив сайта в `.zim` (5-50 ГБ для больших сайтов).
-- **Полнотекстовый поиск** — работает локально в Kiwix-приложении.
-- **Читается на любом устройстве** — Windows, macOS, Linux, Android, iOS, Kiwix Serve.
-- **Без интернета** — идеально для отключённых регионов, школ, библиотек.
-- **Без CDN и трекеров** — никакой сторонней инфраструктуры.
-- **Стандарт для Wikipedia-зеркал** — весь Wikipedia-оффлайн это Kiwix.
+- **один файл** на сайт или коллекцию;
+- **полнотекстовый поиск** локально в приложении Kiwix;
+- **приложения** для Windows, macOS, Linux, Android, iOS и сервер `kiwix-serve`;
+- **работа без интернета**;
+- **готовые ZIM** Википедии и других проектов в [библиотеке Kiwix](https://library.kiwix.org/).
 
-Для СНГ-архивов это **критически важно**: доступ к информации может быть ограничен, ZIM можно распространять через торренты, флешки, на локальных серверах.
+ZIM удобно распространять на флешках, по локальной сети или торрентами, если у читателей нет стабильного доступа в интернет.
 
 ## Что входит в экосистему
 
 | Инструмент | Что делает | Когда использовать |
 | :--- | :--- | :--- |
-| **zimit** | Кроулинг сразу в ZIM (обёртка над Browsertrix Crawler) | Архивация современного сайта в один файл ZIM |
-| **warc2zim** | Конвертация WARC → ZIM | У вас уже есть WARC, хотите ZIM |
-| **zimwriterfs** | Создание ZIM из локальной HTML-папки | Архивация статического HTML, генерация с нуля |
-| **Kiwix Serve** | HTTP-сервер для раздачи ZIM | Локальная инфраструктура для нескольких ZIM |
-| **Kiwix JS** | Браузерный/WASM-читалка ZIM | Читать ZIM без установки приложения |
-| **mwoffliner** | Специализированный конвертер MediaWiki → ZIM | Архивирование Википедии, MediaWiki-сайтов |
+| **zimit** | Обход сайта через Browsertrix Crawler и конвертация в ZIM | Нужно получить ZIM с живого сайта |
+| **warc2zim** | WARC → ZIM | У вас уже есть WARC |
+| **zimwriterfs** (из пакета zim-tools) | Папка с HTML → ZIM | Статическая HTML-копия, собственная генерация |
+| **kiwix-serve** (из пакета kiwix-tools) | HTTP-сервер для ZIM | Раздача нескольких ZIM в локальной сети |
+| **mwoffliner** | MediaWiki → ZIM | Википедия и другие MediaWiki-сайты |
 
 ## Формат ZIM
 
-**ZIM** (Zeno IMproved) — это сжатый, индексированный формат для веб-контента:
+ZIM хранит HTML, CSS, изображения, медиа и метаданные (название, описание, язык, автор, издатель). Внутри есть полнотекстовый индекс Xapian. Спецификация: [wiki.openzim.org/wiki/ZIM_file_format](https://wiki.openzim.org/wiki/ZIM_file_format).
 
-- **Содержимое** — HTML, CSS, изображения, видео, аудио, PDF.
-- **Полнотекстовый индекс** — поиск с морфологией.
-- **Метаданные** — title, описание, автор, дата, язык.
-- **Сжатие** — xz, zstd, обычно 2-5× от исходного HTML.
-- **Размер** — от нескольких МБ (маленький сайт) до 100+ ГБ (Wikipedia).
+## warc2zim
 
-Спецификация: [openzim.org/wiki/ZIM_file_format](https://openzim.org/wiki/ZIM_file_format).
+warc2zim переносит в ZIM все записи WARC. «Программные» записи (HTML, CSS, JS) он переписывает так, чтобы сайт работал офлайн. С версии 2.0 полученным ZIM больше не нужен service worker и HTTPS: в 1.x это было серьёзным ограничением.
 
-## Возможности warc2zim
+Ограничения (по README):
 
-- **Чтение WARC/WARC.gz** файлов.
-- **Извлечение HTML и медиа** из WARC.
-- **Создание полнотекстового индекса** (Xapian-based).
-- **Сохранение структуры ссылок** для навигации.
-- **Метаданные** в ZIM-файле.
-- **Параллельная обработка** для больших архивов.
-- **Запись в xz или zstd** для максимального сжатия.
+- не работают формы и всё, что пишет данные на сервер;
+- из видеоплееров поддерживается только встроенный YouTube; Vimeo, DailyMotion и другие обычно не работают;
+- ресурсы с «динамическими» URL (с размером окна, меткой времени или уникальным ID в адресе) могут не находиться;
+- HTTP-заголовки ответов не сохраняются; из кодов ответа учитываются только 200–203 и редиректы 301, 302, 306, 307; ответы 4xx и 5xx отбрасываются;
+- service workers, web workers, import maps и редиректы через `meta http-equiv` не поддерживаются.
 
-## Возможности zimit
+Главное правило: ZIM не может быть лучше исходного WARC. Если обход был плохим, ZIM тоже будет плохим.
 
-- **Краулинг через реальный Chrome** (через Browsertrix Crawler).
-- **JS-рендеринг** — современные сайты работают.
-- **WARC-вывод опционально** — можно одновременно WARC + ZIM.
-- **Behaviors** — autoscroll, autoplay, site-specific скрипты.
-- **Аутентификация** через cookies.
-- **Rate limiting** и уважение к robots.txt.
-
-## Когда использовать
-
-✅ Kiwix-экосистема подходит для:
-
-- **Распространения архивов** среди пользователей без технических знаний.
-- **Офлайн-доступа** к контенту (отключённый интернет, школы, экспедиции).
-- **Долгосрочного хранения** с человекочитаемым форматом.
-- **Архивирования Википедии** (Wikipedia, Wikidata) и других MediaWiki.
-- **Создания «Kiwix-стиля» архивов** для конкретных сайтов.
-- **Торрент-распространения** (Wikipedia-зеркала доступны через торренты).
-
-❌ Не подходит для:
-
-- **Серверного воспроизведения** с поиском по URL (для этого — [pywb](/kb/instruments/replay/pywb)).
-- **Извлечения отдельных файлов** из WARC (для этого — [WARC-processing](warc-processing)).
-- **Долгосрочного архивирования** в стандарт WARC (ZIM теряет часть метаданных WARC).
-- **Больших инкрементальных обновлений** (ZIM обычно пересоздаётся).
-
-## Установка
-
-### Docker (рекомендуется)
+### Установка
 
 ```bash
-# warc2zim
-docker pull openzim/warc2zim:latest
-
-# zimit
-docker pull ghcr.io/openzim/zimit:latest
-
-# kiwix-serve
-docker pull kiwix/kiwix-serve:latest
+python3 -m venv ./env
+./env/bin/pip install -U pip
+./env/bin/pip install -U warc2zim
+./env/bin/warc2zim --help
 ```
 
-### Из исходников
+warc2zim 2.3.1 требует Python 3.14. Если подходящего Python нет, используйте Docker-образ `ghcr.io/openzim/warc2zim`.
+
+> Команды и флаги сверены с README и `src/warc2zim/main.py` версии 2.3.1, а также с README zimit 3.1.3 (октябрь 2026).
+
+### Использование
+
+WARC-файлы (или каталоги с ними) передаются **позиционными аргументами**, `--output` — это **каталог**, а имя задаётся через `--name`:
 
 ```bash
-# warc2zim
-git clone https://github.com/openzim/warc2zim
-cd warc2zim
-pip install .
-
-# zimit
-git clone https://github.com/openzim/zimit
-cd zimit
-npm install
+warc2zim ./myarchive.warc.gz \
+  --output ./output \
+  --name myarchive \
+  -u https://example.com/ \
+  --title "Архив example.com" \
+  --description "Копия сайта example.com" \
+  --lang rus \
+  --creator "example.com" \
+  --publisher "Ruarxive"
 ```
 
-### Пакетные менеджеры
+Основные флаги:
+
+| Флаг | Что делает |
+| :--- | :--- |
+| `--name` | Идентификатор ZIM (обязательно) |
+| `--output` | Каталог для результата |
+| `--zim-file` | Имя ZIM-файла, если нужно задать его явно |
+| `-u, --url` | Главная страница ZIM |
+| `-i, --include-domains` | Включать только эти домены (и их поддомены); можно повторять |
+| `--title`, `--description`, `--long-description` | Название и описания |
+| `--lang` | Язык (код ISO-639-3, например `rus`) |
+| `--creator`, `--publisher`, `--source`, `--tags` | Метаданные |
+| `-f, --favicon` | URL иконки главной страницы |
+| `--custom-css` | CSS, добавляемый в каждую HTML-страницу (например, чтобы скрыть неработающий офлайн поиск) |
+| `--overwrite` | Перезаписать существующий файл |
+
+Фильтр по доменам:
 
 ```bash
-# Arch
-yay -S kiwix-tools kiwix-desktop
-
-# Ubuntu
-sudo apt install kiwix-tools
+warc2zim myarchive.warc.gz --name myarchive \
+  -i example.com \
+  -u https://sub.example.com/start.html
 ```
 
-### Готовые приложения
-
-- [Kiwix Desktop](https://www.kiwix.org/en/download/) — Windows, macOS, Linux.
-- [Kiwix Android](https://play.google.com/store/apps/details?id=org.kiwix.kiwixmobile) — Google Play.
-- [Kiwix iOS](https://apps.apple.com/app/kiwix/id997076992) — App Store.
-
-## Использование
-
-### warc2zim: WARC → ZIM
-
-#### Базовое использование
+Через Docker:
 
 ```bash
-warc2zim \
-  --input archive.warc.gz \
-  --output archive.zim \
-  --title "My Archive" \
-  --description "Archive of example.com from 2025" \
-  --creator "Ruarxive"
+docker run --rm -v "$PWD":/data ghcr.io/openzim/warc2zim \
+  warc2zim /data/archive.warc.gz --output /data --name archive -u https://example.com/
 ```
 
-#### С расширенными опциями
+## zimit
+
+zimit — Python-проект, который работает в Docker-контейнере. Он запускает обход сайта [Browsertrix Crawler](browsertrix) (получаются WARC), а затем конвертирует их warc2zim в один ZIM. Официальный образ — `ghcr.io/openzim/zimit` (последний релиз — 3.1.3, июль 2026).
 
 ```bash
-warc2zim \
-  --input archive.warc.gz \
-  --output archive.zim \
-  --title "Government Archive 2025" \
-  --description "Daily snapshots of government sites" \
-  --creator "Ruarxive" \
-  --publisher "Ruarxive.org" \
-  --name "ruarxive-gov-2025" \
-  --tags "government;russia;archive" \
-  --language rus \
-  --illustration cover.jpg \
-  --no-fulltext  # отключить полнотекстовый индекс
+docker run ghcr.io/openzim/zimit zimit --help
+
+docker run -v "$PWD/output":/output ghcr.io/openzim/zimit \
+  zimit --seeds https://example.com/ --name example
 ```
 
-#### Через Docker
+Основные параметры zimit (кроме них принимаются флаги Browsertrix Crawler и warc2zim):
+
+| Флаг | Что делает |
+| :--- | :--- |
+| `--seeds` | Стартовые URL через запятую; первый станет главной страницей ZIM (обязательно) |
+| `--name` | Имя ZIM (обязательно) |
+| `--output` | Каталог результата (по умолчанию `/output`) |
+| `--scopeType` | Область обхода: `page`, `page-spa`, `prefix`, `host`, `domain`, `any`, `custom` |
+| `--scopeIncludeRx`, `--scopeExcludeRx` | Регулярные выражения для включения и исключения URL |
+| `--depth` | Глубина обхода (по умолчанию -1, без ограничения) |
+| `--pageLimit` | Максимум страниц |
+| `--workers` | Число параллельных воркеров |
+| `--waitUntil` | Когда считать страницу загруженной (по умолчанию `load`; для статики — `domcontentloaded`) |
+| `--behaviors` | Поведения на странице (по умолчанию `autoplay,autofetch,autoscroll,siteSpecific`) |
+| `--timeSoftLimit`, `--timeHardLimit` | Ограничение времени обхода в секундах (мягкое — ZIM всё равно будет создан) |
+| `--sizeSoftLimit`, `--sizeHardLimit` | Ограничение объёма |
+| `--zim-lang` | Язык в метаданных ZIM (ISO-639-3) |
+| `--lang` | Язык браузера при обходе (ISO-639-1) |
+| `--keep` | Сохранить WARC и временные файлы и при успешном завершении |
+| `--generateWACZ` | Создать также WACZ |
+| `--warcs` | Пропустить обход и конвертировать готовые WARC (пути или URL через запятую, допускается tar) |
+
+Пример с ограничением области и сохранением WARC:
 
 ```bash
-docker run --rm \
-  -v $(pwd):/data \
-  openzim/warc2zim \
-  --input /data/archive.warc.gz \
-  --output /data/archive.zim \
-  --title "My Archive"
+docker run -v "$PWD/output":/output ghcr.io/openzim/zimit zimit \
+  --seeds https://news.example.com/2025/ \
+  --name news-2025 \
+  --title "Новости 2025" \
+  --scopeType prefix \
+  --scopeExcludeRx '\.(mp4|zip)$' \
+  --workers 2 \
+  --timeSoftLimit 3600 \
+  --zim-lang rus \
+  --keep
 ```
 
-### zimit: краулинг сразу в ZIM
+Образ по умолчанию блокирует рекламу по спискам anudeepND. Если фильтрация не нужна, запустите контейнер с `--entrypoint=""`.
 
-#### Базовое использование
+## zimwriterfs: папка с HTML → ZIM
 
-```bash
-zimit \
-  --url https://example.com \
-  --output example.zim \
-  --title "Example Archive" \
-  --description "Offline archive of example.com"
-```
-
-#### С продвинутыми опциями
+zimwriterfs входит в [zim-tools](https://github.com/openzim/zim-tools) (Docker-образ `ghcr.io/openzim/zim-tools`). Обязательные параметры: главная страница, иконка 48×48 PNG, язык, имя, название, описание, автор и издатель.
 
 ```bash
-zimit \
-  --url https://news.example.com \
-  --output news-2025.zim \
-  --title "News 2025" \
-  --description "Daily news archive" \
-  --workers 4 \
-  --maxDepth 5 \
-  --includeRegex "news.example.com/2025/.*" \
-  --excludeRegex ".*\\.(mp4|zip)$" \
-  --behaviors autoscroll,autoplay \
-  --timeLimit 3600
-```
+# скачать статическую копию
+wget --mirror --convert-links --adjust-extension --page-requisites \
+  --no-parent -P ./site https://example.com/
 
-#### С WARC-выводом одновременно
-
-```bash
-zimit \
-  --url https://example.com \
-  --output example.zim \
-  --outputWARC example.warc.gz \
-  --outputWACZ example.wacz \
-  --title "Example Archive"
-```
-
-### zimwriterfs: HTML-папка → ZIM
-
-```bash
-# Сначала скачать HTML
-wget --mirror --convert-links --adjust-extension \
-  --no-parent https://example.com -P /tmp/site
-
-# Создать ZIM
+# упаковать в ZIM
 zimwriterfs \
-  --title="My Site" \
-  --description="Offline copy" \
-  --creator="Ruarxive" \
-  /tmp/site \
-  archive.zim
+  --welcome=example.com/index.html \
+  --illustration=favicon48.png \
+  --language=rus \
+  --name=example-site \
+  --title="Копия example.com" \
+  --description="Офлайн-копия" \
+  --creator="example.com" \
+  --publisher="Ruarxive" \
+  ./site example.zim
 ```
 
-### Kiwix Serve: раздача ZIM по HTTP
+Пути `--welcome` и `--illustration` указываются относительно папки с HTML.
+
+## kiwix-serve: раздача ZIM по HTTP
 
 ```bash
-kiwix-serve \
-  --port 8080 \
-  --library /path/to/library.xml \
-  *.zim
+# один или несколько файлов
+kiwix-serve --port=8080 archive1.zim archive2.zim
+
+# через Docker (официальный образ)
+docker run -v "$PWD/zims":/data -p 8080:8080 ghcr.io/kiwix/kiwix-serve '*.zim'
 ```
 
-Открыть `http://localhost:8080` — список ZIM с поиском.
+Для большой коллекции удобнее библиотека: `kiwix-manage library.xml add archive.zim`, затем `kiwix-serve --library library.xml`. Документация: [kiwix-tools.readthedocs.io](https://kiwix-tools.readthedocs.io/en/latest/kiwix-serve.html).
 
-## Конфигурация
+## mwoffliner: MediaWiki → ZIM
 
-### `library.xml` для Kiwix Serve
+Для Википедии и других MediaWiki-сайтов эффективнее mwoffliner: он работает через API MediaWiki, а не через обход HTML.
 
-```xml
-<library version="1.0">
-  <book id="ruarxive-gov-2025" 
-        path="/var/kiwix/gov-2025.zim" 
-        url="/gov-2025" 
-        title="Government Archive 2025"
-        description="Daily snapshots of Russian government sites"
-        language="rus"
-        creator="Ruarxive"
-        publisher="ruarxive.org"
-        date="2025-12-31"
-        tags="government;russia;archive"
-        favicon="/var/kiwix/gov-2025-favicon.png"
-        size="5368709120"/>
-</library>
+```bash
+docker run -v "$PWD/output":/output ghcr.io/openzim/mwoffliner \
+  mwoffliner --mwUrl=https://bm.wikipedia.org --adminEmail=you@example.com \
+  --outputDirectory=/output
 ```
 
-### Docker Compose для Kiwix Serve
+## Приложения для чтения
 
-```yaml
-version: "3"
-services:
-  kiwix:
-    image: kiwix/kiwix-serve:latest
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./zims:/zims
-      - ./library.xml:/library.xml
-    command: kiwix-serve --port 8080 --library /library.xml /zims/*.zim
-```
+Kiwix есть для Windows, macOS, Linux, Android и iOS, а также как расширение браузера: список на [странице приложений Kiwix](https://get.kiwix.org/en/solutions/applications/). Android-версия — [Google Play](https://play.google.com/store/apps/details?id=org.kiwix.kiwixmobile).
 
 ## Сравнение с другими инструментами
 
-| Инструмент | Формат вывода | JS | Офлайн-чтение | Полный текст | Сложность |
-| :--- | :--- | :---: | :---: | :---: | :--- |
-| **Kiwix (warc2zim/zimit)** | ZIM | ✅ | ✅ | ✅ | Средняя |
-| **[pywb](/kb/instruments/replay/pywb)** | WARC + сервер | ⚠️ | ❌ | ⚠️ | Высокая |
-| **[ReplayWeb.page](/kb/instruments/replay/replayweb-page)** | WARC + браузер | ✅ | ⚠️ | ❌ | Низкая |
-| **[Browsertrix](browsertrix)** | WACZ | ✅ | ❌ | ❌ | Средняя |
-| **[ArchiveBox](archivebox)** | HTML + SQLite | ⚠️ | ⚠️ | ✅ | Средняя |
-| **HTTrack** | HTML | ❌ | ✅ | ❌ | Низкая |
+| Инструмент | Формат | JavaScript при сборе | Офлайн-чтение без сервера | Полнотекстовый поиск |
+| :--- | :--- | :---: | :---: | :---: |
+| **zimit / warc2zim** | ZIM | ✅ (zimit через Browsertrix) | ✅ приложения Kiwix | ✅ |
+| **[pywb](/kb/instruments/replay/pywb)** | WARC + сервер | — | ❌ | ❌ |
+| **[ReplayWeb.page](/kb/instruments/replay/replayweb-page)** | WARC/WACZ в браузере | — | ✅ | ⚠️ по страницам WACZ |
+| **[Browsertrix](browsertrix)** | WACZ | ✅ | через ReplayWeb.page | ⚠️ |
+| **[HTTrack](httrack)** | HTML-папка | ❌ | ✅ | ❌ |
 
 ### Когда Kiwix лучше всех
 
-- Нужно **распространение среди обычных пользователей** (без знаний WARC).
-- Целевая аудитория — **офлайн-доступ** (отключённый интернет, экспедиции, школы).
-- **Wikipedia-зеркало** или другой MediaWiki-сайт.
-- **Торрент-распространение** (Kiwix-зеркала популярны в bittorrent).
+- нужно отдать архив обычным пользователям, без знания WARC;
+- офлайн-доступ: школы, экспедиции, места без связи;
+- Википедия или другой MediaWiki-сайт (через mwoffliner).
 
 ### Когда лучше pywb
 
-- Нужен **серверный доступ по URL** (как wayback.example.com).
-- Важна **навигация по датам** (как на web.archive.org).
-- **Инкрементальное обновление** (новые кроулы добавляются к существующим).
+- нужен серверный доступ по URL с навигацией по датам, как на web.archive.org;
+- коллекция пополняется новыми сборами.
 
-### Когда лучше ReplayWeb.page
+## Рекомендации
 
-- Быстрая проверка **без сервера** — открыл WARC в браузере.
-- Не нужно **распространение** (только для себя).
-
-## Best practices
-
-### 1. Всегда делайте WARC-бэкап
-
-ZIM — это «потребительский» формат, WARC — «архивный». Сохраняйте WARC, даже если распространяете ZIM.
-
-```bash
-# ZIM + WARC
-zimit --url https://example.com \
-      --output example.zim \
-      --outputWARC example.warc.gz
-```
-
-### 2. Метаданные — обязательно
-
-```bash
-zimit --url ... \
-      --title "..." \
-      --description "..." \
-      --creator "..." \
-      --language rus \
-      --tags "..."
-```
-
-Без метаданных ZIM невозможно каталогизировать.
-
-### 3. Используйте zimit вместо warc2zim для современных сайтов
-
-```bash
-# Современный SPA
-zimit --url https://spa-app.com --output spa.zim --behaviors autoscroll,wait
-
-# vs
-wget --mirror https://spa-app.com  # пустая каркас
-warc2zim archive.warc.gz  # тоже пустая каркас
-```
-
-### 4. Сжимайте правильно
-
-```bash
-# ZIM обычно уже сжат. Дополнительное сжатие сожмёт ещё ~5-10%
-zstd -22 archive.zim -o archive.zim.zst
-# или
-xz -9 -e archive.zim
-```
-
-### 5. Для больших ZIM — Kiwix Serve
-
-Не пытайтесь открыть 50 ГБ ZIM на телефоне — поставьте Kiwix Serve на домашнем NAS, подключайтесь по Wi-Fi.
-
-### 6. Подписывайте manifest
-
-```bash
-# Создать manifest.json с контрольными суммами
-sha256sum archive.zim > archive.zim.sha256
-```
-
-### 7. Используйте mwoffliner для Википедии
-
-```bash
-# Гораздо эффективнее, чем warc2zim
-mwoffliner --mwUrl="https://ru.wikipedia.org" \
-           --adminEmail="you@example.com" \
-           --outputDirectory=/tmp \
-           --filename="wikipedia-ru.zim"
-```
+1. **Храните WARC вместе с ZIM.** ZIM — формат для чтения, WARC — для архивного хранения: ZIM не содержит HTTP-заголовков и части записей. В zimit используйте `--keep`.
+2. **Заполняйте метаданные**: `--title`, `--description`, `--zim-lang`/`--lang`, `--creator`, `--publisher`. Без них ZIM трудно каталогизировать.
+3. **Для современных сайтов используйте zimit**: сайт, собранный `wget --mirror` без выполнения JavaScript, не станет лучше после warc2zim.
+4. **Не сжимайте ZIM повторно.** ZIM уже сжат внутри. Внешнее сжатие (`xz`, `zstd`) почти ничего не даёт, а файл перестаёт открываться в Kiwix без распаковки.
+5. **Сохраняйте контрольные суммы**: `sha256sum archive.zim > archive.zim.sha256`.
+6. **Большие ZIM раздавайте через kiwix-serve**, а не копируйте на каждое устройство.
 
 ## Ограничения
 
-- **ZIM — не стандарт ISO**, в отличие от WARC. Долгосрочная совместимость зависит от проекта Kiwix.
-- **Потеря части метаданных** WARC при конвертации.
-- **Большие ZIM** (десятки ГБ) — медленный полнотекстовый поиск.
-- **Не инкрементально** — пересоздание с нуля при обновлении.
-- **Один сайт на ZIM** (обычно) — нельзя собрать разные сайты в один ZIM.
-- **Зависимость от LibreOffice/wkhtmltopdf** для PDF-конверсии в некоторых сценариях.
+- ZIM — открытый формат проекта openZIM, но не международный стандарт, в отличие от WARC (ISO 28500).
+- При конвертации теряется часть информации WARC: HTTP-заголовки, ответы с ошибками, дубли URL.
+- Обновление — пересоздание ZIM целиком.
+- Динамические сайты воспроизводятся с ограничениями (см. список выше).
 
 ## Юридические аспекты
 
-> [!WARNING]
-> ZIM-файлы могут содержать защищённый авторским правом контент. Распространение ZIM со всем контентом сайта может нарушать ToS сайта. **Всегда указывайте источник и лицензию** в метаданных ZIM.
+:::warning
+ZIM-файлы содержат копию чужого контента. Публичная доступность сайта не равна разрешению на распространение его копии. Перед публикацией ZIM проверьте лицензию контента и [правовые вопросы](/kb/legal/copyright), укажите источник в метаданных (`--source`, `--creator`).
+:::
 
-Свободно лицензированный контент (CC, public domain, государственные сайты многих стран) — можно распространять свободно.
+Контент под свободными лицензиями (Creative Commons и т. п.) можно распространять на условиях этих лицензий.
 
 ## Ресурсы
 
-- [Официальный сайт Kiwix](https://kiwix.org/) — главная.
-- [openZIM на GitHub](https://github.com/openzim) — исходный код всех инструментов.
-- [Документация warc2zim](https://github.com/openzim/warc2zim) — параметры.
-- [Документация zimit](https://github.com/openzim/zimit) — параметры.
-- [Спецификация ZIM](https://openzim.org/wiki/ZIM_file_format) — формат.
-- [Wikipedia-зеркала](https://wiki.kiwix.org/wiki/Content_in_other_languages) — готовые ZIM.
-- [Kiwix Android на F-Droid](https://f-droid.org/en/packages/org.kiwix.kiwixmobile/) — без Google Play.
+- [Kiwix](https://kiwix.org/)
+- [openZIM на GitHub](https://github.com/openzim)
+- [warc2zim](https://github.com/openzim/warc2zim)
+- [zimit](https://github.com/openzim/zimit) и [FAQ zimit](https://github.com/openzim/zimit/wiki/Frequently-Asked-Questions)
+- [zim-tools (zimwriterfs)](https://github.com/openzim/zim-tools)
+- [kiwix-tools (kiwix-serve)](https://github.com/kiwix/kiwix-tools)
+- [Спецификация ZIM](https://wiki.openzim.org/wiki/ZIM_file_format)
+- [Библиотека готовых ZIM](https://library.kiwix.org/)
 
 ## Связанные материалы
 
-- **[Формат WARC](/kb/instruments/file-formats/warc)** — исходный формат.
+- **[Формат WARC](/kb/instruments/file-formats/warc)**
 - **[Browsertrix](browsertrix)** — внутри zimit.
-- **[pywb](/kb/instruments/replay/pywb)** — альтернативное воспроизведение.
-- **[WARC-processing](warc-processing)** — извлечение данных из WARC.
-- **[Как пользоваться архивами](/kb/users/open-warc)** — открытие WARC/ZIM.
-- **[Экстренная архивация](/kb/guides/emergency-archiving)** — zimit для быстрого захвата.
-- **[Правовые вопросы](/kb/legal/copyright)** — лицензирование ZIM.
-- **[Кейсы международных архивов](/kb/case-studies/international-examples)** — Kiwix в действии.
+- **[pywb](/kb/instruments/replay/pywb)**
+- **[Обработка WARC](warc-processing)**
+- **[Как пользоваться архивами](/kb/users/open-warc)**
+- **[Экстренная архивация](/kb/guides/emergency-archiving)**
+- **[Правовые вопросы](/kb/legal/copyright)**
+- **[Кейсы международных архивов](/kb/case-studies/international-examples)**

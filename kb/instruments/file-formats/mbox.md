@@ -1,24 +1,33 @@
+---
+title: MBOX
+description: "MBOX — семейство форматов для хранения коллекций писем в одном файле: варианты mboxo/mboxrd/mboxcl, конвертация из Maildir и PST, разбор на Python и рекомендации для архивов."
+last_update:
+  date: 2026-10-12
+---
+
 # MBOX
 
-**MBOX** — семейство текстовых форматов для хранения коллекций email-сообщений в одном файле. Это де-факто стандарт архивации электронной почты, описанный в [RFC 4155](https://tools.ietf.org/html/rfc4155). Используется для архивации корпоративной и государственной переписки.
+**MBOX** — семейство текстовых форматов для хранения коллекций email-сообщений в одном файле. Это один из самых распространённых форматов архивации электронной почты; медиатип `application/mbox` зарегистрирован в [RFC 4155](https://www.rfc-editor.org/rfc/rfc4155). Используется для архивации корпоративной и государственной переписки.
 
 ## Общая идея
 
-В отличие от форматов «один файл на письмо» (EML, Maildir), MBOX объединяет все сообщения в один текстовый файл. Это удобно для передачи, индексации и хеширования, но создаёт проблему определения границ сообщений — её решают разные варианты формата.
+В отличие от форматов «один файл на письмо» (EML, Maildir), MBOX объединяет все сообщения в один текстовый файл. Это удобно для передачи, индексации и хеширования, но создаёт проблему определения границ сообщений — её разные варианты формата решают по-разному.
 
 ## Варианты MBOX
 
-Разные варианты отличаются способом разделения сообщений и обработкой строк, начинающихся с «From »:
+Каждое сообщение начинается со строки-разделителя `From ` (слово From и пробел). Если такая строка встречается в теле письма, её нужно экранировать, иначе она будет принята за начало нового сообщения. Схему названий вариантов предложили в 1996 году Дэниел Бернстайн, Рахул Дхеси и другие:
 
-| Вариант | Источник | Разделитель | Особенности |
+| Вариант | Происхождение | Границы сообщений | Экранирование `From ` в теле |
 | :--- | :--- | :--- | :--- |
-| **mboxo** | Unix mail(1), оригинальный | `From ` (с пробелом) | Простая, но «From » внутри тела письма вызывает проблемы |
-| **mboxrd** | Sendmail, рекомендован для архивов | `From ` | Внутри тела «From » префиксируется как `>From `, при чтении убирается |
-| **mboxcl** | Unix, qmail | Заголовок `Content-Length:` | Более устойчива, но требует доверия к Content-Length |
-| **mboxcl2** | Mozilla Thunderbird | `Content-Length:` | Улучшенная обработка краевых случаев |
-| **MMDF** | Multichannel Memo Distribution Facility | специальная 4-символьная последовательность | Используется редко |
+| **mboxo** | исходный формат Unix | строка `From ` | `From ` → `>From `; обратное преобразование неоднозначно |
+| **mboxrd** | предложен Р. Дхеси и др., используется в qmail | строка `From ` | к любой строке вида `>…>From ` добавляется ещё один `>`; преобразование обратимо |
+| **mboxcl** | почтовые утилиты Unix System V Release 4 | заголовок `Content-Length:` | как в mboxo |
+| **mboxcl2** | почтовые утилиты Unix System V Release 4 | заголовок `Content-Length:` | не выполняется |
+| **MMDF** | Multichannel Memo Distribution Facility | строка из четырёх символов `Ctrl-A` | не требуется |
 
-**Рекомендуемый вариант для архивов: `mboxrd`** — сохранена человекочитаемость и решена проблема `From `-в-тележек.
+Почтовые клиенты семейства Mozilla (в том числе Thunderbird) используют вариацию mboxrd с собственными правилами экранирования.
+
+**Для архивов удобнее `mboxrd`:** экранирование обратимо, и исходный текст писем можно восстановить без потерь. Но главное — фиксировать в метаданных, какой вариант используется: программа, читающая файл, должна знать правила экранирования.
 
 ## Структура файла
 
@@ -46,32 +55,49 @@ Message-ID: <def@example.com>
 Second message body.
 ```
 
-Разделитель начинается со слова `From`, пробела и email-адреса, за которым идёт строка даты в формате `ctime`. Важно: после слова `From` именно **один пробел**, не двоеточие (отличие от заголовка `From:` самого письма).
+Разделитель начинается со слова `From`, пробела и адреса отправителя, за которым идёт дата в формате `ctime` (по RFC 4155 — в UTC). Важно: после слова `From` стоит **пробел**, а не двоеточие (отличие от заголовка `From:` самого письма).
 
 ## Создание MBOX
 
-### Из Unix mailutils / procmail
+### Из Maildir (Python, стандартная библиотека)
 
-```bash
-# formail собирает сообщения из stdin в mbox-файл
-formail -s cat > archive.mbox < incoming_messages.txt
+```python
+import mailbox
 
-# maildir2mbox — рекурсивная конвертация
-maildir2mbox maildir/ > archive.mbox
+src = mailbox.Maildir('Maildir', factory=None, create=False)
+dst = mailbox.mbox('archive.mbox', create=True)
+dst.lock()
+try:
+    for message in src:
+        dst.add(mailbox.mboxMessage(message))
+    dst.flush()
+finally:
+    dst.unlock()
+    dst.close()
 ```
 
 ### Из Thunderbird
 
-`File → ImportExportTools NG → Import mbox file`. Thunderbird хранит локальные папки в `mboxcl2`-формате, который можно экспортировать.
+Thunderbird хранит локальные папки в файлах mbox (без расширения) в каталоге профиля. Для удобного экспорта папок в mbox и EML используется дополнение ImportExportTools NG.
 
 ### Из Outlook (PST → MBOX)
 
+Утилита `readpst` из библиотеки [libpst](https://www.five-ten-sg.com/libpst/) (пакет `pst-utils` в Debian/Ubuntu) конвертирует PST в mbox:
+
 ```bash
-# readpst (часть libpstl-html)
-readpst -e -D -m archive.mbox archive.pst
+sudo apt install pst-utils
+
+mkdir out
+# -r — сохранить иерархию папок PST, в каждой папке будет файл mbox
+# -D — включить удалённые элементы
+readpst -r -D -o out/ archive.pst
 ```
 
-PST — проприетарный формат Microsoft Outlook, и конвертация в MBOX — типичная задача при выпуске архивов из корпоративных источников.
+В рекурсивном режиме (`-r`) `readpst` использует экранирование mboxrd. Опции `-M`, `-S`, `-e` и `-m` вместо mbox сохраняют каждое письмо в отдельный файл.
+
+> Опции `readpst` сверены со страницей руководства Debian (libpst 0.6.76).
+
+PST — проприетарный формат Microsoft Outlook, и конвертация в MBOX — типичная задача при приёме архивов из корпоративных источников.
 
 ## Валидация и парсинг
 
@@ -87,36 +113,45 @@ for i, message in enumerate(mbox):
     print(f"[{i}] From: {message['From']}, Subject: {message['Subject']}, Date: {message['Date']}")
 ```
 
-`mailbox.mbox` корректно обрабатывает экранирование `>From ` для варианта `mboxrd`. Для `mboxcl` есть отдельный класс `mailbox.mboxcl` (только чтение).
+Модуль `mailbox` поддерживает форматы `mbox`, `Maildir`, `MH`, `Babyl` и `MMDF`; отдельных классов для mboxcl/mboxrd нет. Класс `mailbox.mbox` ведёт себя как mboxo: при записи добавляет `>` только к строкам, начинающимся с `From `, а при чтении экранирование не снимает. Учитывайте это, если нужно точно восстановить текст писем из файла mboxrd.
 
 ### Фильтрация по дате
 
+Заголовок `Date:` в реальных письмах бывает в разных форматах и иногда повреждён, поэтому для разбора используйте `email.utils.parsedate_to_datetime`:
+
 ```python
 import mailbox
-from datetime import datetime
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 
 mbox = mailbox.mbox('archive.mbox')
 out = mailbox.mbox('filtered.mbox', create=True)
+since = datetime(2024, 1, 1, tzinfo=timezone.utc)
 
 for msg in mbox:
-    date = msg['Date']
-    if date and datetime.strptime(date, '%a, %d %b %Y %H:%M:%S %z') >= datetime(2024, 1, 1, tzinfo=timezone.utc):
+    try:
+        date = parsedate_to_datetime(msg['Date'])
+    except (TypeError, ValueError):
+        continue  # нет заголовка Date или он не разбирается
+    if date.tzinfo is None:
+        date = date.replace(tzinfo=timezone.utc)
+    if date >= since:
         out.add(msg)
 out.close()
 ```
 
 ## Альтернативы
 
-- **EML** — одно сообщение на файл. Удобно для гранулярного хранения и CDN-доставки, но много файлов.
-- **Maildir** — каждое письмо в отдельном файле в директориях `new/`, `cur/`, `tmp/`. Быстрый, без блокировок, прост для синхронизации (например, через `git` или `syncthing`).
-- **PST/OST** — проприетарный Microsoft Outlook. Сложен для долгосрочного хранения.
+- **EML** — одно сообщение на файл. Удобно для гранулярного хранения, но файлов получается много.
+- **Maildir** — каждое письмо в отдельном файле в каталогах `new/`, `cur/`, `tmp/`. Работает без блокировок, удобен для синхронизации.
+- **PST/OST** — проприетарный формат Microsoft Outlook. Сложен для долгосрочного хранения.
 
-Для долгосрочного архива рекомендуется **MBOX (mboxrd)** — один файл, простая индексация, открытый формат с 1979 года.
+Для долгосрочного архива MBOX удобен: один файл, простая индексация, открытый текстовый формат.
 
 ## PUID в PRONOM
 
-- **mbox (Berkeley)** — `fmt/795` (формально `x-fmt/207` для некоторых вариантов)
-- **Maildir** — `fmt/799`
+- **MBOX** — [`fmt/720`](https://www.nationalarchives.gov.uk/PRONOM/fmt/720) (идентификатор сверен с сигнатурным файлом DROID V125).
+- **Maildir** — отдельного PUID нет: это структура каталогов, а не формат файла; идентифицируются отдельные файлы писем внутри неё.
 
 ## Сценарии использования в Ruarxive
 
@@ -126,21 +161,22 @@ out.close()
 
 ## Рекомендации
 
-*   Используйте вариант **mboxrd** — он рекомендован в RFC 4155 для архивов.
-*   Всегда кодируйте сообщения в **UTF-8** — избегайте устаревших кодировок (KOI8-R, CP1251).
-*   Сохраняйте **полные заголовки** (`Received:`, `DKIM-Signature:`, `Authentication-Results:`) — они критичны для проверки происхождения и для антифрод-анализа.
+*   Используйте вариант **mboxrd** и фиксируйте вариант формата в метаданных.
+*   **Храните письма как есть**, в исходных кодировках (KOI8-R, CP1251 и т. д.). Перекодирование меняет оригинал и ломает подписи DKIM, а значит, и доказательную ценность архива. Для чтения перекодируйте копии.
+*   Сохраняйте **полные заголовки** (`Received:`, `DKIM-Signature:`, `Authentication-Results:`) — они критичны для проверки происхождения.
 *   Перед архивацией запустите Siegfried для фиксации формата и хешей файлов.
 *   Упаковывайте MBOX в **BagIt** для контрольных сумм и метаданных.
 
 ## Ресурсы
 
-*   [RFC 4155 — application/mbox](https://tools.ietf.org/html/rfc4155)
+*   [RFC 4155 — application/mbox](https://www.rfc-editor.org/rfc/rfc4155)
 *   [mailbox (Python stdlib)](https://docs.python.org/3/library/mailbox.html)
 *   [readpst / libpst](https://www.five-ten-sg.com/libpst/)
-*   [PRONOM — mbox](https://www.nationalarchives.gov.uk/PRONOM/)
+*   [PRONOM — MBOX (fmt/720)](https://www.nationalarchives.gov.uk/PRONOM/fmt/720)
+*   [LC FDD — MBOX Email Format](https://www.loc.gov/preservation/digital/formats/fdd/fdd000383.shtml)
 
 ## Связанные материалы
 
 *   [Формат BagIt](/kb/instruments/file-formats/bagit)
 *   [Идентификация форматов](/kb/instruments/file-formats/identification-tools)
-*   [PREMIS](https://ru.wikipedia.org/wiki/PREMIS) — описание событий получения почты
+*   [PREMIS](/kb/instruments/file-formats/premis) — описание событий получения почты

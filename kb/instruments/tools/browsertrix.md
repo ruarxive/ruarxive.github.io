@@ -1,170 +1,177 @@
 ---
 title: Browsertrix
 sidebar_label: Browsertrix Crawler
-description: Современный кроулер от Webrecorder на базе реального Chrome для архивации JavaScript-сайтов и SPA с генерацией WACZ
+description: "Browsertrix Crawler — краулер Webrecorder на реальном браузере в Docker-контейнере для архивации JavaScript-сайтов и SPA с созданием WARC и WACZ."
+last_update:
+  date: 2026-10-12
 ---
 
 # Browsertrix
 
-**Browsertrix** — это современный инструмент для веб-архивирования, разработанный командой Webrecorder. Его главная особенность — использование реального браузера (через Browsertrix Crawler) для захвата динамических сайтов, которые сложно архивировать классическими инструментами типа Heritrix или Wget.
+**Browsertrix** — семейство инструментов для веб-архивирования от команды Webrecorder. В основе — [Browsertrix Crawler](https://github.com/webrecorder/browsertrix-crawler): краулер, который открывает страницы в настоящем браузере (Chromium/Brave) и записывает весь сетевой трафик. Это позволяет сохранять динамические сайты, которые плохо архивируются классическими инструментами вроде Heritrix или Wget.
 
 ## Зачем нужен Browsertrix?
 
-Многие современные сайты (Twitter, Instagram, SPA-приложения) активно используют JavaScript для подгрузки контента. "Тупые" кроулеры получают только пустой HTML-каркас.
+Многие современные сайты (соцсети, SPA-приложения) подгружают контент JavaScript-ом. Классические краулеры получают только пустой HTML-каркас.
 
-Browsertrix запускает браузер Chrome в изолированном контейнере, "прокликивает" страницу, скроллит её и записывает весь сетевой трафик в формат WACZ (или WARC).
+Browsertrix Crawler запускает браузер в изолированном Docker-контейнере, выполняет на странице «поведения» (прокрутка, автовоспроизведение, клики) и записывает трафик в WARC, а при необходимости упаковывает результат в [WACZ](/kb/instruments/file-formats/wacz).
 
-## Варианты использования
+## Продукты Webrecorder
 
-### 1. Browsertrix Desktop (для начинающих)
-Приложение с графическим интерфейсом для Windows, Mac и Linux. Позволяет архивировать сайты локально с использованием профилей браузера (можно залогиниться в соцсеть и запустить архивацию).
+### 1. ArchiveWeb.page (для начинающих)
+[ArchiveWeb.page](https://archiveweb.page/) — расширение для Chrome/Chromium и настольное приложение (Electron). Архивирует страницы, которые вы просматриваете в браузере, в том числе после входа в аккаунт, и экспортирует их в WACZ. Подходит для ручной архивации отдельных страниц.
 
-### 2. Browsertrix Cloud (для организаций)
-Облачный сервис для командной работы, планирования кроулов и управления коллекциями.
+### 2. Browsertrix (для организаций)
+[Browsertrix](https://webrecorder.net/browsertrix/) (ранее — Browsertrix Cloud) — веб-сервис для командной работы: планирование обходов, управление коллекциями, контроль качества, API. Доступен как платный хостинг Webrecorder или для самостоятельного развёртывания на Kubernetes ([исходный код](https://github.com/webrecorder/browsertrix)).
 
 ### 3. Browsertrix Crawler (Docker / CLI)
-Консольная версия, упакованная в Docker. Основной инструмент для автоматизации.
+Консольный краулер в Docker-образе `webrecorder/browsertrix-crawler`. Основной инструмент для автоматизации; на нём же работает сервис Browsertrix.
 
 ## Запуск через Docker
 
-Самый гибкий способ использования — через Docker.
+Краулер пишет результаты в каталог `/crawls` внутри контейнера, поэтому смонтировать нужно именно его:
 
 ```bash
-# Простой запуск архивации одной страницы
-docker run --rm -v $PWD/data:/crawl/data \
+docker run --rm -v $PWD/crawls:/crawls/ \
     webrecorder/browsertrix-crawler crawl \
     --url https://example.com \
     --generateWACZ \
-    --collection "My Crawl"
+    --text \
+    --collection my-crawl
 ```
 
-После завершения в папке `data` появится файл `.wacz`.
+После завершения WACZ-файл появится в `./crawls/collections/my-crawl/my-crawl.wacz`; его можно открыть в [ReplayWeb.page](/kb/instruments/replay/replayweb-page). Если смонтировать другой каталог, результаты останутся внутри контейнера и пропадут вместе с ним (`--rm`).
 
-### Расширенные опции
+В производственной работе используйте конкретную версию образа, например `webrecorder/browsertrix-crawler:1.15.0`, а не `latest`.
 
-*   `--limit X`: Ограничить количество страниц.
-*   `--include-regex`: Архивировать только URL, совпадающие с регулярным выражением.
-*   `--behaviors autoscroll,autoplay`: Включить автоматический скроллинг и автовоспроизведение видео.
+> Команды сверены с документацией и `cli-options.md` Browsertrix Crawler версии 1.15.0 (октябрь 2026).
 
-## Behaviors (Поведения)
+### Основные опции
 
-Browsertrix поддерживает скрипты "поведения" (behaviors), которые имитируют действия пользователя:
-*   Скроллинг страницы до конца.
-*   Нажатие кнопок "Показать еще".
-*   Раскрытие комментариев.
+*   `--limit N` (`--pageLimit`) — ограничить число страниц.
+*   `--scopeType` — область обхода: `page`, `page-spa`, `prefix`, `host`, `domain`, `any`, `custom`.
+*   `--include` / `--exclude` (`--scopeIncludeRx` / `--scopeExcludeRx`) — регулярные выражения для URL, которые нужно включить или исключить.
+*   `--depth N`, `--extraHops N` — глубина обхода и число дополнительных переходов за пределы области.
+*   `--workers N` (`-w`) — число параллельно работающих браузеров.
+*   `--text` — извлекать текст страниц для полнотекстового поиска (в `pages.jsonl` или WARC).
+*   `--sizeLimit` (байты), `--timeLimit` (секунды) — остановить обход по размеру или времени.
+*   `--saveState always` — регулярно сохранять состояние обхода, чтобы продолжить его после прерывания.
+*   `--behaviors` — набор поведений (см. ниже).
 
-Это критически важно для соцсетей.
+Полный список — в [документации](https://crawler.docs.browsertrix.com/user-guide/cli-options/).
+
+## Behaviors (поведения)
+
+Поведения имитируют действия пользователя на странице. Встроенные значения `--behaviors`:
+
+*   `autoscroll` — прокрутка страницы, пока подгружаются новые элементы;
+*   `autoplay` — запуск видео и аудио на странице и во фреймах;
+*   `autofetch` — загрузка ресурсов, которые браузер не запрашивает сам (другие разрешения изображений, lazy-load);
+*   `autoclick` — клики по элементам (по умолчанию `a`, селектор задаётся через `--clickSelector`) без ухода со страницы;
+*   `siteSpecific` — специальные сценарии для Facebook, Instagram, Telegram, TikTok, Twitter/X, YouTube, Bluesky.
+
+По умолчанию включены `autoplay,autofetch,autoscroll,siteSpecific`. Время работы поведений на странице ограничивает `--behaviorTimeout` (по умолчанию 90 секунд).
 
 ## Аутентификация
 
-Для архивации закрытых страниц (например, Facebook) можно передать файлы cookie или использовать профиль браузера. Это позволяет кроулеру "видеть" сайт как залогиненный пользователь.
+Для архивации страниц, доступных только после входа, используется **профиль браузера**. Сначала профиль создаётся интерактивно:
 
-> [!WARNING]
-> Будьте осторожны при архивации личных аккаунтов. Агрессивный кроулинг может привести к блокировке аккаунта социальной сетью.
+```bash
+docker run -p 6080:6080 -p 9223:9223 -v $PWD/crawls/profiles:/crawls/profiles/ \
+    -it webrecorder/browsertrix-crawler create-login-profile --url "https://example.com/"
+```
 
-## Сравнение с другими браузерными кроулерами
+Откройте `http://localhost:9223/`, войдите в аккаунт во встроенном браузере и нажмите **Create Profile** — профиль сохранится в `./crawls/profiles/profile.tar.gz`. Затем укажите его при обходе:
+
+```bash
+docker run --rm -v $PWD/crawls:/crawls/ \
+    webrecorder/browsertrix-crawler crawl \
+    --url https://example.com/private/ \
+    --profile /crawls/profiles/profile.tar.gz \
+    --generateWACZ \
+    --collection private-site
+```
+
+В профиль попадают только сессионные cookie, а не пароль. Тем не менее WACZ, снятый под учётной записью, может содержать персональные данные этой учётной записи — не публикуйте его без проверки.
+
+:::warning
+Будьте осторожны при архивации личных аккаунтов. Агрессивный обход может привести к блокировке аккаунта социальной сетью. Обходить технические средства защиты нельзя.
+:::
+
+## Сравнение с другими браузерными краулерами
 
 ### Brozzler
 
-[Brozzler](../tools/brozzler) — распределённый веб-кроулер, использующий реальный браузер (Chrome или Chromium).
+[Brozzler](/kb/instruments/tools/brozzler) — распределённый краулер Internet Archive на реальном браузере.
 
-*   **Отличия от Browsertrix**:
-    *   Поддержка распределённой архитектуры
-    *   Интеграция с Redis для координации
-    *   Более сложная настройка
-    *   Подходит для больших проектов
+*   **Отличия от Browsertrix Crawler**:
+    *   воркеры на нескольких машинах с общим состоянием в **RethinkDB**;
+    *   WARC пишется через отдельный прокси warcprox, WACZ не создаётся;
+    *   более сложная настройка;
+    *   подходит для больших долгих проектов.
 
 ### Squidwarc
 
-[Squidwarc](../tools/squidwarc) — высококачественный интерактивный архивный кроулер, использующий Chrome или Chrome Headless.
+[Squidwarc](/kb/instruments/tools/squidwarc) — архивный краулер на Chrome/Chrome Headless.
 
-*   **Отличия от Browsertrix**:
-    *   Фокус на интерактивном архивировании
-    *   Прямое управление Chrome
-    *   Подходит для сложных SPA приложений
-
-## Browsertrix Cloud
-
-Browsertrix Cloud — облачный сервис от Webrecorder для командной работы с веб-архивами.
-
-*   **Возможности**:
-    *   Планирование кроулов
-    *   Управление коллекциями
-    *   Совместная работа
-    *   API для автоматизации
-
-*   **Использование**: Для организаций, которым нужен управляемый сервис без самостоятельного развёртывания
-
-## Best practices для behaviors
-
-### Автоматический скроллинг
-
-```bash
---behaviors autoscroll
-```
-
-Полезно для:
-*   Ленты новостей
-*   Социальных сетей
-*   Страниц с бесконечной прокруткой
-
-### Автовоспроизведение медиа
-
-```bash
---behaviors autoplay
-```
-
-Полезно для:
-*   Видео-сайтов
-*   Аудио-плееров
-*   Интерактивного контента
-
-### Комбинирование behaviors
-
-```bash
---behaviors autoscroll,autoplay,clickAll
-```
+*   **Отличия от Browsertrix Crawler**:
+    *   прямое управление Chrome через скрипты;
+    *   **не поддерживается**: последние изменения в репозитории — май 2020 года.
 
 ## Примеры конфигураций
 
-### Архивация социальной сети
+### Профиль в социальной сети
 
 ```bash
-docker run --rm -v $PWD/data:/crawl/data \
+docker run --rm -v $PWD/crawls:/crawls/ \
     webrecorder/browsertrix-crawler crawl \
     --url https://example-social-network.com/user/profile \
+    --scopeType page \
+    --behaviors autoscroll,autoplay,siteSpecific \
     --generateWACZ \
-    --behaviors autoscroll,autoplay \
-    --limit 1000 \
-    --collection "Social Network Archive"
+    --collection social-profile
 ```
 
-### Архивация SPA приложения
+### SPA-приложение
 
 ```bash
-docker run --rm -v $PWD/data:/crawl/data \
+docker run --rm -v $PWD/crawls:/crawls/ \
     webrecorder/browsertrix-crawler crawl \
     --url https://spa-app.example.com \
+    --scopeType page-spa \
+    --postLoadDelay 5 \
     --generateWACZ \
-    --behaviors autoscroll \
-    --waitFor 5000 \
-    --collection "SPA Archive"
+    --collection spa-archive
 ```
 
-### Архивация с аутентификацией
+`--postLoadDelay` задаёт паузу в секундах после загрузки страницы перед запуском поведений; условие загрузки задаёт `--waitUntil` (по умолчанию `load,networkidle2`).
+
+### Сайт целиком с ограничениями
 
 ```bash
-docker run --rm -v $PWD/data:/crawl/data \
-    -v $PWD/cookies.txt:/crawl/cookies.txt \
+docker run --rm -v $PWD/crawls:/crawls/ \
     webrecorder/browsertrix-crawler crawl \
-    --url https://private-site.com \
+    --url https://example.com/ \
+    --scopeType domain \
+    --exclude "/search\?" \
+    --workers 4 \
+    --limit 5000 \
+    --timeLimit 86400 \
+    --saveState always \
     --generateWACZ \
-    --cookies /crawl/cookies.txt \
-    --collection "Private Site Archive"
+    --text \
+    --collection example-site
 ```
+
+## Когда не использовать
+
+- Нужно сохранить несколько страниц вручную — проще [ArchiveWeb.page](https://archiveweb.page/) или [SingleFile](/kb/instruments/tools/singlefile).
+- Сайт статический и большой — [wget](/kb/instruments/tools/wget) или [wpull](/kb/instruments/tools/wpull) работают быстрее и требуют меньше ресурсов.
+- Нужен распределённый обход на нескольких машинах без Kubernetes — рассмотрите [Brozzler](/kb/instruments/tools/brozzler).
 
 ## Связанные материалы
 
-- [Другие браузерные кроулеры](/kb/instruments/tools)
+- [Другие браузерные краулеры](/kb/instruments/tools)
 - [Формат WACZ](/kb/instruments/file-formats/wacz)
 - [ReplayWeb.page для просмотра](/kb/instruments/replay/replayweb-page)
+- [Документация Browsertrix Crawler](https://crawler.docs.browsertrix.com/)

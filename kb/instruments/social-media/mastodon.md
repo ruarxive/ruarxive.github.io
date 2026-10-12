@@ -1,77 +1,58 @@
 ---
 title: Архивация Mastodon, Bluesky, Threads
 sidebar_label: Mastodon и другие Fediverse
-description: "Архивация открытых протоколов: Mastodon (ActivityPub), Bluesky (AT Protocol), Threads. Программный доступ без аутентификации, скрейпинг, этические ограничения."
-last_updated: 2026-11-09
+description: "Архивация открытых платформ: Mastodon (ActivityPub), Bluesky (AT Protocol) и Threads. Публичные API без авторизации, выгрузка репозитория Bluesky, официальный Threads API, лимиты и этика."
+last_update:
+  date: 2026-10-12
 keywords: [mastodon, bluesky, threads, activitypub, atprotocol, fediverse]
 ---
 
 # Архивация Mastodon, Bluesky, Threads
 
-После сокращения Twitter v1.1 (см. [twarc](/kb/instruments/social-media/twarc)) и ограничений X/Twitter v2, появилась волна «открытых» платформ на базе стандартизованных протоколов. Они дают исследователям **лёгкий доступ к публичным данным** через стандартные API — без специальных программ.
+После закрытия бесплатного API Twitter/X (см. [twarc](/kb/instruments/social-media/twarc)) многие авторы и сообщества перешли на платформы с открытыми протоколами. Mastodon и Bluesky отдают публичные данные через документированные API, во многих случаях — без авторизации.
 
-| Платформа | Протокол | Базовый год | Аудитория |
-|:---|:---|:---:|:---|
-| **Mastodon** | ActivityPub | 2016 | Десятки млн активных |
-| **Bluesky** | AT Protocol | 2024 | Десятки млн (растёт быстро) |
-| **Threads** | ActivityPub (частично) | 2023 | 200+ млн (Meta) |
+| Платформа | Протокол | Запуск |
+|:---|:---|:---|
+| **Mastodon** | ActivityPub | 2016 |
+| **Bluesky** | AT Protocol | 2023 (открытая регистрация — с 2024) |
+| **Threads** | Собственный API Meta, частичная совместимость с ActivityPub | 2023 |
 
-## Главные отличия от Twitter
+## Главные отличия от Twitter/X
 
-| Twitter/X | Mastodon/Bluesky/Threads |
+| Twitter/X | Mastodon / Bluesky |
 |:---|:---|
-| Закрытый API с жёсткими лимитами | Открытые API, JWT-токен или без аутентификации |
-| Бесплатный v1 → убран в 2023 | Бесплатные с самого начала |
-| Централизованная инфраструктура | Распределённая (федерация) — нужен выбор инстанса |
-| Один ToS | Каждый инстанс имеет свои правила |
-| Курируемый контент | Возможны «неуютные» инстансы |
+| Платный API | Бесплатные публичные API |
+| Централизованная инфраструктура | Распределённая: у Mastodon — независимые серверы (инстансы), у Bluesky — серверы данных пользователей (PDS) |
+| Одни правила для всех | У каждого инстанса Mastodon свои правила |
 
 ## Mastodon
 
-Mastodon — децентрализованная соцсеть на протоколе [ActivityPub](https://www.w3.org/TR/activitypub/). Каждый сервер называется **инстанс** (например, `mastodon.social`, `mas.to`, `infosec.exchange`). Пользователь идентифицируется как `@user@instance.tld`.
+Mastodon — децентрализованная соцсеть на протоколе [ActivityPub](https://www.w3.org/TR/activitypub/). Каждый сервер называется **инстансом** (например, `mastodon.social`), пользователь идентифицируется как `@user@instance.tld`.
 
-### Программный доступ
+### REST API
 
-**REST API:**
-
-```bash
-# Получить информацию о посте (без аутентификации!)
-curl 'https://mastodon.social/api/v1/statuses/123456789012345678'
-```
-
-```json
-{
-  "id": "123456789012345678",
-  "url": "https://mastodon.social/@user/123456789012345678",
-  "created_at": "2026-11-09T12:00:00.000Z",
-  "content": "<p>Текст поста</p>",
-  "account": {"username": "user", "display_name": "..."},
-  "media_attachments": [{"url": "https://...", "type": "image"}],
-  "reblog": null,
-  "favourites_count": 42,
-  "reblogs_count": 5,
-  "replies_count": 3
-}
-```
-
-**Получить посты пользователя:**
+Методы для публичных данных ([документация](https://docs.joinmastodon.org/api/)) работают без авторизации, если администратор инстанса не отключил публичный предпросмотр — тогда нужен токен приложения.
 
 ```bash
-# Без аутентификации — последние 40 постов
-curl 'https://mastodon.social/api/v1/accounts/1234567/statuses?limit=40'
+# Найти ID аккаунта по имени
+curl "https://mastodon.social/api/v1/accounts/lookup?acct=Gargron"
 
-# С пагинацией
-curl 'https://mastodon.social/api/v1/accounts/1234567/statuses?max_id=...&limit=40'
+# Публичные посты аккаунта (до 40 за запрос)
+curl "https://mastodon.social/api/v1/accounts/1/statuses?limit=40"
+
+# Следующая страница: max_id = ID последнего полученного поста
+curl "https://mastodon.social/api/v1/accounts/1/statuses?limit=40&max_id=117427077927293117"
+
+# Один пост
+curl "https://mastodon.social/api/v1/statuses/117427077927293117"
+
+# Публичные посты с хэштегом
+curl "https://mastodon.social/api/v1/timelines/tag/archive?limit=40"
 ```
 
-**Поиск:**
+Метод `accounts/lookup` по документации требует токен пользователя, но на многих инстансах (включая `mastodon.social`) отвечает и без него.
 
-```bash
-# По ключевому слову
-curl 'https://mastodon.social/api/v1/timelines/tag/Russia?limit=40'
-```
-
-### Python: mastodon-py
+### Python: Mastodon.py
 
 ```bash
 pip install Mastodon.py
@@ -80,89 +61,68 @@ pip install Mastodon.py
 ```python
 from mastodon import Mastodon
 
-mastodon = Mastodon(
-    api_base_url="https://mastodon.social",
-    access_token="your_access_token",  # опционально
-)
+api = Mastodon(api_base_url="https://mastodon.social")  # токен не обязателен для публичных данных
 
-# Получить последние посты пользователя
-user = mastodon.account_lookup("@user@mastodon.social")
-statuses = mastodon.account_statuses(user.id, limit=40)
+account = api.account_lookup("Gargron")
+page = api.account_statuses(account.id, limit=40)
+statuses = []
+while page:
+    statuses.extend(page)
+    page = api.fetch_next(page)  # следующая страница по пагинации API
+
 for s in statuses:
-    print(s.created_at, s.content, s.media_attachments)
-    for m in s.media_attachments:
-        mastodon.download_media(m, "./downloads/")
-
-# Поиск
-results = mastodon.timeline_hashtag("Russia", limit=40)
+    print(s.created_at, s.url)
+    for media in s.media_attachments:
+        print("  ", media.url)  # ссылки на медиафайлы для отдельного скачивания
 ```
 
-### Архивирование всего инстанса
-
-```bash
-# Используя [Bellingcat Auto-Archiver](/kb/instruments/tools/auto-archiver)
-auto-archiver --input mastodon-user-list.txt --extractor mastodon
-```
-
-Или скриптом:
-
-```python
-import requests
-import time
-
-INSTANCE = "https://mastodon.social"
-USER_ID = 1234567
-
-def collect(limit=1000):
-    """Собрать все посты пользователя, до limit."""
-    api_url = f"{INSTANCE}/api/v1/accounts/{USER_ID}/statuses"
-    params = {"limit": 40}
-    all_statuses = []
-    while len(all_statuses) < limit:
-        r = requests.get(api_url, params=params, timeout=30)
-        statuses = r.json()
-        if not statuses:
-            break
-        all_statuses.extend(statuses)
-        # max_id для пагинации
-        params["max_id"] = statuses[-1]["id"]
-        time.sleep(0.2)  # rate-limit
-    return all_statuses[:limit]
-```
+> Примеры проверены на `mastodon.social` с Mastodon.py 2.2.2 (октябрь 2026).
 
 ### Лимиты Mastodon API
 
-| Тип | Лимит |
-|:---|:---|
-| Чтение (анонимный) | 300 запросов / 5 мин на IP |
-| Чтение (с токеном) | 1000 запросов / 5 мин на токен |
-| Запись (с токеном) | 300 постов / 30 мин на токен |
-| Длина поста | 500 символов (на инстансе можно 5000) |
+По умолчанию ([документация](https://docs.joinmastodon.org/api/rate-limits/)):
 
-Маленькие инстансы могут иметь собственные жёсткие лимиты — проверяйте `/api/v1/instance`.
+- 300 запросов за 5 минут с одного IP-адреса;
+- 300 запросов за 5 минут для одного аккаунта (при работе с токеном).
+
+Администраторы инстансов могут менять лимиты. Текущее состояние лимита приходит в заголовках ответа `X-RateLimit-Limit`, `X-RateLimit-Remaining` и `X-RateLimit-Reset`.
+
+### Другие инструменты
+
+- [gallery-dl](/kb/instruments/tools/gallery-dl) скачивает медиа из профилей Mastodon.
+- [Browsertrix](/kb/instruments/tools/browsertrix) сохраняет веб-интерфейс инстанса в WARC/WACZ.
 
 ## Bluesky
 
-Bluesky — соцсеть на собственном протоколе [AT Protocol](https://atproto.com/). Каждое сообщение — запись в Personal Data Server (PDS), с идентификатором в формате `did:plc:...`.
+Bluesky — соцсеть на протоколе [AT Protocol](https://atproto.com/). Все публичные записи пользователя хранятся в его репозитории на сервере данных (PDS), пользователь идентифицируется постоянным DID вида `did:plc:...` и сменяемым именем (handle).
 
-### Программный доступ
+### Публичный API
 
-**XRPC API:**
-
-```bash
-# Получить профиль пользователя
-curl 'https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=did:plc:xxx'
-
-# Лента пользователя
-curl 'https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=alice.bsky.social&limit=30'
-```
-
-**Получить все посты пользователя:**
+Публичные методы приложения Bluesky ([документация](https://docs.bsky.app/docs/advanced-guides/api-directory)) вызываются без авторизации через хост `public.api.bsky.app`:
 
 ```bash
-ACTOR="alice.bsky.social"
-curl "https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=$ACTOR&limit=100"
+# Профиль
+curl "https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=bsky.app"
+
+# Лента пользователя (до 100 записей; следующая страница — параметр cursor из ответа)
+curl "https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=bsky.app&limit=100"
 ```
+
+Поиск постов (`app.bsky.feed.searchPosts`) через публичный хост на момент проверки возвращал ошибку 403 — для поиска используйте авторизованный клиент.
+
+### Полная выгрузка репозитория
+
+Для архивации аккаунта целиком удобнее скачать весь его репозиторий одним файлом в формате CAR. Запрос делается к PDS пользователя, адрес которого указан в DID-документе:
+
+```bash
+DID="did:plc:z72i7hdynmk6r22z27h6tvur"
+# Узнать адрес PDS из DID-документа
+curl "https://plc.directory/$DID"
+# Скачать репозиторий (подставьте serviceEndpoint из предыдущего ответа)
+curl -o repo.car "https://PDS_HOST/xrpc/com.atproto.sync.getRepo?did=$DID"
+```
+
+Репозиторий содержит все публичные записи аккаунта (посты, лайки, подписки), подписанные ключом пользователя; медиафайлы (blobs) скачиваются отдельно.
 
 ### Python: atproto
 
@@ -173,96 +133,68 @@ pip install atproto
 ```python
 from atproto import Client
 
-client = Client()  # без аутентификации
+# Анонимный доступ к публичным методам
+client = Client(base_url="https://public.api.bsky.app/xrpc")
 
-# Получить ленту
-feed = client.get_author_feed(actor="alice.bsky.social", limit=30)
+feed = client.get_author_feed(actor="bsky.app", limit=100)
 for item in feed.feed:
-    post = item.post
-    print(post.record.text, post.indexed_at)
+    print(item.post.indexed_at, item.post.record.text)
+# feed.cursor — для запроса следующей страницы
 ```
 
-### Аутентификация (для больших объёмов)
+По умолчанию `Client()` обращается к `bsky.social` и для большинства методов требует входа: `client.login("user.bsky.social", "app_password")` (используйте пароль приложения, а не основной).
 
-```python
-from atproto import Client
-
-client = Client()
-client.login("user.bsky.social", "app_password")
-
-# Больше лимитов
-client.send_post("Hello!")
-```
+> Примеры проверены с atproto 0.0.72 (октябрь 2026).
 
 ## Threads
 
-Threads от Meta имеет **частичную** поддержку ActivityPub (с 2024), но основной путь для разработчиков — закрытый Meta Graph API.
+У Threads (Meta) есть официальный [Threads API](https://developers.facebook.com/docs/threads). Он рассчитан в первую очередь на публикацию и управление собственным аккаунтом, но включает и поиск публичных публикаций по ключевым словам и тегам (не более 2200 запросов за скользящие 24 часа на пользователя). Нужны приложение Meta и токен доступа, расширенные разрешения выдаются после проверки приложения.
 
-### Публичный веб-скрейпинг
+Исследователи из подходящих организаций могут искать публичные посты Threads через веб-интерфейс Meta Content Library (см. [Facebook](/kb/instruments/social-media/facebook)).
 
-```bash
-# Threads allow archive.ph, но bot-detection жёсткий
-yt-dlp 'https://www.threads.net/@username/post/abc...'
-```
-
-### Meta Graph API (закрытая)
-
-Доступ через [developers.facebook.com](https://developers.facebook.com/) — только для авторизованных приложений. Сложно получить для исследовательских проектов.
+Веб-версия Threads работает по адресу `threads.com`; для сохранения отдельных публикаций подходят браузерная архивация и [archive.ph](/kb/instruments/tools/archive-ph).
 
 ## Сравнение
 
 | Возможность | Mastodon | Bluesky | Threads |
 |:---|:-:|:-:|:-:|
-| Публичный API без аутентификации | ✅ | ✅ | ❌ |
-| Полные тексты постов | ✅ | ✅ | ⚠️ |
-| Медиа-файлы | ✅ | ✅ | ⚠️ |
-| Метаданные (время, лайки) | ✅ | ✅ | ⚠️ |
-| Поиск | ✅ | ✅ (через app.bsky) | ⚠️ |
-| Пагинация | ✅ max_id | ✅ cursor | ⚠️ |
-| Лимиты | 300–1000 RPS | 5000 RPS с токеном | неизвестно |
-| Стандартизация | ActivityPub (W3C) | AT Protocol | Частично ActivityPub |
-| Инструменты | mastodon-py | atproto | rdflib (для веб) |
+| Публичный API без авторизации | ✅ (если не отключён на инстансе) | ✅ | ❌ |
+| Полная выгрузка аккаунта третьим лицом | ❌ | ✅ (репозиторий CAR) | ❌ |
+| Поиск | ✅ (по хэштегам — без авторизации) | ⚠️ (с авторизацией) | ⚠️ (Threads API) |
+| Пагинация | `max_id` | `cursor` | по документации API |
+| Лимиты | 300 запросов / 5 мин | см. [документацию](https://docs.bsky.app/docs/advanced-guides/rate-limits) | 2200 поисковых запросов / 24 ч |
+| Python-библиотека | Mastodon.py | atproto | — |
 
-## Когда использовать
+## Ограничения
 
-✅ Подходит:
-
-- **Исследования без аутентификации** — Mastodon и Bluesky дают анонимный доступ.
-- **Массовый сбор** — лимиты щедрые, не нужно специальных API-ключей.
-- **Лонгитюдные проекты** — протоколы стабильны, реже ломаются, чем Twitter.
-- **Архивирование открытых сообществ** — особенно Mastodon-инстансов с конкретной нишей (учёные, журналисты).
-
-❌ Не подходит:
-
-- **Коммерческое использование данных** — у каждой платформы своя лицензия.
-- **Полный сбор всего инстанса** — лимиты API.
-- **Threads** — закрытый API; для исследователя непрактично.
-- **DMs и приватные посты** — никогда не доступны через API.
+- **Полный сбор инстанса** через API Mastodon непрактичен из-за лимитов.
+- **Личные сообщения и посты только для подписчиков** через публичные API недоступны.
+- **Удалённые посты** исчезают из API; сохраняйте данные сразу.
 
 ## Этические аспекты
 
 > [!WARNING]
-> Публичный ≠ свободный для использования. Всегда:
+> Публичная доступность ≠ свобода использования. Всегда:
 >
-> 1. Уважайте robots.txt инстанса.
-> 2. Не собирайте данные для троллинга, доксинга или коммерческого использования.
-> 3. Архивируйте только общественно-значимые материалы.
-> 4. Соблюдайте ToS конкретного инстанса (у каждого свой).
-> 5. Не превышайте разумный объём (даже если лимиты позволяют).
+> 1. Уважайте `robots.txt` и правила конкретного инстанса.
+> 2. Не собирайте данные для травли, деанонимизации или коммерческого использования.
+> 3. Архивируйте общественно значимые материалы и учитывайте [правила обработки персональных данных](/kb/legal/personal-data).
+> 4. Учитывайте настройки приватности пользователей и пометки в профилях (например, отказ от индексации и сбора данных).
+> 5. Не превышайте разумный объём, даже если лимиты позволяют.
 
 ## Ресурсы
 
-- [Mastodon API documentation](https://docs.joinmastodon.org/api/)
-- [Mastodon.py library](https://github.com/halcy/Mastodon.py)
-- [Bluesky API](https://atproto.com/docs/api)
-- [atproto Python library](https://github.com/MarshalX/atproto)
-- [AT Protocol Specification](https://atproto.com/specs/at)
-- [Threads API status](https://developers.facebook.com/docs/threads)
+- [Документация Mastodon API](https://docs.joinmastodon.org/api/)
+- [Mastodon.py](https://github.com/halcy/Mastodon.py)
+- [Документация Bluesky API](https://docs.bsky.app/)
+- [Python-библиотека atproto](https://github.com/MarshalX/atproto) ([документация](https://atproto.blue/))
+- [Спецификация репозиториев AT Protocol](https://atproto.com/specs/repository)
+- [Threads API](https://developers.facebook.com/docs/threads)
 
 ## Связанные материалы
 
 - [Социальные сети — обзор](/kb/instruments/social-media)
-- [twarc](/kb/instruments/social-media/twarc) — для Twitter/X.
-- [Data Take-Out](/kb/instruments/data-take-out/data-take-out-main) — официальные выгрузки.
-- [Bellingcat Auto-Archiver](/kb/instruments/tools/auto-archiver) — для массового сбора.
-- [Ландшафт 2026](/kb/instruments/landscape-2026) — где эти инструменты.
+- [twarc](/kb/instruments/social-media/twarc) — для Twitter/X
+- [Data Take-Out](/kb/instruments/data-take-out/data-take-out-main) — официальные выгрузки
+- [Bellingcat Auto-Archiver](/kb/instruments/tools/auto-archiver) — фиксация отдельных публикаций
+- [Ландшафт 2026](/kb/instruments/landscape-2026)

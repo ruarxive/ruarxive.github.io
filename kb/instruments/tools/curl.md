@@ -1,7 +1,9 @@
 ---
 title: curl
 sidebar_label: curl
-description: Универсальный консольный HTTP-клиент для скриптов, API-запросов и диагностики. Основа для большинства архивных скриптов
+description: "Универсальный консольный HTTP-клиент для скриптов, API-запросов и диагностики. Основа для большинства архивных скриптов."
+last_update:
+  date: 2026-10-12
 ---
 
 # curl
@@ -18,7 +20,8 @@ Curl — это **«швейцарский нож HTTP»**. В отличие о
 - **Работает с любым API** — JSON, OAuth, GraphQL, multipart.
 - **Скриптуется** идеально — стабильный exit code, прогнозируемый вывод.
 - **Диагностирует** — заголовки, TLS, редиректы, cookies, время.
-- **Пишет в WARC** (экспериментально, через `--warc` или отдельные обёртки).
+
+WARC curl **не пишет**: для этого используйте [Wget](/kb/instruments/tools/wget) (`--warc-file`) или Python-библиотеку `warcio` (см. сценарий 6 ниже).
 
 ## Возможности
 
@@ -33,7 +36,6 @@ Curl — это **«швейцарский нож HTTP»**. В отличие о
 - **Параллельные загрузки** (`-Z`, `--parallel`).
 - **Конфигурация через `.curlrc`** и переменные окружения.
 - **TLS 1.3**, проверка сертификатов, клиентские сертификаты.
-- **Запись в WARC** (через `--output` + post-processing или сторонние обёртки).
 
 ## Когда использовать
 
@@ -49,6 +51,7 @@ Curl — это **«швейцарский нож HTTP»**. В отличие о
 ❌ Не подходит для:
 
 - **Рекурсивного обхода сайтов** (используйте Wget, Wpull, Heritrix).
+- **Записи WARC** (используйте Wget с `--warc-file` или `warcio`).
 - **Выполнения JavaScript** (используйте Browsertrix, Playwright).
 - **Автоматической обработки HTML-форм** (используйте Mechanize, Selenium).
 
@@ -77,7 +80,7 @@ brew install curl
 
 ### Windows
 
-- В Windows 10+ есть встроенный `curl.exe` (PowerShell 5+).
+- В Windows 10 (начиная с версии 1803) и Windows 11 `curl.exe` встроен в систему. Внимание: в Windows PowerShell 5.1 команда `curl` — это псевдоним `Invoke-WebRequest` с другим синтаксисом, поэтому вызывайте именно `curl.exe`.
 - Иначе: `winget install curl.curl` или через Chocolatey (`choco install curl`).
 - Для WSL — `sudo apt install curl`.
 
@@ -131,7 +134,7 @@ curl -F "file=@report.pdf" \
 ### Следовать редиректам
 
 ```bash
-curl -L https://bit.ly/short
+curl -L https://example.com/redirect
 ```
 
 ### Показать заголовки ответа
@@ -179,6 +182,8 @@ curl -C - -O https://example.com/big-file.zip
 ```bash
 curl --http3 https://example.com
 ```
+
+Работает только в сборках curl с поддержкой HTTP/3 — проверьте, есть ли `HTTP3` в строке `Features` вывода `curl --version`. Сборки в дистрибутивах Linux и в macOS часто собраны без неё.
 
 ### Только заголовки (HEAD)
 
@@ -230,30 +235,27 @@ curl -s https://example.com/page | \
 ### 5. Проверить цепочку редиректов
 
 ```bash
-curl -v -L --max-redirs 5 https://bit.ly/short 2>&1 | grep -E '^[<>]'
+curl -v -L --max-redirs 5 https://example.com/redirect 2>&1 | grep -E '^[<>]'
 ```
 
-### 6. Скачать через SOCKS-прокси (для обхода блокировок)
+### 6. Нужен WARC — используйте Wget или warcio
+
+У curl нет режима записи WARC. Если нужен WARC для одного или нескольких URL:
 
 ```bash
-curl --proxy socks5h://127.0.0.1:9050 https://example.com
+# Wget (версии 1.14+)
+wget --warc-file=archive --page-requisites https://example.com/article
 ```
 
-### 7. Записать WARC
+Или, если запросы делаются из Python, библиотека [warcio](https://github.com/webrecorder/warcio) записывает запрос и ответ в WARC (пример из README):
 
-Wget — основной инструмент для WARC. Но curl тоже можно использовать в связке с post-processing:
+```python
+from warcio.capture_http import capture_http
+import requests  # requests нужно импортировать после capture_http
 
-```bash
-# Скачать и подготовить для конвертации
-curl -L -o page.html https://example.com/article
-
-# Или через обёртку curl-to-warc
-pip install curl-to-warc
-curl-to-warc -o archive.warc.gz https://example.com/
+with capture_http('example.warc.gz'):
+    requests.get('https://example.com/')
 ```
-
-> [!NOTE]
-> Нативная поддержка WARC в curl долгое время обсуждалась, но стабильной реализации нет. Для серьёзной работы с WARC используйте Wget, Wpull или Heritrix.
 
 ## Конфигурация
 
@@ -297,12 +299,12 @@ export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
 | Инструмент | Протоколы | Рекурсия | WARC | JS | Скриптинг |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **curl** | 20+ | ❌ | ⚠️ | ❌ | ✅ отличный |
-| **[Wget](wget)** | HTTP(S), FTP | ✅ | ✅ | ❌ | ✅ хороший |
-| **[httrack](httrack)** | HTTP(S), FTP | ✅ | ⚠️ | ❌ | ⚠️ средний |
-| **[Wpull](wpull)** | HTTP(S), FTP | ✅ | ✅ | ⚠️ | ✅ хороший |
+| **curl** | 20+ | ❌ | ❌ | ❌ | ✅ отличный |
+| **[Wget](/kb/instruments/tools/wget)** | HTTP(S), FTP | ✅ | ✅ | ❌ | ✅ хороший |
+| **[HTTrack](/kb/instruments/tools/httrack)** | HTTP(S), FTP | ✅ | ✅ с версии 3.49-14 | ❌ | ⚠️ средний |
+| **[Wpull](/kb/instruments/tools/wpull)** | HTTP(S), FTP | ✅ | ✅ | ⚠️ | ✅ хороший |
 | **httpie** | HTTP(S) | ❌ | ❌ | ❌ | ✅ человекочитаемый |
-| **requests (Python)** | HTTP(S) | ❌ | ❌ | ❌ | ✅ лучший для Python |
+| **requests (Python)** | HTTP(S) | ❌ | ⚠️ через `warcio` | ❌ | ✅ лучший для Python |
 
 ### Когда curl лучше всех
 
@@ -370,10 +372,11 @@ curl --retry 3 --retry-delay 2 --retry-all-errors \
 ### 6. Уважайте robots.txt и ставьте User-Agent
 
 ```bash
-curl -A "RuarxiveBot/1.0 (+https://ruarxive.org/bot)" \
-     --user-agent "RuarxiveBot/1.0 (+https://ruarxive.org/bot)" \
+curl -A "MyArchiveBot/1.0 (+https://example.org/contact)" \
      https://example.com
 ```
+
+`-A` и `--user-agent` — одна и та же опция. Укажите в User-Agent адрес, по которому владелец сайта может с вами связаться.
 
 ### 7. Для массовых выгрузок — `xargs -P` или `--parallel`
 
@@ -387,7 +390,7 @@ cat urls.txt | xargs -n 1 -P 8 curl -fsSLO
 
 - **Нет рекурсивного обхода** — это не кроулер.
 - **Нет JavaScript** — динамика не отрендерится.
-- **Нет нативного WARC** (только через обёртки).
+- **Нет записи WARC** — используйте Wget или `warcio`.
 - **Однопоточный** в большинстве операций (есть `--parallel`, но это не конкурент Heritrix).
 - **Сложный синтаксис** для непривычного пользователя (но есть `--help all` для справки).
 - **Не сохраняет метаданные** страницы автоматически (нужно вручную через `-D` для заголовков).
@@ -398,13 +401,12 @@ cat urls.txt | xargs -n 1 -P 8 curl -fsSLO
 - [curl book](https://everything.curl.dev/) — бесплатная онлайн-книга.
 - [curl man page](https://curl.se/docs/manpage.html) — полный справочник.
 - [HTTP scripting with curl](https://curl.se/docs/httpscripting.html) — основы.
-- [curl cookbook](https://catonmat.net/curl-cookbook) — рецепты.
 
 ## Связанные материалы
 
-- **[Wget](wget)** — для рекурсивного скачивания сайтов.
-- **[Wpull](wpull)** — Wget с WARC и HTTP/2.
-- **[tdl](tdl)** — для Telegram API, использует curl-подобные подходы.
+- **[Wget](/kb/instruments/tools/wget)** — для рекурсивного скачивания сайтов и записи WARC.
+- **[Wpull](/kb/instruments/tools/wpull)** — Wget-совместимый краулер на Python с записью WARC.
+- **[tdl](/kb/instruments/tools/tdl)** — выгрузка файлов из Telegram.
 - **[wparc](/kb/instruments/ruarxive-tools/wparc)** — утилита Ruarxive для WordPress API (построена на HTTP-запросах).
 - **[Архивация Telegram](/kb/instruments/data-take-out/dto-telegram)** — примеры API-скриптов.
 - **[Архивация YouTube](/kb/instruments/data-take-out/dto-youtube)** — выгрузка через API.

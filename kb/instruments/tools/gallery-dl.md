@@ -1,143 +1,139 @@
 ---
 title: gallery-dl
 sidebar_label: gallery-dl
-description: Загрузчик изображений и медиа из галерей, поддержка 200+ сайтов включая Instagram, Twitter, Pixiv, DeviantArt, Tumblr
+description: "gallery-dl — утилита командной строки для скачивания изображений и медиа из галерей и соцсетей (сотни сайтов: Instagram, Twitter/X, Pixiv, DeviantArt, Tumblr, Reddit, VK и др.) с метаданными в JSON."
+last_update:
+  date: 2026-10-12
 ---
 
 # gallery-dl
 
-**gallery-dl** — утилита командной строки для скачивания изображений и коллекций медиа из сотен галерей, бордов, социальных сетей и хостингов. Написана на Python, активно развивается, поддерживает сайт-specific экстракторы с метаданными.
+**gallery-dl** — утилита командной строки для скачивания изображений и коллекций медиа из галерей, имиджбордов, социальных сетей и хостингов. Написана на Python (лицензия GPL-2.0), активно развивается, для каждого сайта есть отдельный экстрактор, который сохраняет и метаданные.
 
-Сайт: [github.com/mikf/gallery-dl](https://github.com/mikf/gallery-dl)
+Основной репозиторий: [codeberg.org/mikf/gallery-dl](https://codeberg.org/mikf/gallery-dl). В 2026 году разработка переехала с GitHub на Codeberg; репозиторий [github.com/mikf/gallery-dl](https://github.com/mikf/gallery-dl) пока обновляется как зеркало.
 
 ## Когда использовать
 
 ✅ Подходит, если нужно:
 
-- **массово скачать изображения** из Instagram, Twitter, Pixiv, DeviantArt, Tumblr, Reddit, Danbooru и других галерей;
-- сохранить **полные метаданные** (теги, описание, автор, EXIF, рейтинг) рядом с файлами в JSON;
-- иметь **гибкую фильтрацию** (по типу файла, размеру, дате, тегам, рейтингу);
-- вести **инкрементальный архив** с надёжным `--download-archive` (SQLite);
-- работать с **NSFW-контентом** в исследовательских целях.
+- **массово скачать изображения** из Instagram, Twitter/X, Pixiv, DeviantArt, Tumblr, Reddit, VK, Danbooru и других сайтов;
+- сохранить **метаданные** (теги, описание, автор, дата) рядом с файлами в JSON;
+- иметь **гибкую фильтрацию** (по расширению, размеру файла, дате поста, тегам);
+- вести **инкрементальный архив** с `--download-archive` (база SQLite).
 
 ❌ Не лучший выбор, если:
 
 - цель — **видео**, а не изображения — [yt-dlp](/kb/instruments/tools/yt-dlp);
 - нужна **визуальная дедупликация** (по перцептивным хешам) — посмотрите [Hydrus Network](https://hydrusnetwork.github.io/hydrus/) или собственный пайплайн;
-- нужно сохранить **HTML-страницу с UI** — [SingleFile](/kb/instruments/tools/singlefile) или [Browsertrix Crawler](/kb/instruments/tools/browsertrix);
-- целевая платформа не поддерживается экстракторами — проверьте [Supported sites](https://github.com/mikf/gallery-dl/blob/master/docs/supportedsites.md).
+- нужно сохранить **страницу целиком** с интерфейсом — [SingleFile](/kb/instruments/tools/singlefile) или [Browsertrix Crawler](/kb/instruments/tools/browsertrix);
+- платформа не поддерживается — проверьте [список поддерживаемых сайтов](https://codeberg.org/mikf/gallery-dl/src/branch/master/docs/supportedsites.md).
 
 ## Зачем нужен архивисту
 
-Видео и текст — половина веб-контента. Вторая половина — это **изображения**: посты в Instagram, иллюстрации на DeviantArt/Pixiv, фото в Twitter, доски на Pinterest, NSFW-коллекции на Flickr. Браузерные расширения вроде SingleFile сохраняют одну страницу, но **для массовой архивации галерей** нужен специализированный инструмент.
+Значительная часть веб-контента — **изображения**: посты в Instagram, иллюстрации на DeviantArt и Pixiv, фото в Twitter/X, доски Pinterest. Браузерные расширения вроде SingleFile сохраняют одну страницу, а **для массовой архивации галерей** нужен специализированный инструмент.
 
 gallery-dl решает задачи:
-- **Скачать все фото** из Instagram-профиля (с метаданными).
-- **Собрать плейлист пинтереста** в один каталог.
-- **Заархивировать иллюстрации автора** с Pixiv.
-- **Скачать всю доску** Tumblr, Reddit-сабреддит, e621.
-- **Извлечь EXIF, описания, теги** — для последующей каталогизации.
+- **скачать все фото** из профиля (с метаданными);
+- **собрать доску Pinterest** в один каталог;
+- **заархивировать иллюстрации автора** с Pixiv;
+- **скачать блог Tumblr** или сабреддит;
+- **сохранить описания, теги, даты** — для последующей каталогизации.
 
 ## Возможности
 
-- **200+ поддерживаемых сайтов** через систему экстракторов.
-- **Иерархия каталогов** по формату `категория/{субкатегория}/файл`.
-- **Метаданные**: JSON sidecar, EXIF, описания, теги, автор.
-- **Cookies и аутентификация** для приватных/приватных аккаунтов.
-- **Фильтрация**: по типу файла, размеру, дате, тегам, рейтингу.
-- **Пост-процессинг**: архивирование, переименование, удаление дубликатов.
-- **Возобновление загрузки** через архив скачанных.
-- **Rate limiting** (задержки, окна времени, лимиты по дням).
-- **Параллельные соединения** для ускорения.
-- **Поддержка NSFW** — критично для архивации исследовательских корпусов.
-- **Выходные форматы**: JPEG, PNG, WEBP, GIF, MP4 (для постов с видео), WEBP-анимации.
-- **Archive download** — для Reddit, где это единственный способ получить удалённый контент.
+- **Сотни поддерживаемых сайтов** (около 390 в `supportedsites.md` на октябрь 2026 года, без учёта экземпляров Mastodon, booru-движков и т. п.).
+- **Иерархия каталогов** по шаблону (по умолчанию `категория/подкатегория/…`).
+- **Метаданные**: JSON-файлы рядом с изображениями (`--write-metadata`), `info.json` для галереи (`--write-info-json`), теги в текстовых файлах (`--write-tags`).
+- **Cookies и авторизация**: файл cookies, загрузка cookies из браузера, логин и пароль, OAuth для части сайтов.
+- **Фильтрация**: выражения на Python (`--filter`), размер файла, дата поста, теги, диапазоны.
+- **Пост-обработка**: ZIP/CBZ, переименование, запуск команд, конвертация Ugoira (Pixiv) через FFmpeg.
+- **Учёт скачанного** через `--download-archive`.
+- **Паузы и ограничения**: задержки между загрузками и HTTP-запросами, ограничение скорости, обработка ответов 429.
+
+Параллельной загрузки в несколько потоков в gallery-dl нет: файлы скачиваются последовательно.
 
 ## Поддерживаемые платформы (выборка)
 
 | Категория | Сайты |
 | :--- | :--- |
-| **Соцсети** | Twitter/X, Tumblr, Mastodon, VK |
+| **Соцсети** | Twitter/X, Instagram, Tumblr, Bluesky, Mastodon, VK, Weibo |
 | **Арт-хостинги** | Pixiv, DeviantArt, ArtStation, Behance, Newgrounds |
-| **Иллюстрированные борды** | Danbooru, Gelbooru, e621, Sankaku, Rule34 |
-| **Фото** | Flickr, 500px, Imgur, Reddit-сабреддиты, Pinterest |
-| **Имиджборды** | 4chan, 8chan |
-| **NSFW-платформы** | nhentai, e-hentai, Redgifs, MissKobayashi |
-| **Комиксы** | Mangadex, Webtoon, Comic Walker |
-| **Новостные** | Reuters, Getty Images, NYT |
-| **Другое** | GitHub, Patreon, Reddit, Tistory |
+| **Booru-галереи** | Danbooru, Gelbooru, e621, Sankaku |
+| **Фото** | Flickr, 500px, Imgur, Pinterest, Reddit |
+| **Имиджборды** | 4chan, 8chan, 2ch |
+| **Комиксы** | MangaDex, Webtoon |
+| **Другое** | Patreon |
 
-Полный список: [github.com/mikf/gallery-dl/blob/master/docs/supportedsites.md](https://github.com/mikf/gallery-dl/blob/master/docs/supportedsites.md).
+Полный список: [supportedsites.md](https://codeberg.org/mikf/gallery-dl/src/branch/master/docs/supportedsites.md). Список меняется: экстракторы добавляются и удаляются (в том числе по жалобам правообладателей), а сайты меняют API.
 
 ## Когда использовать
 
 ✅ Подходит для:
 
-- **Массовой архивации изображений** (авторы на Pixiv, доски на Pinterest, сабреддиты).
-- **Иллюстрированных коллекций** (NSFW, арт, доски, борды).
-- **Сбора изображений по списку URL**.
-- **Получения метаданных** для каталогизации.
-- **Восстановления удалённого контента** через Pushshift-архивы (Reddit).
+- **массовой архивации изображений** (авторы на Pixiv, доски Pinterest, сабреддиты);
+- **сбора изображений по списку URL**;
+- **получения метаданных** для каталогизации.
 
 ❌ Не подходит для:
 
-- **Видео** — используйте [yt-dlp](yt-dlp).
-- **Архивации страниц целиком** с комментариями и UI — используйте [Browsertrix](browsertrix).
-- **Скачивания HTML-страниц** — используйте [Wpull](/kb/instruments/tools/wpull).
-- **Загрузки файлов по одному URL** — overkill, используйте [Wget](https://www.gnu.org/software/wget/) или [curl](https://curl.se/).
+- **видео** — используйте [yt-dlp](/kb/instruments/tools/yt-dlp);
+- **архивации страниц целиком** с комментариями и интерфейсом — используйте [Browsertrix Crawler](/kb/instruments/tools/browsertrix);
+- **скачивания HTML-страниц** — используйте [Wpull](/kb/instruments/tools/wpull) или [Wget](/kb/instruments/tools/wget);
+- **загрузки файлов по одному URL** — достаточно [Wget](/kb/instruments/tools/wget) или [curl](/kb/instruments/tools/curl).
 
 ## Установка
-
-### Через пакетные менеджеры
-
-```bash
-# macOS
-brew install gallery-dl
-
-# Linux (pipx — рекомендуется)
-pipx install gallery-dl
-
-# Arch
-sudo pacman -S gallery-dl
-
-# Windows
-winget install gallery-dl
-```
 
 ### Через pip
 
 ```bash
-pip install -U gallery-dl
+python -m pip install -U gallery-dl
 ```
+
+Или в изолированное окружение: `pipx install gallery-dl`.
+
+### Через пакетные менеджеры
+
+```bash
+# macOS / Linux (Homebrew)
+brew install gallery-dl
+
+# Linux (Snap)
+snap install gallery-dl
+
+# Windows
+choco install gallery-dl
+scoop install gallery-dl
+```
+
+Также есть готовые исполняемые файлы для Windows и Linux на [странице релизов](https://codeberg.org/mikf/gallery-dl/releases).
 
 ### Из исходников (для разработчиков)
 
 ```bash
-git clone https://github.com/mikf/gallery-dl
+git clone https://codeberg.org/mikf/gallery-dl.git
 cd gallery-dl
 pip install -e .
 ```
 
 ### Зависимости
 
-- **Python 3.8+**.
-- **ffmpeg** (опционально) — для скачивания видео-постов.
-- **yt-dlp** (опционально) — fallback для платформ с видео.
-- **PyYAML, requests, bs4, lxml, Pillow, mutagen** — основные зависимости.
-- **pycryptodome, browser-cookie3** — для приватных аккаунтов.
+- **Python 3.8+** и **requests** — единственные обязательные зависимости.
+- Необязательные: **yt-dlp** (видео в HLS/DASH), **FFmpeg** (конвертация Ugoira), **PyYAML** и **toml** (конфиги в YAML/TOML), **SecretStorage** (cookies из браузера в GNOME), **brotli**, **zstandard**.
+
+> Команды и параметры сверены с README и `gallery-dl --help` версии 1.32.16 (октябрь 2026).
 
 ## Использование
 
 ### Скачать все посты пользователя
 
 ```bash
-# Twitter
-gallery-dl "https://twitter.com/username"
+# Twitter/X
+gallery-dl "https://x.com/username"
 
-# Instagram
+# Instagram (обычно нужны cookies авторизованного аккаунта)
 gallery-dl "https://www.instagram.com/username/"
 
-# Pixiv (по artist ID)
+# Pixiv (по ID автора; нужна авторизация через OAuth)
 gallery-dl "https://www.pixiv.net/users/12345"
 
 # Tumblr
@@ -150,22 +146,21 @@ gallery-dl "https://www.reddit.com/r/subreddit"
 ### Скачать одну запись
 
 ```bash
-gallery-dl "https://www.instagram.com/p/CxYz123/"
-gallery-dl "https://twitter.com/username/status/1234567890"
+gallery-dl "https://www.instagram.com/p/POST_ID/"
+gallery-dl "https://x.com/username/status/1234567890"
 ```
 
 ### Скачать список URL из файла
 
 ```bash
-# urls.txt
-https://twitter.com/user1/status/123
-https://twitter.com/user2/status/456
-https://www.pixiv.net/artworks/789
-
+# urls.txt — по одному URL на строку
 gallery-dl --input-file urls.txt
+
+# с пометкой (комментированием) успешно скачанных URL в файле
+gallery-dl -I urls.txt
 ```
 
-### Фильтрация по типу файла
+### Фильтрация
 
 ```bash
 # Только JPEG
@@ -174,9 +169,14 @@ gallery-dl --filter "extension in ('jpg', 'jpeg')" URL
 # Только видео
 gallery-dl --filter "extension in ('mp4', 'webm')" URL
 
-# Минимум 1920x1080
-gallery-dl --filter "width >= 1920 and height >= 1080" URL
+# Не меньше 1920 пикселей по ширине (имена полей зависят от экстрактора)
+gallery-dl --filter "width >= 1920" URL
+
+# Только посты после даты и файлы не меньше 100 КБ
+gallery-dl --date-after 2025-01-01 --filesize-min 100k URL
 ```
+
+Какие поля доступны в `--filter` для конкретного сайта, показывает `gallery-dl -K URL`.
 
 ### С архивом скачанных (не качать повторно)
 
@@ -184,31 +184,33 @@ gallery-dl --filter "width >= 1920 and height >= 1080" URL
 gallery-dl --download-archive archive.sqlite3 URL
 ```
 
-Используется SQLite — надёжнее текстового файла.
+Архив — база SQLite: уже скачанные файлы при повторном запуске пропускаются.
 
-### С cookies (приватные аккаунты)
+### С cookies (закрытые аккаунты)
 
 ```bash
 # Из браузера
 gallery-dl --cookies-from-browser firefox URL
 gallery-dl --cookies-from-browser chrome URL
 
-# Из файла (экспорт через расширение Get cookies.txt)
+# Из файла в формате Netscape (cookies.txt)
 gallery-dl --cookies cookies.txt URL
 ```
 
-### С ограничением скорости
+### Паузы и ограничение скорости
 
 ```bash
-gallery-dl --sleep 2-5 URL  # случайная задержка 2-5 сек
-gallery-dl --rate 30 URL    # макс. 30 запросов в минуту
+# случайная пауза 2–5 секунд перед каждой загрузкой файла
+gallery-dl --sleep 2-5 URL
+
+# пауза 1–3 секунды между HTTP-запросами при извлечении данных
+gallery-dl --sleep-request 1-3 URL
+
+# ограничение скорости загрузки: 500 КБ/с
+gallery-dl --limit-rate 500k URL
 ```
 
-### Параллельные соединения
-
-```bash
-gallery-dl --jobs 4 URL  # 4 параллельных потока
-```
+`-r, --limit-rate` ограничивает скорость загрузки в байтах в секунду, а не число запросов. Для бережной работы с сайтом используйте `--sleep` и `--sleep-request`.
 
 ### С метаданными в JSON
 
@@ -216,85 +218,84 @@ gallery-dl --jobs 4 URL  # 4 параллельных потока
 gallery-dl --write-metadata --write-info-json URL
 ```
 
-Каждый файл получает `<filename>.json` со всеми метаданными (автор, дата, теги, описание, EXIF, рейтинг).
+`--write-metadata` создаёт JSON-файл с метаданными для каждого скачанного файла, `--write-info-json` — общий `info.json` для галереи. Состав полей (автор, дата, теги, описание и т. д.) зависит от сайта.
 
 ## Конфигурация
 
-### `~/.config/gallery-dl.conf` (YAML)
+### Где лежит конфиг
 
-```yaml
-# Глобальные настройки
-extractor:
-  base-directory: ~/Archives/gallery-dl
-  directory: ["{category}", "{subcategory}"]
-  filename: "{id}.{extension}"
-  skip: true
-  archive: "~/.gallery-dl-archive.sqlite3"
+`gallery-dl --config-status` показывает, какие файлы проверяются. По умолчанию:
 
-# Задержки (вежливый краулинг)
-sleep: 2-5
+- Linux и macOS: `/etc/gallery-dl.conf`, `~/.config/gallery-dl/config.json`, `~/.gallery-dl.conf`;
+- Windows: `%APPDATA%\gallery-dl\config.json`, `%USERPROFILE%\gallery-dl\config.json`, `%USERPROFILE%\gallery-dl.conf`.
 
-# Параллелизм
-jobs: 4
+Формат по умолчанию — **JSON**. YAML и TOML можно подключить через `--config-yaml FILE` / `--config-toml FILE` (нужны PyYAML / toml). Создать базовый файл: `gallery-dl --config-create`.
 
-# User-Agent
-user-agent: "Mozilla/5.0 (compatible; gallery-dl/1.27; +https://github.com/mikf/gallery-dl)"
+### Пример `~/.config/gallery-dl/config.json`
 
-# Cookies из Firefox
-cookies-from-browser: firefox
+Все настройки экстракторов, включая настройки отдельных сайтов, лежат **внутри** секции `extractor`:
 
-# Сайт-специфичные настройки
-twitter:
-  filename: "{tweet_id}_{num}.{extension}"
-  videos: true
-  retweets: false
+```json
+{
+    "extractor": {
+        "base-directory": "~/Archives/gallery-dl",
+        "directory": ["{category}", "{subcategory}"],
+        "archive": "~/Archives/gallery-dl/archive.sqlite3",
+        "skip": true,
+        "sleep": "2-5",
+        "sleep-request": "1-3",
+        "user-agent": "Mozilla/5.0 (compatible; MyArchiveBot/1.0; +https://example.org/contact)",
+        "cookies": ["firefox"],
 
-pixiv:
-  username: "my-user"
-  password: "my-token"  # или через refresh-token
-  metadata: true
-
-danbooru:
-  filename: "{id}_{artist}_{character}_{tag_string}.{extension}"
-  tags: true
+        "twitter": {
+            "videos": true,
+            "retweets": false
+        },
+        "pixiv": {
+            "metadata": true
+        }
+    }
+}
 ```
 
-### Аутентификация через OAuth
+Все параметры описаны в [configuration.rst](https://codeberg.org/mikf/gallery-dl/src/branch/master/docs/configuration.rst), пример полного файла — [gallery-dl.conf](https://codeberg.org/mikf/gallery-dl/src/branch/master/docs/gallery-dl.conf).
+
+### Авторизация через OAuth
+
+OAuth обязателен для Pixiv и необязателен для DeviantArt, Flickr, Reddit, SmugMug, Tumblr и экземпляров Mastodon:
 
 ```bash
-gallery-dl oauth:twitter     # выдаст URL для логина
 gallery-dl oauth:pixiv
+gallery-dl oauth:flickr
 gallery-dl oauth:reddit
 ```
 
+Команда откроет страницу авторизации сайта и после подтверждения сохранит токен. Для Twitter/X OAuth не поддерживается — используйте cookies.
+
 ## Сравнение с другими инструментами
 
-| Инструмент | Сайтов | Метаданные | Параллелизм | Фильтрация | NSFW |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **gallery-dl** | 200+ | ✅ EXIF, JSON | ✅ | ✅ regex/expr | ✅ |
-| **[yt-dlp](yt-dlp)** | 1800+ | ✅ info.json | ✅ | ✅ | ⚠️ |
-| **Imgur Album Downloader** | 1 | ❌ | ❌ | ❌ | ✅ |
-| **PixivUtil2** | 1 (Pixiv) | ✅ | ✅ | ✅ | ✅ |
-| **Powerful-Pixiv-Downloader** | 1 (Pixiv) | ✅ | ✅ | ✅ | ✅ |
-| **Hydrus Network** | 50+ | ✅ (своя БД) | ✅ | ✅ | ✅ |
+| Инструмент | Сайтов | Метаданные | Фильтрация | Особенности |
+| :--- | :---: | :---: | :---: | :--- |
+| **gallery-dl** | сотни | ✅ JSON | ✅ выражения | последовательная загрузка |
+| **[yt-dlp](/kb/instruments/tools/yt-dlp)** | тысячи (видео) | ✅ info.json | ✅ | для видео и аудио |
+| **PixivUtil2** | 1 (Pixiv) | ✅ | ✅ | только Pixiv |
+| **Hydrus Network** | через загрузчики | ✅ (своя БД) | ✅ | локальный каталог с тегами и дедупликацией |
 
 ### Когда gallery-dl лучше всех
 
 - Нужна **универсальность** — один инструмент для десятков платформ.
 - Важны **метаданные** (теги, автор, описание) в машиночитаемом виде.
 - Нужна **гибкая фильтрация** (по размеру, типу, дате).
-- Архивируете **NSFW-контент** (для исследований, истории искусств).
 
 ### Когда лучше yt-dlp
 
 - Цель — **видео**, а не изображения.
-- Платформа — **YouTube, VK-видео, Vimeo**.
+- Платформа — **YouTube, VK Видео, Vimeo**.
 
 ### Когда лучше Hydrus Network
 
 - Нужен **локальный каталог** с дедупликацией и тегами.
-- Работа в **GUI** (с метками, коллекциями, поиском).
-- Миллионы файлов (Hydrus спроектирован для больших коллекций).
+- Нужна работа в **графическом интерфейсе** (метки, коллекции, поиск).
 
 ## Best practices
 
@@ -304,36 +305,36 @@ gallery-dl oauth:reddit
 gallery-dl --download-archive archive.sqlite3 URL
 ```
 
-Это **главная** best practice. Без архива повторный запуск будет качать заново. SQLite-формат надёжнее текстового.
+Это **главная** практика: без архива при повторном запуске придётся заново проверять каждый файл, а при изменении шаблона имён — качать заново.
 
-### 2. Метаданные — обязательно
+### 2. Сохраняйте метаданные
 
 ```bash
 gallery-dl --write-metadata --write-info-json URL
 ```
 
-Теги, описание, автор, дата, EXIF — без метаданных коллекция изображений это просто груда файлов.
+Без описаний, тегов, автора и даты коллекция изображений — просто набор файлов.
 
-### 3. Уважайте rate limits
+### 3. Делайте паузы
 
 ```bash
-gallery-dl --sleep 2-5 --rate 20 URL
+gallery-dl --sleep 2-5 --sleep-request 1-3 URL
 ```
 
-`--rate 20` — максимум 20 запросов в минуту, `--sleep 2-5` — случайная задержка между запросами. Это защищает от блокировок IP.
+Паузы снижают нагрузку на сайт и риск блокировки аккаунта или IP-адреса. При ответах «429 Too Many Requests» помогает `--sleep-429`.
 
-### 4. Используйте cookies из браузера, а не логин-пароль
+### 4. Используйте cookies из браузера, а не логин и пароль
 
 ```bash
 gallery-dl --cookies-from-browser firefox URL
 ```
 
-Cookies не «ломают» 2FA, их можно отозвать, они не сохраняют пароль в конфиге.
+Так пароль не хранится в конфиге, а сессию можно отозвать. Используйте отдельный аккаунт, а не личный.
 
 ### 5. Регулярные выгрузки через cron
 
 ```bash
-# Каждый понедельник — обновить архив художника на Pixiv
+# Каждый понедельник — обновить архив автора на Pixiv
 0 2 * * 1 /usr/local/bin/gallery-dl \
   --download-archive /opt/gallery-dl/pixiv-archive.sqlite3 \
   --config /opt/gallery-dl/pixiv.conf \
@@ -343,60 +344,60 @@ Cookies не «ломают» 2FA, их можно отозвать, они не
 
 ### 6. Делите большие коллекции по каталогам
 
-```yaml
-# gallery-dl.conf
-extractor:
-  base-directory: /mnt/external/archives
-  directory: ["{category}", "{subcategory}", "{year}", "{month}"]
+```json
+{
+    "extractor": {
+        "base-directory": "/mnt/external/archives",
+        "directory": ["{category}", "{subcategory}", "{date:%Y}", "{date:%m}"]
+    }
+}
 ```
 
-### 7. Валидируйте скачанное
+Поле `date` есть не у всех экстракторов — проверьте через `gallery-dl -K URL`.
+
+### 7. Проверяйте скачанное
 
 ```bash
-# Проверить, что все JPEG действительно валидны
+# Проверить, что все JPEG читаются
 find . -name "*.jpg" -exec jpeginfo -c {} \; | grep "ERR"
 ```
 
 ## Ограничения
 
-- **DRM / login-only** — не все платформы поддерживаются (например, Behance требует авторизации, NSFW Flickr закрыт).
-- **Зависимость от экстракторов** — каждое изменение в API платформы может сломать скачивание. Обновляйте gallery-dl регулярно (`pip install -U gallery-dl`).
-- **Нет визуальной дедупликации** (только по хешу/имени). Для визуальной — нужен Hydrus или собственный скрипт.
-- **Не качает комментарии** — для этого нужен Browsertrix + gallery-dl.
-- **Rate limits** — Twitter/X, Pixiv агрессивно блокируют за быстрое скачивание.
-- **NSFW-контент** требует осторожности — соблюдайте законы юрисдикции.
-- **Не пишет WARC** — на выходе файлы + JSON sidecar, не WARC-формат. Для WARC-совместимой обёртки используйте [Browsertrix Crawler](/kb/instruments/tools/browsertrix) или [metawarc](/kb/instruments/ruarxive-tools/metawarc) с пользовательским провайдером.
-- **Платформы закрываются или требуют авторизацию** — например, Twitter API стал платным с 2023; многие экстракторы требуют cookies авторизованного аккаунта.
+- **Авторизация** — многие платформы (Instagram, Twitter/X, Pixiv) отдают контент только авторизованным пользователям.
+- **Зависимость от экстракторов** — изменения на сайте ломают скачивание. Регулярно обновляйте gallery-dl (`pip install -U gallery-dl`).
+- **Нет визуальной дедупликации** — только учёт уже скачанных файлов. Для визуальной нужен Hydrus или собственный скрипт.
+- **Не сохраняет страницу с комментариями** — для этого нужен Browsertrix Crawler (можно совмещать с gallery-dl).
+- **Ограничения частоты запросов** — Twitter/X, Instagram, Pixiv блокируют за слишком быстрое скачивание.
+- **Не пишет WARC** — на выходе файлы и JSON с метаданными. Если нужен WARC, архивируйте страницы [Browsertrix Crawler](/kb/instruments/tools/browsertrix).
 
 ## Что дальше
 
-- Для полнотекстового поиска по описаниям/тегам — экспортируйте `.info.json` в WARC и проиндексируйте через [metawarc](/kb/instruments/ruarxive-tools/metawarc) (`index-content --text`).
-- Для интеграции с AI-агентами — [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp).
+- Для работы с коллекцией из AI-агентов — [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp).
 - Для регулярной архивации — добавьте команду в cron (см. «Best practices»).
 - Для правовой оценки — см. [Правовые вопросы](/kb/legal).
 
 ## Юридические аспекты
 
-> [!WARNING]
-> Большинство платформ запрещают массовое скачивание в своих ToS. **Не перепубликуйте** скачанные изображения без разрешения правообладателя. Личное использование, исследование, архивирование в образовательных целях — в большинстве юрисдикций допустимо. Подробности: [Правовые вопросы](/kb/legal/copyright).
+:::warning
+Многие платформы запрещают массовое скачивание в пользовательских соглашениях. Публичная доступность изображений не означает разрешения на их использование. **Не публикуйте** скачанные изображения без разрешения правообладателя; учитывайте, что на фото могут быть люди, и это персональные данные. Свободное использование произведений библиотеками и архивами (ст. 1275 ГК РФ) ограничено узким набором случаев. При сомнениях проконсультируйтесь с юристом. Подробности: [Авторское право](/kb/legal/copyright), [Персональные данные](/kb/legal/personal-data).
+:::
 
 ## Ресурсы
 
-- [Репозиторий gallery-dl](https://github.com/mikf/gallery-dl) — исходный код, issues.
-- [Документация](https://github.com/mikf/gallery-dl/blob/master/docs/README.md) — полный гайд.
-- [Список поддерживаемых сайтов](https://github.com/mikf/gallery-dl/blob/master/docs/supportedsites.md) — 200+ платформ.
-- [Configuration](https://github.com/mikf/gallery-dl/blob/master/docs/configuration.md) — YAML-конфиг.
-- [FAQ](https://github.com/mikf/gallery-dl/blob/master/docs/FAQ.md) — типичные проблемы.
-- [Changelog](https://github.com/mikf/gallery-dl/blob/master/CHANGELOG.md) — обновления экстракторов.
+- [Репозиторий gallery-dl на Codeberg](https://codeberg.org/mikf/gallery-dl) — исходный код, релизы, issues.
+- [Список поддерживаемых сайтов](https://codeberg.org/mikf/gallery-dl/src/branch/master/docs/supportedsites.md).
+- [Описание параметров конфигурации](https://codeberg.org/mikf/gallery-dl/src/branch/master/docs/configuration.rst).
+- [Changelog](https://codeberg.org/mikf/gallery-dl/src/branch/master/CHANGELOG.md) — обновления экстракторов.
 
 ## Связанные материалы
 
-- **[yt-dlp](yt-dlp)** — для видео с тех же платформ.
-- **[SingleFile](singlefile)** — если нужна страница целиком с UI.
-- **[Browsertrix](browsertrix)** — для архивации страниц с динамическим контентом.
-- **[Архивация Instagram](/kb/instruments/social-media/instagram)** — Instagram-специфика.
-- **[Архивация Twitter](/kb/instruments/social-media/fbarc)** — Twitter-инструменты.
-- **[Архивация ВКонтакте](/kb/instruments/social-media/vk)** — VK-фото.
+- **[yt-dlp](/kb/instruments/tools/yt-dlp)** — для видео с тех же платформ.
+- **[SingleFile](/kb/instruments/tools/singlefile)** — если нужна страница целиком.
+- **[Browsertrix](/kb/instruments/tools/browsertrix)** — для архивации страниц с динамическим контентом.
+- **[Архивация Instagram](/kb/instruments/social-media/instagram)** — специфика Instagram.
+- **[Архивация Twitter/X](/kb/instruments/social-media/twarc)** — инструменты для Twitter/X.
+- **[Архивация ВКонтакте](/kb/instruments/social-media/vk)** — фото из VK.
 - **[Архивация YouTube](/kb/instruments/data-take-out/dto-youtube)** — для видео.
 - **[Экстренная архивация](/kb/guides/emergency-archiving)** — когда времени мало.
 - **[Правовые вопросы](/kb/legal/copyright)** — авторские права на изображения.

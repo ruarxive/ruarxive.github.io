@@ -1,60 +1,90 @@
 ---
 title: CDX Summary
 sidebar_label: CDX Summary
-description: "Анализ CDX-индексов Internet Archive — быстрый обзор покрытия и поиск по доменам."
-last_updated: 2026-10-12
-keywords: [cdx, cdx-summary, internet archive, обзор архива]
+description: "CDX Summary (cdxsummary) — утилита Internet Archive на Python для сводной статистики по CDX-индексам: число захватов, MIME-типы и коды ответа, распределение по годам, топ хостов."
+last_update:
+  date: 2026-10-12
+keywords: [cdx, cdx-summary, cdxsummary, internet archive, обзор архива]
 ---
 
 # CDX Summary
 
-[CDX Summary](https://github.com/internetarchive/iaux-cdx-summary) — инструмент Internet Archive, который строит компактную статистику по CDX-индексам больших коллекций: какие хосты, сколько URL, сколько 2xx/3xx/4xx/5xx, распределение по годам, «мертвые» домены.
+[CDX Summary](https://github.com/internetarchive/cdx-summary) (`cdxsummary`) — утилита командной строки на Python от Internet Archive, которая строит человекочитаемую сводку по CDX-файлу: что находится в коллекции WARC, за какой период, какие типы данных и хосты преобладают. Лицензия — AGPL-3.0.
 
-> CDX (Capture Index) — это собственный текстовый индекс Internet Archive, в котором каждая строка описывает один захваченный URL. Через CDX API можно узнать, какие версии страницы есть, а CDX Summary обобщает эти данные по доменам.
+> CDX (и его вариант CDXJ) — формат индекса веб-архива: каждая строка описывает один захват (URL, время, MIME-тип, HTTP-статус, контрольная сумма, расположение записи в WARC). Такие индексы строят Wayback Machine, [pywb](/kb/instruments/replay/pywb), OpenWayback и другие системы. Подробнее — на странице [CDX](/kb/instruments/file-formats/cdx).
+
+## Что входит в сводку
+
+- обзор: число захватов, уникальных URL и хостов, суммарный размер WARC-записей, даты первого и последнего захвата;
+- таблица «MIME-тип × класс HTTP-статуса» (2XX, 3XX, 4XX, 5XX, прочее, включая revisit-записи);
+- распределение по длине пути и числу параметров запроса;
+- распределение по годам и месяцам;
+- топ хостов по числу захватов (по умолчанию 10);
+- случайная выборка ссылок на мементо — успешные HTML-страницы в Wayback Machine.
+
+Вывод — текстовые таблицы или JSON (`--json` — сводка, `--report` — подробный отчёт).
 
 ## Когда использовать
 
 ✅ Подходит, если:
 
-- нужен быстрый обзор **обширной коллекции** Internet Archive (миллионы URL);
-- хочется понять, какие домены **покрыты хорошо**, какие — плохо;
-- нужно подготовить отчёт **спонсору или партнёру** о состоянии архива;
-- нужна сводная статистика **для решения «брать/не брать»** домен в работу.
+- нужно быстро понять, **что находится в большой коллекции** WARC, имея её CDX-индекс;
+- нужно оценить, **как хорошо домен сохранён в Wayback Machine** по годам;
+- нужна сводка по item в Internet Archive (Petabox) для отчёта или решения «брать/не брать» в работу.
 
 ❌ Не подходит:
 
-- для покадрового анализа отдельных страниц (используйте прямой [Wayback CDX API](https://github.com/internetarchive/wayback/tree/master/wayback-cdx-server));
-- для не-Internet-Archive коллекций (CDX Summary работает только с IA CDX).
+- для просмотра отдельных захватов страницы — используйте [Wayback CDX API](/kb/instruments/tools/wayback-api) напрямую;
+- для очень крупных доменов через CDX API: запрос с `matchType=domain` скачивает все страницы выдачи последовательно и может идти часами.
+
+## Источники данных
+
+- локальный CDX-файл (без сжатия, `gz` или `bz2`) или CDX по HTTP-ссылке;
+- поток CDX через `STDIN`;
+- item Internet Archive (`-i`); для закрытых item используется авторизация утилиты [`ia`](/kb/instruments/tools/internet-archive-cli);
+- запрос к Wayback CDX Server API (`-a`);
+- ранее сохранённый JSON-отчёт (`-l`).
 
 ## Установка
 
-Готового дистрибутива нет, но скрипт можно запустить локально через Node.js:
-
 ```bash
-git clone https://github.com/internetarchive/iaux-cdx-summary.git
-cd iaux-cdx-summary
-npm install
+pip install cdxsummary
 ```
+
+Также можно собрать Docker-образ из репозитория (`docker image build -t cdxsummary .`).
+
+> Команды сверены с README и `cdxsummary --help` версии 0.1.1b5 (октябрь 2026).
 
 ## Использование
 
-### Получить статистику по коллекции
-
 ```bash
-node ./bin/ia-cdx-summary --domain "kremlin.ru" --year 2023
+# Сводка по локальному CDX-файлу
+cdxsummary sample.cdx.gz
+
+# То же в формате JSON, с записью в файл
+cdxsummary --json --out summary.json sample.cdx.gz
+
+# Сводка по захватам главной страницы сайта в Wayback Machine с 2022 года
+cdxsummary --api 'matchType=exact&from=2022' ruarxive.org
+
+# Сводка по item Internet Archive
+cdxsummary --item IDENTIFIER
+
+# Топ-20 хостов и 5 примеров мементо
+cdxsummary -t 20 -s 5 sample.cdx.gz
 ```
 
-На выходе: список уникальных URL, количество скриншотов, статус-коды и количество «мёртвых» ответов.
+Для `--api` последний аргумент — это URL, а значение опции — параметры CDX API (по умолчанию `matchType=exact`).
 
-### Скомандовать через Wayback CDX API
+Если нужен только сырой список захватов, достаточно запроса к CDX API:
 
 ```bash
-curl "http://web.archive.org/cdx/search/cdx?url=kremlin.ru&limit=10&output=json"
+curl "https://web.archive.org/cdx/search/cdx?url=kremlin.ru&limit=10&output=json"
 ```
 
-## Совмещение с собственными проектами
+## Совместное использование с собственными архивами
 
-В скрипте используется тот же CDX-сервер, что и у Ruarxive — если вы ведёте локальный архив через [pywb](https://github.com/ikreymer/pywb) или [Browsertrix Crawler](/kb/instruments/tools/browsertrix), CDX Summary работает над «общим» CDX без изменений.
+`cdxsummary` работает с CDX-файлами в стандартном формате, поэтому его можно применять и к индексам собственных коллекций, а не только к данным Internet Archive. Совместимость с форматом CDXJ (его используют, например, [pywb](/kb/instruments/replay/pywb) и WACZ) не проверялась.
 
 ## Связанные материалы
 
@@ -63,4 +93,4 @@ curl "http://web.archive.org/cdx/search/cdx?url=kremlin.ru&limit=10&output=json"
 
 ## Источник
 
-- [Публикация в Telegram-канале Ruarxive #61 (29.06.2022)](https://t.me/ruarxive/61) — обзор WARC/CDX-инструментов.
+- [Публикация в Telegram-канале Ruarxive #61 (29.06.2022)](https://t.me/ruarxive/61) — обзор инструментов для работы с веб-архивами (metawarc, CDX Summary, SolrWayback).

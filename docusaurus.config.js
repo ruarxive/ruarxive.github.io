@@ -37,6 +37,7 @@ const config = {
           path: 'kb',
           routeBasePath: 'kb',
           sidebarPath: require.resolve('./sidebars.js'),
+          showLastUpdateTime: true,
           // Please change this to your repo.
           // editUrl: 'https://github.com/ruarxive/ruarxive.github.io/edit/main/',
         },

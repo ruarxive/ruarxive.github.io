@@ -1,161 +1,74 @@
 ---
 title: Warcworker
 sidebar_label: Warcworker
-description: Docker-обёртка над Squidwarc с очередью заданий, веб-интерфейсом и REST API для управления множественными архивациями
+description: "Warcworker — архивный проект Peter Krantz: очередь заданий на RabbitMQ и веб-интерфейс поверх Squidwarc для архивации отдельных URL в WARC в Docker."
+last_update:
+  date: 2026-10-12
 ---
 
 # Warcworker
 
-**Warcworker** — это открытый, dockerized, queued, high fidelity веб-архиватор на основе Squidwarc с простым веб-интерфейсом.
+:::warning Проект в архиве
+Репозиторий [peterk/warcworker](https://github.com/peterk/warcworker) переведён в архив, последние изменения — 2024 год. Проект основан на [Squidwarc](/kb/instruments/tools/squidwarc), который не развивается с 2020 года. Для архивации списков URL с выполнением JavaScript сейчас используйте [Browsertrix Crawler](/kb/instruments/tools/browsertrix) (список seed-URL, `--scopeType page`) или [ArchiveWeb.page](https://archiveweb.page/) для ручной записи.
+:::
 
-## Описание
+**Warcworker** — веб-архиватор в Docker с очередью заданий. Автор — Peter Krantz, лицензия GPL-3.0, написан на Python (Flask). Состоит из небольшого веб-интерфейса, очереди RabbitMQ и воркеров, которые сохраняют страницы через Squidwarc (headless Chrome) в WARC.
 
-Warcworker объединяет возможности Squidwarc с системой очередей и веб-интерфейсом для удобного управления архивацией.
+Важно: **Warcworker не кроулер**. Он не обходит сайт сам, а архивирует отдельные URL, которые ему передали (через форму, букмарклет или HTTP-запрос). Списки URL нужно готовить другими средствами. Для каждого задания можно выбрать скрипты Squidwarc, которые выполнятся на странице: прокрутка, загрузка `srcset`-изображений, скриншот и т. п.
 
-### Особенности
-
-*   **Dockerized**: Работает в Docker контейнере
-*   **Queued**: Система очередей для управления заданиями
-*   **High fidelity**: Высококачественная архивация через Chrome
-*   **Веб-интерфейс**: Простой веб-интерфейс для управления
+Репозиторий `N0taN3rd/warcworker`, на который ссылались ранее, — форк 2018 года, а не основной проект.
 
 ## Установка
 
-### Через Docker
-
 ```bash
-docker pull warcworker/warcworker
-docker run -d -p 3000:3000 warcworker/warcworker
+git clone https://github.com/peterk/warcworker
+cd warcworker
+cp .env_example .env      # задать FLASK_KEY, RMQ_USER, RMQ_PASSWORD, ERROR_EMAIL
+docker-compose up -d --scale worker=3
 ```
 
-### Docker Compose
+После запуска (около минуты) веб-интерфейс доступен на `http://0.0.0.0:5555`. WARC-файлы складываются в каталог `./archive`. Готового образа в Docker Hub нет: образы собираются из каталогов `web` и `worker`.
 
-```yaml
-version: '3'
-services:
-  warcworker:
-    image: warcworker/warcworker
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./data:/data
-```
-
-```bash
-docker-compose up -d
-```
+> Команды сверены с README и `docker-compose.yml` репозитория peterk/warcworker (октябрь 2026). Работоспособность на современных системах не проверялась.
 
 ## Использование
 
 ### Веб-интерфейс
 
-Откройте браузер на `http://localhost:3000` для доступа к веб-интерфейсу.
+Откройте `http://0.0.0.0:5555`, введите URL и описание. Поля можно заполнить параметрами запроса `url` и `description`. На этом основан букмарклет из README:
 
-### Добавление задания
+```text
+javascript:window.open('http://0.0.0.0:5555?url='+encodeURIComponent(location.href) + '&description=' + encodeURIComponent(document.title));window.focus();
+```
 
-1. В веб-интерфейсе нажмите "Add Job"
-2. Введите URL для архивации
-3. Настройте параметры
-4. Нажмите "Start"
-
-### Через API
+### Из командной строки
 
 ```bash
-curl -X POST http://localhost:3000/api/jobs \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com", "options": {}}'
+curl -d "scripts=srcset&scripts=scroll_everything&url=https://example.com/" \
+  -X POST http://0.0.0.0:5555/process/
 ```
 
-## Система очередей
+Скрипты из каталога `scripts/`: `scroll_everything`, `srcset`, `take_screenshot`, `video_src_load`. Они выполняются в указанном порядке.
 
-Warcworker использует систему очередей для управления заданиями:
+### Воспроизведение
 
-*   **Очередь заданий**: Все задания добавляются в очередь
-*   **Обработка**: Воркеры обрабатывают задания из очереди
-*   **Мониторинг**: Веб-интерфейс показывает статус заданий
-
-## Конфигурация
-
-### Переменные окружения
-
-```bash
-docker run -d \
-  -p 3000:3000 \
-  -e MAX_CONCURRENT_JOBS=3 \
-  -e WARC_OUTPUT_DIR=/data/warcs \
-  warcworker/warcworker
-```
-
-### Конфигурационный файл
-
-```json
-{
-  "maxConcurrentJobs": 3,
-  "warcOutputDir": "/data/warcs",
-  "chromeOptions": {
-    "headless": true,
-    "timeout": 30000
-  }
-}
-```
-
-## Best practices
-
-### Ограничение параллельных заданий
-
-```bash
-docker run -d \
-  -e MAX_CONCURRENT_JOBS=2 \
-  warcworker/warcworker
-```
-
-### Настройка таймаутов
-
-```json
-{
-  "chromeOptions": {
-    "timeout": 60000,
-    "pageTimeout": 30000
-  }
-}
-```
-
-### Мониторинг
-
-Используйте веб-интерфейс для:
-*   Просмотра активных заданий
-*   Мониторинга прогресса
-*   Просмотра логов
-*   Управления очередью
+Полученные WARC открываются в [ReplayWeb.page](/kb/instruments/replay/replayweb-page) или [pywb](/kb/instruments/replay/pywb). README предлагает Webrecorder Player, но он больше не развивается.
 
 ## Сравнение
 
-| Инструмент | Веб-интерфейс | Очередь | Docker | Рекомендация |
-| :--- | :--- | :--- | :--- | :--- |
-| **Warcworker** | ✅ | ✅ | ✅ | **Для управления заданиями** |
-| **Squidwarc** | ❌ | ❌ | ❌ | Для интерактивной архивации |
-| **Browsertrix** | Да (Cloud) | Нет | ✅ | Для организаций |
-
-### Когда использовать Warcworker
-
-*   Нужна система очередей для заданий
-*   Требуется веб-интерфейс для управления
-*   Docker окружение
-*   Управление множественными заданиями
-
-### Когда использовать другие инструменты
-
-*   Интерактивная архивация (используйте Squidwarc)
-*   Облачный сервис (используйте Browsertrix Cloud)
-*   Простые случаи (используйте Browsertrix CLI)
+| Инструмент | Веб-интерфейс | Очередь | Обход сайта | Статус |
+| :--- | :---: | :---: | :---: | :--- |
+| **Warcworker** | ✅ | ✅ RabbitMQ | ❌ только переданные URL | В архиве |
+| **[Squidwarc](/kb/instruments/tools/squidwarc)** | ❌ | ❌ | ✅ | Не развивается с 2020 |
+| **[Browsertrix Crawler](/kb/instruments/tools/browsertrix)** | ❌ (есть облачный Browsertrix с интерфейсом) | — | ✅ | Активен |
 
 ## Ресурсы
 
-*   [GitHub репозиторий](https://github.com/N0taN3rd/warcworker)
-*   [Документация](https://github.com/N0taN3rd/warcworker/wiki)
+- [GitHub: peterk/warcworker](https://github.com/peterk/warcworker) (архив)
+- [GitHub: N0taN3rd/Squidwarc](https://github.com/N0taN3rd/Squidwarc)
 
 ## Связанные материалы
 
-- [Squidwarc для сравнения](/kb/instruments/tools/squidwarc)
-- [Browsertrix для организаций](/kb/instruments/tools/browsertrix)
-- [Управление заданиями](/kb/guides/custom-workflows)
+- [Squidwarc](/kb/instruments/tools/squidwarc)
+- [Browsertrix](/kb/instruments/tools/browsertrix)
+- [Динамические и AJAX-сайты](/kb/guides/dynamic-ajax-sites)

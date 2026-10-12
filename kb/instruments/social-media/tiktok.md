@@ -1,205 +1,160 @@
 ---
 title: Архивация TikTok
 sidebar_label: TikTok
-description: "Методы архивации видео, аккаунтов и трендов в TikTok. yt-dlp, snscrape, официальный API, ограничения китайской группы ByteDance."
-last_updated: 2026-11-09
-keywords: [tiktok, archive, video, social, bytedance]
+description: "Методы архивации видео и аккаунтов TikTok: yt-dlp, gallery-dl, неофициальная библиотека TikTokApi, браузерная архивация и официальный Research API для одобренных исследователей."
+last_update:
+  date: 2026-10-12
+keywords: [tiktok, archive, video, social, bytedance, research-api]
 ---
 
 # Архивация TikTok
 
-TikTok — видеоплатформа от ByteDance, особенно значимая для архивации в контексте молодёжной культуры, музыки, политики и войны-в-Украине. К сожалению, **официального API для исследователей не существует**, а сам сервис активно блокирует массовую выгрузку. Ниже — методы, которые работают в 2026 году, с честной оценкой их ограничений.
+TikTok — видеоплатформа компании ByteDance. Для публичных видео основной инструмент — [yt-dlp](/kb/instruments/tools/yt-dlp). Официальный доступ к данным для исследователей есть (Research API), но только для одобренных академических и некоммерческих организаций из ограниченного списка стран. Сама платформа активно противодействует массовой выгрузке.
 
-> **Предупреждение:** правила TikTok ужесточаются каждый год. Любой метод может перестать работать через 3–6 месяцев. Всегда проверяйте актуальное состояние перед архивацией.
+С 6 марта 2022 года TikTok приостановил для пользователей в России публикацию новых видео и прямые эфиры, сославшись на новый закон о «фейках».
 
-## Зачем архивировать TikTok
-
-- **Военная информация и документация событий.** TikTok активно использовался обеими сторонами конфликта.
-- **Этнография молодёжной культуры и мемы** — текстовые форматы не сохраняют.
-- **Маркетинговые тренды и вирусный контент.**
-- **Музыкальные релизы** — артисты часто сначала выпускают в TikTok.
-- **Новости в реальном времени** (соревнование с Reels, Shorts).
+> **Предупреждение:** TikTok часто меняет внутренние интерфейсы, и неофициальные методы могут перестать работать без предупреждения. Проверяйте работоспособность перед началом проекта.
 
 ## Методы
 
 ### 1. yt-dlp (рекомендуется)
 
-[youtube-dl](https://github.com/ytdl-org/youtube-dl) / [yt-dlp](https://github.com/yt-dlp/yt-dlp) — основной инструмент для одного аккаунта или видео. Поддерживает TikTok из коробки с 2022 года.
+[yt-dlp](https://github.com/yt-dlp/yt-dlp) поддерживает отдельные видео, профили пользователей, хэштеги, звуки, коллекции и прямые эфиры TikTok.
 
 ```bash
-# Установка
 pip install yt-dlp
 
-# Скачать одно видео
-yt-dlp 'https://www.tiktok.com/@username/video/1234567890123456789'
+# Одно видео
+yt-dlp "https://www.tiktok.com/@username/video/1234567890123456789"
 
-# Скачать всё видео из профиля
-yt-dlp 'https://www.tiktok.com/@username'
-
-# Скачать с метаданными, обложкой, субтитрами
-yt-dlp \
+# Все видео профиля с метаданными, обложками и комментариями
+yt-dlp --download-archive tiktok-archive.txt \
   --write-info-json \
   --write-comments \
   --write-thumbnail \
   --write-description \
-  --write-subs \
-  --convert-subs srt \
-  -o '%(uploader)s/%(title)s.%(ext)s' \
-  'https://www.tiktok.com/@username'
+  -o "%(uploader)s/%(id)s.%(ext)s" \
+  "https://www.tiktok.com/@username"
+
+# Запись идущего прямого эфира (с момента запуска команды)
+yt-dlp "https://www.tiktok.com/@username/live"
 ```
 
-**Поддерживаемые форматы:**
+Что сохраняется: видео, обложка, описание, метаданные в `*.info.json`, комментарии (если TikTok их отдаёт).
 
-- Видео в максимальном качестве (по умолчанию) или mp4/h264.
-- Обложка (jpg).
-- Описание.
-- Метаданные в JSON.
-- Комментарии (--write-comments, могут быть недоступны).
-- Геометки (--write-info-json содержит place).
-- Субтитры (с автоматической генерацией).
+Ограничения:
 
-**Лимиты yt-dlp:**
+- при частых запросах TikTok временно блокирует доступ — делайте паузы между запусками;
+- для части видео (возрастные ограничения, закрытые аккаунты) нужна авторизация через `--cookies-from-browser`.
 
-- ~50–100 видео/день с одного IP без бана.
-- Cookie могут потребоваться для просмотра возрастных аккаунтов.
-- Stories/lives не поддерживаются полноценно.
-- «Private» аккаунты недоступны без аутентификации.
+> Возможности сверены с исходным кодом экстрактора TikTok в yt-dlp 2026.08.19 (октябрь 2026).
 
-### 2. TikTok-Data-Puller / TikTok-Api (Python)
+### 2. gallery-dl
 
-Несколько Python-обёрток над неофициальным API TikTok (reverse-engineered):
+[gallery-dl](/kb/instruments/tools/gallery-dl) умеет скачивать профили, отдельные посты (включая фото-карусели), репосты и Stories TikTok. Удобен для постов с изображениями, которые yt-dlp обрабатывает хуже.
+
+### 3. TikTokApi (неофициальная библиотека)
+
+[TikTokApi](https://github.com/davidteather/TikTok-Api) — Python-обёртка над внутренним API TikTok. Текущая версия (7.x) асинхронная и для работы требует cookie `ms_token` из браузера и Playwright.
 
 ```bash
 pip install TikTokApi
+python -m playwright install
 ```
 
 ```python
+import asyncio
+import os
+
 from TikTokApi import TikTokApi
 
-api = TikTokApi()
-user = api.user(username="example")
-for video in user.videos(count=30):
-    print(video.id, video.desc)
+ms_token = os.environ.get("ms_token")  # значение cookie msToken с tiktok.com
+
+
+async def main():
+    async with TikTokApi() as api:
+        await api.create_sessions(ms_tokens=[ms_token], num_sessions=1, sleep_after=3)
+        user = api.user("username")
+        async for video in user.videos(count=30):
+            print(video.id, video.as_dict.get("desc"))
+
+
+asyncio.run(main())
 ```
 
-**Ограничения:**
+Ограничения: зависит от внутренних интерфейсов TikTok, может сломаться после любого обновления платформы; при интенсивном использовании срабатывает защита от ботов. Пример основан на `examples/user_example.py` из репозитория (версия 7.3.3).
 
-- Зависит от внутренних эндпойнтов — могут сломаться без предупреждения.
-- Нет гарантий работы с аккаунтов для подписок.
-- Может попасть в anti-bot при слишком частом использовании.
+### 4. Wayback Machine и ArchiveTeam
 
-### 3. snscrape (legacy)
-
-[snscrape](https://github.com/JustAnotherArchivist/snscrape) — универсальный скрейпер соцсетей. Поддержка TikTok объявлена устаревшей в 2024 году, но для малых объёмов всё ещё работает.
+Проверьте, нет ли сохранённого снимка видео или профиля в [Wayback Machine](https://web.archive.org/). Сведения о проектах ArchiveTeam по TikTok — на [вики ArchiveTeam](https://wiki.archiveteam.org/index.php/TikTok).
 
 ```bash
-pip install snscrape
-
-snscrape tiktok-user username
-snscrape tiktok-search "python tutorial"
+curl "https://archive.org/wayback/available?url=tiktok.com/@username/video/1234567890123456789"
 ```
 
-**⚠️ Внимание:** snscrape официально не поддерживается с 2024 года и не возвращает видео — только метаданные.
+### 5. Браузерная архивация (Browsertrix)
 
-### 4. Archive Team (Wayback Machine)
-
-ArchiveTeam также собирает TikTok через свои краулеры и кладёт в [Wayback Machine](https://web.archive.org/). Для исследователя это простой fallback: проверить, не было ли публичного снимка видео или профиля.
+Для сохранения веб-страницы профиля в WARC/WACZ:
 
 ```bash
-# Проверка наличия в Wayback
-curl 'https://archive.org/wayback/available?url=tiktok.com/@username/video/12345'
-```
-
-### 5. Браузерный кроулер (Browsertrix / Squidwarc)
-
-Для веб-версии TikTok:
-
-```bash
-# Через Browsertrix — собрать страницу профиля с превью видео
-browsertrix-crawler crawl \
-  --url 'https://www.tiktok.com/@username' \
-  --browserWindow 1 \
-  --scopePageLimit 50 \
+docker run -v $PWD/crawls:/crawls/ -it webrecorder/browsertrix-crawler crawl \
+  --url "https://www.tiktok.com/@username" \
+  --pageLimit 50 \
+  --generateWACZ \
   --collection tiktok-username
 ```
 
-**Плюс:** все видео в виде веб-страницы.
-**Минус:** только превью-видео, не сами MP4-файлы.
+Плюс — сохраняется внешний вид страницы. Минус — видео сохраняются не всегда полностью; для самих файлов надёжнее yt-dlp.
 
-### 6. Официальный Research API (для академии)
+### 6. Официальный Research API
 
-В 2024 году TikTok запустил закрытую программу [TikTok Research API](https://developers.tiktok.com/research-api) для академических исследователей. Доступ через заявку; одобрение занимает 2–4 месяца.
+[TikTok Research Tools](https://developers.tiktok.com/products/research-api/) дают доступ к публичным данным о видео, комментариях и аккаунтах:
 
-**Что даёт:**
+- **видео** — доступные всем публикации, число лайков и комментариев, расшифровка речи, субтитры, время создания и длительность;
+- **комментарии** — текст, число лайков и ответов, время публикации;
+- **аккаунты** — описание профиля, аватар, понравившиеся, репостнутые и закреплённые видео, подписчики и подписки.
 
-- Поиск по хэштегам, ключевым словам.
-- Метаданные видео, комментарии, статистика аккаунтов.
-- Никаких медиа-файлов (только метаданные).
+Кто может подать заявку: исследователи академических организаций США, ЕЭЗ, Великобритании, Швейцарии и Канады, некоммерческие исследовательские организации ЕС, а также организации Бразилии, изучающие безопасность детей в интернете. Нужны описание исследования, этическая экспертиза и независимость от коммерческих интересов; ответ обычно приходит в течение 4 недель. Отдельно действует доступ для проверенных исследователей по Закону ЕС о цифровых услугах (DSA).
 
-**Не подходит для:**
-
-- Архивирования самих видео.
-- Непрерывной загрузки.
-- Журналистов и не-академических исследователей.
+Research API даёт метаданные, но не видеофайлы, поэтому для архивации самих видео он не подходит.
 
 ## Что нельзя получить
 
-- **Прямой эфир TikTok** — сохранить можно только с локального браузера через [ffmpeg + XSplit](https://obsproject.com/), в автоматическом режиме не получится.
-- **DMs** — не публичны, не подходят ни одному методу.
-- **Данные до 2022 года** — многие методы сломались с обновлениями API.
+- **Личные сообщения** — не публичны, недоступны ни одним из методов.
+- **Закрытые аккаунты** — только с авторизацией пользователя, у которого есть доступ.
+- **Удалённые видео** — только если они ранее попали в Wayback Machine или другие архивы.
 
 ## Юридические аспекты
 
 > [!WARNING]
-> TikTok явно запрещает массовую автоматическую выгрузку в своих Terms of Service. Перед архивацией проверьте:
+> Условия использования TikTok запрещают автоматический сбор данных без разрешения. Перед архивацией оцените:
 >
-> - Цель архивирования (академическая, журналистская, общественная польза).
-> - Юрисдикция (законы РФ, ЕС, США различаются).
-> - ToS платформы и условия использования контента.
+> - цель архивирования (научная, журналистская, общественно значимая);
+> - применимое право (законы РФ, ЕС, США различаются);
+> - [персональные данные](/kb/legal/personal-data) авторов и людей в кадре.
 
 Подробнее: [Правовые вопросы](/kb/legal/copyright).
 
 ## Хранение архива
 
-Типичный профиль в TikTok (30 видео) — 300 МБ – 1 ГБ. Хэштег с тысячами видео — десятки ГБ.
-
-**Рекомендации:**
-
-- S3 Standard для «горячих» архивов.
-- Backblaze B2 для холодного хранения.
-- Верификация хешей SHA-256 после скачивания.
-
-## Когда использовать
-
-✅ Подходит:
-
-- **Архивирование конкретных видео** — yt-dlp.
-- **Архивирование профиля целиком** — yt-dlp с правильными флагами.
-- **OSINT-расследование** — yt-dlp или TikTokApi (осторожно с rate-limit).
-- **Академическое исследование** — TikTok Research API.
-- **Юридическое доказательство** — yt-dlp + хеш в метаданных + сертификация.
-
-❌ Не подходит:
-
-- **Массовое сохранение миллионов видео** — ни один из методов не рассчитан.
-- **Real-time мониторинг** — нужен кастомный пайплайн.
-- **Stories** — yt-dlp ограниченно.
-- **Закрытые аккаунты без аутентификации** — не получится никак.
+- Сохраняйте `*.info.json` рядом с каждым видео — там исходный URL, автор, дата и статистика.
+- Ведите файл `--download-archive`, чтобы повторные запуски докачивали только новое.
+- Считайте контрольные суммы (SHA-256) после скачивания.
 
 ## Ресурсы
 
-- [TikTokApi Python library](https://github.com/davidteather/TikTok-Api)
-- [yt-dlp документация по TikTok](https://github.com/yt-dlp/yt-dlp/blob/master/README.md#tiktok)
-- [ArchiveTeam TikTok](https://wiki.archiveteam.org/index.php?title=TikTok)
-- [TikTok Research API](https://developers.tiktok.com/research-api)
-- [snscrape legacy](https://github.com/JustAnotherArchivist/snscrape)
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp)
+- [TikTokApi](https://github.com/davidteather/TikTok-Api)
+- [TikTok Research Tools](https://developers.tiktok.com/products/research-api/)
+- [Документация Research Tools](https://developers.tiktok.com/doc/about-research-api)
+- [ArchiveTeam: TikTok](https://wiki.archiveteam.org/index.php/TikTok)
 
 ## Связанные материалы
 
 - [Архивация видео — общая страница](/kb/instruments/social-media/youtube-video)
 - [yt-dlp — детальная страница](/kb/instruments/tools/yt-dlp)
-- [Галерея загрузчиков (gallery-dl)](/kb/instruments/tools/gallery-dl)
+- [gallery-dl](/kb/instruments/tools/gallery-dl)
 - [Социальные сети — обзор](/kb/instruments/social-media)
 - [Data Take-Out: обзор](/kb/instruments/data-take-out/data-take-out-main)
-- [Правовые вопросы](/kb/legal/copyright) — что законно.
-- [Ландшафт 2026](/kb/instruments/landscape-2026) — место TikTok.
+- [Правовые вопросы](/kb/legal/copyright)
+- [Ландшафт 2026](/kb/instruments/landscape-2026)

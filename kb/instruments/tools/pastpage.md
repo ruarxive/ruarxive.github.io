@@ -1,203 +1,104 @@
 ---
 title: PastPage — расширение для восстановления страниц
 sidebar_label: PastPage
-description: "PastPage — браузерное расширение для автоматического поиска исчезнувших страниц в Wayback Machine, Archive.today и других архивах. Для Chrome и Firefox."
-last_updated: 2026-11-09
+description: "PastPage — открытое расширение для Chrome и Firefox, которое ищет исчезнувшие или изменённые страницы сразу в нескольких веб-архивах: Wayback Machine, Archive.today, Perma.cc, национальных архивах."
+last_update:
+  date: 2026-10-12
 keywords: [pastpage, browser-extension, archive.today, wayback, link-rot]
 ---
 
 # PastPage — расширение для восстановления страниц
 
-[PastPage](https://github.com/brettlangdon/pastpage) — расширение для браузеров (Chrome и Firefox), которое автоматически находит архивные копии страниц в Wayback Machine, [Archive.today](https://archive.ph/), [Perma.cc](https://perma.cc/), [Library of Congress](https://webarchive.loc.gov/) и других Memento-совместимых архивах.
+**PastPage** — открытое браузерное расширение (TypeScript, лицензия MIT, проект 2026 года), которое помогает найти архивную копию исчезнувшей, изменённой или недоступной страницы. Вместо поочерёдной проверки архивов вручную оно опрашивает до 15 веб-архивов и кешей и показывает найденные снимки.
 
-> **Главное:** при попытке открыть страницу, которая вернула 404 или изменилась до неузнаваемости, PastPage предложит «посмотреть в архиве» и даст прямую ссылку на ближайший снимок.
+- Исходный код: [github.com/nabertronic/pastpage](https://github.com/nabertronic/pastpage)
+- Chrome Web Store: [PastPage: Query 10+ Web Archives at Once](https://chromewebstore.google.com/detail/pastpage-query-10+-web-ar/icpegbecignmplpkjjcegmjmfadpcpoo)
+- Firefox Add-ons: [PastPage: Query 10+ Web Archives](https://addons.mozilla.org/en-US/firefox/addon/pastpage-query-10-web-archives/)
+
+Не путать с **PastPages** — проектом Бена Уэлша (Ben Welsh) по архивации главных страниц новостных сайтов ([palewire/pastpages.org](https://github.com/palewire/pastpages.org), репозиторий в архиве с 2021 года).
 
 ## Зачем нужно
 
-- **Борьба с link rot** — до 50 % ссылок в Википедии через 10 лет ведут на 404-е страницы.
-- **Восстановление цитат** — исследователь нашёл упоминание URL в книге, но сайт закрылся.
-- **Журналистика** — проверить, что было на странице до того, как владелец её изменил.
-- **Юриспруденция** — найти версию страницы на момент события.
+- **Битые ссылки** — источник из книги, статьи или Википедии больше не открывается.
+- **Журналистика и исследования** — проверить, что было на странице до того, как её изменили.
+- **Недоступные ресурсы** — страница отдаёт 403, 451 или ошибку сервера, и нужно найти сохранённую копию.
 
 ## Возможности
 
-| Возможность | Описание |
-|:---|:---|
-| **Автодетект 404** | При получении страницы с ошибкой — предложить архив |
-| **Контекстное меню** | ПКМ → «View archived page» |
-| **Toolbar кнопка** | Клик → список архивных версий текущей страницы |
-| **Multiple archives** | Ищет сразу в Wayback, Archive.today, Perma.cc, LOC, BNE |
-| **Memento Aggregator** | Федеративный поиск через timetravel.mementoweb.org |
-| **History view** | Показывает все известные снимки на временной шкале |
-| **Hotkey** | `Ctrl+Shift+A` (Chrome), `Cmd+Shift+A` (Mac) |
+По описанию в README:
 
-## Установка
-
-### Chrome / Edge / Brave
-
-1. Перейдите в [Chrome Web Store — PastPage](https://chromewebstore.google.com/detail/pastpage/nfcoaaejlopeclnhapflhcfcfknggldp).
-2. Нажмите «Добавить в Chrome».
-3. Подтвердите доступ к `*://*/*` (необходимо для запросов).
-
-### Firefox
-
-1. Откройте [Firefox Add-ons — PastPage](https://addons.mozilla.org/en-US/firefox/addon/pastpage/).
-2. Нажмите «Add to Firefox».
-3. Подтвердите разрешения.
-
-### Из исходников (для разработки)
-
-```bash
-git clone https://github.com/brettlangdon/pastpage
-cd pastpage
-npm install
-npm run build
-# Загрузите папку build/ в Chrome → Extensions → Load unpacked
-```
-
-## Использование
-
-### Сценарий 1. «Страница не открылась — что было раньше?»
-
-1. Откройте любую страницу.
-2. Если она вернула 404 или сильно изменилась, расширение покажет плавающее уведомление:
-   ```
-   🔍 Эта страница доступна в Wayback Machine
-   [Открыть версию от 2024-12-15]
-   [Показать все версии]
-   ```
-3. Нажмите «Открыть версию».
-
-### Сценарий 2. Ручной запуск
-
-Если расширение не сработало автоматически:
-
-1. На странице — `Ctrl/Cmd+Shift+A` (или клик на иконку PastPage в панели).
-2. Откроется popup с списком снимков.
-
-### Сценарий 3. Из контекстного меню
-
-1. ПКМ на ссылке в любом месте.
-2. Меню → «Open with PastPage».
-3. Откроется список снимков.
-
-### Сценарий 4. История страницы
-
-1. Откройте страницу.
-2. Клик на иконку PastPage.
-3. Кнопка «View timeline» — все снимки на временной оси.
-
-### Настройка
-
-Правый клик на иконку → Options:
-
-| Настройка | Дефолт | Описание |
-|:---|:---|:---|
-| Auto-detect 404 | ✅ | Плавать уведомление при 404 |
-| Search on page load | ❌ | Показывать архив для каждой страницы (нагрузка) |
-| Default archive | `wayback` | Какой архив использовать первым |
-| Custom archives | — | Добавить свои TimeGate |
-| Hotkey | `Ctrl+Shift+A` | Изменить |
+- распознаёт, что страница исчезла, сломана или заблокирована: реагирует на ответы `403`, `404`, `410`, `451` и типичные ошибки `5xx`;
+- проверяет текущую страницу в один клик: с панели инструментов, из всплывающего окна или контекстного меню (для страницы, ссылки или выделенного URL);
+- опрашивает до 15 архивов и кешей и сначала показывает те, что подходят к адресу;
+- показывает подтверждённые совпадения, неподтверждённые кандидаты, ошибки провайдеров и ссылки для дальнейшего поиска по мере поступления результатов;
+- проверяет исходный и «очищенный» URL: без параметров отслеживания, без фрагмента, с вариантами протокола, `www` и завершающего слеша;
+- хранит историю поиска локально: фильтры, сортировка, экспорт в CSV, повторный запуск;
+- позволяет выбрать набор архивов и их порядок, таймаут, поведение вкладок и домены-исключения;
+- интерфейс на английском, немецком, испанском, французском, итальянском, польском, португальском и украинском.
 
 ## Поддерживаемые архивы
 
-| Сервис | Эндпойнт | Примечание |
-|:---|:---|:---|
-| Wayback Machine | `web.archive.org` | Основной |
-| Archive.today | `archive.ph` | Быстрый снимок |
-| Perma.cc | `perma.cc` | Академический |
-| Library of Congress | `webarchive.loc.gov` | США |
-| Bibliothèque nationale de France | `web.archive.bnf.fr` | Франция |
-| UK Web Archive | `webarchive.org.uk` | Великобритания |
-| Memento Aggregator | `timetravel.mementoweb.org` | Федеративный |
-| Custom | настраивается | Через интерфейс |
+Общие:
+
+- Wayback Machine (`archive.org`)
+- Archive.today
+- Ghostarchive
+- Perma.cc
+- Megalodon / Web Gyotaku
+- WebCite
+- Yandex Cache
+
+Региональные и специализированные (предлагаются, когда подходят к адресу):
+
+- Arquivo.pt — для португальских доменов
+- UK Government Web Archive — для `gov.uk`
+- Library of Congress Web Archives — для `gov`, `mil`, `loc.gov`, `congress.gov`
+- Government of Canada Web Archive — для `canada.ca`, `gc.ca`
+- Vefsafn (Исландия) — для `.is`
+- NTUWAS — для `.tw`
+- PADICAT (Каталония) — для `.cat`
+- Software Heritage — для адресов репозиториев кода
+
+## Установка
+
+Установите расширение из [Chrome Web Store](https://chromewebstore.google.com/detail/pastpage-query-10+-web-ar/icpegbecignmplpkjjcegmjmfadpcpoo) или [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/pastpage-query-10-web-archives/). Сборку для разработки можно сделать из репозитория; инструкции для разработчиков — в каталоге [`docs/`](https://github.com/nabertronic/pastpage/tree/main/docs).
+
+## Приватность
+
+По заявлению авторов, расширение не использует трекинг, аналитику и телеметрию. Распознавание сломанных страниц и история поиска хранятся локально в браузере. Адрес страницы отправляется архивам только после того, как пользователь сам запустил поиск. Подробности — в [docs/PRIVACY.md](https://github.com/nabertronic/pastpage/blob/main/docs/PRIVACY.md).
 
 ## Сравнение с аналогами
 
-| Расширение | Главная фишка | Разработка |
-|:---|:---|:---|
-| **PastPage** | Multiple archives, простой UI | Активна |
-| **[Mink](https://github.com/keitham/mink)** | Sidebar panel в браузере | Активна |
-| **[Resurrect Pages](https://github.com/fflorent/resurrect-pages)** | Single-archive | Стабильная, но узкая |
-| **[Wayback Machine (Chrome)](https://chromewebstore.google.com/detail/wayback-machine/fpnmgdkabflnbojnbpmoiakhjhpmg)** | Официальная кнопка Wayback | Активна |
-| **[Zotero Robust Links](https://github.com/lehnberg/zotero-memento)** | Интеграция с Zotero | Активна |
+| Расширение | Что делает |
+|:---|:---|
+| **PastPage** | Поиск сразу в нескольких архивах и кешах, история, экспорт в CSV |
+| **[Wayback Machine](https://chromewebstore.google.com/detail/wayback-machine/fpnmgdkabkmnadcjpehmlllkndpkmiak)** (официальное расширение Internet Archive, есть и [для Firefox](https://addons.mozilla.org/en-US/firefox/addon/wayback-machine_new/)) | Поиск и сохранение страниц только в Wayback Machine |
+| **[Resurrect Pages](https://addons.mozilla.org/en-US/firefox/addon/resurrect-pages/)** (Firefox) | Открывает страницу в одном из нескольких архивов на выбор |
 
-PastPage превосходит остальные именно работой с **несколькими архивами одновременно** — это важно для пользователей из РФ, где Wayback Machine может быть замедлен.
-
-## Лучшие практики использования
-
-### Для исследователей
-
-- Включите «Auto-detect» — будете сразу видеть архивные копии при 404.
-- Добавьте [Perma.cc](https://perma.cc/) для научного цитирования.
-- Используйте timeline view для изучения эволюции страницы.
-
-### Для журналистов
-
-- В контекстном меню ПКМ на ссылке в соцсети → «Open with PastPage».
-- Если пишете о событии 2-летней давности — сначала проверьте, что на странице было тогда.
-- Сохраняйте результат через Perma.cc для собственного архива.
-
-### Для юристов
-
-- Перед использованием цитаты из веб-источника — проверьте оригинальную версию через Perma.cc.
-- Сохраните версию страницы через Perma.cc сразу, чтобы у вас была собственная постоянная ссылка.
-
-## Юридические аспекты
-
-PastPage показывает **существующие** архивные снимки, не создаёт новых. Если нужно сохранить текущую версию:
-
-- Через PastPage → «Save in Wayback» (требует SavePageNow).
-- Через [Archive.ph](https://archive.ph/) — проще.
-- Через [Perma.cc](https://perma.cc/) — для академических случаев.
-
-## Альтернативы для исследователей OSINT
-
-| Инструмент | Тип | Когда |
-|:---|:---|:---|
-| PastPage | Расширение браузера | Массовое использование |
-| Wayback Machine API | HTTP | Скрипты, автоматизация |
-| [Bellingcat Auto-Archiver](/kb/instruments/tools/auto-archiver) | Workflow OSINT | Массовая архивация |
-| [Waybackpy](/kb/instruments/tools/waybackpy) | Python lib | Backednd-интеграция |
-| [Scoop (Harvard LIL)](https://tools.perma.cc/) | Self-hosted capture | Юридический workflow |
-| ArchiveTeam Wiki | Бумажный архив | Закрытые сервисы |
+PastPage только ищет существующие снимки и не создаёт новых. Чтобы сохранить текущую версию страницы, используйте [SavePageNow](/kb/instruments/tools/wayback-api), [Archive.today](/kb/instruments/tools/archive-ph) или [Perma.cc](/kb/similar/perma-cc).
 
 ## Когда использовать
 
 ✅ Подходит:
 
-- **Активный сёрфинг** с параллельной проверкой архива.
-- **Восстановление ссылок** в научных и публицистических работах.
-- **Журналистские расследования** с длинной историей цитат.
-- **Борьба с изменённой информацией** (история правок страницы).
+- для ручного восстановления отдельных ссылок при чтении, проверке фактов и подготовке публикаций;
+- когда страница недоступна и нужно быстро перебрать несколько архивов.
 
 ❌ Не подходит:
 
-- **Массовое сохранение** — нужны специализированные инструменты.
-- **Создание новых архивов** — только навигация по существующим.
-- **Гарантированное цитирование** — снимки могут быть удалены; используйте Perma.cc.
-- **Приватные страницы** — никогда не попадают в публичные архивы.
-
-## Privacy note
-
-PastPage при каждой загрузке страницы потенциально может делать запрос к архивам для проверки существования снимков. Это:
-
-- Добавляет небольшую нагрузку на интернет-трафик.
-- Может раскрыть посещаемые URL архивам.
-
-Если это критично — отключите «Search on page load» и используйте только контекстное меню.
+- для массовой проверки списков URL: используйте [Wayback Machine API](/kb/instruments/tools/wayback-api) или [waybackpy](/kb/instruments/tools/waybackpy);
+- для создания архива: используйте [Browsertrix](/kb/instruments/tools/browsertrix), [ArchiveWeb.page](https://archiveweb.page/) или [Wget](/kb/instruments/tools/wget).
 
 ## Ресурсы
 
-- [GitHub репозиторий](https://github.com/brettlangdon/pastpage)
-- [Chrome Web Store](https://chromewebstore.google.com/detail/pastpage/nfcoaaejlopeclnhapflhcfcfknggldp)
-- [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/pastpage/)
-- [Privacy policy](https://github.com/brettlangdon/pastpage/wiki/Privacy) — про то, какие данные передаются.
+- [GitHub: nabertronic/pastpage](https://github.com/nabertronic/pastpage) — исходный код и README.
+- [Chrome Web Store](https://chromewebstore.google.com/detail/pastpage-query-10+-web-ar/icpegbecignmplpkjjcegmjmfadpcpoo)
+- [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/pastpage-query-10-web-archives/)
 
 ## Связанные материалы
 
 - [Wayback Machine API](/kb/instruments/tools/wayback-api) — для скриптов.
 - [Waybackpy](/kb/instruments/tools/waybackpy) — для Python.
-- [Memento](/kb/instruments/replay/memento) — стандарт Memento Aggregator.
-- [Internet Archive](/kb/similar/internet-archive) — обзор Wayback.
-- [Perma.cc](/kb/similar/perma-cc) — для научных целей.
+- [Memento](/kb/instruments/replay/memento) — протокол поиска снимков в нескольких архивах.
+- [Internet Archive](/kb/similar/internet-archive) — обзор Wayback Machine.
+- [Perma.cc](/kb/similar/perma-cc) — постоянные ссылки для цитирования.

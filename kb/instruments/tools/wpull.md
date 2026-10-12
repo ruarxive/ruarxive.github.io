@@ -1,228 +1,165 @@
 ---
 title: Wpull
 sidebar_label: Wpull
-description: Форк Wget от Archive Team с нативной поддержкой WARC, HTTP/2 и расширяемостью через Python-плагины
+description: "Wpull — Wget-совместимый загрузчик и кроулер на Python с записью WARC, базой состояния и плагинами. Последний релиз на PyPI — 2016 года; на практике используется через grab-site."
+last_update:
+  date: 2026-10-12
 ---
 
 # Wpull
 
-**Wpull** — это альтернатива/замена Wget, разработанная Archive Team специально для веб-архивации.
+:::warning Проект почти не развивается
+Последний релиз Wpull на PyPI — 2.0.1 (июнь 2016 года). Он требует старых версий зависимостей (Tornado, html5lib) и на современных версиях Python обычно не устанавливается. На практике Wpull используют внутри [grab-site](/kb/instruments/tools/grab-site): там свой форк [ludios_wpull](https://github.com/ArchiveTeam/ludios_wpull), и для него нужен Python 3.7 или 3.8. Для новых проектов рассмотрите [Wget](/kb/instruments/tools/wget), [grab-site](/kb/instruments/tools/grab-site) или [Browsertrix Crawler](/kb/instruments/tools/browsertrix).
+:::
+
+**Wpull** — Wget-совместимый загрузчик и кроулер, написанный с нуля на Python. Автор — Christopher Foo (chfoo), лицензия GPL-3.0. Это не форк Wget: Wpull заново реализует его интерфейс и использует некоторые алгоритмы Wget. Репозиторий сейчас находится в организации ArchiveTeam: [github.com/ArchiveTeam/wpull](https://github.com/ArchiveTeam/wpull).
 
 ## Когда использовать
 
 ✅ Подходит, если нужно:
 
-- снимать сайт по ссылкам (а не через структурированный API) сразу в **WARC**;
-- работать с современными HTTPS-сайтами: HTTP/2, SNI, LetsEncrypt;
-- расширять логику через **Python-плагины** (например, кастомные правила выбора URL);
-- поддерживать современные версии Wget — обычный Wget 1.x уже давно не успевает за вебом.
+- снимать сайт по ссылкам сразу в **WARC** с Wget-подобным набором флагов;
+- **останавливать и возобновлять** большой обход: состояние хранится в базе SQLite (`--database`);
+- расширять логику через **Python-плагины** (свои правила отбора URL, извлечение ссылок).
 
 ❌ Не лучший выбор, если:
 
-- сайт на WordPress с открытым REST API — возьмите [wparc](/kb/instruments/ruarxive-tools/wparc) (структурированный JSON вместо HTML);
-- нужен JS-рендеринг — [Browsertrix Crawler](/kb/instruments/tools/browsertrix) или [Brozzler](/kb/instruments/tools/brozzler);
-- нужен replay-режим — добавьте [metawarc](/kb/instruments/ruarxive-tools/metawarc) (`serve`) или [pywb](/kb/instruments/replay/pywb) к полученному WARC.
+- сайт на WordPress с открытым REST API — возьмите [wparc](/kb/instruments/ruarxive-tools/wparc);
+- нужен рендеринг JavaScript — [Browsertrix Crawler](/kb/instruments/tools/browsertrix) или [Brozzler](/kb/instruments/tools/brozzler);
+- нужна простая установка на современной системе — [Wget](/kb/instruments/tools/wget).
 
-## Описание
+## Возможности
 
-Wpull создан как улучшенная версия Wget с лучшей поддержкой современных веб-стандартов и возможностью расширения через Python плагины.
+- Wget-совместимые флаги: `--recursive`, `--level`, `--page-requisites`, `--span-hosts`, `--accept-regex`, `--reject-regex`, `--wait`, `--random-wait` и др.
+- Запись WARC: `--warc-file`, `--warc-max-size`, `--warc-cdx`, `--warc-dedup`, `--warc-append`, `--warc-move`.
+- Параллельные соединения: `--concurrent`.
+- База состояния для возобновления: `--database`.
+- Чтение `sitemap.xml`: `--sitemaps`.
+- Тонкая настройка выхода на другие хосты: `--span-hosts-allow linked-pages,page-requisites`.
+- Плагины на Python: `--plugin-script`, `--plugin-args`.
+- Экспериментальная интеграция с PhantomJS (`--phantomjs`) и youtube-dl (`--youtube-dl`). Оба проекта устарели, PhantomJS не развивается с 2018 года.
 
-### Особенности
-
-*   **Современные стандарты**: Лучшая поддержка современных веб-технологий
-*   **Python плагины**: Расширяемость через плагины
-*   **Лучшая обработка JavaScript**: Ограниченная поддержка JavaScript сайтов
-*   **WARC совместимость**: Создаёт WARC файлы
+Поддерживается только HTTP/1.x: HTTP/2 в Wpull нет.
 
 ## Установка
 
-### Через pip
-
 ```bash
-pip install wpull
+# официальный пакет (2.0.1, 2016); требует старого Python и зависимостей
+pip3 install wpull
 ```
 
-### Из исходников
+Сборка из исходников:
 
 ```bash
 git clone https://github.com/ArchiveTeam/wpull
 cd wpull
-pip install -e .
+pip install .
 ```
+
+Если установить не получается, проще поставить [grab-site](/kb/instruments/tools/grab-site) по его инструкции: она описывает подходящую версию Python.
+
+> Флаги сверены с документацией [wpull.readthedocs.io](https://wpull.readthedocs.io/) (версия 2.0.1, октябрь 2026). Сам Wpull локально не запускался.
 
 ## Использование
 
-### Базовое использование
+### Одна страница
 
 ```bash
-wpull https://example.com
+wpull example.com/about
 ```
 
-### Создание WARC
+### Архивация сайта в WARC
+
+Пример из README (сокращён):
 
 ```bash
-wpull --warc-file=archive.warc https://example.com
+wpull example.com \
+    --warc-file example \
+    --recursive --level inf \
+    --page-requisites \
+    --span-hosts-allow linked-pages,page-requisites \
+    --wait 0.5 --random-wait --waitretry 600 \
+    --tries 3 --retry-connrefused --retry-dns-error \
+    --timeout 60 --session-timeout 21600 \
+    --sitemaps \
+    --reject-regex "/login\.php" \
+    --delete-after \
+    --database example.db \
+    --output-file example.log
 ```
 
-### Рекурсивная загрузка
+- `--delete-after` удаляет скачанные файлы с диска: остаётся только WARC.
+- `--database` позволяет перезапустить прерванный обход с того же места.
+- По умолчанию Wpull соблюдает robots.txt. В примере README он отключён через `--no-robots`; решайте сами, нужно ли это.
+
+### Большой сайт
 
 ```bash
-wpull --recursive --level=3 https://example.com
+wpull example.com \
+  --recursive --level 5 \
+  --warc-file example --warc-max-size 1000000000 --warc-cdx \
+  --concurrent 2 --wait 1 \
+  --database example.db
 ```
 
-### Ограничение домена
+Ограничить объём можно через `--quota` (общий объём загрузки).
 
-```bash
-wpull --recursive --domains=example.com https://example.com
-```
+## Плагины
 
-## Преимущества перед Wget
-
-### 1. Лучшая поддержка современных стандартов
-
-*   Поддержка HTTP/2
-*   Лучшая обработка cookies
-*   Поддержка современных заголовков
-
-### 2. Python плагины
+Плагин — класс-наследник `wpull.application.plugin.WpullPlugin`, который подключается флагом `--plugin-script`. Функции регистрируются декораторами `hook` (меняют поведение и возвращают значение) и `event` (уведомления). Пример по [документации](https://wpull.readthedocs.io/en/master/scripting.html):
 
 ```python
-# Пример плагина
-def handle_response(response):
-    # Кастомная обработка ответа
-    pass
+# skip_logout.py
+from wpull.application.plugin import WpullPlugin, PluginFunctions, hook
+from wpull.pipeline.session import ItemSession
+
+
+class SkipLogout(WpullPlugin):
+    @hook(PluginFunctions.accept_url)
+    def accept_url(self, item_session: ItemSession, verdict: bool, reasons: dict) -> bool:
+        if "logout" in item_session.request.url:
+            return False
+        return verdict
 ```
 
-### 3. Лучшая обработка JavaScript
+```bash
+wpull example.com --recursive --warc-file example --plugin-script skip_logout.py
+```
 
-*   Ограниченная поддержка JavaScript сайтов
-*   Обработка динамического контента
-*   Поддержка AJAX запросов
-
-### 4. WARC совместимость
-
-*   Нативная поддержка WARC формата
-*   Создание стандартных WARC файлов
-*   Совместимость с инструментами воспроизведения
+Другие точки расширения: `get_urls` (добавить свои URL), `handle_response`, `handle_error`, `resolve_dns`, `exit_status`. Полный список — в разделе Plugin Scripting Hooks документации.
 
 ## Сравнение с Wget
 
-| Функция | Wget | Wpull | Победитель |
-| :--- | :--- | :--- | :--- |
-| Простота | ✅ | ✅ | Ничья |
-| WARC | ✅ (v1.14+) | ✅ | Ничья |
-| JavaScript | ❌ | ⚠️ Ограниченная | Wpull |
-| Плагины | ❌ | ✅ | Wpull |
-| HTTP/2 | ⚠️ | ✅ | Wpull |
-| Стабильность | ✅ | ⚠️ | Wget |
-
-### Когда использовать Wpull
-
-*   Нужна лучшая поддержка современных сайтов
-*   Требуется расширяемость через плагины
-*   Ограниченная поддержка JavaScript
-*   Работа с современными веб-стандартами
-
-### Когда использовать Wget
-
-*   Максимальная стабильность
-*   Простые статические сайты
-*   Стандартные инструменты системы
-*   Не нужны плагины
-
-## Примеры использования
-
-### Архивация с фильтрацией
-
-```bash
-wpull --recursive \
-  --warc-file=archive.warc \
-  --accept-regex='.*\.(html|css|js)$' \
-  --reject-regex='.*\.(jpg|png|gif)$' \
-  https://example.com
-```
-
-### С пользовательским user-agent
-
-```bash
-wpull --user-agent="Mozilla/5.0 (compatible; wpull/1.0)" \
-  --recursive \
-  https://example.com
-```
-
-### С задержками
-
-```bash
-wpull --wait=1 \
-  --random-wait \
-  --recursive \
-  https://example.com
-```
-
-## Python плагины
-
-### Создание плагина
-
-```python
-# my_plugin.py
-def handle_response(response):
-    if response.status_code == 200:
-        # Обработка успешного ответа
-        pass
-    return response
-```
-
-### Использование плагина
-
-```bash
-wpull --plugin=my_plugin.py https://example.com
-```
-
-## Best practices
-
-### Для больших сайтов
-
-```bash
-wpull --recursive \
-  --level=5 \
-  --warc-file=archive.warc \
-  --warc-max-size=1000000000 \
-  --max-files=100000 \
-  https://example.com
-```
-
-### Для быстрой архивации
-
-```bash
-wpull --recursive \
-  --warc-file=archive.warc \
-  --no-wait \
-  --concurrent=10 \
-  https://example.com
-```
+| Функция | Wget | Wpull |
+| :--- | :--- | :--- |
+| WARC | ✅ (1.14+) | ✅ |
+| Возобновление большого обхода | ⚠️ только `-N`/`-c` по файлам | ✅ база SQLite |
+| Параллельные соединения | ❌ | ✅ `--concurrent` |
+| JavaScript | ❌ | ⚠️ PhantomJS, устарел |
+| Плагины | ❌ | ✅ Python |
+| HTTP/2 | ❌ | ❌ |
+| Установка на современной системе | ✅ | ❌ проблемная |
 
 ## Ограничения
 
-*   Менее стабилен, чем Wget — Archive Team нередко меняет точки внимания, рекомендуется фиксировать версию.
-*   Ограниченная поддержка JavaScript (для JS-heavy сайтов лучше [Browsertrix Crawler](/kb/instruments/tools/browsertrix) или [Brozzler](/kb/instruments/tools/brozzler)).
-*   Требует Python-окружения.
-*   Не умеет автоматически вытаскивать медиа с CDN-доменов, на которые ссылается сайт — нужны явные `--span-hosts` / `--hostnames`.
-*   Не сохраняет API-ответы в чистом виде (только HTML-представления).
+- Последний релиз — 2016 года; устанавливается только со старыми версиями Python и зависимостей.
+- Нет HTTP/2 и полноценного рендеринга JavaScript.
+- Медиа с CDN-доменов нужно разрешать явно (`--span-hosts-allow`, `--domains`, `--hostnames`).
 
 ## Что дальше
 
-- Проиндексировать полученный WARC: [metawarc index](/kb/instruments/ruarxive-tools/metawarc).
-- Найти фразу по извлечённому тексту: [metawarc search](/kb/instruments/ruarxive-tools/metawarc).
-- Поднять локальный replay: [metawarc serve](/kb/instruments/ruarxive-tools/metawarc) либо [pywb](/kb/instruments/replay/pywb).
-- Передать в AI-агента через MCP: [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp).
+- Проиндексировать полученный WARC: [metawarc](/kb/instruments/ruarxive-tools/metawarc).
+- Посмотреть WARC: [pywb](/kb/instruments/replay/pywb) или [ReplayWeb.page](/kb/instruments/replay/replayweb-page).
 
 ## Ресурсы
 
-*   [GitHub репозиторий](https://github.com/ArchiveTeam/wpull)
-*   [Документация](https://wpull.readthedocs.io/)
+- [GitHub: ArchiveTeam/wpull](https://github.com/ArchiveTeam/wpull)
+- [Документация](https://wpull.readthedocs.io/)
+- [Отличия Wpull от Wget](https://wpull.readthedocs.io/en/master/differences.html)
 
 ## Связанные материалы
 
-- [Wget для сравнения](/kb/guides/wget)
-- [Browsertrix для JavaScript сайтов](/kb/instruments/tools/browsertrix)
+- [Wget](/kb/instruments/tools/wget)
+- [grab-site](/kb/instruments/tools/grab-site) — кроулер на основе форка Wpull
+- [Browsertrix для сайтов с JavaScript](/kb/instruments/tools/browsertrix)
 - [Формат WARC](/kb/instruments/file-formats/warc)

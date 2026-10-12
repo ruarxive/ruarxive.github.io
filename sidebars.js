@@ -40,7 +40,6 @@ const sidebars = {
       collapsed: false,
       link: { type: 'doc', id: 'guides/index' },
       items: [
-        'guides/index',
         {
           type: 'category',
           label: 'Быстрый старт',
@@ -220,12 +219,12 @@ const sidebars = {
             'instruments/social-media/vk',
             'instruments/social-media/facebook',
             'instruments/social-media/rutube',
-            'instruments/social-media/fbarc',
             'instruments/social-media/twarc',
-            'instruments/social-media/social-feed-manager',
             'instruments/social-media/tiktok',
             'instruments/social-media/mastodon',
             'instruments/social-media/max',
+            'instruments/social-media/fbarc',
+            'instruments/social-media/social-feed-manager',
           ],
         },
         {
@@ -315,6 +314,7 @@ const sidebars = {
         {
           type: 'category',
           label: 'Загружаемые данные',
+          link: { type: 'doc', id: 'instruments/downloaded-data/index' },
           items: [
             'instruments/downloaded-data/apibackuper',
             'instruments/downloaded-data/apibackuper-configs',
@@ -356,6 +356,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Похожие проекты',
+      link: { type: 'doc', id: 'similar/index' },
       items: [
         'similar/archiveteam',
         'similar/internet-archive',
@@ -373,6 +374,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Ресурсы',
+      link: { type: 'doc', id: 'resources/index' },
       items: [
         'resources/stats-snapshot',
         'resources/statistics',

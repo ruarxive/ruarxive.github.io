@@ -1,363 +1,155 @@
 ---
 title: Obelisk
 sidebar_label: Obelisk
-description: Go-библиотека и CLI для сохранения веб-страницы в один HTML-файл с обработкой CSS, изображений и шрифтов
+description: "Obelisk — Go-библиотека и CLI для сохранения веб-страницы в один HTML-файл со встроенными CSS, изображениями и скриптами."
+last_update:
+  date: 2026-10-12
 ---
 
 # Obelisk
 
-**Obelisk** — Go-библиотека и CLI-инструмент для сохранения веб-страницы в **один самодостаточный HTML-файл** со встроенными ресурсами. Альтернатива [SingleFile](singlefile) и [monolith](monolith), написанная на Go.
+**Obelisk** — Go-библиотека и CLI для сохранения веб-страницы в **один HTML-файл** со всеми ресурсами внутри. Автор — Radhi Fadlillah, лицензия MIT. Obelisk написан для read-it-later сервиса [Shiori](https://github.com/go-shiori/shiori) и заменил старый пакет автора [go-shiori/warc](https://github.com/go-shiori/warc). Идея взята у [monolith](monolith).
 
 Сайт: [github.com/go-shiori/obelisk](https://github.com/go-shiori/obelisk)
 
-## Зачем нужен
-
-Obelisk — это ответ на вопрос «как сохранить страницу одним HTML на Go». Главные применения:
-
-- **Go-приложения** — нативная интеграция через `go get` и программный API.
-- **Серверный рендеринг** страниц в один файл (для архивирования в фоне).
-- **Кросс-платформенные CLI** — статически скомпилированные бинарники Go.
-- **Конвейеры данных** — Go в стеке, не хочется тянуть Node.js для SingleFile.
-
 ## Возможности
 
-- **Один HTML-файл** — все CSS, изображения, шрифты inline.
-- **Программный API** — использование как Go-библиотеки.
-- **CLI-режим** — для скриптов.
-- **HTTP-сервер** — REST API для интеграции с другими сервисами.
-- **Удаление элементов**:
-  - JavaScript.
-  - Видео, аудио.
-  - iframe.
-  - Стилей и изображений (опционально).
-- **Пользовательский User-Agent**.
-- **Поддержка прокси**.
-- **CSS-инлайнинг** с обработкой `@import`, `url()`.
-- **Кросс-компиляция** — Linux, macOS, Windows, ARM.
+- Встраивает в один HTML5-документ CSS, изображения, JavaScript и другие ресурсы.
+- Внешние скрипты и стили вставляет инлайн (`script`/`style`), а не как base64 data-URL. Так страницы чаще работают, а файл меньше.
+- По умолчанию запрещает архивной копии обращаться к внешним адресам через Content Security Policy.
+- Скачивает ресурсы параллельно (по умолчанию до 10 одновременно).
+- Принимает cookies в формате Netscape: можно сохранять страницы, доступные после входа.
+- Если URL ведёт не на HTML (например, на PDF), сохраняет файл как есть.
+- Работает и как CLI, и как Go-пакет.
 
-## Когда использовать
-
-✅ Подходит для:
-
-- **Go-проектов**, где нужна архивация страниц (краулеры, мониторинг).
-- **Серверных сервисов** — REST API для приёма URL и возврата HTML.
-- **Скриптов в CI/CD** — статический бинарник без зависимостей.
-- **Массовых выгрузок** через горутины (параллелизм «бесплатно»).
-
-❌ Не подходит для:
-
-- **Современных SPA** с обязательным JS.
-- **Сайтов за Cloudflare** — нет headless-браузера.
-- **Больших проектов** — для них Browsertrix, Heritrix.
+Obelisk делает обычные HTTP-запросы и не запускает браузер. Страницы, которые строятся JavaScript на клиенте (SPA), он сохранит в том виде, в каком их отдал сервер.
 
 ## Установка
 
-### Go
+Готовые бинарники — на [странице релизов](https://github.com/go-shiori/obelisk/releases) (последний релиз v0.91 от 2020 года; код в репозитории обновлялся позже). Сборка свежей версии из исходников (нужен Go 1.21+):
 
 ```bash
 go install github.com/go-shiori/obelisk/cmd/obelisk@latest
 ```
 
-Бинарник появится в `$GOPATH/bin/obelisk`.
+Бинарник появится в `$(go env GOPATH)/bin/obelisk`. Официального Docker-образа нет.
 
-### Docker
+> Команды сверены с `obelisk -h` сборки из ветки master (октябрь 2026).
 
-```bash
-docker run --rm -v $(pwd):/data ghcr.io/go-shiori/obelisk \
-  -output /data/page.html https://example.com
-```
-
-### Из исходников
+## Использование CLI
 
 ```bash
-git clone https://github.com/go-shiori/obelisk
-cd obelisk
-make
-```
-
-### Зависимости
-
-- **Go 1.21+** (для сборки из исходников).
-- **chromedp** или playwright (опционально, для JS-рендеринга в некоторых режимах).
-
-## Использование
-
-### CLI — базовое сохранение
-
-```bash
+# одна страница; без -o имя файла сгенерируется в текущем каталоге
 obelisk https://example.com -o page.html
+
+# несколько страниц из файла (по одному URL в строке), со сжатием gzip
+obelisk -i urls.txt -o ./archive/ -z
+
+# без JavaScript и без встроенных iframe
+obelisk --no-js --no-embeds https://example.com -o page.html
+
+# без изображений, аудио и видео
+obelisk --no-medias https://example.com -o page.html
+
+# с cookies (файл Netscape, например выгруженный из браузера)
+obelisk -c cookies.txt https://example.com/private -o private.html
+
+# вывод в stdout (только для одного URL)
+obelisk https://example.com -o - > page.html
 ```
 
-### Удалить JavaScript
+Основные флаги:
+
+| Флаг | Назначение |
+| :--- | :--- |
+| `-o, --output` | Файл или каталог для результата; `-` — stdout |
+| `-i, --input` | Файл со списком URL |
+| `-z, --gzip` | Сжать результат gzip |
+| `-c, --load-cookies` | Файл cookies в формате Netscape |
+| `--no-js`, `--no-css`, `--no-medias`, `--no-embeds` | Не включать скрипты, стили, медиа, встроенные элементы (iframe) |
+| `-t, --timeout` | Таймаут запроса в секундах (по умолчанию 60) |
+| `-r, --retries` | Число повторов запроса (по умолчанию 3) |
+| `-u, --user-agent` | Свой User-Agent |
+| `--max-concurrent-download` | Число параллельных загрузок (по умолчанию 10) |
+| `--insecure` | Не проверять TLS-сертификат |
+| `--skip-resource-url-error` | Не прерываться на ошибках загрузки ресурсов |
+
+Если указан `-o`, а URL несколько, Obelisk сам сгенерирует имена файлов и сохранит их в каталог из `-o`.
+
+## Использование как Go-пакета
 
 ```bash
-obelisk -no-js https://example.com -o page.html
+go get github.com/go-shiori/obelisk
 ```
 
-### Удалить видео и аудио
-
-```bash
-obelisk -no-video -no-audio https://example.com -o page.html
-```
-
-### Удалить iframe
-
-```bash
-obelisk -no-iframe https://example.com -o page.html
-```
-
-### HTTP-сервер
-
-```bash
-obelisk serve -port 8080
-```
-
-Запрос:
-
-```bash
-curl -X POST http://localhost:8080/ \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com", "options": {"noJS": true}}' \
-  --output page.html
-```
-
-### REST API
-
-```http
-POST /
-Content-Type: application/json
-
-{
-  "url": "https://example.com",
-  "options": {
-    "userAgent": "MyBot/1.0",
-    "noJS": true,
-    "noVideo": true,
-    "timeout": 30
-  }
-}
-
-→ HTML file
-```
-
-## Программное использование (Go)
-
-### Базовый пример
+Пример по [`examples/basic.go`](https://github.com/go-shiori/obelisk/blob/master/examples/basic.go): параметры архивации задаются в структуре `Archiver`, адрес страницы — в `Request`.
 
 ```go
 package main
 
 import (
-    "log"
-    "os"
-    "github.com/go-shiori/obelisk"
+	"context"
+	"log"
+	"os"
+	"time"
+
+	"github.com/go-shiori/obelisk"
 )
 
 func main() {
-    content, err := obelisk.Archive(&obelisk.Request{
-        URL: "https://example.com",
-    })
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    err = os.WriteFile("page.html", content, 0644)
-    if err != nil {
-        log.Fatal(err)
-    }
+	arc := obelisk.Archiver{
+		EnableLog:      true,
+		UserAgent:      "RuarxiveBot/1.0",
+		RequestTimeout: 60 * time.Second,
+		DisableJS:      true,
+	}
+	arc.Validate()
+
+	result, contentType, err := arc.Archive(context.Background(), obelisk.Request{
+		URL: "https://example.com",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("content type:", contentType)
+
+	if err := os.WriteFile("page.html", result, 0o644); err != nil {
+		log.Fatal(err)
+	}
 }
 ```
 
-### С опциями
-
-```go
-import "github.com/go-shiori/obelisk"
-
-content, err := obelisk.Archive(&obelisk.Request{
-    URL: "https://example.com",
-    UserAgent: "RuarxiveBot/1.0",
-    Timeout: 30 * time.Second,
-    SkipResources: []string{"video", "audio", "iframe"},
-})
-```
-
-### Параллельное архивирование (горутины)
-
-```go
-package main
-
-import (
-    "sync"
-    "github.com/go-shiori/obelisk"
-)
-
-func archiveBatch(urls []string) map[string][]byte {
-    var wg sync.WaitGroup
-    results := make(map[string][]byte, len(urls))
-    var mu sync.Mutex
-    
-    for _, url := range urls {
-        wg.Add(1)
-        go func(u string) {
-            defer wg.Done()
-            content, err := obelisk.Archive(&obelisk.Request{URL: u})
-            if err != nil {
-                return
-            }
-            mu.Lock()
-            results[u] = content
-            mu.Unlock()
-        }(url)
-    }
-    
-    wg.Wait()
-    return results
-}
-```
-
-## Конфигурация
-
-### Параметры `obelisk.Request`
-
-```go
-type Request struct {
-    URL              string
-    UserAgent        string
-    Timeout          time.Duration
-    SkipResources    []string  // "video", "audio", "image", "css", "js", "iframe"
-    AcceptLanguage   string
-    ExtraHeaders     map[string]string
-}
-```
-
-### Переменные окружения
-
-```bash
-OBELISK_PORT=8080
-OBELISK_TIMEOUT=30s
-OBELISK_USER_AGENT="RuarxiveBot/1.0"
-```
+Другие поля `Archiver`: `DisableCSS`, `DisableEmbeds`, `DisableMedias`, `MaxConcurrentDownload`, `MaxRetries`, `SkipResourceURLError`, `Transport`. В `Request` можно передать cookies (`Cookies []*http.Cookie`) или уже загруженный HTML (`Input io.Reader`). Полное описание API — на [pkg.go.dev](https://pkg.go.dev/github.com/go-shiori/obelisk).
 
 ## Сравнение с другими инструментами
 
-| Инструмент | Язык | JS | CLI | API | Размер бинарника |
-| :--- | :--- | :---: | :---: | :---: | :--- |
-| **Obelisk** | Go | ❌ | ✅ | ✅ REST | ≈ 15 МБ |
-| **[monolith](monolith)** | Rust | ❌ | ✅ | ❌ | ≈ 5 МБ |
-| **[SingleFile](singlefile)** | JavaScript | ✅ | ⚠️ | ❌ | — (Node.js) |
-| **[Wget](wget)** | C | ❌ | ✅ | ❌ | ≈ 1 МБ |
-| **[httrack](httrack)** | C | ❌ | ✅ GUI | ❌ | ≈ 5 МБ |
+| Инструмент | Язык | Выполняет JS | CLI | Библиотека |
+| :--- | :--- | :---: | :---: | :---: |
+| **Obelisk** | Go | ❌ | ✅ | ✅ Go |
+| **[monolith](monolith)** | Rust | ❌ | ✅ | ✅ Rust (crate) |
+| **[SingleFile](singlefile)** | JavaScript | ✅ (через браузер) | ✅ `single-file-cli` | ❌ |
+| **[Wget](wget)** | C | ❌ | ✅ | ❌ |
 
-### Когда Obelisk лучше всех
-
-- **Go в стеке** — нативная интеграция, типобезопасный API.
-- Нужен **HTTP-сервис** для приёма URL и отдачи HTML.
-- Хочется **параллелизм через горутины** без внешних библиотек.
-- Важна **кросс-компиляция** в один статический бинарник.
-
-### Когда лучше monolith
-
-- Минимальный **размер бинарника** (Rust даёт ≈ 5 МБ vs ≈ 15 МБ у Go).
-- Не хочется **Go в стеке**.
-
-### Когда лучше SingleFile
-
-- Страницы с **обязательным JS**.
-- Нужно **расширение браузера**.
-
-### Когда лучше Wget
-
-- Нужна **рекурсия** по сайту.
-- Минимальный размер и **нулевые зависимости**.
-
-## Best practices
-
-### 1. Используйте как библиотеку в Go-сервисах
-
-```go
-// В кроулере
-for _, url := range seedURLs {
-    content, err := obelisk.Archive(&obelisk.Request{URL: url})
-    if err != nil {
-        log.Printf("Failed to archive %s: %v", url, err)
-        continue
-    }
-    // Сохранить в БД, отправить в S3, и т.д.
-}
-```
-
-### 2. HTTP-сервер для интеграции
-
-```bash
-# Запустить как фоновый сервис
-obelisk serve -port 8080 -timeout 60s &
-
-# Использовать из других приложений
-curl -X POST http://localhost:8080/ -d '{"url":"https://example.com"}' -o page.html
-```
-
-### 3. Параллелизм для массовых выгрузок
-
-```go
-// 100 URL параллельно через worker pool
-jobs := make(chan string, 100)
-results := make(chan string, 100)
-
-for w := 0; w < 10; w++ {
-    go func() {
-        for url := range jobs {
-            content, _ := obelisk.Archive(&obelisk.Request{URL: url})
-            // сохранить
-        }
-    }()
-}
-
-for _, url := range urls {
-    jobs <- url
-}
-close(jobs)
-```
-
-### 4. Всегда ставьте таймаут
-
-```go
-obelisk.Archive(&obelisk.Request{
-    URL:     url,
-    Timeout: 30 * time.Second,  // обязательно!
-})
-```
-
-### 5. User-Agent для архивирования
-
-```go
-obelisk.Archive(&obelisk.Request{
-    URL:       url,
-    UserAgent: "RuarxiveBot/1.0 (+https://ruarxive.org/bot)",
-})
-```
+Obelisk удобен, если архивация встраивается в Go-приложение, или если нужен один статический бинарник без Node.js и браузера. Для страниц, которым обязательно нужен JavaScript, берите [SingleFile](singlefile). Для рекурсивного обхода сайта и записи WARC — [Wget](wget) или [Browsertrix](browsertrix).
 
 ## Ограничения
 
-- **Нет JavaScript-рендера** — статический HTML в момент запроса.
-- **Не обходит Cloudflare** и другие anti-bot системы.
-- **Нет рекурсивного краулинга** — одна страница за раз.
-- **Бинарник больше**, чем у monolith (Go vs Rust).
-- **Меньше пользовательского опыта** — community меньше, чем у SingleFile.
-- **Меньше фич** — нет аннотаций, нет tree, нет sync.
+- Нет выполнения JavaScript: SPA сохраняются не полностью.
+- Нет рекурсивного обхода: только перечисленные страницы.
+- Результат — HTML, а не WARC: HTTP-заголовки и исходные ответы сервера не сохраняются.
+- Проект развивается медленно: последний тегированный релиз — 2020 года.
 
 ## Ресурсы
 
-- [GitHub: Obelisk](https://github.com/go-shiori/obelisk) — исходный код.
-- [Документация API](https://pkg.go.dev/github.com/go-shiori/obelisk) — Go-пакет.
-- [Go-Shiori](https://github.com/go-shiori) — другие проекты автора (shiori — read-it-later, чьи наработки легли в основу).
-- [README](https://github.com/go-shiori/obelisk/blob/master/README.md) — использование.
+- [GitHub: Obelisk](https://github.com/go-shiori/obelisk) — исходный код и README.
+- [Документация Go-пакета](https://pkg.go.dev/github.com/go-shiori/obelisk)
+- [Shiori](https://github.com/go-shiori/shiori) — менеджер закладок, для которого написан Obelisk.
 
 ## Связанные материалы
 
-- **[monolith](monolith)** — Rust-альтернатива, меньше размер.
-- **[SingleFile](singlefile)** — для страниц с JS.
-- **[WebScrapBook](webscrapbook)** — для коллекций с структурой.
-- **[wallabag](wallabag)** — read-it-later от тех же авторов (go-shiori).
-- **[Wget](wget)** — для рекурсивного краулинга.
-- **[Пользовательские workflow](/kb/guides/custom-workflows)** — Obelisk в пайплайнах.
-- **[Go-инструменты Ruarxive](/kb/instruments/ruarxive-tools)** — наши Go-утилиты.
+- **[monolith](monolith)** — аналог на Rust.
+- **[SingleFile](singlefile)** — для страниц с JavaScript.
+- **[WebScrapBook](webscrapbook)** — коллекции сохранённых страниц в браузере.
+- **[wallabag](wallabag)** — self-hosted read-it-later (отдельный PHP-проект).
+- **[Wget](wget)** — для рекурсивного обхода.
+- **[Пользовательские workflow](/kb/guides/custom-workflows)**

@@ -1,75 +1,94 @@
 ---
-title: Common Crawl — открытые петабайты веб-краулов
+title: Common Crawl — открытые веб-краулы
 sidebar_label: Common Crawl
-description: "Common Crawl — некоммерческий фонд, собирающий петабайтные веб-краулы. Доступ бесплатный, формат WARC, программный доступ через cdx_toolkit и DuckDB. Использование для исследований и обучения ML."
-last_updated: 2026-11-09
-keywords: [common-crawl, open-data, cdx, warc, ml, language-models]
+description: "Common Crawl — некоммерческая организация, ежемесячно публикующая открытые веб-краулы в форматах WARC, WAT и WET. Как устроены данные, как найти страницы через CDX-индекс, cdx_toolkit и DuckDB."
+last_update:
+  date: 2026-10-12
+keywords: [common-crawl, open-data, cdx, warc, wet, wat, cdx_toolkit, duckdb]
 ---
 
-# Common Crawl — открытые петабайты веб-краулов
+# Common Crawl — открытые веб-краулы
 
-[Common Crawl](https://commoncrawl.org/) — некоммерческий фонд с 2007 года, предоставляющий **открытые петабайтные веб-краулы** для исследований. Данные публикуются на Amazon S3 и HuggingFace в формате WARC/WAT/WET; с 2025 года — также через [duckdb-web-archive-cdx](https://github.com/commoncrawl/duckdb-web-archive-cdx) в виде SQL.
+[Common Crawl](https://commoncrawl.org/) — некоммерческая организация (основана в 2007 году), которая регулярно обходит веб и бесплатно публикует результаты: WARC-файлы с ответами серверов, а также производные форматы WAT (метаданные) и WET (извлечённый текст). Данные хранятся в Amazon S3 (бакет `s3://commoncrawl/`) и доступны по HTTPS через `data.commoncrawl.org`; отдельные краулы зеркалируются в хранилище Hugging Face.
 
-> **Главное отличие от Internet Archive:** Common Crawl — это **сырой поток**, а не поиск. Нет Wayback UI; чтобы найти конкретную страницу, нужны CDX-индексы и инструменты. Это как Apache для веба.
+> **Главное отличие от Internet Archive:** у Common Crawl нет интерфейса для просмотра страниц. Это набор данных: чтобы найти конкретную страницу, нужно обратиться к индексу и затем извлечь запись из WARC-файла.
 
-## Что внутри
+## Что внутри одного краула
 
-| Тип | Что | Размер краула |
+Пример — краул за сентябрь 2026 года (`CC-MAIN-2026-39`, около 2,17 млрд страниц, по данным [страницы краула](https://data.commoncrawl.org/crawl-data/CC-MAIN-2026-39/index.html)):
+
+| Тип | Что содержит | Объём (сжато) |
 |:---|:---|---:|
-| **WARC** | Сырые HTTP-ответы | ~80 ТБ на краул |
-| **WAT** | Извлечённые метаданные (title, body text, links) | ~20 ТБ на краул |
-| **WET** | Извлечённый текст (без разметки) | ~5 ТБ на краул |
-| **CDX** | Индекс URL | ~5 ТБ на краул |
+| **WARC** | Запросы и ответы серверов | ~82,8 ТиБ |
+| **WAT** | Метаданные в JSON: заголовки, ссылки, title | ~14,2 ТиБ |
+| **WET** | Извлечённый текст (WARC-записи типа `conversion`) | ~5,9 ТиБ |
+| **CDX-индекс** (`cc-index`) | Индекс URL | ~0,23 ТиБ |
+| **Колоночный индекс** (`cc-index-table`, Parquet) | Тот же индекс для SQL-движков | ~0,20 ТиБ |
 
-Краул выходит **ежемесячно**. Каждый краул — это 3–5 млрд веб-страниц.
+Краулы выходят примерно раз в месяц. Идентификатор краула — `CC-MAIN-ГГГГ-НН`, где `НН` — номер ISO-недели, а не месяц (например, `CC-MAIN-2024-10` — первый краул 2024 года). Актуальный список — в [collinfo.json](https://index.commoncrawl.org/collinfo.json).
 
-### Что НЕ включается
+### Что не попадает в краул
 
-- **Robots.txt** — учитывается, кроме случаев explicit allow.
-- **Хостинг-сервисы для взрослого контента** — фильтруются.
-- **Аутентифицированный контент** — не доступен.
-- **GDPR / «нежелательные» сайты** — фильтруются по спискам.
+- Страницы, закрытые в `robots.txt` от краулера Common Crawl (CCBot).
+- Контент, доступный только после авторизации.
+- Большие файлы сохраняются не целиком — ответы обрезаются по размеру.
 
 ## Доступ
 
-### Amazon S3 — `commoncrawl` bucket
-
-```
-s3://commoncrawl/
-├── crawl-data/
-│   ├── CC-MAIN-2024-04/      # краул за январь 2024
-│   │   ├── segments/         # партиции WARC
-│   │   ├── warc/             # WARC-файлы
-│   │   ├── wat/              # метаданные
-│   │   ├── wet/              # текст
-│   │   └── cdx-*.gz          # индексы
-│   ├── CC-MAIN-2026-04/      # последний краул
-│   └── ...
-```
-
-Доступ публичный, бесплатный.
+### По HTTPS — без аккаунта AWS
 
 ```bash
-# Установить aws cli
-pip install awscli
-aws configure  # без ключей, bucket публичный
+# Список WARC-файлов краула
+curl -s https://data.commoncrawl.org/crawl-data/CC-MAIN-2026-39/warc.paths.gz | gunzip | head -3
 
-# Скачать индекс (CDX)
-aws s3 cp s3://commoncrawl/cc-index/collections/CC-MAIN-2026-04/indexes/cdx-000.gz . --no-sign-request
+# Первый файл CDX-индекса
+curl -O https://data.commoncrawl.org/cc-index/collections/CC-MAIN-2026-39/indexes/cdx-00000.gz
 ```
 
-### Hugging Face
+### Через AWS CLI
 
-С 2024 года Common Crawl также публикуется на [HuggingFace Datasets](https://huggingface.co/datasets?search=common%20crawl).
+```bash
+aws --no-sign-request s3 ls s3://commoncrawl/crawl-data/CC-MAIN-2026-39/
+```
+
+Внутри AWS данные удобнее обрабатывать в регионе `us-east-1`. Подробности — на странице [Get Started](https://commoncrawl.org/get-started).
+
+### Структура бакета
+
+```text
+s3://commoncrawl/
+├── crawl-data/CC-MAIN-2026-39/
+│   ├── warc.paths.gz, wat.paths.gz, wet.paths.gz   # списки файлов
+│   └── segments/<сегмент>/{warc,wat,wet}/          # сами файлы
+└── cc-index/
+    ├── collections/CC-MAIN-2026-39/indexes/cdx-*.gz  # CDX-индекс
+    └── table/cc-main/warc/crawl=CC-MAIN-2026-39/     # колоночный индекс (Parquet)
+```
 
 ## Программный доступ
 
+### CDX Index API
+
+Для каждого краула есть HTTP-интерфейс индекса:
+
+```bash
+curl 'https://index.commoncrawl.org/CC-MAIN-2026-39-index?url=commoncrawl.org/*&output=json&limit=5'
+```
+
+В ответе для каждого захвата указаны `filename`, `offset` и `length` — по ним запись можно скачать из WARC-файла HTTP-запросом с заголовком `Range`.
+
 ### cdx_toolkit (Python)
 
-[cdx_toolkit](https://github.com/commoncrawl/cdx_toolkit) — Python-клиент к CDX Common Crawl.
+[cdx_toolkit](https://github.com/commoncrawl/cdx_toolkit) объединяет индексы всех краулов Common Crawl (и умеет работать с CDX API Internet Archive).
 
 ```bash
 pip install cdx_toolkit
+
+# Оценить число захватов
+cdxt --cc size 'commoncrawl.org/*'
+
+# Первые 10 захватов из конкретного краула
+cdxt --crawl CC-MAIN-2026-39 --limit 10 iter 'commoncrawl.org/*'
 ```
 
 ```python
@@ -77,230 +96,105 @@ import cdx_toolkit
 
 cdx = cdx_toolkit.CDXFetcher(source='cc')
 
-# Поиск URL
-records = list(cdx.fetch('commoncrawl.org/*', from_='20250101', to='20251231'))
-for r in records:
-    print(r['url'], r['timestamp'], r['status'])
+for obj in cdx.iter('commoncrawl.org/*', limit=10, filter=['=status:200']):
+    print(obj['url'], obj['timestamp'], obj['status'])
 ```
 
-### DuckDB (через duckdb-web-archive-cdx)
+Без явного `--crawl`, `--from`/`--to` и `--limit` действуют ограничения по умолчанию: один год краулов и 1000 записей.
 
-Современный подход — SQL к Common Crawl CDX напрямую.
+### DuckDB: расширение web_archive
 
-```bash
-pip install duckdb duckdb-web-archive-cdx
-```
-
-```python
-import duckdb
-
-con = duckdb.connect()
-con.sql("INSTALL duckdb_web_archive_cdx FROM community; LOAD duckdb_web_archive_cdx;")
-
-# Запрос
-result = con.sql("""
-    SELECT url, fetch_time, content_mime_type, warc_filename
-    FROM cdx_cc(
-        url='example.com/*',
-        crawl='CC-MAIN-2026-04'
-    )
-    WHERE content_mime_type = 'text/html'
-      AND fetch_status = 200
-    LIMIT 100
-""").df()
-
-print(result.head())
-```
-
-### Spark + ArchiveSpark
-
-Для petabyte-анализа — Spark:
-
-```scala
-import org.archive.archivespark._
-val records = ArchiveSpark.load("s3a://commoncrawl/")
-  .keepValidPages()
-  .filter(r => r.surtUrl.contains("example.com"))
-  .collect()
-
-// далее обработка в Spark
-```
-
-### AWS Athena (SQL поверх S3)
-
-Через [AWS Athena](https://aws.amazon.com/athena/):
+Расширение сообщества [`web_archive`](https://github.com/midwork-finds-jobs/duckdb-web-archive) позволяет обращаться к CDX API Common Crawl и Wayback Machine из SQL: условия `WHERE` и `LIMIT` передаются в запрос к API.
 
 ```sql
-SELECT url, warc_filename, warc_record_offset
+INSTALL web_archive FROM community;
+LOAD web_archive;
+
+SELECT url, timestamp, statuscode, mimetype, filename
+FROM common_crawl_index()
+WHERE crawl_id = 'CC-MAIN-2026-39'
+  AND url LIKE '%.example.com/%'
+  AND statuscode = 200
+LIMIT 10;
+```
+
+Подробнее о DuckDB и веб-архивах: [DuckDB-WARC](/kb/instruments/tools/duckdb-warc).
+
+### Колоночный индекс (Athena, Spark, DuckDB)
+
+Колоночный индекс в формате Parquet ([cc-index-table](https://github.com/commoncrawl/cc-index-table)) охватывает все краулы и удобен для широких выборок через Amazon Athena или Spark. Пример запроса из документации проекта для Athena (таблица `ccindex` создаётся по инструкции в репозитории):
+
+```sql
+SELECT url, warc_filename, warc_record_offset, warc_record_length
 FROM ccindex
-WHERE crawl = 'CC-MAIN-2026-04'
+WHERE crawl = 'CC-MAIN-2026-39'
+  AND subset = 'warc'
   AND url_host_tld = 'ru'
-  AND fetch_status = 200
 LIMIT 100;
 ```
 
-Athena использует [cc-index-table](https://github.com/commoncrawl/cc-index-table) — таблицы с партиционированными данными.
+Для обработки самих WARC/WAT/WET в Spark есть примеры [cc-pyspark](https://github.com/commoncrawl/cc-pyspark).
 
 ## Что с этим делают исследователи
 
 | Цель | Как |
 |:---|:---|
-| **Обучение LLM** | WET (текст) → очистка → токенизация → модель |
-| **Анализ веба** | CDX → SQL/DuckDB → статистика |
-| **Поиск конкретных страниц** | CDX → fetch WARC → обработка |
-| **Web graph** | WAT (links) → построение графа |
-| **Multilingual research** | URL → язык → статистика |
-| **Spam detection** | WARC → ML-модель |
+| **Корпуса текстов и обучение языковых моделей** | WET → очистка и фильтрация |
+| **Анализ веба** | Индекс → SQL → статистика по доменам |
+| **Поиск конкретных страниц** | Индекс → запрос записи из WARC |
+| **Граф ссылок** | WAT → ссылки → граф |
+| **Языковые исследования** | Колоночный индекс содержит определённые языки страниц |
 
-### Russian Web от Common Crawl
+### Русскоязычный веб
 
-В каждом крауле 2–4 % страниц — на русском. Для **исследований русского веба** это уникальный источник, потому что:
-
-- Бесплатный (не нужен Academic API как у Twitter).
-- Открытый (можно опубликовать derived датасет).
-- Регулярный (ежемесячные краулы).
-- Полный (без курирования «значимости»).
-
-Найти русскоязычные страницы:
-
-```sql
-SELECT COUNT(*) FROM cdx_cc('*ru') WHERE content_mime_type = 'text/html';
-```
-
-## Установка cdx_toolkit
-
-```bash
-pip install cdx_toolkit
-```
-
-## Примеры сценариев
-
-### Сценарий 1. Собрать все русскоязычные новостные сайты за месяц
-
-```python
-import cdx_toolkit
-
-cdx = cdx_toolkit.CDXFetcher(source='cc')
-
-urls = []
-records = cdx.fetch(
-    'ru/*',
-    matchType='domain',
-    filter=['status:200', 'mimetype:text/html'],
-    from_='20251101',
-    to='20251130',
-    limit=10000,
-)
-for r in records:
-    if r['url'].endswith(('.ru', '.рф')):
-        urls.append(r['url'])
-
-print(f"Найдено {len(urls)} страниц за ноябрь 2026")
-```
-
-### Сценарий 2. Найти страницы про конкретную тему (через CDXJ-index)
-
-```sql
--- DuckDB
-SELECT url, fetch_time
-FROM read_cdxj('s3://commoncrawl/cc-index/collections/CC-MAIN-2026-04/indexes/cdx-00000.gz')
-WHERE url LIKE '%example.com%'
-  AND fetch_status = 200
-  AND content_mime_type = 'text/html'
-LIMIT 100;
-```
-
-### Сценарий 3. Анализ link graph
-
-```bash
-# Скачать WAT-файл
-aws s3 cp s3://commoncrawl/crawl-data/CC-MAIN-2026-04/segments/.../warc/... . --no-sign-request
-
-# Извлечь ссылки
-warc-wat2links file.wat.gz > links.csv
-```
-
-### Сценарий 4. Обучающая выборка для LLM
-
-```python
-# Скачать WET-файл (только текст)
-import boto3
-s3 = boto3.client('s3', config=Config(signature_version=UNSIGNED))
-s3.download_file('commoncrawl', 'crawl-data/CC-MAIN-2026-04/segments/.../wet/...', 'cc-ru.wet.gz')
-
-# Извлечь текст
-gunzip -c cc-ru.wet.gz | \
-  python -c "import sys, json; [print(json.loads(l)['plain_text']) for l in sys.stdin if l.strip()]" > cc-ru.txt
-```
-
-### Сценарий 5. Сравнение краулов
-
-```sql
--- Найти страницы, которые появились в 2026, но не в 2024
-WITH cc_2024 AS (
-    SELECT DISTINCT url_key FROM cdx_cc(crawl='CC-MAIN-2024-04')
-), cc_2026 AS (
-    SELECT DISTINCT url_key FROM cdx_cc(crawl='CC-MAIN-2026-04')
-)
-SELECT cc_2026.url_key
-FROM cc_2026 LEFT JOIN cc_2024 ON cc_2026.url_key = cc_2024.url_key
-WHERE cc_2024.url_key IS NULL
-LIMIT 100;
-```
+Common Crawl полезен для исследований русскоязычного веба: данные бесплатны, публикуются регулярно и допускают публикацию производных наборов (с учётом [условий использования](https://commoncrawl.org/terms-of-use)). Отбирать страницы по зоне (`url_host_tld = 'ru'`) или по языку удобнее всего через колоночный индекс.
 
 ## Ограничения
 
-- **WARC, а не WACZ** — нет CDXJ-индекса из коробки; нужно строить самим.
-- **Только content** — нет HTML-индексов для полнотекстового поиска.
-- **Спам** — фильтрация базовая, мусорные страницы попадаются.
-- **Robots.txt учитывается** — вы можете не получить определённые страницы.
-- **GDPR удаления** — формальный процесс, может занять время.
-- **Нет UI** — только программный доступ.
+- **Нет просмотра страниц** — только программный доступ.
+- **Выборка, а не полный архив** — краулы не гарантируют, что конкретная страница будет сохранена, и не повторяют её регулярно.
+- **Спам и дубликаты** — фильтрация базовая.
+- **Соблюдение robots.txt** — сайты, закрытые от CCBot, отсутствуют.
+- **Объём** — даже один краул занимает десятки терабайт.
 
 ## Сравнение с Internet Archive
 
 | Аспект | Common Crawl | Internet Archive |
 |:---|:---|:---|
-| Объём | 3–5 млрд страниц/мес | 800+ млрд страниц всего |
-| Доступ | Бесплатный bulk | Бесплатный через Wayback |
-| Формат | WARC/WAT/WET | WACZ + WARC |
-| Индексация | CDX (только URL/статус) | Полнотекстовая + CDX |
-| Воспроизведение | ❌ нет UI | ✅ через Wayback |
-| Цель | Исследования | Сохранение |
-| Зеркалирование | ❌ | ❌ |
-| Поиск | через API/CDX | через Wayback UI |
+| Объём | ~2 млрд страниц за краул | Более 1 трлн страниц за всё время |
+| Доступ | Бесплатная выгрузка файлов | Бесплатный просмотр через Wayback Machine |
+| Формат хранения | WARC + производные WAT/WET | ARC/WARC |
+| Индекс | CDX и колоночный индекс (URL, статус, тип, язык) | CDX (полнотекстового поиска по Wayback нет) |
+| Воспроизведение | ❌ нет интерфейса | ✅ Wayback Machine |
+| Цель | Данные для исследований | Сохранение и доступ |
 
 ## Когда использовать
 
 ✅ Подходит:
 
-- **ML-исследования** — обучение моделей на больших данных.
-- **Web science** — изучение структуры интернета.
-- **Контент-анализ** — большие корпуса текста.
-- **Лингвистические исследования** — параллельные корпуса.
-- **Webometrics** — статистика по доменам.
+- **Исследования веба** — структура, домены, технологии.
+- **Корпуса текстов** — лингвистика, языковые модели.
+- **Поиск исчезнувших страниц** — как дополнительный источник к Wayback Machine.
 
 ❌ Не подходит:
 
-- **Найти конкретную страницу** — для этого Internet Archive Wayback.
-- **Воспроизвести страницу** — Common Crawl не сохраняет.
-- **Юридические доказательства** — нужен Perma.cc или IA.
-- **Гарантированное сохранение страницы** — краулы могут меняться.
+- **Просмотр страницы «как было»** — для этого Wayback Machine.
+- **Гарантированное сохранение конкретного сайта** — делайте собственный архив.
+- **Юридическая фиксация** — см. [Perma.cc](/kb/similar/perma-cc).
 
 ## Ресурсы
 
-- [Common Crawl Foundation](https://commoncrawl.org/)
-- [Common Crawl GitHub](https://github.com/commoncrawl)
+- [Common Crawl](https://commoncrawl.org/) и [Get Started](https://commoncrawl.org/get-started)
+- [Common Crawl на GitHub](https://github.com/commoncrawl)
 - [cdx_toolkit](https://github.com/commoncrawl/cdx_toolkit)
-- [duckdb-web-archive-cdx](https://github.com/commoncrawl/duckdb-web-archive-cdx)
-- [cc-mr-job](https://github.com/commoncrawl/cc-mr-job) — MapReduce по архивам
-- [Athena CC-Index Table](https://github.com/commoncrawl/cc-index-table)
-- [Common Crawl блог](https://commoncrawl.org/blog/)
+- [cc-index-table](https://github.com/commoncrawl/cc-index-table) — колоночный индекс
+- [cc-pyspark](https://github.com/commoncrawl/cc-pyspark) — обработка в Spark
+- [Блог Common Crawl](https://commoncrawl.org/blog)
 
 ## Связанные материалы
 
-- [DuckDB-WARC](/kb/instruments/tools/duckdb-warc) — SQL к WARC + CC CDX.
-- [Wayback Machine API](/kb/instruments/tools/wayback-api) — для IA.
-- [Internet Archive](/kb/similar/internet-archive) — главный альтернативный архив.
-- [WARC-файл: формат](/kb/instruments/file-formats/warc)
-- [Ландшафт 2026](/kb/instruments/landscape-2026)
+- [DuckDB-WARC](/kb/instruments/tools/duckdb-warc) — SQL к WARC и CDX-индексам.
+- [Wayback Machine API](/kb/instruments/tools/wayback-api) — для Internet Archive.
+- [Internet Archive](/kb/similar/internet-archive).
+- [Формат WARC](/kb/instruments/file-formats/warc).
+- [Ландшафт 2026](/kb/instruments/landscape-2026).

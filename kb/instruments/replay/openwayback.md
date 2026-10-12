@@ -1,142 +1,90 @@
+---
+title: OpenWayback
+sidebar_label: OpenWayback
+description: "OpenWayback — Java-реализация Wayback Machine, которую поддерживал IIPC. Проект больше не развивается; IIPC рекомендует переход на pywb."
+last_update:
+  date: 2026-10-12
+---
+
 # OpenWayback
 
-**OpenWayback** — это open-source проект для разработки Wayback Machine, ключевого программного обеспечения, используемого веб-архивами по всему миру для воспроизведения заархивированных веб-сайтов в браузере пользователя.
+:::warning Проект больше не развивается
+В README репозитория прямо сказано: «OpenWayback is no longer under active development». Последний релиз — 2.4.0 (май 2019). Для воспроизведения веб-архивов [IIPC рекомендует](https://netpreserveblog.wordpress.com/2020/12/16/openwayback-to-pywb-transition-guide/) [pywb](/kb/instruments/replay/pywb), а в документации pywb есть [руководство по переходу с OpenWayback](https://pywb.readthedocs.io/en/latest/manual/owb-transition.html). Для новых установок выбирайте pywb.
+:::
+
+**OpenWayback** — открытая Java-реализация Wayback Machine, которую развивал IIPC (International Internet Preservation Consortium). Долгое время это было стандартное ПО для воспроизведения в национальных веб-архивах.
 
 ## Описание
 
-OpenWayback — это Java-приложение, которое предоставляет веб-интерфейс для просмотра веб-архивов в формате WARC.
+OpenWayback — веб-приложение на Java (WAR-файл для контейнера сервлетов), которое показывает архивные страницы из WARC/ARC-файлов по CDX-индексу.
 
 ### Особенности
 
-*   **Wayback Machine**: Классическая реализация Wayback Machine
-*   **WARC поддержка**: Работает с WARC файлами
-*   **CDX индексы**: Использует CDX для быстрого поиска
-*   **Веб-интерфейс**: Веб-интерфейс для просмотра архивов
+*   **Классический интерфейс Wayback**: поиск по URL и календарь снимков.
+*   **Форматы**: WARC и ARC.
+*   **CDX-индексы**: поиск снимков по CDX-файлам; отдельный модуль CDX-сервера (`wayback-cdx-server`).
+*   **Memento**: поддерживается.
 
 ## Установка
 
 ### Требования
 
-*   Java 8+
-*   Tomcat 8+ или Jetty
-*   CDX индексы для WARC файлов
+*   Java и Maven (в `pom.xml` указан уровень языка Java 7).
+*   Контейнер сервлетов с API `javax.servlet` — например, Tomcat 8 или 9. Tomcat 10 и новее (`jakarta.*`) не подходит.
+*   CDX-индексы для WARC-файлов.
 
-### Установка
+### Сборка
 
-1. Скачайте последнюю версию с [GitHub](https://github.com/iipc/openwayback)
+1. Скачайте код или релиз с [GitHub](https://github.com/iipc/openwayback).
 2. Соберите проект:
 ```bash
 mvn clean package
 ```
-3. Разверните WAR файл на Tomcat
+3. Разверните полученный WAR-файл в Tomcat.
 
 ## Настройка
 
-### Конфигурация wayback.xml
+OpenWayback настраивается XML-файлами Spring (`wayback.xml`, `CDXCollection.xml` и др.), а не простым конфигом. Описание параметров — в [wiki проекта](https://github.com/iipc/openwayback/wiki). Если вы переносите существующую установку на pywb, соответствие настроек описано в разделе [OpenWayback → pywb: configuration](https://pywb.readthedocs.io/en/latest/manual/owb-to-pywb-config.html).
 
-```xml
-<wayback>
-  <archives>
-    <archive>
-      <path>/path/to/warcs</path>
-      <prefix>http://localhost:8080/wayback/</prefix>
-    </archive>
-  </archives>
-</wayback>
-```
+### Создание CDX-индексов
 
-### Создание CDX индексов
+Для OpenWayback нужны индексы в классическом формате CDX. Их можно построить, например, утилитой [cdxj-indexer](https://github.com/webrecorder/cdxj-indexer) в режиме CDX11:
 
 ```bash
-cdx-indexer /path/to/warcs/*.warc.gz > index.cdx
+pip install cdxj-indexer
+cdxj-indexer -11 --sort /path/to/warcs/*.warc.gz > index.cdx
 ```
 
 ## Использование
 
-### Веб-интерфейс
+После развёртывания интерфейс доступен по адресу, который задан в настройках (часто `http://localhost:8080/wayback/`). Введите URL в строку поиска и выберите дату в календаре.
 
-После установки откройте браузер на `http://localhost:8080/wayback/`.
+## Сравнение с pywb
 
-### Поиск по URL
+| Функция | OpenWayback | pywb |
+| :--- | :--- | :--- |
+| Язык | Java | Python |
+| Установка | WAR в Tomcat + Spring-конфигурация | `pip install pywb` или Docker |
+| WACZ | ❌ | через `wb-manager add --unpack-wacz` |
+| Memento | ✅ | ✅ |
+| Развитие | остановлено (последний релиз 2019 года) | активное |
 
-Введите URL в поисковую строку для поиска архивных версий.
+### Когда OpenWayback ещё встречается
 
-### Просмотр по дате
+*   Существующие установки, которые пока не перенесли на pywb.
+*   Исторические инструкции и конфигурации национальных архивов.
 
-Используйте календарь для выбора конкретной даты архивации.
-
-## API
-
-### Memento API
-
-OpenWayback поддерживает Memento API для доступа к архивным версиям:
-
-```
-http://localhost:8080/wayback/timemap/link/http://example.com/
-```
-
-### JSON API
-
-```bash
-curl "http://localhost:8080/wayback/cdx?url=http://example.com/"
-```
-
-## Сравнение с PYWB
-
-| Функция | OpenWayback | PYWB | Победитель |
-| :--- | :--- | :--- | :--- |
-| Язык | Java | Python | Зависит от окружения |
-| Простота установки | Средняя | Высокая | PYWB |
-| Производительность | Высокая | Средняя | OpenWayback |
-| Активность разработки | Средняя | Высокая | PYWB |
-
-### Когда использовать OpenWayback
-
-*   Существующие установки на Java
-*   Требуется высокая производительность
-*   Классическая установка Wayback Machine
-*   Интеграция с Java экосистемой
-
-### Когда использовать PYWB
-
-*   Новая установка
-*   Python окружение
-*   Нужна простота установки
-*   Активная разработка
-
-## Best practices
-
-### Оптимизация индексов
-
-*   Регулярно обновляйте CDX индексы
-*   Используйте сжатые индексы
-*   Разделяйте индексы по коллекциям
-
-### Кэширование
-
-Настройте кэширование для улучшения производительности:
-
-```xml
-<cache>
-  <enabled>true</enabled>
-  <maxSize>1000</maxSize>
-</cache>
-```
-
-### Мониторинг
-
-*   Мониторьте использование памяти
-*   Проверяйте производительность
-*   Логируйте ошибки
+Во всех остальных случаях используйте pywb.
 
 ## Ресурсы
 
-*   [GitHub репозиторий](https://github.com/iipc/openwayback)
-*   [Документация](https://github.com/iipc/openwayback/wiki)
-*   [Mailing list](https://groups.google.com/g/openwayback-dev)
+*   [GitHub-репозиторий](https://github.com/iipc/openwayback)
+*   [Wiki с документацией](https://github.com/iipc/openwayback/wiki)
+*   [Руководство по переходу на pywb](https://pywb.readthedocs.io/en/latest/manual/owb-transition.html)
+*   [Объявление IIPC о переходе (2020)](https://netpreserveblog.wordpress.com/2020/12/16/openwayback-to-pywb-transition-guide/)
 
 ## Связанные материалы
 
-- [PYWB для сравнения](/kb/instruments/replay/pywb)
-- [CDX формат](/kb/instruments/file-formats/cdx)
+- [pywb — рекомендуемая замена](/kb/instruments/replay/pywb)
+- [Формат CDX](/kb/instruments/file-formats/cdx)
 - [Формат WARC](/kb/instruments/file-formats/warc)

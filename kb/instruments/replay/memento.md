@@ -1,262 +1,252 @@
 ---
 title: Memento — стандарт «time travel» для веб-архивов
 sidebar_label: Memento
-description: "Memento (RFC 7089) — стандарт IETF для навигации по историческим версиям веб-страниц. TimeGate, TimeMap, Memento Aggregator. Реализации: Wayback Machine, Pywb, Mink, PastPage."
-last_updated: 2026-11-09
-keywords: [memento, rfc7089, timegate, timemap, aggregator, wayback]
+description: "Memento (RFC 7089) — протокол доступа к прошлым версиям веб-страниц: TimeGate, TimeMap, агрегаторы. Реализации: Wayback Machine, pywb, OpenWayback, IPWB, MemGator."
+last_update:
+  date: 2026-10-12
+keywords: [memento, rfc7089, timegate, timemap, aggregator, wayback, memgator]
 ---
 
 # Memento — стандарт «time travel» для веб-архивов
 
-[Memento](https://datatracker.ietf.org/doc/html/rfc7089) — стандарт IETF (RFC 7089, 2013) для доступа к историческим версиям веб-страниц. Он описывает, как HTTP-клиент (браузер, скрипт, расширение) может попросить у «архива» ближайшую к нужной дате версию URL или получить полный список всех снимков.
+[Memento](https://datatracker.ietf.org/doc/html/rfc7089) — протокол, описанный в RFC 7089 (2013, категория Informational). Он определяет, как HTTP-клиент (браузер, скрипт, расширение) может попросить у архива версию URL, ближайшую к нужной дате, или получить список всех снимков. Проект Memento ведёт сайт [mementoweb.org](https://mementoweb.org/).
 
-> **Зачем архивисту:** без Memento каждая архивная система придумывает свой API. С Memento можно одной командой спросить Internet Archive, национальные архивы и Archive.today одновременно — через **Memento Aggregator**.
+> **Зачем архивисту:** без Memento у каждой архивной системы свой API. С Memento одинаковые запросы работают в Wayback Machine, в архивах на pywb и во многих национальных веб-архивах, а **агрегатор** опрашивает их сразу.
 
-## Три типа URI
+## Четыре вида URI
 
-| Тип | Зачем | Пример |
+| Обозначение | Что это | Пример |
 |:---|:---|:---|
-| **Original (Original Resource)** | Живой URL, который архивируем | `https://example.com/` |
-| **Memento** | Конкретный архивный снимок с фиксированной датой | `https://web.archive.org/web/20260601120000/https://example.com/` |
-| **TimeGate** | Ресурс-редиректор: «дай мне ближайший снимок к этой дате» | `https://web.archive.org/web/20260615/https://example.com/` |
-| **TimeMap** | Список всех Memento для Original | `https://web.archive.org/web/timemap/link/https://example.com/` |
+| **URI-R** (Original Resource) | Живой URL, который архивировали | `https://example.com/` |
+| **URI-M** (Memento) | Конкретный архивный снимок с фиксированной датой | `https://web.archive.org/web/20200615115707/http://example.com/` |
+| **URI-G** (TimeGate) | Ресурс, который по дате выбирает ближайший снимок | `https://web.archive.org/web/https://example.com/` |
+| **URI-T** (TimeMap) | Список всех снимков для URI-R | `https://web.archive.org/web/timemap/link/https://example.com/` |
 
-## TimeGate — редирект к ближайшему снимку
+## TimeGate — ближайший снимок к дате
 
-TimeGate ведёт себя как обычный URL, но возвращает `302 Found` с `Location` на конкретный Memento:
+Дата передаётся заголовком `Accept-Datetime` в формате HTTP-date (RFC 1123), например `Mon, 15 Jun 2020 12:00:00 GMT`. Формат ISO 8601 в этом заголовке не допускается. Без заголовка TimeGate возвращает самый свежий снимок.
 
 ```bash
-# Без Accept-Datetime → ближайший к сегодня
-curl -I 'https://web.archive.org/web/https://example.com/'
-
-# С конкретной датой
 curl -I \
-  -H 'Accept-Datetime: Mon, 15 Jun 2026 12:00:00 GMT' \
-  'https://web.archive.org/web/20260615/https://example.com/'
+  -H 'Accept-Datetime: Mon, 15 Jun 2020 12:00:00 GMT' \
+  'https://web.archive.org/web/https://example.com/'
 ```
 
-Ответ:
+Ответ Wayback Machine (сокращённо):
 
 ```
-HTTP/1.1 302 Found
-Location: https://web.archive.org/web/20260601120000/https://example.com/
-Memento-Datetime: Mon, 01 Jun 2026 12:00:00 GMT
-Link: <https://example.com/>; rel="original"
+HTTP/2 302
+location: https://web.archive.org/web/20200615115707/http://example.com/
+vary: accept-datetime
+link: <https://example.com/>; rel="original", <https://web.archive.org/web/20200615115707/http://example.com/>; rel="memento"; datetime="Mon, 15 Jun 2020 11:57:07 GMT", <https://web.archive.org/web/timemap/link/https://example.com/>; rel="timemap"; ...
 ```
 
-### Альтернативные TimeGate'ы
+Не все TimeGate отвечают редиректом: например, pywb по умолчанию сразу отдаёт снимок с кодом 200 и указывает канонический адрес в `Content-Location` (это допустимый вариант протокола).
 
-| TimeGate | Эндпойнт | Покрытие |
+### TimeGate и TimeMap других архивов
+
+Адреса ниже взяты из [списка архивов](https://oduwsdl.github.io/MemGator/archives.json), который использует агрегатор MemGator. Список поддерживается сообществом и может устаревать.
+
+| Архив | TimeGate | TimeMap (link-format) |
 |:---|:---|:---|
-| Internet Archive | `https://web.archive.org/web/<ts>/<url>` | Глобальное |
-| Archive Today | `https://archive.ph/newest/<url>` | Глобальное |
-| Library of Congress | `https://webarchive.loc.gov/all/<url>` | США |
-| UK Web Archive | `https://www.webarchive.org.uk/wayback/archive/<url>` | Великобритания |
-| Bibliothèque nationale de France | `https://web.archive.bnf.fr/<url>` | Франция |
-| Королевская библиотека Дании | `http://web.archive.kb.dk/<url>` | Дания |
+| Internet Archive | `https://web.archive.org/web/<url>` | `https://web.archive.org/web/timemap/link/<url>` |
+| Archive.today | `http://archive.today/timegate/<url>` | `http://archive.today/timemap/<url>` |
+| Arquivo.pt (Португалия) | `https://arquivo.pt/wayback/<url>` | `https://arquivo.pt/wayback/timemap/link/<url>` |
+| UK Web Archive | `https://www.webarchive.org.uk/wayback/archive/<url>` | `https://www.webarchive.org.uk/wayback/archive/timemap/link/<url>` |
+| Archive-It | `https://wayback.archive-it.org/all/<url>` | `https://wayback.archive-it.org/all/timemap/link/<url>` |
+| Perma.cc | `https://perma.cc/timegate/<url>` | `https://perma.cc/timemap/link/<url>` |
 
 ## TimeMap — все снимки URL
 
-TimeMap возвращает все известные Memento для Original:
-
 ```bash
 # В link-format
-curl -H 'Accept: application/link-format' \
-  'https://web.archive.org/web/timemap/link/https://example.com/'
+curl 'https://web.archive.org/web/timemap/link/https://ruarxive.org/'
 ```
 
-Ответ:
+Ответ (начало):
 
 ```
-<https://web.archive.org/web/20240101120000/https://example.com/>; rel="memento"; datetime="Mon, 01 Jan 2024 ...",
-<https://web.archive.org/web/20250101120000/https://example.com/>; rel="memento"; datetime="Wed, 01 Jan 2025 ...",
-<https://web.archive.org/web/20260101120000/https://example.com/>; rel="memento"; datetime="Thu, 01 Jan 2026 ...",
-<https://web.archive.org/web/https://example.com/>; rel="original"
+<http://ruarxive.org/>; rel="original",
+<https://web.archive.org/web/timemap/link/https://ruarxive.org/>; rel="self"; type="application/link-format"; from="Thu, 10 May 2018 18:40:44 GMT",
+<https://web.archive.org/web/https://ruarxive.org/>; rel="timegate",
+<https://web.archive.org/web/20180510184044/http://ruarxive.org/>; rel="first memento"; datetime="Thu, 10 May 2018 18:40:44 GMT",
+<https://web.archive.org/web/20180511081052/https://ruarxive.org/>; rel="memento"; datetime="Fri, 11 May 2018 08:10:52 GMT",
 ```
 
-В JSON-формате через API:
+У Wayback Machine есть и JSON-вариант. Это **массив массивов**: первая строка — названия полей, дальше — по строке на снимок (как в CDX API).
 
 ```bash
-curl 'https://web.archive.org/web/timemap/json/https://example.com/' | jq .
+curl 'https://web.archive.org/web/timemap/json/https://ruarxive.org/' | head -3
 ```
 
 ```json
-{
-  "mementos": {
-    "first": {"datetime": "20240101...", "uri": "https://web.archive.org/web/2024..."},
-    "last":  {"datetime": "20260101...", "uri": "https://web.archive.org/web/2026..."},
-    "list":  {"memento": [...]}
-  }
-}
+[["urlkey","timestamp","original","mimetype","statuscode","digest","length"],
+["org,ruarxive)/","20180510184044","http://ruarxive.org/","unk","301","3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ","409"],
+["org,ruarxive)/","20180511081052","https://ruarxive.org/","text/html","200","Q3M75PLO6Z7NE5GSJBPCCN4NBFF6FYIQ","6673"],
 ```
 
-## Memento Aggregator — федеративный поиск
+Формат JSON не стандартизирован: у pywb, например, `timemap/json` отдаёт NDJSON — по объекту на строку.
 
-[Memento Aggregator](https://timetravel.mementoweb.org/) — сервис, который отправляет запрос во все поддерживающие Memento архивы и возвращает объединённый результат. Для архивиста — способ за один запрос проверить, в каких архивах мира есть нужная страница.
+## Агрегаторы — поиск сразу по многим архивам
 
-### JSON API
+:::warning TimeTravel недоступен
+Публичный агрегатор Memento Time Travel (`timetravel.mementoweb.org`) не работает: на октябрь 2026 года у домена нет DNS-записи. Сайт проекта [mementoweb.org](https://mementoweb.org/) при этом доступен. Старые инструкции и скрипты, которые обращаются к `timetravel.mementoweb.org/api/...`, нужно перевести на другой агрегатор.
+:::
+
+Рабочая альтернатива — [MemGator](https://github.com/oduwsdl/MemGator), открытый агрегатор на Go от лаборатории ODU WS-DL. Он работает и как утилита командной строки, и как сервер; готовые сборки для Linux, macOS и Windows лежат в [релизах](https://github.com/oduwsdl/MemGator/releases), есть Docker-образ `oduwsdl/memgator`.
 
 ```bash
-# Все снимки URL на 2026-01-01 во всех архивах
-curl 'https://timetravel.mementoweb.org/api/json/20260101/https://example.com/'
+# TimeMap по всем архивам из списка, вывод в JSON
+memgator -f JSON https://ruarxive.org/
+
+# Описание снимка, ближайшего к дате
+memgator https://ruarxive.org/ 20220303
+
+# Сервер с эндпойнтами /timemap/{link|json|cdxj}/{URI-R} и /timegate/{URI-R}
+memgator server
 ```
 
-Ответ:
+В JSON-ответе MemGator снимки лежат в `mementos.list`, а первый и последний — в `mementos.first` и `mementos.last`. Для совместимости с прежним API TimeTravel у сервера есть эндпойнт `/api`. Список опрашиваемых архивов задаётся флагом `-a` (локальный файл или URL).
 
-```json
-{
-  "mementos": {
-    "first": {"datetime": "...", "uri": "https://..."},
-    "last":  {"datetime": "...", "uri": "https://..."},
-    "list": {
-      "memento": [
-        "https://web.archive.org/web/2024...",
-        "https://archive.ph/2025-...",
-        "https://webarchive.loc.gov/all/..."
-      ]
-    }
-  }
-}
-```
+> Команды MemGator проверены на версии 1.0-rc9 (октябрь 2026).
 
-### Link API
+## Ещё о протоколе
 
-```bash
-# Список URL всех архивов, в которых есть страница
-curl -H 'Accept: application/link-format' \
-  'https://timetravel.mementoweb.org/api/link/20260101/https://example.com/'
-```
+### Шаблоны развёртывания (Patterns)
 
-## Расширения Memento
+В RFC 7089 «шаблоны» (Patterns 1.1–2.3 и др.) — это варианты того, где находятся URI-R, URI-G и URI-M и как TimeGate отвечает: редиректом 302 или сразу снимком с кодом 200. Специального HTTP-заголовка для них нет.
 
-### Memento Pattern
+### Формат даты
 
-Для случая, когда URL сменился, но это «новая версия» старой страницы. Используется заголовок `Memento-Pattern` или `Link: rel="pattern"`. Wayback Machine поддерживает для некоторых сайтов.
-
-### Memento Datetime Format
-
-Дата указывается в формате [RFC 7089](https://datatracker.ietf.org/doc/html/rfc7089#section-5.2.1):
+В заголовках `Accept-Datetime` и `Memento-Datetime` используется только HTTP-date:
 
 ```
-Mon, 01 Jun 2026 12:00:00 GMT     # HTTP-формат
-2026-06-01T12:00:00Z               # ISO-8601
+Mon, 01 Jun 2026 12:00:00 GMT
 ```
 
-### TimeBundle
-
-TimeBundle — дополнение, позволяющее запросить несколько URL одновременно. Редко реализовано; обычно не требуется.
+В URL самих снимков архивы обычно используют 14-значную метку `YYYYMMDDhhmmss`, но это соглашение архивов, а не часть протокола.
 
 ## Программные обёртки
 
-### Python: requests + ручная обработка
+### Python: requests
+
+Код проверен на Wayback Machine в октябре 2026 года.
 
 ```python
-import requests
-from urllib.parse import quote
+from datetime import datetime, timezone
+from email.utils import format_datetime
 
-def memento_for(url: str, ts: str = None) -> str | None:
-    """Вернуть URL ближайшего Memento или None, если не найдено."""
+import requests
+
+
+def memento_for(url: str, when: datetime | None = None) -> str | None:
+    """URL ближайшего снимка в Wayback Machine или None."""
     headers = {}
-    if ts:
-        headers["Accept-Datetime"] = f"{ts} GMT"
-    r = requests.get(
-        f"https://web.archive.org/web/{quote(url, safe='')}",
+    if when:
+        headers["Accept-Datetime"] = format_datetime(when.astimezone(timezone.utc), usegmt=True)
+    r = requests.head(
+        f"https://web.archive.org/web/{url}",
         headers=headers,
         allow_redirects=False,
-        timeout=30,
+        timeout=60,
     )
-    if r.status_code in (302, 200):
-        loc = r.headers.get("Location")
-        if loc:
-            return loc
-    return None
+    return r.headers.get("Location")
 
 
 def time_map(url: str) -> list[str]:
-    """Список URL всех Memento для данного URL."""
-    r = requests.get(
-        f"https://web.archive.org/web/timemap/json/{quote(url, safe='')}",
-        timeout=60,
-    )
-    data = r.json()
-    return [m["uri"] for m in data["mementos"]["list"]["memento"]]
+    """Список URL всех снимков (JSON TimeMap Wayback Machine)."""
+    r = requests.get(f"https://web.archive.org/web/timemap/json/{url}", timeout=120)
+    r.raise_for_status()
+    rows = r.json()
+    if not rows:
+        return []
+    header, *data = rows
+    ts, orig = header.index("timestamp"), header.index("original")
+    return [f"https://web.archive.org/web/{row[ts]}/{row[orig]}" for row in data]
 
 
-print(memento_for("https://example.com/", "20260615"))
-print(len(time_map("https://example.com/")), "снимков")
+print(memento_for("https://ruarxive.org/", datetime(2022, 3, 3, tzinfo=timezone.utc)))
+print(len(time_map("https://ruarxive.org/")), "снимков")
 ```
 
-### Питон-библиотека waybackpy
+### Библиотека waybackpy
+
+[waybackpy](/kb/instruments/tools/waybackpy) работает не через Memento, а через CDX API Wayback Machine, но решает те же задачи.
 
 ```bash
 pip install waybackpy
 ```
 
 ```python
-from waybackpy import WaybackMachine
+from waybackpy import WaybackMachineCDXServerAPI
 
-wm = WaybackMachine("https://example.com/")
+UA = "my-research-script/1.0 (contact@example.org)"
 
-# Ближайший снимок к 2026-06-15
-snap = wm.near(time="2026-06-15")
-print(snap.url, snap.timestamp)
+# Ближайший снимок к дате
+cdx = WaybackMachineCDXServerAPI("https://ruarxive.org/", user_agent=UA)
+snap = cdx.near(year=2022, month=3, day=3)
+print(snap.archive_url, snap.timestamp)
 
-# Все снимки за последние 5 лет
-for snap in wm.snapshots(year_start=2021, year_end=2026):
-    print(snap.url, snap.timestamp)
+# Все снимки за 2022 год
+cdx = WaybackMachineCDXServerAPI(
+    "https://ruarxive.org/", user_agent=UA,
+    start_timestamp="2022", end_timestamp="2022",
+)
+for snap in cdx.snapshots():
+    print(snap.timestamp, snap.original, snap.statuscode)
 ```
 
-## Расширения браузера и плагины
+> Пример проверен на waybackpy 3.0.6 (октябрь 2026). Классов `WaybackMachine` и методов `near(time=...)` в этой версии нет.
+
+## Расширения браузера
 
 | Инструмент | Тип | Что делает |
 |:---|:---|:---|
-| **[Mink](https://github.com/keitham/mink)** | Расширение Chrome | При просмотре страницы показывает панель со снимками из Memento Aggregator |
-| **[PastPage](https://github.com/brettlangdon/pastpage)** | Расширение Chrome/Firefox | Если страница недоступна, ищет её в архивах автоматически |
-| **[Zotero Robust Links](https://github.com/lehnberg/zotero-memento)** | Расширение Zotero | При цитировании добавляет ссылку на Memento |
-| **[Rescue Time Machine](https://www.rescuetime.org/)** | Сервис | Подбирает TimeGate автоматически |
-
-Пример PastPage в действии: пользователь нажимает «View archived page» → расширение спрашивает Memento Aggregator → если найден снимок, открывает его.
+| **[Wayback Machine](https://chromewebstore.google.com/detail/wayback-machine/fpnmgdkabkmnadcjpehmlllkndpkmiak)** ([Firefox](https://addons.mozilla.org/en-US/firefox/addon/wayback-machine_new/)) | Официальное расширение Internet Archive | Сохранение страниц, просмотр снимков, подсказки при ошибке 404 |
+| **[Resurrect Pages](https://addons.mozilla.org/en-US/firefox/addon/resurrect-pages/)** | Расширение Firefox | Поиск копий недоступной страницы в нескольких архивах |
+| **[PastPage](/kb/instruments/tools/pastpage)** ([Chrome](https://chromewebstore.google.com/detail/pastpage-query-10+-web-ar/icpegbecignmplpkjjcegmjmfadpcpoo), [Firefox](https://addons.mozilla.org/en-US/firefox/addon/pastpage-query-10-web-archives/)) | Расширение | Поиск снимков страницы сразу в нескольких веб-архивах |
 
 ## Реализации серверной части
 
-| Архив | Поддержка Memento | Эндпойнт |
+| Система | Поддержка Memento | TimeGate |
 |:---|:-:|:---|
-| Internet Archive | ✅ | `web.archive.org/web/<ts>/<url>` |
-| pywb | ✅ | `<collection>/memento/<url>` |
-| OpenWayback | ⚠️ Частично | `<collection>/<ts>/<url>` |
-| SolrWayback | ✅ | встроенный proxy |
-| Conifer | ✅ | локальный proxy |
+| Internet Archive (Wayback Machine) | ✅ | `https://web.archive.org/web/<url>` |
+| [pywb](/kb/instruments/replay/pywb) | ✅ | `/<коллекция>/<url>` |
+| [OpenWayback](/kb/instruments/replay/openwayback) | ✅ | зависит от настройки установки |
+| [IPWB](/kb/instruments/replay/ipwb) | ✅ (TimeMap и заголовки `Link`) | — |
+| [SolrWayback](/kb/instruments/tools/solrwayback) | ✅ (в коде есть модуль Memento) | см. документацию проекта |
+| MemGator (агрегатор) | ✅ | `/timegate/<url>` |
 
-Подробности о настройке серверной части — [pywb](/kb/instruments/replay/pywb) (раздел Memento API).
+Conifer (Rhizome), который раньше часто упоминали в этом ряду, с июня 2026 года прекратил работу как сервис записи: создание и изменение коллекций отключено. Для новых записей используйте ArchiveWeb.page или [Browsertrix](/kb/instruments/tools/browsertrix).
+
+Настройка Memento на своём сервере — в статье [pywb](/kb/instruments/replay/pywb) (раздел «Memento API»).
 
 ## Когда использовать Memento
 
 ✅ Подходит:
 
-- Дать пользователю ссылку на «архивную версию» без ручного перебора дат.
-- Программно проверять, в каких архивах мира есть URL.
+- Дать пользователю ссылку на архивную версию без ручного перебора дат.
+- Программно проверять, в каких архивах есть URL (через агрегатор).
 - В скриптах автоматически выбирать ближайший снимок для цитирования.
-- В браузерных расширениях для автоматического восстановления 404-х страниц.
-- В академических публикациях — Memento-ссылка принимается наравне с Perma.cc.
+- В браузерных расширениях для поиска копий страниц, которые отдают 404.
 
 ❌ Не подходит:
 
-- Полнотекстовый поиск по содержимому — только метаданные URL.
-- Свежие страницы (ещё не заархивированные) — Memento не сохраняет, а только находит.
-- Закрытые/приватные архивы — нужна отдельная аутентификация.
+- Полнотекстовый поиск по содержимому — протокол работает только с URL и датами.
+- Страницы, которые ещё никто не заархивировал: Memento находит снимки, но не создаёт их.
+- Закрытые архивы — нужна отдельная авторизация.
 
 ## Ресурсы
 
-- [RFC 7089 — Memento](https://datatracker.ietf.org/doc/html/rfc7089) — формальная спецификация.
-- [Memento Project — сайт IETF](https://datatracker.ietf.org/wg/httpbis/) — рабочая группа.
-- [Memento Framework](https://www.mementofoundation.org/) — организация по развитию стандарта.
-- [Memento Aggregator — timetravel.mementoweb.org](https://timetravel.mementoweb.org/) — точка входа.
-- [Memento Tools List](https://www.mementofoundation.org/tools/) — клиенты и серверы.
+- [RFC 7089 — Memento](https://datatracker.ietf.org/doc/html/rfc7089) — спецификация.
+- [mementoweb.org](https://mementoweb.org/) — сайт проекта Memento.
+- [mementoweb.org/tools](https://mementoweb.org/tools/) — список клиентов и серверов.
+- [MemGator](https://github.com/oduwsdl/MemGator) — агрегатор Memento.
 
 ## Связанные материалы
 
 - [Wayback Machine API](/kb/instruments/tools/wayback-api) — практический справочник API Wayback Machine.
 - [pywb](/kb/instruments/replay/pywb) — Python-сервер с поддержкой Memento.
-- [Internet Archive](/kb/similar/internet-archive) — основная реализация Memento.
-- [ReplayWeb.page](/kb/instruments/replay/replayweb-page) — клиентский плеер (Memento-агент).
+- [Internet Archive](/kb/similar/internet-archive) — крупнейший архив с поддержкой Memento.
+- [ReplayWeb.page](/kb/instruments/replay/replayweb-page) — клиентский плеер (Memento не поддерживает).
 - [FAQ](/kb/faq) — ответы на частые вопросы об архивации.

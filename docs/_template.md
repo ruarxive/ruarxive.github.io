@@ -2,7 +2,8 @@
 title: Название статьи
 sidebar_label: Краткая метка
 sidebar_position: 1
-last_updated: 2026-10-07
+last_update:
+  date: 2026-10-12
 description: Краткое описание для SEO (до 160 символов).
 keywords: [архивация, веб, инструмент]
 ---

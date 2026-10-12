@@ -95,11 +95,11 @@ We welcome contributions! Подробности — в [CONTRIBUTING.md](CONTRI
 
 Основные принципы работы с контентом:
 
-- База знаний живёт в `/kb`; одна страница = один `.md`-файл с frontmatter (`title`, `description`, `sidebar_position`, при необходимости `last_updated`).
+- База знаний живёт в `/kb`; одна страница = один `.md`-файл с frontmatter (`title`, `description`, `sidebar_position`, `last_update.date` — дата последней проверки, показывается на странице).
 - Боковое меню — вручную в `/sidebars.js`. Если вы добавили новую страницу, не забудьте подключить её в сайдбаре, иначе она не попадёт в билд.
 - Иконки/изображения кладите в `/static/img/...`.
 - Перед PR локально убедитесь, что `npm run build` отрабатывает без ошибок.
 
 ## 📄 License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.

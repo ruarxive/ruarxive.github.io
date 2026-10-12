@@ -1,6 +1,9 @@
 ---
+title: Словарь терминов
+description: "Ключевые понятия цифровой и веб-архивации: форматы и стандарты (WARC, WACZ, CDX, OAIS, Memento), инструменты, правовые и технические термины."
 sidebar_position: 1
-last_updated: 2026-11-09
+last_update:
+  date: 2026-10-12
 ---
 
 # Словарь терминов
@@ -10,248 +13,320 @@ last_updated: 2026-11-09
 ## Форматы и стандарты
 
 ### WARC (Web ARChive)
-Стандартный формат для хранения HTTP-снимков веб-страниц. Файл содержит записи
-с заголовками запросов/ответов и телом ответа. Подробнее: [WARC](/kb/instruments/file-formats/warc).
+Стандартный формат веб-архива (ISO 28500). WARC-файл — последовательность записей;
+каждая запись состоит из WARC-заголовков (тип, URI, дата, идентификатор, дайджесты)
+и блока содержимого — например, полного HTTP-ответа с заголовками и телом.
+Подробнее: [WARC](/kb/instruments/file-formats/warc).
 
 ### WARC 1.1
-Текущая версия стандарта ISO 28500. Расширения по сравнению с 1.0: новые типы записей, улучшенная поддержка compressed блоков, расширенные метаданные.
+Текущая версия стандарта — ISO 28500:2017. По сравнению с WARC 1.0 (ISO 28500:2009)
+новых типов записей нет; основные изменения — допускается точность `WARC-Date` до долей
+секунды и добавлены поля `WARC-Refers-To-Target-URI` и `WARC-Refers-To-Date` для
+записей `revisit`.
 
 ### WACZ (Web Archive Collection Zipped)
-ZIP-обёртка над одним или несколькими WARC-файлами с индексами и метаданными.
-Подходит для воспроизведения в плеерах вроде [ReplayWeb.page](/kb/instruments/replay/replayweb-page).
+ZIP-пакет по спецификации Webrecorder: внутри лежат WARC-файлы, индекс CDXJ, список
+страниц и файл метаданных `datapackage.json` с контрольными суммами. Удобен для
+воспроизведения прямо в браузере, например в [ReplayWeb.page](/kb/instruments/replay/replayweb-page).
 
-### WACZ Signing
-Криптографическое подписание WACZ-архива для подтверждения авторства и целостности.
-Используется [Scoop](https://tools.perma.cc/) и `wacz-signer`. Подробнее — [WACZ page](/kb/instruments/file-formats/wacz).
+### Подпись WACZ (WACZ Signing)
+Криптографическая подпись WACZ-пакета по спецификации Webrecorder «WACZ Signing and
+Verification», подтверждающая, кто и когда создал архив и что он не менялся.
+Подписывающий сервер — [authsign](https://github.com/webrecorder/authsign); подписанные
+пакеты умеет создавать, например, [Scoop](https://github.com/harvard-lil/scoop)
+(Harvard LIL). Подробнее — [WACZ](/kb/instruments/file-formats/wacz).
 
 ### CDX
-Индексный формат, описысывающий содержимое WARC-файла. Каждая строка — одна запись:
-URL, временная метка, тип, хеш. Подробнее: [CDX](/kb/instruments/file-formats/cdx).
+Индексный формат, описывающий содержимое WARC-файлов: каждая строка — один захват
+(ключ URL в форме SURT, временная метка, исходный URL, MIME-тип, HTTP-статус, дайджест,
+длина записи, смещение и имя WARC-файла). Порядок полей задаётся строкой-легендой.
+Подробнее: [CDX](/kb/instruments/file-formats/cdx).
 
 ### CDXJ
-Расширение CDX в формате JSON Lines. Используется в WACZ-контейнерах и современных плеерах.
+Вариант CDX, в котором после ключа SURT и временной метки идёт JSON-объект с остальными
+полями. Используется в pywb и в WACZ-пакетах.
 
-### ARC / ARC_IA
-Предшественник WARC, использовавшийся Internet Archive с 1990-х. Большинство legacy-архивов (до ~2008) хранятся в `.arc.gz`. Конвертируется в WARC через `arc2warc`.
+### SURT
+Sort-friendly URI Reordering Transform — запись URL с перевёрнутым доменом
+(например, `org,example)/page`), удобная для сортировки и поиска по префиксу в индексах.
+
+### ARC
+Предшественник WARC, исторический формат Internet Archive. Ранние коллекции
+хранятся в файлах `.arc.gz`. Конвертируется в WARC, например, утилитой `arc2warc` из
+пакета [warctools](https://github.com/internetarchive/warctools).
 
 ### PRONOM
 Реестр форматов файлов Национального архива Великобритании. Уникальный идентификатор —
-**PUID** (например, `fmt/40` для Word 97–2003).
+**PUID** (например, `fmt/40` для Microsoft Word 97–2003).
 Подробнее: [Реестры форматов](/kb/instruments/file-formats/format-registries).
 
 ### PUID
-PRONOM Unique Identifier — стабильный идентификатор формата файла.
+PRONOM Unique Identifier — стабильный идентификатор формата файла в реестре PRONOM.
 
 ### BagIt
-Стандарт упаковки и передачи цифровых материалов (RFC 8493). Каждая «bag» содержит данные
-и манифест хешей для проверки целостности.
+Стандарт упаковки и передачи цифровых материалов (RFC 8493). Каждый «пакет» (bag)
+содержит данные и манифест контрольных сумм для проверки целостности.
+Подробнее: [BagIt](/kb/instruments/file-formats/bagit).
 
 ### PREMIS
-PREservation Metadata: Implementing Strategies — стандарт метаданных сохранности цифровых
-объектов. Используется для описания происхождения, прав и изменений. Подробнее: [PREMIS](/kb/instruments/file-formats/premis).
+PREservation Metadata: Implementation Strategies — стандарт метаданных сохранности цифровых
+объектов: события, агенты, права, происхождение. Подробнее: [PREMIS](/kb/instruments/file-formats/premis).
 
 ### METS
 Metadata Encoding and Transmission Standard — стандарт структурных метаданных, описывающих
-связи между файлами в сложных коллекциях. Подробнее: [METS](/kb/instruments/file-formats/mets).
+связи между файлами в сложных объектах и коллекциях. Подробнее: [METS](/kb/instruments/file-formats/mets).
 
 ### IIIF
-International Image Interoperability Framework — протокол для доставки изображений высокого разрешения (мозаики, манифесты). Подробнее: [IIIF](/kb/instruments/file-formats/iiif).
+International Image Interoperability Framework — набор API для доставки изображений
+высокого разрешения и их описаний (манифестов). Подробнее: [IIIF](/kb/instruments/file-formats/iiif).
 
 ### PDF/A
-Стандартный формат PDF для долгосрочного хранения (без шифрования, без JavaScript). Подробнее: [PDF/A](/kb/instruments/file-formats/pdfa).
+Семейство стандартов ISO 19005 — PDF для долгосрочного хранения (встроенные шрифты,
+без шифрования и JavaScript). Подробнее: [PDF/A](/kb/instruments/file-formats/pdfa).
 
 ### JP2 (JPEG 2000)
-Формат изображений с возможностями progressive и lossless. Стандарт для цифровой библиотеки
-(Библиотека Конгресса, Internet Archive). Подробнее: [JP2](/kb/instruments/file-formats/jp2).
+Формат изображений с поддержкой сжатия без потерь и прогрессивной загрузки. Широко
+используется для хранения оцифрованных материалов. Подробнее: [JP2](/kb/instruments/file-formats/jp2).
 
 ### MBOX
-Текстовый формат хранения email-сообщений, последовательно соединённых. Подробнее: [MBOX](/kb/instruments/file-formats/mbox).
+Текстовый формат хранения email-сообщений, записанных подряд в одном файле.
+Подробнее: [MBOX](/kb/instruments/file-formats/mbox).
 
 ### SIARD
 Software Independent Archiving of Relational Databases — формат для долгосрочного хранения
-реляционных БД. Подробнее: [SIARD](/kb/instruments/file-formats/siard).
+реляционных баз данных. Подробнее: [SIARD](/kb/instruments/file-formats/siard).
 
 ### MHTML
-MIME HTML — формат хранения полной веб-страницы в одном файле (HTML + встроенные ресурсы).
-Используется Internet Archive как альтернатива WARC для одиночных страниц.
+MIME HTML — формат хранения веб-страницы в одном файле (HTML и встроенные ресурсы).
+Поддерживается браузерами на базе Chromium; подходит для сохранения отдельной страницы,
+но не заменяет WARC: в нём нет HTTP-заголовков и истории запросов.
+Подробнее: [MHTML](/kb/instruments/file-formats/mhtml).
 
 ### ZIM
-Открытый формат сжатых файлов для офлайн-чтения через Kiwix. Часто создаётся из WARC через
-[warc2zim](/kb/instruments/tools/warc2zim).
+Открытый формат сжатых файлов для офлайн-чтения через Kiwix. Может создаваться из WARC
+через [warc2zim](/kb/instruments/tools/warc2zim).
 
-### AIP / DIP / SIP (OAIS)
-- **SIP** — Submission Information Package (поступает на хранение).
-- **AIP** — Archival Information Package (что хранится).
-- **DIP** — Dissemination Information Package (что отдаётся пользователю).
+### OAIS и пакеты SIP / AIP / DIP
+OAIS (Open Archival Information System, ISO 14721) — эталонная модель архива
+долговременного хранения: функции (приём, хранение, управление данными,
+администрирование, планирование сохранности, доступ) и информационные пакеты:
 
-Стандарт OAIS (ISO 14721) для референтной модели долгосрочного архивного хранения.
+- **SIP** — Submission Information Package, пакет, передаваемый в архив;
+- **AIP** — Archival Information Package, пакет, который архив хранит;
+- **DIP** — Dissemination Information Package, пакет, выдаваемый пользователю.
 
 ## Инструменты
 
 ### Heritrix
-Краулер Internet Archive, написанный на Java. Используется для масштабной архивации
-с генерацией WARC. Требует серьёзных ресурсов.
+Краулер Internet Archive на Java для масштабной архивации с записью WARC. Требует
+серьёзных ресурсов и настройки. Подробнее: [Heritrix](/kb/instruments/tools/heritrix).
 
 ### Browsertrix
-Современный краулер на базе Chrome от Webrecorder. Записывает трафик реального браузера
-в WACZ. Подробнее: [Browsertrix](/kb/instruments/tools/browsertrix).
+Браузерный краулер Webrecorder на базе Chromium (Browsertrix Crawler в Docker и облачный
+сервис Browsertrix). Записывает трафик реального браузера в WARC и упаковывает в WACZ.
+Подробнее: [Browsertrix](/kb/instruments/tools/browsertrix).
+
+### ArchiveWeb.page
+Расширение для браузеров на базе Chromium от Webrecorder: записывает просматриваемые
+страницы в WARC/WACZ прямо во время просмотра.
 
 ### HTTrack
-Бесплатный GUI-инструмент для зеркалирования сайтов. Подходит для начинающих.
+Бесплатная программа для зеркалирования сайтов, есть графический интерфейс. Сохраняет
+файлы сайта для офлайн-просмотра; начиная с версии 3.49-14 (2026) умеет также писать WARC и WACZ
+(опция `--warc`). Подробнее: [HTTrack](/kb/instruments/tools/httrack).
 
 ### Wpull
-Python-клон Wget с поддержкой WARC. Подробнее: [make-copy-website](/kb/instruments/howto-collect/make-copy-website).
+Совместимый с wget загрузчик на Python с записью WARC (автор — Christopher Foo; используется в ArchiveTeam).
+Развитие практически остановлено; последний релиз на PyPI — 2.0.1 (2016), на
+современных версиях Python не устанавливается без доработок.
+Подробнее: [Wpull](/kb/instruments/tools/wpull).
 
 ### Wget
-Классическая консольная утилита для скачивания файлов по HTTP/FTP. Подробнее:
-[Wget](/kb/guides/wget).
+Классическая консольная утилита GNU для скачивания по HTTP(S)/FTP; начиная с версии 1.14
+умеет записывать WARC (`--warc-file`). Подробнее: [Wget — справочник](/kb/instruments/tools/wget),
+[сценарии сбора](/kb/guides/wget).
 
 ### yt-dlp
-Форк youtube-dl с поддержкой тысяч видеохостингов. Подробнее:
-[yt-dlp](/kb/instruments/tools/yt-dlp).
+Форк youtube-dl для скачивания видео и аудио с тысяч сайтов. Сохраняет медиафайлы и
+метаданные, но не WARC. Подробнее: [yt-dlp](/kb/instruments/tools/yt-dlp).
 
 ### Instaloader
-Python-утилита для Instagram-анализов. Подробнее:
-[Instaloader](/kb/instruments/social-media/instagram).
+Python-утилита для выгрузки публичных профилей, постов и метаданных Instagram.
+Подробнее: [Instagram](/kb/instruments/social-media/instagram).
 
 ### Siegfried
-Быстрый инструмент идентификации форматов файлов на Go. Подробнее:
-[Идентификация форматов](/kb/instruments/file-formats/identification-tools).
+Быстрый инструмент идентификации форматов файлов на Go (по сигнатурам PRONOM).
+Подробнее: [Идентификация форматов](/kb/instruments/file-formats/identification-tools).
 
 ### ReplayWeb.page
-Браузерный плеер для воспроизведения WARC/WACZ-архивов. Полностью клиентский,
+Браузерный плеер для воспроизведения WARC/WACZ-архивов. Работает на стороне клиента,
 без отправки данных на сервер. Подробнее: [Как открыть WARC](/kb/users/open-warc).
 
 ### twarc
-Python-библиотека для Twitter JSON-данных через Twitter API. Подробнее: [twarc](/kb/instruments/social-media/twarc).
+Python-библиотека и утилита для сбора данных через API Twitter/X (для API v2 — `twarc2`).
+Подробнее: [twarc](/kb/instruments/social-media/twarc).
 
 ### tgarc / tdl / Telethon
-Инструменты для архивации Telegram-каналов.
+Инструменты для архивации Telegram: [tgarc](/kb/instruments/ruarxive-tools/tgarc) —
+утилита Ruarxive (`tgarc save`), [tdl](/kb/instruments/tools/tdl) — загрузчик на Go,
+Telethon — Python-библиотека для Telegram API.
 
 ### gallery-dl
-Загрузчик изображений из 200+ платформ. Подробнее: [gallery-dl](/kb/instruments/tools/gallery-dl).
+Загрузчик изображений и галерей с сотен сайтов. Подробнее: [gallery-dl](/kb/instruments/tools/gallery-dl).
 
 ### Auto-Archiver (Bellingcat)
-Workflow-оркестратор для архивации из Google Sheets, CSV, Telegram. Подробнее: [Auto-Archiver](/kb/instruments/tools/auto-archiver).
+Инструмент для архивации ссылок из Google Sheets и других источников с сохранением
+медиа и метаданных. Подробнее: [Auto-Archiver](/kb/instruments/tools/auto-archiver).
 
 ### Waybackpy
-Python-обёртка для Wayback Machine API. Подробнее: [Waybackpy](/kb/instruments/tools/waybackpy).
+Python-обёртка для API Wayback Machine. Подробнее: [Waybackpy](/kb/instruments/tools/waybackpy).
 
 ### PastPage
-Расширение браузера для автоматического поиска снимков страницы в архивах. Подробнее: [PastPage](/kb/instruments/tools/pastpage).
+Расширение браузера, которое ищет сохранённые копии недоступной или изменившейся
+страницы сразу в нескольких веб-архивах и кешах. Подробнее: [PastPage](/kb/instruments/tools/pastpage).
 
 ### Warchaeology
-Набор IIPC-утилит для инспекции, валидации, дедупликации WARC. Подробнее: [Warchaeology](/kb/instruments/tools/warchaeology).
+Консольная утилита Национальной библиотеки Норвегии для просмотра, проверки и
+обработки WARC-файлов. Подробнее: [Warchaeology](/kb/instruments/tools/warchaeology).
 
-### DuckDB-WARC
-DuckDB-расширение для SQL-запросов к WARC-файлам. Подробнее: [DuckDB-WARC](/kb/instruments/tools/duckdb-warc).
+### DuckDB и веб-архивы
+Расширения DuckDB для SQL-запросов к WARC-файлам и к CDX-индексам Wayback Machine и
+Common Crawl. Подробнее: [DuckDB-WARC](/kb/instruments/tools/duckdb-warc).
 
 ### WARC-GPT
-RAG-инструмент Harvard LIL для анализа коллекций через LLM. Подробнее: [WARC-GPT](/kb/instruments/tools/warc-gpt).
+Экспериментальный RAG-инструмент Harvard LIL для анализа коллекций WARC с помощью
+языковых моделей. Подробнее: [WARC-GPT](/kb/instruments/tools/warc-gpt).
 
 ### WARC-Safe
-Сканер вирусов и NSFW для WARC от UNT. Подробнее: [WARC-Safe](/kb/instruments/tools/warc-safe).
+Инструмент Национальной библиотеки Люксембурга для поиска вирусов и NSFW-материалов
+в WARC-файлах. Подробнее: [WARC-Safe](/kb/instruments/tools/warc-safe).
 
 ### Crocoite
-Chrome-кроулер с DOM-снимками и скриншотами от команды Crawliverse. Экспериментальный.
+Экспериментальный краулер на базе Chrome (автор — Lars-Dominik Braun), сохранявший
+страницы в WARC вместе с DOM-снимками и скриншотами. Репозиторий в архиве с 2019 года.
 
 ### Conifer
-Самохостинг персонального архива от Rhizome (использует pywb под капотом). Хостинг закрыт в 2026, legacy-код сохранён.
+Хостинговый сервис персональной веб-архивации Rhizome (бывший Webrecorder.io).
+С декабря 2025 года закрыта регистрация, с мая 2026 года сервис работает только на
+чтение, в июне 2026 года платформа заменена приложением-«надгробием», через которое
+остаются доступны существующие коллекции. Для новых захватов используйте
+[Browsertrix](/kb/instruments/tools/browsertrix) или ArchiveWeb.page.
 
 ### WAIL
-Web Archiving Integration Layer — GUI для one-click Heritrix + pywb.
-
-### Slim
-Тонкий инструмент для быстрого извлечения URL из WARC.
+Web Archiving Integration Layer — настольное приложение (автор — Mat Kelly, ODU),
+объединяющее краулер Heritrix и средство воспроизведения в одном интерфейсе.
 
 ### Warcprox
-MITM-прокси, записывающий HTTP/S трафик в WARC. Интегрируется с Brozzler.
+MITM-прокси, записывающий проходящий через него HTTP/S-трафик в WARC. Используется
+вместе с краулером Brozzler. Подробнее: [Warcprox](/kb/instruments/tools/warcprox).
 
-### Shovel
-Готовые конфигурации и шаблоны для архивов от Ruarxive.
+### Brozzler
+Распределённый браузерный краулер Internet Archive; состояние обхода хранит в RethinkDB,
+запись WARC ведёт через warcprox. Подробнее: [Brozzler](/kb/instruments/tools/brozzler).
 
 ## Программные термины
 
 ### Краулер (web crawler)
-Программа, систематически обходящая веб-страницы и собирающая их содержимое.
+Программа, систематически обходящая веб-страницы и сохраняющая их содержимое.
 
 ### Сид (seed)
 Начальный URL, с которого краулер начинает обход сайта.
 
 ### Robots.txt
-Стандартный файл с указаниями для ботов о допустимых разделах сайта.
-Подробнее: [Условия использования](/kb/legal/terms-of-service).
+Файл в корне сайта с указаниями для автоматических программ о том, какие разделы
+не следует обходить (RFC 9309). Позиция проекта — в разделе
+[Условия использования](/kb/legal/terms-of-service).
 
 ### Wayback Machine
-Сервис Internet Archive для доступа к веб-архивам. Позволяет просматривать старые
+Сервис Internet Archive для доступа к веб-архивам: позволяет просматривать прежние
 версии страниц. Подробнее: [Wayback Machine API](/kb/instruments/tools/wayback-api).
 
 ### Memento (RFC 7089)
-Стандарт «time travel» для веб-архивов. Определяет TimeGate, TimeMap, Memento Datetime.
+Протокол «путешествий во времени» для веба: определяет TimeGate (выбор снимка по дате),
+TimeMap (список всех снимков URL) и заголовок `Memento-Datetime`.
 Подробнее: [Memento](/kb/instruments/replay/memento).
 
-### Memento Aggregator
-Федеративный сервис для поиска снимков страницы во всех Memento-совместимых архивах.
-Подробнее: timetravel.mementoweb.org.
+### Memento-агрегатор
+Сервис, который опрашивает несколько Memento-совместимых архивов и объединяет их
+TimeMap. Публичный агрегатор timetravel.mementoweb.org в октябре 2026 года не отвечает;
+агрегатор можно запустить самостоятельно, например [MemGator](https://github.com/oduwsdl/MemGator).
 
 ### Save Page Now
-Форма Internet Archive для сохранения страницы по URL. Программный API: [Wayback Machine API](/kb/instruments/tools/wayback-api).
+Функция Internet Archive для сохранения страницы по URL. Программный доступ:
+[Wayback Machine API](/kb/instruments/tools/wayback-api).
 
 ### CDX API
-HTTP-индекс всех URL в архиве Internet Archive. Доступен через `web.archive.org/cdx/search/cdx`.
+HTTP-интерфейс к индексу захватов Wayback Machine: `web.archive.org/cdx/search/cdx`.
+Аналогичный интерфейс есть у Common Crawl (`index.commoncrawl.org`).
 
 ### WARC-Payload-Digest
-Хеш (SHA-1 или SHA-256) от тела ответа в WARC-записи. Используется для дедупликации.
+Хеш полезной нагрузки (тела HTTP-ответа) в WARC-записи, обычно SHA-1 в кодировке Base32.
+Используется для дедупликации.
 
 ### WARC-Record-ID
-UUID-идентификатор записи в WARC. Записывается в заголовке `WARC-Record-ID: <urn:uuid:...>`.
+Глобально уникальный идентификатор записи в виде URI, обычно `<urn:uuid:...>`.
 
 ### WARC-Type
-Тип WARC-записи: `warcinfo`, `request`, `response`, `metadata`, `revisit`, `conversion`, `continuation`, `resource`. Подробнее — [WARC page](/kb/instruments/file-formats/warc).
+Тип WARC-записи: `warcinfo`, `request`, `response`, `resource`, `metadata`, `revisit`,
+`conversion`, `continuation`. Подробнее — [WARC](/kb/instruments/file-formats/warc).
+
+### Revisit-запись
+Запись типа `revisit` сообщает, что повторно полученный ресурс не изменился, и не
+хранит его тело заново. Профили: `identical-payload-digest` (совпал дайджест содержимого)
+и `server-not-modified` (сервер ответил «не изменилось»). Ссылка на исходную запись —
+через поля `WARC-Refers-To`, `WARC-Refers-To-Target-URI` и `WARC-Refers-To-Date`;
+полное содержимое остаётся в первой (более ранней) записи `response`.
 
 ### Replay (воспроизведение)
-Процесс отдачи страницы из архива как живой сайт. Осуществляется через [pywb](/kb/instruments/replay/pywb), [ReplayWeb.page](/kb/instruments/replay/replayweb-page), [OpenWayback](/kb/instruments/replay/openwayback).
+Отдача страницы из архива так, как она выглядела при сохранении. Выполняется через
+[pywb](/kb/instruments/replay/pywb), [ReplayWeb.page](/kb/instruments/replay/replayweb-page),
+[OpenWayback](/kb/instruments/replay/openwayback).
 
-### Capture (сбор)
-Процесс сохранения содержимого в формате WARC. Осуществляется [Browsertrix](/kb/instruments/tools/browsertrix), [wget](/kb/instruments/tools/wget), [yt-dlp](/kb/instruments/tools/yt-dlp).
+### Capture (захват)
+Сохранение содержимого вместе с HTTP-контекстом в WARC. Выполняется, например,
+[Browsertrix](/kb/instruments/tools/browsertrix), [wget](/kb/instruments/tools/wget),
+[Heritrix](/kb/instruments/tools/heritrix).
 
-### Index (индекс)
-Структура данных для быстрого поиска по содержимому WARC. Формат: CDX / CDXJ.
-Создаётся через `warc-indexer-cdxj` или [pywb](/kb/instruments/replay/pywb).
-
-### CDXJ
-Расширение CDX в JSON Lines. Используется в WACZ.
+### Индекс (index)
+Структура данных для быстрого поиска записей в WARC-файлах. Формат — CDX или CDXJ.
+Создаётся, например, утилитой [cdxj-indexer](https://github.com/webrecorder/cdxj-indexer)
+или средствами [pywb](/kb/instruments/replay/pywb).
 
 ### ActivityPub
-Протокол децентрализованных социальных сетей (W3C). Используется [Mastodon](/kb/instruments/social-media/mastodon), Threads.
+Протокол децентрализованных социальных сетей (рекомендация W3C). Используется
+[Mastodon](/kb/instruments/social-media/mastodon) и другими сервисами федиверса.
 
 ### AT Protocol
-Протокол социальной сети Bluesky. Идентификатор — `did:plc:...` или `handle:instance.tld`.
+Протокол социальной сети Bluesky. Пользователь идентифицируется постоянным
+DID (`did:plc:...` или `did:web:...`) и человекочитаемым хендлом — доменным именем
+(например, `user.bsky.social`).
 
 ## Стандарты архивации
 
-### OAIS
-Open Archival Information System — референтная модель архивного хранения ISO 14721.
+### ISO 14721
+Стандарт OAIS (см. выше).
 
 ### ISO 28500
-Стандарт WARC. Текущая версия: 1.1.
-
-### ISO 14721
-Стандарт OAIS.
+Стандарт WARC. Текущая редакция — ISO 28500:2017 (WARC 1.1).
 
 ### RFC 7089
-Memento (time travel для веб-архивов).
+Memento — протокол доступа к прежним версиям веб-ресурсов.
 
 ### RFC 8493
-BagIt (упаковка архивов).
+BagIt — формат упаковки цифровых материалов.
 
-### RFC 5023
-ZIP-формат Atom (для архивных фидов).
+### RFC 5005
+Feed Paging and Archiving — постраничная выдача и архивы лент Atom/RSS.
 
-### NDSA Levels
-National Digital Stewardship Alliance — четырёхуровневая модель цифровой сохранности:
-1. Protect (защита данных), 2. Know (знание), 3. Monitor (мониторинг), 4. Repair (восстановление).
-Подробнее: [NDSA Levels](https://ndsa.org/publications/levels-of-digital-preservation/).
+### RFC 9309
+Robots Exclusion Protocol — стандарт файла `robots.txt`.
+
+### NDSA Levels of Digital Preservation
+Модель National Digital Stewardship Alliance для оценки программы цифровой сохранности:
+матрица из пяти функциональных областей (хранение, целостность, контроль доступа,
+метаданные, содержимое) и четырёх уровней (в версии 2.0 — «знать», «защищать»,
+«отслеживать», «поддерживать» свой контент). Версия 2.0 вышла в 2019 году, версия 2.1 —
+в марте 2026 года. Подробнее: [NDSA Levels](https://ndsa.org/publications/levels-of-digital-preservation/).
 
 ## Проект Ruarxive
 
@@ -259,144 +334,158 @@ National Digital Stewardship Alliance — четырёхуровневая мо�
 Архивация **до** исчезновения ресурса. Рекомендуемый подход.
 
 ### Реактивная архивация
-Попытки архивировать **после** исчезновения. Часто малоэффективна.
-
-### Воздушная архивация (lightweight archiving)
-Малая выборка URL через API или CDN-кеши, без полного обхода.
+Попытки архивировать **после** исчезновения или в момент закрытия ресурса. Часто
+удаётся сохранить лишь часть.
 
 ### Коллекция (collection)
-Группа архивов, объединённых тематически или принадлежащих одному проекту.
+Группа архивов, объединённых тематически или принадлежащих одной кампании.
 
 ### Зеркало
-Дубликат архива в другом месте для безопасности. Правило 3-2-1: 3 копии, 2 носителя, 1 вне офиса.
+Копия архива в другом месте для надёжности. Правило 3-2-1: 3 копии, на 2 разных типах
+носителей, 1 — в другом месте.
 
 ## Юридические термины
 
-### CC-BY 4.0
+### CC BY 4.0
 Лицензия Creative Commons, разрешающая использование с указанием авторства.
 
-### CC0 1.0 (Public Domain)
-Отказ от всех прав; общественное достояние.
+### CC0 1.0
+Отказ правообладателя от прав в максимально допустимой законом степени.
 
 ### ODbL
-Open Data Commons Open Database License — для структурированных данных.
+Open Data Commons Open Database License — лицензия для баз данных.
 
 ### GDPR
-General Data Protection Regulation — регламент ЕС по защите персональных данных.
+General Data Protection Regulation — регламент ЕС о защите персональных данных.
 
 ### 152-ФЗ
-Федеральный закон РФ «О персональных данных».
+Федеральный закон РФ «О персональных данных». Для распространения персональных данных
+с 01.03.2021 нужно отдельное согласие субъекта (ст. 10.1).
+Подробнее: [Персональные данные](/kb/legal/personal-data).
 
 ### ToS (Terms of Service)
 Условия использования сервиса или платформы. Подробнее: [Условия использования](/kb/legal/terms-of-service).
 
-### Fair use / добросовестное использование
-Доктрина, допускающая ограниченное использование материалов без разрешения правообладателя
-в целях исследования, образования, критики.
-Подробнее: [Авторское право](/kb/legal/copyright).
+### Fair use
+Доктрина права США, допускающая ограниченное использование произведений без разрешения
+правообладателя. В праве РФ её нет: вместо неё действует закрытый перечень случаев
+свободного использования (ст. 1273–1280 ГК РФ, в том числе ст. 1274 о цитировании и
+ст. 1275 о библиотеках и архивах). Подробнее: [Авторское право](/kb/legal/copyright).
 
-### Takedown
-Процедура удаления архивной копии по запросу правообладателя или субъекта данных.
+### Снятие с публикации (takedown)
+Процедура снятия архивной копии с публичного доступа по запросу правообладателя или
+субъекта данных.
 
 ## Технические концепции
 
-### Streaming
-Обработка файла по частям без полной загрузки в RAM. Принципиально для 100+ ГБ WARC.
+### Потоковая обработка (streaming)
+Обработка файла по частям без полной загрузки в память. Принципиально для WARC
+объёмом в десятки и сотни гигабайт.
 
-### Sharding
-Разбиение большого файла на куски для параллельной обработки.
+### Шардирование (sharding)
+Разбиение большого набора данных на части для параллельной обработки.
 
-### Dedup (дедупликация)
-Удаление повторяющихся записей по хешу содержимого.
+### Дедупликация (dedup)
+Отказ от повторного хранения одинакового содержимого; в WARC реализуется записями
+`revisit` по совпадению дайджеста.
 
-### Boilertplate removal
-Удаление из HTML повторяющихся блоков (меню, футер, сайдбар) для извлечения уникального контента.
+### Удаление шаблонных блоков (boilerplate removal)
+Удаление из HTML повторяющихся блоков (меню, подвал, боковые панели) для извлечения
+основного текста.
 
 ### OCR (Optical Character Recognition)
-Распознавание текста на изображениях (для PDF, сканов).
+Распознавание текста на изображениях (сканы, PDF без текстового слоя).
 
-### Extract (извлечение)
-Процесс получения конкретной записи или подмножества из большого WARC.
-
-### Replay (отдача из архива)
-См. выше.
+### Извлечение (extract)
+Получение конкретной записи или подмножества записей из большого WARC.
 
 ### Hash chain
-Последовательность хешей для проверки целостности длинной цепочки записей.
+Последовательность хешей, где каждый зависит от предыдущего; позволяет проверить, что
+цепочка записей не изменялась.
 
-### Fixity check
-Проверка, что данные не изменились (через хеширование).
+### Проверка неизменности (fixity check)
+Регулярная проверка контрольных сумм, подтверждающая, что данные не изменились.
 
-### Cold storage / Glacier
-Долгосрочное хранение с медленным доступом (дёшево). Подходит для архивов, к которым редко обращаются.
+### Холодное хранение (cold storage)
+Дешёвое долговременное хранение с медленным доступом (например, Amazon S3 Glacier).
+Подходит для архивов, к которым редко обращаются.
 
-### Hot storage
-Быстрое хранилище для часто используемых данных (дороже за ГБ).
+### Горячее хранение (hot storage)
+Быстрое хранилище для часто используемых данных (дороже за гигабайт).
 
 ## Сообщества и организации
 
 ### IIPC
-International Internet Preservation Consortium — объединение архивов. Стандарты WARC, обучение, [конференции](https://netpreserve.org/).
+International Internet Preservation Consortium — международный консорциум организаций,
+занимающихся веб-архивацией: развивает стандарты (в том числе WARC), инструменты и
+проводит [конференции](https://netpreserve.org/).
 
 ### ArchiveTeam
-Волонтёрское движение за экстренные архивы умирающих сервисов.
+Волонтёрское сообщество, проводящее экстренную архивацию закрывающихся сервисов.
+Подробнее: [ArchiveTeam](/kb/similar/archiveteam).
 
 ### Common Crawl
-Некоммерческий фонд, собирающий петабайты веб-краулов для исследований.
+Некоммерческая организация, ежемесячно публикующая открытые веб-краулы (порядка
+2 млрд страниц и десятков терабайт WARC за краул). Подробнее: [Common Crawl](/kb/similar/common-crawl).
 
-### LockSSM
-Distributed preservation network — протокол синхронизации архивов между инстансами.
+### LOCKSS
+Lots Of Copies Keep Stuff Safe — программа Библиотек Стэнфордского университета и
+одноимённое ПО для распределённого хранения: несколько независимых узлов хранят копии
+и регулярно сверяют их между собой.
 
 ## Архитектура архивации
 
 ### Ненаправленный веб-архив
-Веб-архив с фиксированным корпусом доменов и большой шириной охвата — все веб-страницы
-в доменах архива собираются «сколько можно». Пример: Internet Archive Wayback.
-Подробнее: см. [Публикация #21 (21.03.2022)](https://t.me/ruarxive/21).
+Веб-архив, который ведёт себя как поисковая система: от набора стартовых ссылок
+обходит сайты, ориентируясь на число ссылок на страницы. Даёт максимальную широту
+охвата, но неполную глубину (видео, аудио, архивы и многие изображения не собираются).
+Примеры: Common Crawl, Wayback Machine. См. [публикацию #21 (21.03.2022)](https://t.me/ruarxive/21).
 
-### Сфокусированный (focused) веб-архив
-Веб-архив с избирательным охватом — собираются только конкретные темы, события,
-географические домены. Примеры: UKWA (UK Government Web Archive), BnF, LANIC.
+### Сфокусированный веб-архив
+Веб-архив с избирательным охватом: собираются сайты определённой страны, темы, события
+или организаций. Примеры из той же публикации: UK Web Archive (совместный проект
+шести библиотек обязательного экземпляра Великобритании и Ирландии), UK Government Web
+Archive (Национальный архив Великобритании), Webarchiv Österreich, Australian Web Archive.
 
 ### Ajax-сайт
 Сайт, в котором основное содержимое подгружается в браузер через JavaScript
-(XHR, fetch) после загрузки HTML-оболочки. В исходнике страницы пусто — содержимое
-появляется только после JS-исполнения. Это создаёт проблемы для архивации:
+(XHR, fetch) после загрузки HTML-оболочки. В исходном HTML содержимого нет — оно
+появляется только после выполнения скриптов. Поэтому
 [wget](/kb/instruments/tools/wget) и [wpull](/kb/instruments/tools/wpull) не видят
 содержимого. См. [Архивация динамических сайтов](/kb/guides/dynamic-ajax-sites).
 
 ### Неархивируемое пространство
-Платформа или сообщество, контент которой принципиально не поддаётся открытой архивации,
-потому что:
-- контент недоступен без авторизации;
-- нет HTTP-эндпоинтов для анонимного чтения;
-- поисковики не индексируют содержимое;
-- отсутствует data-take-out (DTO).
+Платформа или сообщество, контент которой не поддаётся открытой архивации, потому что:
 
-Пример: российский мессенджер [MAX](/kb/instruments/social-media/max). Термин
-введён в [Публикации #175 от 15.12.2025](https://t.me/ruarxive/175).
+- контент недоступен без авторизации;
+- нет HTTP-адресов для анонимного чтения;
+- поисковики и Internet Archive не индексируют содержимое;
+- нет выгрузки данных (DTO) даже для собственных материалов.
+
+Пример: мессенджер [MAX](/kb/instruments/social-media/max). Термин использован в
+[публикации #175 от 15.12.2025](https://t.me/ruarxive/175).
 
 ### Анти-индексация
-Техническая политика сайта (geo-IP filter, JS-only рендеринг, captcha-throttling),
-из-за которой внешние краулеры и архивные сервисы (Internet Archive) не могут зайти
-и сохранить содержимое. С 02.2022 года широко применяется сайтами госорганов РФ.
+Технические меры сайта (фильтрация по IP и географии, отрисовка только через JavaScript,
+капчи), из-за которых внешние краулеры и архивные сервисы (Internet Archive) не могут
+сохранить содержимое. С февраля 2022 года многие сайты госорганов РФ закрыты для обхода
+с нероссийских IP-адресов (см. [публикацию #113](https://t.me/ruarxive/113)).
 Подробнее: [Исчезающие российские ресурсы](/kb/case-studies/russia-resources-disappearing).
 
 ### Data-take-out (DTO)
-Процедура выгрузки своих данных пользователем из платформы (соцсети, мессенджера).
-Различают:
-- **Собственный DTO** — экспорт от самой платформы (Telegram Desktop export,
-  Google Takeout, Facebook DTO).
-- **Сторонний DTO** — экспорт через парсер (instaloader, gallery-dl, yt-dlp).
-- **Отсутствие DTO** — платформа не предоставляет никакого способа выгрузить данные.
+Выгрузка пользователем своих данных из платформы (соцсети, мессенджера). Различают:
 
-### Хрупкий архив
-Архив культурных объектов, которые сами по себе сложно сохранить в цифре:
-современное искусство, интерактивные инсталляции, генерируемый пользователем
-контент. Обсуждалось на Конференции по цифровым архивам 19.05.2022 (см.
-[Конференции и события](/kb/about/conferences)).
+- **Собственный DTO** — экспорт средствами самой платформы (экспорт Telegram Desktop,
+  Google Takeout, выгрузка данных Facebook).
+- **Сторонний DTO** — выгрузка внешними инструментами (instaloader, gallery-dl, yt-dlp).
+- **Отсутствие DTO** — платформа не даёт способа выгрузить данные.
 
-## Сообщества и организации
+### «Хрупкий архив»
+Проект Музея современного искусства «Гараж», представленный в дискуссии о цифровом
+сохранении культурного наследия на Конференции по цифровым архивам 19.05.2022
+([публикация #52](https://t.me/ruarxive/52); см. также [Конференции и события](/kb/about/conferences)).
+
+## См. также
 
 - [Wayback Machine API](/kb/instruments/tools/wayback-api)
 - [Формат WARC](/kb/instruments/file-formats/warc)

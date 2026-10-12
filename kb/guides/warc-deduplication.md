@@ -1,320 +1,212 @@
 ---
 title: WARC-дедупликация — устранение дубликатов
 sidebar_label: WARC-дедупликация
-description: "Дедупликация WARC-файлов: алгоритмы, инструменты, влияние на размер. WARC-Payload-Digest, WARC revisit records, инструменты warchaeology, warc-dedup."
-last_updated: 2026-11-09
-keywords: [warc-dedup, deduplication, payload-digest, revisit-record, warchaeology]
+description: "Дедупликация веб-архивов: как устроены revisit-записи WARC, когда дедуплицировать при сборе и когда после него, реальные инструменты (Browsertrix, warcprox, pywb, warchaeology, jwarc) и оценка экономии."
+last_update:
+  date: 2026-10-12
+keywords: [deduplication, payload-digest, revisit-record, warchaeology, browsertrix, warcprox]
 ---
 
 # WARC-дедупликация — устранение дубликатов
 
-Дедупликация WARC — это **ключевая операция для больших коллекций**, которая уменьшает размер без потери информации. В этой статье — алгоритмы, инструменты, реальные метрики экономии.
+Дедупликация WARC — способ не хранить одно и то же содержимое много раз. Повторная копия ответа заменяется короткой записью `revisit`, которая ссылается на уже сохранённый оригинал. История захватов при этом сохраняется: видно, что страница была запрошена в такую-то дату и её содержимое совпало с прежним.
 
 ## Зачем нужна
 
-| Сценарий | Что без дедупликации | С дедупликацией |
+| Сценарий | Без дедупликации | С дедупликацией |
 |:---|:---|:---|
-| Один сайт пересохранился 100 раз за год | 100 копий одного HTML | 1 копия + 99 «revisit-записей» |
-| Зеркало сайта | 10 полных копий | 1 полная + 9 ссылок |
-| Коллекция из 100 сайтов с типовой главной | 100 копий почти одинакового HTML | Значительная экономия |
-| Периодический сбор без deduplication | Рост коллекции × N | Рост коллекции × 0.5–0.8 |
+| Сайт пересобирается регулярно, страницы почти не меняются | Каждая копия хранится полностью | Полная копия при первом захвате + короткие `revisit` при последующих |
+| Одинаковые ресурсы на многих страницах (логотипы, скрипты, шрифты) | Повторяются в каждом сборе | Хранятся один раз |
+| Несколько сборов одного сайта подряд | Объём растёт пропорционально числу сборов | Растёт только на объём изменившегося содержимого |
 
-**Типичные цифры:**
+Насколько уменьшится архив, зависит от того, как часто меняется содержимое. Оцените это на своих данных (см. раздел «Как оценить экономию»), а не по чужим цифрам.
 
-- Один сайт пересохраняется каждые 6 часов в экстренной архивации → 1460 копий/год.
-- Если страница не менялась — реально полезна только 1 копия.
-- Дедупликация сжимает 1460 копий до 1 копии + 1459 «отсылок» (`warc/revisit`).
+## Как устроена revisit-запись
+
+По [WARC 1.1](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#revisit):
+
+- **Первая** встреченная копия остаётся обычной записью `response` с полным телом.
+- **Последующие** копии с тем же содержимым записываются как `revisit` и ссылаются назад — на более раннюю запись. Поэтому `WARC-Refers-To-Date` всегда не позже собственной `WARC-Date` записи.
+- В `revisit` обязателен `WARC-Profile`. Для совпадения по хешу тела — `http://netpreserve.org/warc/1.1/revisit/identical-payload-digest` (для WARC 1.0 — `.../warc/1.0/revisit/identical-payload-digest`). Второй профиль, `.../revisit/server-not-modified`, используется, когда сервер ответил `304 Not Modified`.
+- Рекомендуются ссылки на оригинал: `WARC-Refers-To` (ID записи), `WARC-Refers-To-Target-URI` и `WARC-Refers-To-Date`. HTTP-заголовки ответа обычно тоже сохраняются, а тело — нет.
+
+Пример: три захвата одной страницы с одинаковым содержимым после обработки `warc dedup` из warchaeology (вывод `warcio index`):
+
+```
+{"warc-type": "response", "warc-date": "2026-06-01T12:00:00Z", "warc-payload-digest": "sha1:XV2QDANQJHES5I2ETU6O75QESILTHIYI"}
+{"warc-type": "revisit", "warc-date": "2026-07-01T12:00:00Z", "warc-refers-to-target-uri": "https://example.com/", "warc-refers-to-date": "2026-06-01T12:00:00Z", "warc-refers-to": "<urn:uuid:34020a97-761e-487c-9fd1-a63ae07b4f67>", "warc-profile": "http://netpreserve.org/warc/1.0/revisit/identical-payload-digest", "warc-payload-digest": "sha1:XV2QDANQJHES5I2ETU6O75QESILTHIYI"}
+{"warc-type": "revisit", "warc-date": "2026-08-01T12:00:00Z", "warc-refers-to-target-uri": "https://example.com/", "warc-refers-to-date": "2026-06-01T12:00:00Z", "warc-refers-to": "<urn:uuid:34020a97-761e-487c-9fd1-a63ae07b4f67>", "warc-profile": "http://netpreserve.org/warc/1.0/revisit/identical-payload-digest", "warc-payload-digest": "sha1:XV2QDANQJHES5I2ETU6O75QESILTHIYI"}
+```
+
+Июньский захват остался полным, июльский и августовский стали `revisit` со ссылкой на июньский. pywb воспроизводит такие снимки, подставляя тело из оригинала: в CDX они видны с MIME-типом `warc/revisit`, а при открытии отдаётся полное содержимое. Такие же записи `warc/revisit` можно увидеть в CDX API Wayback Machine.
 
 ## Виды дедупликации
 
-### 1. По `WARC-Payload-Digest` (содержимое)
+### По хешу содержимого (`WARC-Payload-Digest`)
 
-Самая распространённая. Идентичные тела ответов ⇒ одинаковый SHA-256 ⇒ одна запись остаётся, остальные превращаются в `revisit`.
+Самый распространённый вариант. Если хеш тела ответа совпал с уже сохранённым, вместо полной записи пишется `revisit`.
 
-```python
-# Пример WARC-revisit записи
-WARC/1.0
-WARC-Type: revisit
-WARC-Target-URI: https://example.com/page
-WARC-Date: 2026-06-01T12:00:00Z
-WARC-Payload-Digest: sha256:same_hash_as_original
-WARC-Profile: http://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#revisit
-Content-Length: 0
-```
+**Плюсы:** точно — совпадает именно содержимое; соответствует стандарту WARC; история захватов сохраняется.
 
-**Преимущества:**
+**Минусы:**
 
-- Точное определение «та же страница».
-- Совместимо с WARC 1.1.
+- Содержимое, которое меняется на каждом запросе (счётчики, токены, даты в HTML), не дедуплицируется.
+- Для ссылок между файлами нужен общий индекс хешей, а при воспроизведении должны быть доступны все файлы, где лежат оригиналы.
 
-**Недостатки:**
+Сравнивать можно только среди одного URL или между разными URL. Например, Browsertrix Crawler внутри одного обхода дедуплицирует одинаковое содержимое и под разными URL.
 
-- Заголовки HTTP могут различаться (Server, Date), а содержимое одинаковое.
-- Изображения с изменённым URL (например, сегодня — `?v=2`) считаются разными.
+### Пропуск повторных URL
 
-### 2. По URL (дедупликация по дате)
+Повторный URL вообще не записывается. Так Browsertrix Crawler по умолчанию поступает внутри одного обхода, а pywb в режиме записи — при `dedup_policy: skip`. Это экономнее, но о повторном захвате в архиве не остаётся следа. Для сравнения версий страницы во времени это не подходит.
 
-Более агрессивная: считается, что один URL в разные даты — одна страница (только самая свежая остаётся).
+### Похожее, но не идентичное содержимое
 
-**Преимущества:**
-
-- Максимальное сжатие.
-- Простая логика.
-
-**Недостатки:**
-
-- Теряем историю страницы.
-
-### 3. По SURT (Sort-friendly URI Rewriting Transform)
-
-URL нормализуются (lowercase, схема://хост → host,) и сравниваются без учёта регистра.
-
-**Преимущества:**
-
-- Один и тот же ресурс, разный URL — считается одним.
-
-### 4. По хешу + метаданным
-
-Hash + Content-Type + Content-Length. Используется в Common Crawl.
+Методы поиска почти-дубликатов (MinHash, SimHash и т. п.) применяют в исследовательских задачах, но стандартного способа записать «почти такую же» страницу как `revisit` нет: профиль `identical-payload-digest` требует точного совпадения.
 
 ## Инструменты
 
-### warchaeology.warc-dedup (рекомендуется)
+### При сборе (лучший вариант)
 
-[warchaeology](/kb/instruments/tools/warchaeology) — IIPC-инструмент с готовой реализацией.
+Дедуплицировать дешевле всего в момент записи, когда краулер ещё не записал дубликат на диск.
+
+- **[Browsertrix Crawler](/kb/instruments/tools/browsertrix)** (с версии 1.12) — внутри одного обхода дедупликация включена автоматически. Для дедупликации между обходами задайте общий индекс в Redis-совместимой базе флагом `--redisDedupeUrl redis://host:port/db`; второй обход того же сайта запишет `revisit` вместо уже сохранённого содержимого. Подробности — в [документации](https://crawler.docs.browsertrix.com/user-guide/dedupe/).
+- **[warcprox](/kb/instruments/tools/warcprox)** — дедупликация включена по умолчанию: хеши хранятся в SQLite-файле (`--dedup-db-file`, по умолчанию `./warcprox.sqlite`). Есть варианты с RethinkDB и с удалённым CDX-сервером (`--cdxserver-dedup`).
+- **pywb в режиме записи** — ключ `dedup_policy` в блоке `recorder` файла `config.yaml`: `revisit` (писать revisit-записи), `skip` (пропускать дубликаты), `keep`; требуется Redis. Это относится только к записи через pywb, а не к воспроизведению.
+
+```yaml
+# config.yaml pywb — запись с дедупликацией
+recorder:
+  source_coll: live
+  dedup_policy: revisit
+  dedup_index_url: 'redis://localhost:6379/0/pywb:{coll}:cdxj'
+```
+
+### После сбора
+
+- **[warchaeology](/kb/instruments/tools/warchaeology)** (Национальная библиотека Норвегии) — команда `warc dedup` переписывает WARC, заменяя повторы на `revisit`. Выходной каталог задаётся флагом `-w`; по умолчанию дедупликация выполняется, только если экономия на записи не меньше 2 КБ (`--min-size-gain`).
 
 ```bash
-# Посмотреть статистику дубликатов (без изменений)
-warc-dedup --info *.warc.gz
+mkdir deduplicated
+warc dedup -w deduplicated/ archive/*.warc.gz
 
-# Полная дедупликация (создаёт новую коллекцию)
-warc-dedup *.warc.gz -o deduplicated/
-
-# Создать WARC-revisit записи (для pywb)
-warc-dedup --revisit *.warc.gz -o deduplicated/
+# одна выходная запись на каждый входной файл
+warc dedup -w deduplicated/ --one-to-one archive/*.warc.gz
 ```
 
-**Пример:**
+- **[jwarc](https://github.com/iipc/jwarc)** (Java) — `java -jar jwarc.jar dedupe [options] файлы…`; флаг `--dry-run` только считает статистику, `--cache-size N` включает дедупликацию между разными URL, `--cdx-server URL` — сверку с внешним CDX-сервером.
+- **[doppelganger](https://github.com/internetarchive/doppelganger)** (Internet Archive) — сервер дедупликации на Go и ScyllaDB, не зависящий от URL. По README проект в разработке (WIP).
 
+> `warc dedup` проверен на warchaeology 5.0.0, воспроизведение revisit — на pywb 2.10.0 (октябрь 2026); параметры jwarc и doppelganger сверены с исходным кодом и README.
+
+## Как оценить экономию
+
+Прежде чем переписывать архивы, посчитайте дубликаты.
+
+### metawarc
+
+[metawarc](/kb/instruments/ruarxive-tools/metawarc) строит каталог коллекции и находит группы записей с одинаковым содержимым, включая объём, который можно освободить (`reclaimable_bytes`):
+
+```bash
+metawarc index 'archive/*.warc.gz' --dbfile collection.db
+metawarc analyze hashes --dbfile collection.db
+metawarc analyze duplicates --dbfile collection.db --output duplicates.csv --output-format csv
 ```
-Files: 12
-Total records: 14567890
-Unique payloads: 1235678
-Reduction: 91.5%
+
+### SQL по индексу
+
+Индекс из `warcio index` (JSON Lines) можно анализировать в DuckDB:
+
+```bash
+warcio index -f warc-type,warc-target-uri,warc-date,warc-payload-digest,length archive.warc.gz > archive.index.jsonl
 ```
-
-### DuckDB-WARC для дедупликации через SQL
-
-[DuckDB-WARC](/kb/instruments/tools/duckdb-warc) — гибкий вариант.
 
 ```sql
--- Найти все дубликаты по payload-digest
-SELECT
-    warc_payload_digest,
-    COUNT(*) AS count,
-    url,
-    warc_date
-FROM read_warc('archive.warc.gz')
-WHERE warc_type = 'response'
-GROUP BY warc_payload_digest
-HAVING count > 1
-ORDER BY count DESC
+-- Группы ответов с одинаковым содержимым
+SELECT "warc-payload-digest" AS digest,
+       COUNT(*)              AS copies,
+       MIN("warc-date")      AS first_seen,
+       MAX("warc-date")      AS last_seen
+FROM read_json_auto('archive.index.jsonl')
+WHERE "warc-type" = 'response'
+GROUP BY digest
+HAVING COUNT(*) > 1
+ORDER BY copies DESC
 LIMIT 20;
 ```
 
-```sql
--- Только одна запись из каждого кластера дубликатов
-SELECT *
-FROM (
-    SELECT *,
-        ROW_NUMBER() OVER (
-            PARTITION BY warc_payload_digest
-            ORDER BY warc_date DESC
-        ) AS rn
-    FROM read_warc('archive.warc.gz')
-    WHERE warc_type = 'response'
-)
-WHERE rn = 1
-```
-
-### wacz-dedup (Webrecorder, встроено)
-
-Webrecorder pywb имеет [deduplication встроенную](https://github.com/webrecorder/pywb/wiki/Deduplication).
-
-```yaml
-# pywb config.yaml
-collections:
-  my-collection:
-    dedup:
-      enabled: true
-      algorithm: "payload-digest"
-      # Можно настроить: similarity, suffix
-```
-
-### Internet Archive — Wayback Machine built-in
-
-IA автоматически создаёт `revisit`-записи при повторном сохранении той же страницы.
-
-### Common Crawl
-
-Common Crawl использует [пайплайн cc-mr-job](https://github.com/commoncrawl/cc-mr-job) с автоматической дедупликацией по URL+content.
-
-## Как работает дедупликация: пример
-
-Вход: 3 записи в WARC.
-
-```
-1. URL=https://example.com/page, hash=abc123, date=2026-01-01
-2. URL=https://example.com/page, hash=abc123, date=2026-02-01
-3. URL=https://example.com/page, hash=def456, date=2026-03-01  # обновилась
-```
-
-После дедупликации:
-
-```
-1. URL=..., hash=abc123, date=2026-02-01 (самая свежая копия с этим хешем)
-2. URL=..., hash=abc123, date=2026-01-01 → REVISIT запись
-3. URL=..., hash=def456, date=2026-03-01 (новая страница)
-```
-
-**Экономия:** 1 полная запись → 1 + 2 revisit-записи.
-
-При воспроизведении через [pywb](/kb/instruments/replay/pywb) с поддержкой WARC-revisit — пользователь увидит обе версии, как обычно.
+Подробнее о SQL по WARC — [DuckDB-WARC](/kb/instruments/tools/duckdb-warc).
 
 ## Особенности
 
-### Не уменьшает, а пересортировывает
+### Оригиналы должны оставаться доступными
 
-WARC-дедупликация не уменьшает количество уникальных записей, но убирает дубликаты **полезной нагрузки**. Полный WARC может уменьшиться в 2–10 раз.
+`revisit` без оригинала бесполезен: плеер не сможет показать содержимое. При дедупликации между файлами или между сборами храните и публикуйте всю цепочку файлов вместе, а индекс для replay стройте по всем файлам сразу.
 
-### Compression vs Precision
+### Что не уменьшается
 
-- **Hash-based** — точная, сохраняет лишь одинаковое.
-- **URL-based** — более грубая, может потерять изменения.
-- **Similarity-based** (minhash, simhash) — n-граммы похожего текста; для похожих, но не идентичных.
-
-## Метрики
-
-| Размер коллекции | Типичная экономия |
-|:---|:---|
-| Один сайт, ежедневно | 5–20 % |
-| Один сайт, ежечасно (без изменений) | 50–80 % |
-| 100 сайтов с типовой главной | 30–50 % |
-| Зеркала одного сайта | 70–95 % |
-| Daily-зеркало региональной прессы | 40–60 % |
+Количество записей не уменьшается — каждая повторная копия остаётся в виде `revisit`. Уменьшается объём: тело ответа больше не хранится повторно.
 
 ## Когда использовать
 
 ✅ Подходит:
 
-- **Периодические архивы** (ежедневно/еженедельно).
-- **Зеркала региональной прессы** (мало изменений, много копий).
-- **Большие коллекции** (100 ГБ+).
-- **Долгосрочное хранение** (экономия $$$).
-- **Перед публикацией в pywb** — уже встроено.
+- **Периодические сборы** одних и тех же сайтов (ежедневно, еженедельно).
+- **Большие коллекции**, где повторяются общие ресурсы.
+- **Долгосрочное хранение**, где важен объём.
 
-❌ Не подходит:
+❌ Не подходит или почти бесполезно:
 
-- **Разовые архивы** — нет смысла, дубликатов не будет.
-- **Очень часто меняющийся контент** — почти нет дубликатов.
-- **Если нужна история страницы** — теряем «когда страница выглядела так».
-- **WARC-revisit без полной записи** — pywb / OpenWayback нужны для воспроизведения.
+- **Разовый сбор** — дубликатов почти нет. Например, архив сайта «Эха Москвы» собран один раз, 3–4 марта 2022 года ([проект «Эхо Москвы»](/kb/projects/echomsk)), и дедупликация между захватами к нему неприменима.
+- **Постоянно меняющийся контент** — хеши почти всегда различаются.
+- **Если плеер или пайплайн не поддерживает `revisit`** — сначала проверьте воспроизведение на копии.
 
-## Anti-patterns
+## Чего избегать
 
-❌ **Удалять payload вместо создания revisit-record.** Тогда архив «не полный» — не показывает реальный размер.
-❌ **Дедуплицировать по URL-префиксу** (например, удалять `/news/2` если есть `/news/1`). Это не дубликаты, это разные страницы.
-❌ **Сохранять только URL + хеш** (без payload). Это не WARC, это какой-то суррогат.
-❌ **Брать первую встречу, а не самую свежую.** Самая свежая часто и есть актуальная.
+❌ **Удалять повторные записи целиком вместо `revisit`** — пропадает информация о том, что страница была захвачена в эту дату.
+❌ **Ссылаться вперёд во времени** — оставлять полной последнюю копию, а ранние превращать в `revisit`. По стандарту `revisit` ссылается на более раннюю запись; инструменты и плееры рассчитывают именно на это.
+❌ **Дедуплицировать по похожему URL** (например, удалять `/news/2`, если есть `/news/1`) — это разные страницы.
+❌ **Разносить оригиналы и revisit по разным местам хранения** без общего индекса.
 
-## Интеграция в pipeline Ruarxive
+## Интеграция в pipeline
 
 ```mermaid
 flowchart TB
-    A["wparc / Browsertrix"] --> B["warc-dedup --revisit"]
-    B --> C["WACZ-индексирование"]
-    C --> D["metawarc: построение DuckDB-каталога"]
-    D --> E["pywb публикация"]
+    A["Browsertrix с --redisDedupeUrl<br/>или warcprox"] --> C["WACZ / WARC"]
+    B["wget / wpull"] --> D["warc dedup"]
+    D --> C
+    C --> E["metawarc: каталог и отчёт о дубликатах"]
+    C --> F["pywb / ReplayWeb.page"]
 ```
 
-Каждый этап имеет свою цель:
-
-- wparc / Browsertrix — собрать содержимое.
-- warc-dedup --revisit — убрать дубли, сохранить историю.
-- WACZ — упаковать для плеера.
-- metawarc — обогатить каталог.
-- pywb — обеспечить доступ.
+- Если собираете сами — включайте дедупликацию в краулере.
+- Если получили готовые WARC — оцените дубликаты через metawarc, затем при необходимости перепишите файлы через `warc dedup`, сохранив исходники до проверки результата.
 
 ## Сравнение инструментов
 
-| Инструмент | Алгоритм | Формат | Когда |
+| Инструмент | Когда работает | Алгоритм | Результат |
 |:---|:---|:---|:---|
-| **warchaeology.warc-dedup** | payload-digest | WARC-revisit | Универсальный |
-| **DuckDB-WARC + SQL** | настраивается | любой | Нестандартные правила |
-| **pywb** | SimHash + payload | WARC | Встроено в плеер |
-| **WARC-Safe** | — | — | Для контроля качества после |
-| **pywb + SimHash** | similarity | WARC-revisit | Похожие страницы |
-
-## Реальные сценарии
-
-### Сценарий 1. Эхо Москвы — 173 ГБ → 80 ГБ
-
-Исходные данные: ежедневная архивация 8 3 года подряд. Большинство страниц не менялись.
-
-```bash
-warc-dedup --revisit archive/*.warc.gz -o deduplicated-echo-warc/
-```
-
-**Результат:** с ~173 ГБ до ~80 ГБ WARC-revisit (экономия ~54 %).
-
-### Сценарий 2. Telegram-каналы
-
-Для [tgarc](https://github.com/ruarxive/tgarc) — каждый канал пересохраняется раз в сутки. Сообщения часто повторяются (мемы, новости).
-
-Дедупликация по хешу медиа-файлов:
-
-```python
-# В tgarc это встроено
-from tgarc import dedup
-
-dedup.run(
-    input_dir="/data/telegram-archives/",
-    output_dir="/data/telegram-dedup/",
-    hash_field="file_hash",
-    by="sha256",
-)
-```
-
-### Сценарий 3. Wayback Machine интеграция
-
-При загрузке WARC в IA:
-
-```bash
-# Создать дедуплицированный WARC
-warc-dedup --revisit my-archive.warc.gz -o my-archive-revisit.warc.gz
-
-# Загрузить с метаданными
-ia upload my-archive my-archive-revisit.warc.gz \
-  --metadata "mediatype:web" \
-  --metadata "collection:ruarxive"
-```
-
-IA сам поддерживает WARC-revisit при работе с поданными архивами.
+| **Browsertrix Crawler** | при сборе | хеш содержимого; пропуск повторных URL внутри обхода | `revisit` в WACZ |
+| **warcprox** | при сборе | хеш содержимого (SQLite, RethinkDB или CDX-сервер) | `revisit` в WARC |
+| **pywb (recorder)** | при записи через pywb | хеш содержимого + Redis | `revisit` или пропуск |
+| **warchaeology `warc dedup`** | после сбора | хеш содержимого | новые WARC с `revisit` |
+| **jwarc `dedupe`** | после сбора | хеш содержимого, опционально между URL | новые WARC с `revisit` |
+| **metawarc** | анализ | хеш содержимого | отчёт, WARC не меняет |
 
 ## Ресурсы
 
-- [Warchaeology — `warc-dedup`](/kb/instruments/tools/warchaeology)
-- [DuckDB-WARC](/kb/instruments/tools/duckdb-warc)
-- [WARC 1.1 revision records spec](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#revisit)
-- [pywb deduplication](https://github.com/webrecorder/pywb/wiki/Deduplication)
-- [cc-mr-job — дедупликация в MapReduce](https://github.com/commoncrawl/cc-mr-job)
+- [WARC 1.1 — раздел revisit](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#revisit)
+- [Browsertrix Crawler — Deduplication](https://crawler.docs.browsertrix.com/user-guide/dedupe/)
+- [pywb — Dedup Options for Recording](https://pywb.readthedocs.io/en/latest/manual/configuring.html#dedup-options-for-recording)
+- [warchaeology](https://github.com/NationalLibraryOfNorway/warchaeology)
+- [jwarc](https://github.com/iipc/jwarc)
+- [warcprox](https://github.com/internetarchive/warcprox)
 
 ## Связанные материалы
 
 - [Warchaeology](/kb/instruments/tools/warchaeology) — набор утилит.
-- [DuckDB-WARC](/kb/instruments/tools/duckdb-warc) — SQL-альтернатива.
-- [WARC-файл: формат](/kb/instruments/file-formats/warc)
-- [pywb](/kb/instruments/replay/pywb) — встроенная дедупликация.
+- [DuckDB-WARC](/kb/instruments/tools/duckdb-warc) — SQL по WARC.
+- [Формат WARC](/kb/instruments/file-formats/warc)
+- [pywb](/kb/instruments/replay/pywb) — воспроизведение revisit-записей.
 - [WARC-файл: от сырого архива до публикации](/kb/guides/warc-workflow)
 - [Обработка WARC — обзор](/kb/instruments/tools/warc-processing)
 - [Работа с большими WARC](/kb/users/large-warc)

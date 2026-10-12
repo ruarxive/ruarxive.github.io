@@ -1,11 +1,15 @@
 ---
 sidebar_position: 2
-last_updated: 2026-10-07
+last_update:
+  date: 2026-10-12
 title: "Задача: обогащение метаданных архива Эха Москвы"
-description: Продолжаем настраивать понятный пользовательский интерфейс для просмотра и поиска по архиву радиостанции "Эхо Москвы" (Echo of Moscow) от Ruarxive на сайте Internet Archive.
+description: "Задача для волонтёров без навыков программирования: собрать метаданные о передачах «Эха Москвы» для коллекции Ruarxive в Internet Archive."
 ---
 
 # Задача: обогащение метаданных архива Эха Москвы
+
+Задача опубликована 14.04.2022 ([#46](https://t.me/ruarxive/46)); уточняйте её текущий статус в чате [@ruarxivechat](https://t.me/ruarxivechat).
+
 Продолжаем настраивать понятный пользовательский интерфейс для просмотра и поиска по архиву радиостанции "Эхо Москвы" ([Echo of Moscow](https://archive.org/details/echo-of-moscow?tab=collection)) от Ruarxive на сайте Internet Archive.
 
 Для этого нам нужно добавить фильтры и настроить расширенный поиск (Advanced search) на наш архив.
@@ -20,7 +24,7 @@ description: Продолжаем настраивать понятный пол
 Пошаговый план действий:
 - Сбор метаданных о передачах силами волонтеров и путем парсинга HTML-страниц из [архива сайта "Эхо Москвы"](https://cdn.ruarxive.org/public/webcollect2022/media2022/echo.msk.ru_html/echo.msk.ru_html.zip) в документ Google Spreadsheet.
 - Преобразовать метаданные из Google Spreadsheet в CSV/JSON данные.
-- Обновить метаданные для каждой загруженной передачи из архива "Эха Москвы" с помощью инструмента [ia cmd](https://internetarchive.readthedocs.io/en/stable/cli.html).
+- Обновить метаданные для каждой загруженной передачи из архива "Эха Москвы" с помощью утилиты командной строки [ia](https://internetarchive.readthedocs.io/en/stable/cli.html) (команда `ia metadata`).
 
 
 ## Ограничения

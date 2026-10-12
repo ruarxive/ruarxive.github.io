@@ -106,12 +106,12 @@ copyright, personal-data, terms-of-service.
 | № | Тема | Где должно жить | Зачем |
 |:-:|:---|:---|:---|
 | 3.2.1 | **Полный справочник Wayback Machine API** — SavePageNow, CDX API, Availability API, Memento API, search API. Примеры curl + Python для каждой эндпойнт-точки. | `kb/similar/internet-archive.md` (переработать в справочник) + `kb/instruments/tools/wayback-api.md` (новая) | «нужен программный доступ к Wayback» |
-| 3.2.2 | **Работа с Internet Archive при блокировках** — VPN, зеркала, archive.org/details/`@ruarxive`, коллекция RIMA (Bard College + PEN America), доступ через Tor. | `kb/similar/internet-archive.md` (раздел) | «archive.org не открывается, что делать» |
+| 3.2.2 | **Работа с Internet Archive при блокировках** — VPN, зеркала, archive.org/details/`@ruarxive`, тематические коллекции archive.org, доступ через Tor. | `kb/similar/internet-archive.md` (раздел) | «archive.org не открывается, что делать» |
 | 3.2.3 | **Common Crawl как источник данных** — что это, как использовать (cc-mr-job, cdx_toolkit, DuckDB), где лежат российские краулы. | `kb/similar/common-crawl.md` (переработать) | «как анализировать большие краулы» |
 | 3.2.4 | **Perma.cc — API и сценарии** — создание permalink'ов, скриншоты, региональные группы (NY Courts, Harvard, etc.). | `kb/similar/perma-cc.md` (расширить) | «как получить постоянную ссылку на страницу» |
 | 3.2.5 | **Сравнение открытых архивных сервисов** — таблица «Internet Archive / Common Crawl / Perma.cc / Archive-It / Archive Today / Conifer». Когда какой использовать. | `kb/similar/index.md` (новая или переработать) | «куда лить и откуда качать» |
 | 3.2.6 | **Поиск «потерянных» архивов в открытых источниках** — Memento Time Travel, Mink, PastPage (расширение браузера), Zotero Robust Links, waybackpy. | `kb/instruments/tools/memento-search.md` (новая) | «нашёл цитату без ссылки, как восстановить источник» |
-| 3.2.7 | **Российские независимые архивы СМИ** — RIMA, «Холод», «Медуза», «Новая-Европа» и т. д. Где они выкладывают первичные данные, как с ними работать. | `kb/similar/russian-independent-media-archives.md` (новая) | «ищу архивы конкретных изданий» |
+| 3.2.7 | **Российские независимые архивы СМИ** — «Холод», «Медуза», «Новая-Европа» и т. д. Где они выкладывают первичные данные, как с ними работать. | `kb/similar/russian-independent-media-archives.md` (новая) | «ищу архивы конкретных изданий» |
 | 3.2.8 | **Украинские и белорусские архивы** — archivalia, archive.org.ua, bellingcat OSINT-находки. | `kb/similar/post-soviet-archives.md` (новая) | «нужны региональные соседи» |
 | 3.2.9 | **IA S3 API и bulk data** — список bucket'ов, доступ к метаданным, derivate-файлы, что делать с .tar.gz коллекциями. | `kb/instruments/tools/internet-archive-cli.md` (раздел) | «как получить петабайты данных IA легально» |
 

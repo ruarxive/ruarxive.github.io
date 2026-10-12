@@ -2,595 +2,365 @@
 title: metawarc REST API — справочник
 sidebar_label: metawarc REST API
 sidebar_position: 6
-description: "Полный справочник REST API metawarc v2.x: 12 эндпойнтов для каталога, записей, поиска и batch-задач. curl и Python-примеры. Bearer-token авторизация."
-last_updated: 2026-11-09
+description: "Справочник REST API metawarc 2.x: каталог архивов, записи, заголовки, содержимое, поиск, фоновые задачи и просмотр сохранённых сайтов. Авторизация bearer-токеном, примеры curl и Python."
+last_update:
+  date: 2026-10-12
 ---
 
 # metawarc REST API — справочник
 
-[metawarc](/kb/instruments/ruarxive-tools/metawarc) v2.x экспонирует **REST API** на базе FastAPI для интеграции с дашбордами, веб-приложениями, ETL-процессами и долгоиграющими выгрузками. Этот API предоставляет те же данные, что и [MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp), но через HTTP — без необходимости подключаться через AI-агентов.
+[metawarc](/kb/instruments/ruarxive-tools/metawarc) 2.x включает REST API на FastAPI, который запускается командой `metawarc serve`. API только читает каталог (кроме постановки фоновых задач) и подходит для дашбордов, интеграций и выгрузок. Те же данные, кроме содержимого записей и задач, доступны ИИ-агентам через [MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp).
 
-> **Когда выбирать REST vs MCP:** REST — для интеграций между системами (дашборды, CI/CD, ETL, веб-UI). MCP — для AI-агентов (Claude Desktop, Cursor, Continue). Подробнее — в разделе [REST vs MCP vs прямой SQL](#rest-vs-mcp-vs-прямой-sql) ниже.
-
-## Зачем нужен REST API
-
-REST-поверхность закрывает сценарии, которые неудобно делать через CLI или MCP:
-
-- **Дашборды и аналитика.** React/Vue/Svelte приложения показывают статистику коллекции, фильтруют записи, выгружают подмножества.
-- **CI/CD пайплайны.** Проверка полноты после нового архива, валидация по метаданным.
-- **ETL-задачи.** Ночные выгрузки подмножеств коллекции в ClickHouse/PostgreSQL.
-- **Long-running экспорт.** Batch-задачи, результаты которых не помещаются в HTTP-таймаут.
-- **Удалённый доступ.** REST можно закрыть reverse proxy с TLS и mTLS для безопасной сетевой интеграции.
+> Эндпоинты, параметры и примеры ответов сверены с `metawarc/api_server.py` и `api_models.py` версии 2.0.3 и проверены запросами к работающему серверу на тестовом WARC (октябрь 2026).
 
 ## Установка и запуск
 
 ```bash
 pip install 'metawarc[api]'
-# или
-pip install 'metawarc[all]'
 
-# Запуск REST API на loopback:8765
+# По умолчанию: 127.0.0.1:8000, база warcindex.db в текущем каталоге
 metawarc serve --dbfile collection.db
 
-# Запуск на конкретном хосте/порту
-metawarc serve --dbfile collection.db --host 0.0.0.0 --port 9000
+# Другой порт
+metawarc serve --dbfile collection.db --port 9000
 
-# С bearer-token авторизацией
-METAWARC_BEARER_TOKEN=secret metawarc serve --dbfile collection.db
+# С авторизацией (токен лучше передавать через переменную окружения)
+METAWARC_API_TOKEN='длинная-случайная-строка' metawarc serve --dbfile collection.db
 ```
 
-По умолчанию сервер слушает `127.0.0.1:8000`. Swagger UI — `http://127.0.0.1:8000/docs`.
+Опции `serve`: `-d/--dbfile`, `--data-dir`, `--host`, `--port`, `--token`, `--allow-insecure`. Адрес и порт по умолчанию можно задать переменными `METAWARC_HOST` и `METAWARC_PORT`; остальные переменные — в разделе [Переменные окружения](/kb/instruments/ruarxive-tools/metawarc#переменные-окружения).
+
+Запуск на адресе, отличном от `127.0.0.1`/`localhost`, без токена запрещён: команда завершится ошибкой «Non-loopback API binding requires --token/METAWARC_API_TOKEN or --allow-insecure».
 
 ## Авторизация
 
-REST API поддерживает **bearer-token авторизацию**. Все эндпойнты (кроме `/health`) требуют заголовок `Authorization: Bearer <token>`.
+Если токен задан (`--token` или `METAWARC_API_TOKEN`), **все** эндпоинты API и просмотра, включая `/health`, требуют заголовок `Authorization: Bearer <токен>`. Без него сервер отвечает `401`:
 
 ```bash
-export TOKEN="your-secret-token"
+curl -s http://127.0.0.1:8000/health
+# {"detail":"Missing or invalid bearer token"}
 
-# С токеном
-curl -H "Authorization: Bearer $TOKEN" 'http://127.0.0.1:8000/warcs/list'
-
-# Без токена — 401 Unauthorized
-curl 'http://127.0.0.1:8000/warcs/list'
-# {"error":"unauthorized"}
+curl -s -H "Authorization: Bearer $METAWARC_API_TOKEN" http://127.0.0.1:8000/health
+# {"status":"ok","schema_version":2,"revision":3}
 ```
 
-Если `METAWARC_BEARER_TOKEN` не задан, **API работает без аутентификации** (только для локального использования).
+Если токен не задан, API работает без авторизации — это допустимо только на локальной машине. Автоматическая документация FastAPI (`/docs`, `/openapi.json`) открыта без токена.
 
-## Эндпойнты
+Каждый ответ содержит заголовок `x-trace-id` (можно передать свой в запросе) — он же пишется в журнал сервера.
 
-Всего 12 GET/POST/DELETE эндпойнтов + 2 replay-redirect.
+## Эндпоинты
 
-### 1. `GET /health`
+| Метод и путь | Назначение |
+| :--- | :--- |
+| `GET /health` | Проверка работоспособности и версии схемы |
+| `GET /warcs/list` | Список архивов в каталоге |
+| `GET /records/list` | Список записей с фильтрами и постраничным выводом |
+| `GET /records/get/{archive_id}/record/{record_id}` | Метаданные одной записи |
+| `GET /records/get/{archive_id}/headers/{record_id}` | HTTP-заголовки записи |
+| `GET /records/get/{archive_id}/data/{record_id}` | Содержимое записи (поток) |
+| `GET /records/search` | Поиск фразы по извлечённым текстам |
+| `POST /jobs` | Поставить фоновую задачу |
+| `GET /jobs` | Список задач |
+| `GET /jobs/{job_id}` | Состояние задачи |
+| `GET /jobs/{job_id}/result` | Сведения о результате выполненной задачи |
+| `DELETE /jobs/{job_id}` | Отменить задачу |
+| `GET /`, `GET /replay` | HTML-список сохранённых сайтов |
+| `GET /replay/sites` | Список сохранённых сайтов в JSON |
+| `GET /replay/{stamp}/{url}` | Просмотр снимка страницы |
 
-**Liveness-проверка.** Не требует токена.
+Ниже в примерах `T="Authorization: Bearer $METAWARC_API_TOKEN"` и `U=http://127.0.0.1:8000`.
+
+### `GET /health`
 
 ```bash
-curl 'http://127.0.0.1:8000/health'
+curl -s -H "$T" $U/health
 ```
 
 ```json
-{
-  "status": "ok",
-  "dbfile": "/data/collection.db",
-  "data_dir": "/data/collection.db.data",
-  "version": "2.0.3",
-  "indexed_archives": 12,
-  "indexed_records": 14567890
-}
+{"status": "ok", "schema_version": 2, "revision": 3}
 ```
 
-Используется для healthcheck в Kubernetes/Docker.
+`revision` — номер ревизии каталога, растёт при каждом изменении.
 
-### 2. `GET /warcs/list`
+### `GET /warcs/list`
 
-**Список проиндексированных WARC-файлов** в каталоге.
-
-```bash
-curl -H "Authorization: Bearer $TOKEN" 'http://127.0.0.1:8000/warcs/list'
-```
+Возвращает массив архивов. Поля ответа (часть): `id`, `source_uri`, `source_path`, `filename`, `size`, `status`, `num_records`, `created_at`, `updated_at`, `last_error`.
 
 ```json
-{
-  "items": [
-    {
-      "archive_id": "arc_8a3b",
-      "filename": "echo-msk-2024-q1.warc.gz",
-      "size_bytes": 1234567890,
-      "sha256": "abc123...",
-      "indexed_at": "2026-11-09T12:00:00Z",
-      "record_count": 145678,
-      "url_count": 12345
-    },
-    ...
-  ],
-  "total": 12
-}
+[
+  {
+    "id": "74ce33812ae3422abe2b905af99f5610",
+    "source_path": "/data/warcs/test.warc.gz",
+    "filename": "test.warc.gz",
+    "size": 806,
+    "status": "complete",
+    "num_records": 2
+  }
+]
 ```
 
-**Параметры:** нет.
-
-### 3. `GET /records/list`
-
-**Пагинированный список записей** с фильтрами.
+### `GET /records/list`
 
 | Параметр | Тип | Описание |
-|:---|:---|:---|
-| `archive_id` | string | Опционально: ограничить одним архивом |
-| `mime` | string | Фильтр по MIME type |
-| `host` | string | Фильтр по домену (например, `example.com`) |
-| `status` | int | HTTP статус ответа (200, 404 и т. д.) |
-| `from_date` | ISO 8601 | С даты |
-| `to_date` | ISO 8601 | По дату |
-| `limit` | int | 1–500 (default 50) |
-| `offset` | int | Для пагинации (default 0) |
+| :--- | :--- | :--- |
+| `archive_ids` | строка | ID архивов через запятую |
+| `mimes` | строка | MIME-типы через запятую |
+| `exts` | строка | Расширения через запятую |
+| `url_pattern` | строка | Подстрока URL без учёта регистра |
+| `host_pattern` | строка | Подстрока хоста без учёта регистра |
+| `status_min`, `status_max` | число 0–999 | Диапазон HTTP-статусов |
+| `size_min`, `size_max` | число ≥ 0 | Диапазон размера содержимого |
+| `sort_by` | строка | `archive_id`, `warc_id`, `url`, `host`, `mime`, `ext`, `status`, `date`, `size`, `offset` (по умолчанию `offset`) |
+| `descending` | логический | Обратный порядок |
+| `offset` | число ≥ 0 | Смещение (максимум 100 000) |
+| `limit` | число ≥ 1 | Размер страницы, по умолчанию 100, максимум `METAWARC_MAX_PAGE` (500) |
+
+Любой другой параметр (например, `status` или `from_date`) даёт `422 Unsupported query parameter(s)`. Фильтра по дате в REST нет — он есть у `list-files --date-from/--date-to` в CLI и в фильтрах фоновых задач.
 
 ```bash
-# Все HTML-страницы с example.com в 2026 году
-curl -G -H "Authorization: Bearer $TOKEN" \
-  'http://127.0.0.1:8000/records/list' \
-  --data-urlencode 'mime=text/html' \
-  --data-urlencode 'host=example.com' \
-  --data-urlencode 'from_date=2026-01-01' \
-  --data-urlencode 'to_date=2026-12-31' \
+curl -s -G -H "$T" $U/records/list \
+  --data-urlencode 'mimes=text/html' \
+  --data-urlencode 'host_pattern=example.org' \
+  --data-urlencode 'status_min=200' --data-urlencode 'status_max=299' \
   --data-urlencode 'limit=100'
 ```
 
 ```json
 {
+  "total": 2,
+  "offset": 0,
+  "limit": 1,
+  "revision": 3,
   "items": [
     {
-      "record_id": "rec_a1b2c3",
-      "archive_id": "arc_8a3b",
-      "url": "https://example.com/article-1",
-      "warc_date": "2026-03-15T10:23:45Z",
-      "mime": "text/html",
-      "status": 200,
-      "length": 12345,
-      "sha256": "def456..."
-    },
-    ...
-  ],
-  "total": 1247,
-  "limit": 100,
-  "offset": 0,
-  "next_offset": 100
+      "archive_id": "74ce33812ae3422abe2b905af99f5610",
+      "warc_id": "urn:uuid:9e7e4389-10f4-4804-ac6d-2b2832c0006d",
+      "url": "https://example.org/",
+      "host": "example.org",
+      "source": "/data/warcs/test.warc.gz",
+      "offset": 0,
+      "length": 421,
+      "content_type": "text/html; charset=utf-8",
+      "c_type": "text/html",
+      "rec_date": "2026-10-12T12:27:34+03:00",
+      "content_length": 224,
+      "status_code": 200,
+      "ext": "",
+      "payload_digest": "sha1:DZHYRR3RD5MZWQR4XQJR77YYE4KDZLWB"
+    }
+  ]
 }
 ```
 
-### 4. `GET /records/get/{archive_id}/record/{record_id}`
+Для следующей страницы увеличивайте `offset` на `limit`, пока `offset` меньше `total`.
 
-**Метаданные одной записи** (WARC-заголовки + HTTP-заголовки + длина).
+### `GET /records/get/{archive_id}/record/{record_id}`
+
+Возвращает объект записи с теми же полями, что в `items` у `/records/list`. `record_id` — значение `warc_id` (например, `urn:uuid:…`), его нужно кодировать в URL. Если записи нет — `404 Record not found`.
+
+### `GET /records/get/{archive_id}/headers/{record_id}`
+
+Возвращает массив пар `{"key": "...", "value": "..."}` — сохранённые HTTP-заголовки ответа.
+
+```json
+[{"key": "Content-Type", "value": "text/html; charset=utf-8"}]
+```
+
+### `GET /records/get/{archive_id}/data/{record_id}`
+
+Отдаёт содержимое записи потоком с исходным `Content-Type` и заголовком `Content-Disposition: attachment`. Объём ограничен `METAWARC_MAX_PAYLOAD_BYTES` (по умолчанию 128 МиБ).
 
 ```bash
-curl -H "Authorization: Bearer $TOKEN" \
-  'http://127.0.0.1:8000/records/get/arc_8a3b/record/rec_a1b2c3'
+curl -s -H "$T" -o page.html \
+  "$U/records/get/74ce33812ae3422abe2b905af99f5610/data/urn:uuid:67d11623-4ed8-484f-aea8-68b37d81dc2a"
+```
+
+### `GET /records/search`
+
+Поиск фразы по сайдкару `texts`, который строится командой `metawarc index-content --text`. Без него результатов не будет.
+
+| Параметр | Описание |
+| :--- | :--- |
+| `phrase` | Фраза, 1–512 символов (обязательно) |
+| `limit` | 1–`METAWARC_MAX_PAGE`, по умолчанию 50 |
+
+```bash
+curl -s -G -H "$T" $U/records/search --data-urlencode 'phrase=budget'
 ```
 
 ```json
 {
-  "record_id": "rec_a1b2c3",
-  "archive_id": "arc_8a3b",
-  "url": "https://example.com/article-1",
-  "warc_type": "response",
-  "warc_date": "2026-03-15T10:23:45Z",
-  "mime": "text/html",
-  "status": 200,
-  "length": 12345,
-  "sha256": "def456...",
-  "warc_headers": {
-    "WARC-Type": "response",
-    "WARC-Target-URI": "https://example.com/article-1",
-    "WARC-Date": "2026-03-15T10:23:45Z",
-    "Content-Length": "12345",
-    "WARC-Record-ID": "<urn:uuid:a1b2c3d4>"
-  },
-  "http_headers": {
-    "Server": "nginx/1.18",
-    "Content-Type": "text/html; charset=utf-8",
-    "Date": "Mon, 15 Mar 2026 10:23:45 GMT",
-    "Cache-Control": "max-age=3600"
-  }
-}
-```
-
-### 5. `GET /records/get/{archive_id}/headers/{record_id}`
-
-**Только HTTP-заголовки** (без WARC-обёртки и payload-а). Полезно для аудита.
-
-```bash
-curl -H "Authorization: Bearer $TOKEN" \
-  'http://127.0.0.1:8000/records/get/arc_8a3b/headers/rec_a1b2c3'
-```
-
-```json
-{
-  "record_id": "rec_a1b2c3",
-  "http_headers": {
-    "Server": "nginx/1.18",
-    "Content-Type": "text/html; charset=utf-8",
-    "Set-Cookie": "sessionid=abc123; Path=/; HttpOnly",
-    "Strict-Transport-Security": "max-age=31536000"
-  }
-}
-```
-
-### 6. `GET /records/get/{archive_id}/data/{record_id}` ⭐
-
-**Скачивание payload-а записи** — содержимое ответа сервера.
-
-```bash
-curl -H "Authorization: Bearer $TOKEN" \
-  'http://127.0.0.1:8000/records/get/arc_8a3b/data/rec_a1b2c3' \
-  -o article.html
-```
-
-Возвращается **бинарный поток** с правильным `Content-Type`. Этот эндпойнт критически важен для:
-
-- Извлечения конкретных PDF/JPEG для анализа.
-- Загрузки в [DuckDB-WARC](/kb/instruments/tools/duckdb-warc).
-- CI/CD-валидации (проверить, что страница содержит ожидаемое).
-
-**Размер и лимиты:**
-
-- Если payload > 100 МБ — рекомендуется использовать [batch-job](#8-post-jobs) вместо прямого запроса.
-- Сервер применяет rate-limit на уровне всего API (по умолчанию 1000 RPS).
-
-### 7. `GET /records/search`
-
-**Полнотекстовый поиск по фразе** в индексированных текстах. Требует предварительно запущенный `metawarc index-content --text` для построения `texts` sidecar.
-
-| Параметр | Тип | Описание |
-|:---|:---|:---|
-| `phrase` | string | Поисковая фраза (обязательно) |
-| `limit` | int | 1–100 (default 20) |
-| `language` | string | Опционально: 'ru', 'en' и т. д. |
-
-```bash
-curl -G -H "Authorization: Bearer $TOKEN" \
-  'http://127.0.0.1:8000/records/search' \
-  --data-urlencode 'phrase=выборы' \
-  --data-urlencode 'limit=20'
-```
-
-```json
-{
+  "phrase": "budget",
+  "limit": 50,
+  "total": 1,
   "hits": [
     {
-      "record_id": "rec_abc",
-      "archive_id": "arc_8a3b",
-      "url": "https://example.com/article",
-      "language": "ru",
-      "snippet": "...выборы 2026 года пройдут в сентябре...",
-      "score": 0.95
-    },
-    ...
-  ],
-  "phrase": "выборы",
-  "total": 247
+      "archive_id": "74ce33812ae3422abe2b905af99f5610",
+      "warc_id": "urn:uuid:67d11623-4ed8-484f-aea8-68b37d81dc2a",
+      "source": "/data/warcs/test.warc.gz",
+      "url": "https://example.org/about",
+      "snippet": "About page with budget data Home"
+    }
+  ]
 }
 ```
 
-**⚠️ Backend:** использует columnar scan по `texts` sidecar (DuckDB FTS-extension регрессировал в 1.5.x, поэтому metawarc переключился на сканирование столбца — медленнее, но надёжно).
+Поиск — последовательный просмотр столбца в DuckDB, а не полнотекстовый индекс (в README указано, что FTS-расширение DuckDB регрессировало в 1.5.x). Ранжирования и фильтра по языку нет.
 
-### 8. `POST /jobs`
+## Фоновые задачи
 
-**Создать batch-задачу** для экспорта данных, которые не влезают в HTTP-таймаут.
+Задачи нужны для выгрузок, которые не укладываются в таймаут запроса (`METAWARC_REQUEST_TIMEOUT`, 30 с). Зарегистрирован один вид — `export-records`: выгрузка списка записей в файл JSON, CSV или Parquet в каталоге `<имя базы>.data/jobs/<job_id>/`.
+
+### `POST /jobs`
+
+Тело запроса (лишние поля запрещены):
+
+| Поле | Описание |
+| :--- | :--- |
+| `kind` | `export-records` (обязательно) |
+| `format` | `json` (по умолчанию), `csv` или `parquet` |
+| `limit` | Число записей; по умолчанию 1000 |
+| `filters` | Объект с фильтрами: `archive_ids`, `mimes`, `exts`, `url_pattern`, `host_pattern`, `status_min`, `status_max`, `size_min`, `size_max`, `date_from`, `date_to`, `sort_by`, `descending`, `offset` |
 
 ```bash
-curl -X POST -H "Authorization: Bearer $TOKEN" \
-  -H 'Content-Type: application/json' \
-  'http://127.0.0.1:8000/jobs' \
-  -d '{
-    "kind": "export-records",
-    "format": "csv",
-    "filter": {
-      "host": "example.com",
-      "from_date": "2026-01-01",
-      "to_date": "2026-12-31",
-      "mime": "application/pdf"
-    },
-    "limit": 5000
-  }'
+curl -s -H "$T" -H 'Content-Type: application/json' $U/jobs -d '{
+  "kind": "export-records",
+  "format": "csv",
+  "limit": 1000,
+  "filters": {"mimes": "application/pdf", "status_min": 200, "status_max": 299}
+}'
 ```
+
+Ответ — `201 Created` с заголовком `Location: /jobs/<job_id>`:
 
 ```json
 {
-  "job_id": "job_xyz789",
+  "id": "job-9dd85a581eea403094eb88016570f1a8",
+  "kind": "export-records",
   "status": "pending",
-  "kind": "export-records",
-  "format": "csv",
-  "submitted_at": "2026-11-09T12:00:00Z"
+  "input": {"format": "csv", "limit": 1000, "filters": {"mimes": "application/pdf", "status_min": 200, "status_max": 299}},
+  "result": {},
+  "error": null,
+  "created_at": "2026-10-12T09:29:06.883204+00:00",
+  "started_at": null,
+  "ended_at": null
 }
 ```
 
-**Виды задач (на ноябрь 2026):**
+Типичные ошибки:
 
-| `kind` | Что делает | Форматы |
-|:---|:---|:---|
-| `export-records` | Выгрузка подмножества записей в файл | `json`, `csv`, `parquet` |
-| `export-cdxj` | Генерация CDXJ-индекса для [pywb](/kb/instruments/replay/pywb) | `cdxj` |
-| `index-content` | Извлечение метаданных из payload-ов | (без выходных данных) |
+- ключ `filter` вместо `filters` — `422 Extra inputs are not permitted`;
+- другой `kind`, например `export-cdxj`, — `422 'export-cdxj' is not a valid JobKind`;
+- `limit` больше 1000 модель запроса пропускает (до 100 000), но в версии 2.0.3 задача завершается статусом `failed` с ошибкой «limit must be between 1 and 1000». Для больших выгрузок ставьте несколько задач с разным `offset` в `filters`.
 
-### 9. `GET /jobs`
+### `GET /jobs`, `GET /jobs/{job_id}`
 
-**Список всех batch-задач** с фильтром по статусу.
+`GET /jobs?status=running&limit=50` возвращает `{"total": N, "items": [...]}`, новые задачи первыми. Статусы: `pending`, `running`, `succeeded`, `failed`, `cancelled`. `GET /jobs/{job_id}` возвращает объект задачи; у выполненной задачи в `result` есть `path`, `format`, `rows`, `size`, `total`.
 
-```bash
-# Все задачи
-curl -H "Authorization: Bearer $TOKEN" 'http://127.0.0.1:8000/jobs'
+### `GET /jobs/{job_id}/result`
 
-# Только завершённые
-curl -G -H "Authorization: Bearer $TOKEN" \
-  'http://127.0.0.1:8000/jobs' \
-  --data-urlencode 'status=completed'
-```
+Возвращает **сведения** о результате, а не сам файл. Пока задача не в статусе `succeeded` — `409`.
 
 ```json
 {
-  "items": [
-    {
-      "job_id": "job_xyz789",
-      "status": "completed",
-      "kind": "export-records",
-      "format": "csv",
-      "submitted_at": "2026-11-09T12:00:00Z",
-      "completed_at": "2026-11-09T12:15:30Z",
-      "duration_seconds": 930
-    }
-  ],
-  "total": 1
-}
-```
-
-**Статусы:** `pending`, `running`, `completed`, `failed`, `cancelled`.
-
-### 10. `GET /jobs/{job_id}`
-
-**Статус конкретной задачи.**
-
-```bash
-curl -H "Authorization: Bearer $TOKEN" \
-  'http://127.0.0.1:8000/jobs/job_xyz789'
-```
-
-```json
-{
-  "job_id": "job_xyz789",
-  "status": "running",
-  "kind": "export-records",
+  "job_id": "job-9dd85a581eea403094eb88016570f1a8",
+  "status": "succeeded",
+  "path": "collection.data/jobs/job-9dd85a581eea403094eb88016570f1a8/result.csv",
   "format": "csv",
-  "filter": {"host": "example.com", "limit": 5000},
-  "progress": {
-    "processed_records": 1247,
-    "total_records": 5000,
-    "percent": 24.94
-  },
-  "submitted_at": "2026-11-09T12:00:00Z"
+  "rows": 2,
+  "size": 780
 }
 ```
 
-### 11. `GET /jobs/{job_id}/result`
+Файл лежит на диске сервера по пути `path`; эндпоинта для его скачивания нет.
 
-**Скачивание результата** завершённой задачи.
+### `DELETE /jobs/{job_id}`
 
-```bash
-# CSV
-curl -H "Authorization: Bearer $TOKEN" \
-  'http://127.0.0.1:8000/jobs/job_xyz789/result' \
-  -o export.csv
+Отменяет задачу в статусе `pending` или `running` и возвращает её объект. Для завершённой задачи — `409`, для неизвестной — `404`.
 
-# JSON
-curl -H "Authorization: Bearer $TOKEN" \
-  'http://127.0.0.1:8000/jobs/job_xyz789/result' \
-  -o export.json
+## Просмотр сохранённых сайтов
+
+- `GET /` и `GET /replay` — HTML-страница со списком сохранённых хостов.
+- `GET /replay/sites?limit=500` — JSON: `host`, `entry_url`, `captures`, `first_date`, `last_date`, `replay_path`.
+- `GET /replay/<штамп>/<URL>` — снимок страницы. Штамп — ровно 14 цифр (`ГГГГММДДччммсс`) с необязательным суффиксом `mp_` (с переписыванием HTML/CSS) или `id_` (исходное содержимое). Сокращённые штампы и шаблоны вроде `2026*` дают `422`. По умолчанию выбирается ближайший по времени снимок точного URL; `?policy=exact` требует точного совпадения.
+
+```text
+http://127.0.0.1:8000/replay/20260315102345mp_/https://example.com/news/article
 ```
 
-Файл выгружается с правильным `Content-Disposition` (если есть имена — `attachment; filename=export.csv`).
-
-### 12. `DELETE /jobs/{job_id}`
-
-**Отменить задачу** (pending или running).
-
-```bash
-curl -X DELETE -H "Authorization: Bearer $TOKEN" \
-  'http://127.0.0.1:8000/jobs/job_xyz789'
-```
-
-```json
-{"status": "cancelled"}
-```
-
-Невозможно отменить `completed` или `failed` (409 Conflict).
-
-### Replay-redirects (служебные)
-
-| Путь | Назначение |
-|:---|:---|
-| `GET /` | Redirect на `/docs` (Swagger UI) |
-| `GET /replay/` | Корневая страница replay — каталог архивов |
-
-Replay использует URL-формат:
-
-```
-GET /replay/<штамп>mp_/<URL>
-```
-
-Пример:
-
-```
-http://127.0.0.1:8000/replay/20260315102345mp_/https://example.com/article
-```
-
-`mp_` — magic prefix, обозначающий «memento play». Штамп может быть:
-
-- `20260315102345` — конкретный момент времени.
-- `202603*` — все снимки за март 2026.
-- `*-` — все снимки (используется осторожно).
-
-Replay поддерживает HTML/CSS rewrite (корректно работает с кириллицей в URL, редиректах и post-Navigation запросах).
-
-## Аутентификация в production
-
-### За reverse proxy (Caddy)
-
-```caddyfile
-# /etc/caddy/Caddyfile
-archive.example.org {
-    # mTLS для ограничения клиентов
-    # tls internal
-    
-    reverse_proxy 127.0.0.1:8000 {
-        # Проброс bearer-token из Authorization header
-        # Можно дополнительно проверять в middleware Caddy
-        header_up Authorization "Bearer ${env.BEARER_TOKEN}"
-    }
-}
-```
-
-### С динамическим token-checking middleware
-
-metawarc не валидирует JWT/OIDC из коробки — это намеренно. Подход:
-
-1. Настройте `METAWARC_BEARER_TOKEN` для metawarc.
-2. Перед metawarc поставьте nginx/Caddy с OAuth2-proxy или auth0-proxy.
-3. Прокси подменяет `Authorization` на внутренний токен.
+JavaScript не переписывается. Подробнее — в разделе [Просмотр сохранённых сайтов](/kb/instruments/ruarxive-tools/metawarc#просмотр-сохранённых-сайтов).
 
 ## Лимиты
 
-| Параметр | Значение по умолчанию | Изменить через |
-|:---|:---|:---|
-| Bearer token | не требуется | `METAWARC_BEARER_TOKEN` |
-| Лимит записей в `/records/list` | 500 | `--limit-max` |
-| Лимит в search | 100 | `METAWARC_SEARCH_MAX` |
-| Параллельных job'ов | 4 | `METAWARC_JOB_MAX_CONCURRENT` |
-| Таймаут job'а | 300 с | `METAWARC_JOB_TIMEOUT` |
-| Размер payload-а | 100 МБ | `METAWARC_PAYLOAD_MAX` |
+| Параметр | По умолчанию | Где меняется |
+| :--- | :--- | :--- |
+| Токен | не задан | `--token`, `METAWARC_API_TOKEN` |
+| Максимальный `limit` в `/records/list` и `/records/search` | 500 | `METAWARC_MAX_PAGE` |
+| Объём содержимого записи | 128 МиБ | `METAWARC_MAX_PAYLOAD_BYTES` |
+| Таймаут запроса | 30 с | `METAWARC_REQUEST_TIMEOUT` |
+| Одновременных запросов | 16 | `METAWARC_MAX_CONCURRENCY` |
+| Одновременных задач | 4 | `METAWARC_JOB_MAX_CONCURRENT` |
+| Таймаут задачи | 300 с | `METAWARC_JOB_TIMEOUT` |
 
-## REST vs MCP vs прямой SQL
+## Пример клиента на Python
 
-| Задача | REST | MCP | DuckDB SQL |
-|:---|:-:|:-:|:-:|
-| Дашборд с пагинацией | ✅ | ❌ | ❌ |
-| AI-агент (Claude Desktop) | ❌ | ✅ | ❌ |
-| ETL-пайплайн | ✅ | ❌ | ✅ |
-| Ad-hoc-анализ в ноутбуке | ⚠️ | ❌ | ✅ |
-| Долгие выгрузки (загрузка) | ✅ через jobs | ❌ | ⚠️ нужен Python |
-| Читать raw payload | ✅ `/records/get/data` | ❌ безопасно | ⚠️ через core API |
-| Массовые SQL-операции | ❌ | ❌ | ✅ |
-
-**Рекомендация:** для production-сервисов — REST с bearer-token за reverse proxy. Для AI-агентов — MCP. Для исследователя в Jupyter — прямой SQL через DuckDB.
-
-## Python-клиент
-
-Готового клиента пока нет в основном пакете, но `requests` достаточно:
+Готового клиента в пакете нет; достаточно `requests`:
 
 ```python
+import time
 import requests
 
-class MetawarcClient:
-    def __init__(self, base_url, token=None):
-        self.base_url = base_url
-        self.session = requests.Session()
-        if token:
-            self.session.headers["Authorization"] = f"Bearer {token}"
-    
-    def health(self):
-        return self.session.get(f"{self.base_url}/health").json()
-    
-    def archives(self):
-        return self.session.get(f"{self.base_url}/warcs/list").json()["items"]
-    
-    def records(self, **filters):
-        return self.session.get(f"{self.base_url}/records/list", params=filters).json()
-    
-    def get_record(self, archive_id, record_id):
-        meta = self.session.get(
-            f"{self.base_url}/records/get/{archive_id}/record/{record_id}"
-        ).json()
-        headers = self.session.get(
-            f"{self.base_url}/records/get/{archive_id}/headers/{record_id}"
-        ).json()
-        return {"meta": meta, "headers": headers}
-    
-    def get_payload(self, archive_id, record_id, dest_path):
-        with self.session.get(
-            f"{self.base_url}/records/get/{archive_id}/data/{record_id}",
-            stream=True,
-        ) as r:
-            with open(dest_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
-    
-    def search(self, phrase, limit=20):
-        return self.session.get(
-            f"{self.base_url}/records/search",
-            params={"phrase": phrase, "limit": limit},
-        ).json()
-    
-    def submit_job(self, kind, format_, filter_, limit=None):
-        body = {"kind": kind, "format": format_, "filter": filter_}
-        if limit:
-            body["limit"] = limit
-        return self.session.post(
-            f"{self.base_url}/jobs", json=body
-        ).json()
-    
-    def wait_job(self, job_id, poll=2):
-        import time
-        while True:
-            status = self.session.get(
-                f"{self.base_url}/jobs/{job_id}"
-            ).json()
-            if status["status"] in ("completed", "failed", "cancelled"):
-                return status
-            time.sleep(poll)
+API = "http://127.0.0.1:8000"
+session = requests.Session()
+session.headers["Authorization"] = "Bearer " + "замените-на-токен"
 
-# Использование
-client = MetawarcClient("http://127.0.0.1:8000", token="secret")
-print(client.health())
-print(client.search("выборы", limit=10))
+# Постраничный обход записей
+offset, limit = 0, 500
+while True:
+    page = session.get(f"{API}/records/list",
+                       params={"mimes": "application/pdf", "offset": offset, "limit": limit}).json()
+    for item in page["items"]:
+        print(item["url"], item["status_code"])
+    offset += limit
+    if offset >= page["total"]:
+        break
+
+# Поиск
+hits = session.get(f"{API}/records/search", params={"phrase": "бюджет", "limit": 20}).json()["hits"]
+
+# Фоновая задача
+job = session.post(f"{API}/jobs", json={
+    "kind": "export-records",
+    "format": "parquet",
+    "limit": 1000,
+    "filters": {"mimes": "application/pdf"},
+}).json()
+while True:
+    state = session.get(f"{API}/jobs/{job['id']}").json()
+    if state["status"] in ("succeeded", "failed", "cancelled"):
+        break
+    time.sleep(2)
+print(state["status"], state["result"].get("path"), state["error"])
 ```
 
 ## Когда использовать REST API
 
-✅ Подходит:
+Подходит для веб-интерфейсов и дашбордов с фильтрами и постраничным выводом, интеграций и проверок в CI («сколько записей в новом архиве?»), получения содержимого отдельных записей и выгрузок через фоновые задачи.
 
-- **Web-дашборды** (React/Vue/Svelte) с фильтрами и пагинацией.
-- **ETL-пайплайны** для выгрузки в ClickHouse/PostgreSQL.
-- **CI/CD валидация** — «сколько страниц индексировано из нового архива?»
-- **Удалённый доступ** через reverse proxy с TLS/mTLS.
-- **Long-running экспорт** через batch-job'ы.
-
-❌ Не подходит:
-
-- **AI-агенты** — для этого MCP.
-- **Очень большие выгрузки** (миллионы записей) — лучше прямой SQL/DuckDB-WARC.
-- **Real-time данные** — индексирование offline, REST работает с готовым каталогом.
-- **Сложные ad-hoc SQL** — для этого прямой DuckDB.
-
-## Ограничения
-
-- **`/records/get/data` лимит 100 МБ** — больше через batch-job.
-- **`/records/search` медленный** — columnar scan, не FTS. Для быстрого поиска используйте Solr/Shine.
-- **Только metadata + payload** — нет «графа связей» как эндпойнта (хотя метаданные ссылок можно собрать через indexes).
+Не подходит для ИИ-агентов (для них [MCP](/kb/instruments/ruarxive-tools/metawarc-mcp)), сложной аналитики (удобнее SQL в DuckDB поверх Parquet-сайдкаров, см. [рецепты](/kb/instruments/ruarxive-tools/metawarc-cookbook)) и быстрого полнотекстового поиска по большим коллекциям (см. [SolrWayback](/kb/instruments/tools/solrwayback)).
 
 ## Ресурсы
 
-- [metawarc главная страница](/kb/instruments/ruarxive-tools/metawarc)
-- [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp)
-- [metawarc docs (полная)](https://ruarxive.org/metawarc/) — OpenAPI-схема
-- [metawarc docs: REST API](https://ruarxive.org/metawarc/integrations/rest-api)
-- [metawarc docs: Jobs](https://ruarxive.org/metawarc/commands/jobs)
-- [metawarc CHANGELOG (включает v2.0.3 endpoints)](https://github.com/ruarxive/metawarc/blob/master/CHANGELOG.md)
+- [Документация: REST API](https://ruarxive.org/metawarc/integrations/rest-api)
+- [Документация: команда jobs](https://ruarxive.org/metawarc/commands/jobs)
+- [Документация: просмотр сайтов](https://ruarxive.org/metawarc/integrations/replay)
+- [CHANGELOG metawarc](https://github.com/ruarxive/metawarc/blob/master/CHANGELOG.md)
 
 ## Связанные материалы
 
 - [metawarc (обзор)](/kb/instruments/ruarxive-tools/metawarc)
 - [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp)
-- [WARC-workflow](/kb/guides/warc-workflow) — пайплайн с metawarc.
-- [Кейс: wparc → metawarc](/kb/case-studies/wparc-to-metawarc-pipeline)
-- [DuckDB-WARC](/kb/instruments/tools/duckdb-warc) — альтернатива для прямого SQL.
-- [WARC-файл: формат](/kb/instruments/file-formats/warc)
-- [Ландшафт 2026](/kb/instruments/landscape-2026)
+- [metawarc: рецепты](/kb/instruments/ruarxive-tools/metawarc-cookbook)
+- [WARC-workflow](/kb/guides/warc-workflow)
+- [DuckDB и WARC](/kb/instruments/tools/duckdb-warc)
+- [Формат WARC](/kb/instruments/file-formats/warc)

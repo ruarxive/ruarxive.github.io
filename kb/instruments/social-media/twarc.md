@@ -1,23 +1,31 @@
 ---
-title: twarc v2 — архивация Twitter/X через API v2
-sidebar_label: twarc v2 (Twitter/X)
-description: "twarc — современная обёртка Twitter API v2 с гибридным режимом (v1+v2), командами для timeline, search, hydrate. Обзор изменений в 2023–2026."
-last_updated: 2026-11-09
-keywords: [twarc, twitter, x, api-v2, x.com]
+title: twarc — архивация Twitter/X через API v2
+sidebar_label: twarc (Twitter/X)
+description: "twarc — Python-библиотека и CLI для сбора данных Twitter/X; для API v2 используется команда twarc2. Статус доступа к API X на 2026 год, реальные команды и альтернативы."
+last_update:
+  date: 2026-10-12
+keywords: [twarc, twarc2, twitter, x, api-v2, x.com]
 ---
 
-# twarc v2 — архивация Twitter/X через API v2
+# twarc — архивация Twitter/X через API v2
 
-[twarc](https://github.com/DocNow/twarc) — Python-библиотека и CLI для архивации Twitter/X через **API v2**. С 2023 года это **единственный поддерживаемый** способ работы с Twitter (X), так как v1.1 API отключён, а v2 имеет более строгие тарифы и rate limits.
+[twarc](https://github.com/DocNow/twarc) — Python-библиотека и инструмент командной строки проекта DocNow для сбора JSON-данных Twitter/X через официальный API. Пакет устанавливает две команды:
 
-> **Важно:** Twitter (X) платный с 2023 года. Free-тариф остался только для академических проектов; для исследователей — Basic ($100/мес) и Pro ($5000/мес). Это серьёзно ограничивает возможности архивации.
+- **`twarc2`** — работа с **API v2** (актуальный API X);
+- `twarc` — старая команда для API v1.1, который X больше не предоставляет.
 
-## Зачем нужен twarc
+:::warning Доступ к API X платный
+- Бесплатный доступ к API и программа **Academic Research** (бесплатный полнотекстовый поиск по всему архиву для исследователей) закрыты в 2023 году.
+- На октябрь 2026 года API X работает по модели **оплаты за использование**: кредиты покупаются заранее, стоимость списывается за каждый полученный объект (например, $0,005 за прочитанный пост), действует потолок в 3 млн прочитанных постов в месяц. Актуальные цены — на странице [X API pricing](https://docs.x.com/x-api/getting-started/pricing).
+- Массовая архивация через API стоит дорого; для отдельных постов чаще достаточно [Wayback Machine](/kb/instruments/tools/wayback-api) или браузерной архивации.
+:::
 
-- **Гибридный v1 + v2** — может использовать данные v1 там, где v2 ещё не покрывает (например, места, отмеченные твитами).
-- **Rate-limit handling** из коробки.
-- **Сохранение полного JSON** — каждый объект записывается со всеми полями API.
-- **CLI и Python API** — от `twarc search "..."` до сложных ETL-скриптов.
+## Возможности
+
+- **Полный JSON** — каждый ответ API сохраняется со всеми полями, по умолчанию с метаданными о том, когда и как собраны данные (отключается `--no-metadata`).
+- **Обработка лимитов** — twarc сам ждёт сброса лимитов API.
+- **Гидратация** — восстановление полных данных по списку ID твитов (`hydrate`) и обратная операция (`dehydrate`).
+- **Плагины** — например, `twarc-csv` (команда `twarc2 csv`) для преобразования в CSV.
 
 ## Установка
 
@@ -25,354 +33,117 @@ keywords: [twarc, twitter, x, api-v2, x.com]
 pip install twarc
 ```
 
-Требования: Python 3.8+.
+Версия 2.14.1 требует Python 3.13 или новее.
 
-## Получение доступа к API v2
-
-### Академический (бесплатно)
-
-Twitter Academic API доступен через заявку:
-
-1. Зарегистрируйтесь на [Twitter Developer Portal](https://developer.twitter.com/).
-2. Создайте «Project» с описанием исследования.
-3. Запросите «Academic Research» access (рассмотрение 2–4 недели).
-4. При одобрении — лимиты: 10 млн твитов в месяц, full-archive search.
-
-**Что даёт:**
-
-- Full-archive search (до 2006 года).
-- До 500 запросов в 15 минут.
-- До 1 млн tweets на один запрос.
-
-### Платный тариф
-
-| План | Цена | Лимит на запись | Поиск |
-|:---|:--:|:--:|:--:|
-| Free | $0 | только чтение своих | нет |
-| Basic | $100/мес | 3 000 в месяц | последние 7 дней |
-| Pro | $5 000/мес | 1 000 000 в месяц | full-archive |
-| Academic | $0 (одобрение) | 10 000 000 в месяц | full-archive |
-
-Для архивации нужен **Pro** или **Academic**.
-
-### Настройка twarc
+## Настройка
 
 ```bash
-twarc configure
-# Введите:
-#   - Bearer Token (получите в Developer Portal)
+twarc2 configure
 ```
 
-Файл `~/.twarc` будет содержать ключ. Альтернативно — переменная окружения `TWARC_BEARER_TOKEN`.
+Команда интерактивно запрашивает ключи приложения из [X Developer Console](https://docs.x.com/x-api/introduction) и сохраняет их в файл конфигурации twarc. Ключ можно передать и через переменную окружения `BEARER_TOKEN` или параметр `--bearer-token`.
 
-## Использование
+> Команды сверены с исходным кодом (`src/twarc/command2.py`) и `twarc2 --help` версии 2.14.1 (октябрь 2026).
 
-### CLI — базовые команды
+## Команды twarc2
 
 ```bash
-# Поиск (последние 7 дней — Basic и выше)
-twarc search "climate change" > search.jsonl
+# Поиск за последние 7 дней
+twarc2 search "climate change" results.jsonl
 
-# Full-archive search (Pro и Academic)
-twarc search "from:openai OR @openai" --start-time 2020-01-01 > historical.jsonl
+# Поиск по всему архиву (флаг --archive, нужен соответствующий уровень доступа)
+twarc2 search --archive --start-time 2020-01-01 --end-time 2020-12-31 \
+    "from:example" historical.jsonl
 
-# Получить конкретные твиты по ID
-twarc hydrate 1234567890123456789 9876543210987654321 > tweets.jsonl
+# Ограничить число сохранённых твитов
+twarc2 search --limit 10000 "python" python.jsonl
 
-# Timeline пользователя
-twarc timeline @username > user-tweets.jsonl
+# Недавние твиты пользователя (имя или ID)
+twarc2 timeline example_user user-tweets.jsonl
 
-# Подписчики пользователя
-twarc followers @username > followers.jsonl
+# Один твит по ID или URL
+twarc2 tweet 1234567890123456789 tweet.jsonl
 
-# Лайки пользователя
-twarc likes @username > likes.jsonl
+# Ветка обсуждения по ID твита
+twarc2 conversation 1234567890123456789 thread.jsonl
 
-# По ID пользователя получить профиль
-twarc users 12345678 > user.jsonl
+# Подписчики и подписки
+twarc2 followers example_user followers.jsonl
+twarc2 following example_user following.jsonl
+
+# Твиты, которые понравились пользователю (нужен ID пользователя)
+twarc2 liked-tweets 12345678 likes.jsonl
+
+# Списки
+twarc2 lists members 1234567890 members.jsonl
+twarc2 lists tweets 1234567890 list-tweets.jsonl
+
+# Поток по правилам фильтрации
+twarc2 stream-rules add "lang:ru archive"
+twarc2 stream --limit 1000 stream.jsonl
 ```
 
-### Параметры search
+Основные параметры поиска и лент: `--start-time`, `--end-time`, `--since-id`, `--until-id`, `--limit`, `--max-results` (размер страницы ответа), `--archive`.
+
+### Гидратация
 
 ```bash
-twarc search "python" \
-  --start-time 2024-01-01T00:00:00Z \
-  --end-time 2024-12-31T23:59:59Z \
-  --max-tweets 10000 \
-  --lang en \
-  --output results.jsonl
+# Извлечь ID твитов из набора данных
+twarc2 dehydrate tweets.jsonl ids.txt
+
+# Позже восстановить полные данные по файлу с ID (по одному в строке)
+twarc2 hydrate ids.txt full-tweets.jsonl
 ```
 
-### Python API
+Так обычно распространяют наборы данных о Twitter: публикуют только ID, а пользователи сами гидратируют их через API. Удалённые и скрытые твиты при этом не восстанавливаются.
+
+### Плоский формат
+
+Ответы API v2 приходят страницами: твиты в `data`, связанные пользователи и медиа — в `includes`. Команда `flatten` переносит связанные объекты внутрь каждого твита — по одному твиту на строку:
+
+```bash
+twarc2 flatten results.jsonl flat.jsonl
+```
+
+## Python API
 
 ```python
-from twarc import Twarc2
+from twarc import Twarc2, expansions
 
 t = Twarc2(bearer_token="YOUR_TOKEN")
 
-# Поиск
-for tweet in t.search("query"):
-    print(tweet)
-
-# Полная страница результатов
-pages = t.search("query", max_pages=10)
-for page in pages:
-    for tweet in page['data']:
-        print(tweet['id'], tweet['text'])
+# search_recent — последние 7 дней; search_all — весь архив (если доступен)
+for page in t.search_recent("query", max_results=100):
+    for tweet in expansions.ensure_flattened(page):
+        print(tweet["id"], tweet["text"])
 ```
 
-### Conversations / Thread
+## Хранение собранных данных
 
-```bash
-# Показать весь thread
-twarc conversation 1234567890123456789 > thread.jsonl
-```
+- Храните исходные JSONL-файлы без изменений, сжатые `gzip`.
+- Рядом сохраняйте описание: запрос, диапазон дат, дату сбора, версию twarc.
+- Перед публикацией проверьте условия X: [Developer Policy](https://docs.x.com/developer-terms/policy) разрешает передавать третьим лицам в основном только ID постов и пользователей (не более 1,5 млн ID постов одному получателю за 30 дней без письменного разрешения X).
 
-## Формат данных v2
+## Если API недоступен
 
-Каждый твит в v2 — JSON с разделами:
-
-```json
-{
-  "data": {
-    "id": "1234567890123456789",
-    "text": "Tweet text",
-    "edit_history_tweet_ids": ["1234567890123456789"],
-    "created_at": "2026-01-01T12:00:00.000Z",
-    "author_id": "987654321",
-    "conversation_id": "1234567890123456789",
-    "in_reply_to_user_id": null,
-    "public_metrics": {
-      "retweet_count": 100,
-      "reply_count": 25,
-      "like_count": 500,
-      "quote_count": 10,
-      "bookmark_count": 5,
-      "impression_count": 10000
-    },
-    "entities": {...},
-    "lang": "ru"
-  },
-  "includes": {
-    "users": [{"id": "987654321", "username": "...", ...}],
-    "tweets": [...],
-    "media": [...]
-  }
-}
-```
-
-**Изменения v1.1 → v2:**
-
-- `text` вместо `full_text`.
-- `created_at` в ISO 8601 вместо HTTP date.
-- `author_id` вместо `user.screen_name`.
-- `entities` структура упрощена.
-- `in_reply_to_*` — отдельные поля.
-
-### Hydration: превращение ID в полные данные
-
-```bash
-# Сохранить только ID
-twarc search "..." --no-store > /dev/null
-# ID в файле .jsonl
-
-# Позже «гидратировать» через archive
-twarc hydrate $(jq -r '.data.id' tweets.jsonl) > full-tweets.jsonl
-```
-
-Это позволяет разделить **сбор ID** от **загрузки полного JSON** для экономии запросов.
-
-## Команды
-
-### timeline
-
-```bash
-twarc timeline @user --since-id 1234567890 --max-tweets 5000
-```
-
-### search vs full-archive search
-
-```bash
-# Basic: 7 дней
-twarc search "python"
-
-# Pro/Academic: full-archive
-twarc search "python" --start-time 2015-01-01 --end-time 2016-12-31
-```
-
-### filter (stream)
-
-```bash
-# Только Basic+ — real-time stream (ранее sample)
-twarc filter "lang:ru Ukraine war" --max-tweets 100000 > stream.jsonl
-```
-
-### list
-
-```bash
-# Все члены list
-twarc list members 1234567890 > members.jsonl
-
-# Все твиты из list
-twarc list tweets 1234567890 > list-tweets.jsonl
-```
-
-## Best practices
-
-### Резюме прерванной архивации
-
-```bash
-twarc search "..." --checkpoint-file ./checkpoint.jsonl
-# Если процесс прервётся, twarc возобновит с последнего checkpoint
-```
-
-### Расщепление коллекции по дате
-
-```bash
-# Январь 2024
-twarc search "..." \
-  --start-time 2024-01-01T00:00:00Z \
-  --end-time 2024-01-31T23:59:59Z > january.jsonl
-```
-
-### Удаление дубликатов через WARC-Payload-Digest
-
-```bash
-# twarc не делает dedup; используем post-processing
-jq -r '.data.id' tweets.jsonl | sort -u > unique-ids.txt
-wc -l unique-ids.txt
-```
-
-### Долговременное хранение
-
-```bash
-# JSON Lines (newline-delimited JSON) — хороший формат для долгосрочного хранения
-gzip tweets.jsonl
-# Сохранить как tweets.jsonl.gz с метаданными:
-echo "Date range: 2024-01-01/2024-12-31" > tweets-metadata.txt
-echo "Source: Twitter v2 API" >> tweets-metadata.txt
-echo "Query: ..." >> tweets-metadata.txt
-echo "License: depends on content" >> tweets-metadata.txt
-```
-
-## Лимиты API v2 (Academic и Pro)
-
-| Endpoint | Лимит |
-|:---|:---|
-| Search (Free) | нет |
-| Search (Basic) | 60 запросов / 15 мин |
-| Search (Pro) | 120 запросов / 15 мин |
-| Search (Academic) | 300 запросов / 15 мин |
-| Max results per page | 100 (Pro), 500 (Academic) |
-| Timeline | 5 запросов / 15 мин / user |
-| Followers | 15 запросов / 15 мин |
-| Likes | 75 запросов / 15 мин |
-| Hydrate | 300 запросов / 15 мин |
-| Filter (stream) | до 50 твитов / сек |
-
-## Сравнение с альтернативами
-
-| Задача | twarc | snscrape | Auto-Archiver |
-|:---|:-:|:-:|:-:|
-| Twitter API v2 | ✅ | ❌ (legacy) | через twarc |
-| Free-of-charge | ❌ платный | ⚠️ нестабильно | ❌ |
-| Hydration из ID | ✅ | ❌ | ✅ |
-| CLI | ✅ | ✅ | через конфиг |
-| Python API | ✅ | ✅ | через Python |
-| Threading / conversations | ✅ | ⚠️ | ⚠️ |
-| Academic грант | ✅ | ❌ | ❌ |
-
-## Альтернативы без API
-
-Если API недоступен:
-
-### Wayback Machine
-
-```bash
-# Проверить наличие твита
-curl 'https://archive.org/wayback/available?url=https://twitter.com/user/status/12345'
-```
-
-### Archive.ph / Archive.today
-
-```bash
-# Сохранить твит
-curl -X POST 'https://archive.ph/newest/' \
-  -d 'url=https://twitter.com/user/status/12345'
-```
-
-### Waybackpy (более простая)
-
-```python
-from waybackpy import WaybackMachine
-
-snap = WaybackMachine("https://twitter.com/user/status/12345").near()
-print(snap.url if snap else "not archived")
-```
-
-### Бенчмарк цитирования
-
-Подробности — [Wayback Machine API](/kb/instruments/tools/wayback-api).
-
-## Что делать, когда API недоступен
-
-1. **Использовать Wayback Machine** для уже сохранённых твитов.
-2. **Использовать Internet Archive TV News Archive** — для новостных аккаунтов.
-3. **Hanging-Saving через Bellingcat Auto-Archiver** — с браузерным скриншотом.
-4. **DOM screenshot через [Browsertrix](/kb/instruments/tools/browsertrix)** — для всей страницы.
-
-## Юридические аспекты
-
-> [!WARNING]
-> Twitter/X ToS запрещают «sell, lease, sublicense, distribute or otherwise transfer access to the API». Это означает:
->
-> - Публикация полного архива твитов в большинстве юрисдикций проблемна.
-> - Использование для исследований и OSINT-расследований — допустимо.
-> - Метаданные (ID, время, автор) обычно можно публиковать.
-
-**Рекомендация:** храните архив локально, не публикуйте без явного разрешения правообладателя.
-
-Подробнее: [Правовые вопросы](/kb/legal/copyright).
-
-## Изменения 2023–2026
-
-| Год | Событие |
-|:---|:---|
-| 2023 | Twitter → X; v1.1 API закрыт 09.05.2023 |
-| 2023 | Платные тарифы (Basic, Pro) |
-| 2024 | Academic API ужесточен (отказ некоторым вузам) |
-| 2025 | Некоторые издатели (NYT, Reddit) заблокировали Wayback Machine |
-| 2026 | Wikipedia начинает использовать Twitter/X только через Wayback |
-
-## Когда использовать
-
-✅ Подходит:
-
-- **Академические исследования** с одобренным Academic API.
-- **OSINT-расследования** с Pro-подпиской.
-- **Мониторинг** конкретных аккаунтов или тем.
-- **Hydration** ID твитов из имеющегося архива.
-
-❌ Не подходит:
-
-- **Бесплатное использование** — нет ни одного публичного способа.
-- **Массовая архивация** без бюджета — нужны десятки тысяч долларов.
-- **Реал-тайм** — для полного покрытия нужны мощные ресурсы.
-- **Альтернативы X** — для них есть [Mastodon, Bluesky, Threads](/kb/instruments/social-media/mastodon).
+1. **Wayback Machine** — проверить, есть ли сохранённая копия поста. См. [Wayback Machine API](/kb/instruments/tools/wayback-api) и [waybackpy](/kb/instruments/tools/waybackpy).
+2. **[archive.ph](/kb/instruments/tools/archive-ph)** — сохранить или найти снимок отдельного поста.
+3. **[Auto-Archiver](/kb/instruments/tools/auto-archiver)** — фиксация отдельных постов со скриншотами и хешами (есть модуль `twitter_api_extractor`).
+4. **[Browsertrix](/kb/instruments/tools/browsertrix)** — браузерная копия страницы в WARC/WACZ.
+5. **Выгрузка собственного архива** — [Как сохранить данные из Twitter (X)](/kb/instruments/data-take-out/dto-twitter).
 
 ## Ресурсы
 
-- [twarc GitHub](https://github.com/DocNow/twarc)
-- [Twitter API v2 docs](https://developer.twitter.com/en/docs/twitter-api)
-- [Academic Research access](https://developer.twitter.com/en/products/twitter-api/academic-research)
-- [Twarc Twarc2 documentation](https://twarc-project.readthedocs.io/en/latest/twarc2.html)
-- [Wayback Machine API](/kb/instruments/tools/wayback-api) — fallback.
+- [twarc на GitHub](https://github.com/DocNow/twarc)
+- [Документация twarc2](https://twarc-project.readthedocs.io/en/latest/twarc2_en_us/)
+- [Документация X API](https://docs.x.com/x-api/introduction)
+- [Цены X API](https://docs.x.com/x-api/getting-started/pricing)
 
 ## Связанные материалы
 
-- [Mastodon, Bluesky, Threads](/kb/instruments/social-media/mastodon) — альтернативы.
-- [Auto-Archiver](/kb/instruments/tools/auto-archiver) — для OSINT.
-- [Wayback Machine API](/kb/instruments/tools/wayback-api) — для архивных твитов.
+- [Mastodon, Bluesky, Threads](/kb/instruments/social-media/mastodon) — открытые альтернативы
+- [Auto-Archiver](/kb/instruments/tools/auto-archiver) — для OSINT
+- [Wayback Machine API](/kb/instruments/tools/wayback-api) — для архивных твитов
 - [Социальные сети — обзор](/kb/instruments/social-media)
 - [Data Take-Out: Twitter](/kb/instruments/data-take-out/dto-twitter)
 - [Правовые вопросы](/kb/legal/copyright)

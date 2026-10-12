@@ -1,74 +1,51 @@
 ---
 title: metawarc
 sidebar_label: metawarc
-description: "Индексация, поиск, извлечение метаданных и анализ WARC-коллекций на DuckDB + Parquet; REST API, MCP-сервер, локальный веб-replay"
+description: "Индексация, поиск, извлечение метаданных и анализ WARC-коллекций на DuckDB и Parquet; REST API, MCP-сервер и локальный просмотр сохранённых сайтов."
+last_update:
+  date: 2026-10-12
 ---
 
 # metawarc (WARC)
 
-**metawarc** — инструмент, разработанный командой Ruarxive, для работы с уже собранными WARC-коллекциями. В отличие от `tgarc`, `wparc`, `ydiskarc` и `filegetter`, которые **собирают** данные, metawarc занимается следующим этапом: **индексацией, поиском, извлечением метаданных и анализом** собранных архивов.
+**metawarc** — инструмент Ruarxive для работы с уже собранными WARC-коллекциями. В отличие от [wparc](./wparc), [ydiskarc](./ydiskarc) и [filegetter](./filegetter), которые **собирают** данные, metawarc занимается следующим этапом: **индексацией, поиском, извлечением метаданных и анализом** архивов. Создавать или упаковывать файлы в WARC metawarc не умеет.
 
-Репозиторий: [github.com/ruarxive/metawarc](https://github.com/ruarxive/metawarc) · Полная документация: [ruarxive.org/metawarc](https://ruarxive.org/metawarc/) · Лицензия: MIT · Язык: Python 3.10+
+Репозиторий: [github.com/ruarxive/metawarc](https://github.com/ruarxive/metawarc) · Документация: [ruarxive.org/metawarc](https://ruarxive.org/metawarc/) · Лицензия: MIT · Python 3.10+
 
 ## Зачем нужен
 
-Собранный WARC — это бинарный файл, в котором «спрятаны» ответы сервера, заголовки HTTP и тела ресурсов. Чтобы ответить на вопросы «сколько у нас PDF?», «что лежит на странице X?», «найти все документы со словом Y» — нужны специальные инструменты. metawarc решает эту задачу через **версионированный каталог DuckDB + Parquet-сайдкары**:
+WARC — бинарный контейнер с ответами сервера, HTTP-заголовками и телами ресурсов. Чтобы ответить на вопросы «сколько в коллекции PDF?», «что лежало по адресу X?», «где встречается слово Y?», нужен индекс. metawarc строит **версионированный каталог DuckDB с Parquet-сайдкарами**:
 
-- **Исходные WARC** остаются неизменными (immutable).
-- **Каталог** (`.db`) — лёгкий, переносимый, версионированный файл.
-- **Parquet-сайдкары** хранят извлечённые метаданные, тексты, ссылки — рядом с `.db`, в каталоге `*.data/`.
-- **Запросы** идут по каталогу, без копирования WARC.
+- **исходные WARC** не изменяются;
+- **каталог** (`.db`) хранит список архивов, состояние и ссылки на сайдкары;
+- **Parquet-сайдкары** с записями, заголовками, ссылками, текстами и метаданными лежат в каталоге `<имя базы>.data/`;
+- **запросы** выполняются по каталогу без копирования WARC.
 
-## Ключевые возможности
+## Команды
 
-| Возможность | Что делает |
+| Команда | Что делает |
 | :--- | :--- |
-| **`index`** | Индексирует WARC/WARC.GZ коллекции в DuckDB-каталог. Поддерживает `--resume`, `--dry-run`, инкрементальный режим. |
-| **`ingest`** | Добавление новых архивов в существующий каталог. |
-| **`doctor`** | Диагностика и восстановление каталога (создание резервной копии перед миграцией). |
-| **`catalog` / `stats`** | Обзор содержимого коллекции, статистика по типам MIME. |
-| **`list-files` / `dump` / `get`** | Запросы и выборочный экспорт payload-ов (PDF, изображения, и т.п.) с лимитами и SHA-256-манифестом. |
-| **`index-content`** | Извлечение метаданных из PDF, изображений, Office Open XML, видео, аудио, шрифтов + полнотекстовая индексация (`--text`). |
-| **`analyze`** | Сводки, хеши, дубликаты, целостность, анализ ссылок. |
-| **`search`** | Поиск по фразе в извлечённых текстах (HTML / PDF / OOXML). |
-| **`serve` / `replay`** | Локальный веб-replay заархивированных сайтов (HTML/CSS-rewrite, корректная работа с кириллицей). |
-| **`mcp`** | MCP-сервер для AI-агентов: `list_archives`, `list_records`, `get_record_metadata`, `search_records`, и др. Read-only, без сырого SQL и путей файловой системы. |
-| **`export-cdxj`** | Экспорт CDXJ-индекса для связки с `pywb` или другими replay-системами. |
-| **`jobs`** | Долгоиграющие batch-задачи для экспорта результатов, не укладывающихся в HTTP-таймаут. |
+| `index` | Индексирует WARC/WARC.GZ: записи и HTTP-заголовки. Режимы `--mode add\|update\|rescan\|force`, `--resume` |
+| `ingest` | Планирует и выполняет инкрементальное добавление; есть `--dry-run` |
+| `catalog`, `stats` | Список архивов в каталоге; статистика по MIME-типам или расширениям |
+| `list-files` | Список записей с типизированными фильтрами; вывод в таблицу, CSV или JSONL |
+| `dump`, `get` | Выгрузка содержимого записей в файлы с JSONL-манифестом и SHA-256; выгрузка одной записи |
+| `index-content` | Извлечение метаданных (`--type links\|pdfs\|images\|ooxmldocs\|oledocs\|videos\|audio\|fonts`) и текста (`--text`) |
+| `dump-metadata` | Выгрузка извлечённых метаданных одного типа в JSON Lines |
+| `analyze` | Отчёты: `summary`, `metadata`, `hashes`, `duplicates`, `links`, `integrity` |
+| `search` | Поиск фразы по извлечённым текстам |
+| `export-cdxj` | Экспорт CDXJ-индекса для внешних систем просмотра, например pywb |
+| `serve` (`replay`) | REST API и локальный просмотр сохранённых сайтов |
+| `mcp` | MCP-сервер только для чтения для ИИ-агентов |
+| `jobs` | Фоновые задачи экспорта: `submit`, `list`, `get`, `wait`, `cancel` |
+| `doctor`, `rebind`, `cleanup` | Проверка и ремонт каталога, привязка перемещённого архива, очистка устаревших файлов |
 
-## Версии и обновления
+## История версий
 
-### 2025 (v2025.x) — DuckDB + Parquet, рекордное сжатие
-
-В [Публикации #160 от 30.06.2025](https://t.me/ruarxive/160) анонсирована версия, в которой:
-
-- Полная индексация коллекции из **нескольких терабайт WARC** сводится к каталогу
-  **в сотни мегабайт**.
-- Сообщается о сжатии **в 285 раз** на тестовых коллекциях.
-- Извлечение метаданных PDF, изображений, OOXML, видео, аудио вынесено в единый
-  модуль `index-content`.
-
-Эта версия делает практически невозможное раньше: анализировать
-**миллионы URL** в интерактивном режиме на ноутбуке.
-
-### 2026 (v2.0) — локальный Wayback через pywb
-
-В [Публикации #190 от 08.08.2026](https://t.me/ruarxive/190) представлена версия **2.0**,
-добавляющая:
-
-- Полноценный режим **`replay`** через [pywb](https://github.com/ikreymer/pywb):
-  архив с навигацией по датам, как в Internet Archive.
-- **CDXJ-экспорт** через `export-cdxj` — стандартный индекс для pywb, replayweb.page,
-  britannica.
-- Удобный **MCP-сервер** для AI-ассистентов (см. [metawarc-mcp](/kb/instruments/ruarxive-tools/metawarc-mcp)).
-
-Это превращает `wparc → metawarc` из «просто индекса» в **локальный Wayback**: пользователь
-получает обычные страницы с навигацией во времени, со ссылками между ними, с поиском.
-
-> [!TIP]
-> Если раньше вы думали: «у меня есть terabyte WARC, но искать в нём невозможно» — это
-> уже не так. [`metawarc serve`](/kb/instruments/ruarxive-tools/metawarc-rest) поднимает
-> веб-интерфейс за минуты, и в нём уже работает поиск и навигация по датам.
+- **2022 год** — появление инструмента: в канале @ruarxive он представлен в [посте #61 от 29.06.2022](https://t.me/ruarxive/61): извлечение метаданных из изображений и документов внутри WARC и статистика по MIME-типам.
+- **Обновление 2025 года** ([пост #160 от 30.06.2025](https://t.me/ruarxive/160)): хранение переведено с SQLite на DuckDB + Parquet. Раньше база метаданных могла достигать 20 % от объёма WARC; после переписывания метаданные WARC-файла размером 4,5 ГБ занимают 3,5 МБ (0,07 %, сжатие примерно в 285 раз).
+- **Версия 2.0** вышла 8 августа 2026 года ([пост #190](https://t.me/ruarxive/190)): стабильные идентификаторы архивов, схема каталога версии 2, REST API, MCP-сервер, фоновые задачи и просмотр сохранённых сайтов. В посте сказано о проигрывании «через библиотеку pywb»; по README и коду 2.0 просмотр встроен в сам metawarc (FastAPI), а с pywb он связан через экспорт CDXJ.
+- Текущая версия на PyPI — **2.0.3** (6 октября 2026 года).
 
 ## Установка
 
@@ -76,382 +53,230 @@ description: "Индексация, поиск, извлечение метад�
 # Базовый CLI
 pip install metawarc
 
-# С REST API и локальным веб-replay
+# С REST API и просмотром сайтов
 pip install 'metawarc[api]'
 
 # С MCP-сервером
 pip install 'metawarc[mcp]'
 
-# Всё вместе (REST + replay + MCP)
+# Все интерфейсы
 pip install 'metawarc[all]'
 ```
 
-Требуется **Python 3.10 или новее**. Установка из исходников — см. [документацию](https://ruarxive.org/metawarc/getting-started/installation).
+Требуется **Python 3.10 или новее**. Без `metawarc[api]` команда `serve` завершится сообщением о необходимости установить дополнение.
+
+> Команды сверены с README, исходным кодом и `--help` версии 2.0.3, а также проверены на тестовом WARC (октябрь 2026).
 
 ## Быстрый старт
 
 ```bash
-# 1. Проиндексировать коллекцию WARC (resumable)
+# 1. Проиндексировать коллекцию (с продолжением прерванной индексации)
 metawarc index 'archives/**/*.warc*' --dbfile collection.db --resume
 
 # 2. Посмотреть, что попало в каталог
 metawarc catalog --dbfile collection.db
 metawarc stats --dbfile collection.db --mode mimes
 
-# 3. Найти все PDF и выгрузить первые 100
+# 3. Найти PDF и выгрузить первые 100
 metawarc list-files --dbfile collection.db --mimes application/pdf
 metawarc dump --dbfile collection.db --exts pdf --limit 100 --output exported
 
-# 4. Запустить локальный веб-replay
+# 4. Извлечь ссылки, метаданные PDF и текст для поиска
+metawarc index-content --dbfile collection.db --type links --type pdfs --text
+metawarc search "бюджет" --dbfile collection.db
+
+# 5. Запустить локальный просмотр (нужен metawarc[api])
 metawarc serve --dbfile collection.db
-# → http://127.0.0.1:8000/replay/<штамп>mp_/https://example.com/
+# → http://127.0.0.1:8000/  — список сохранённых сайтов
 ```
 
-## Архитектура (кратко)
+## Архитектура кратко
 
-- **Workspace** = `<dbfile>` + `<dbfile>.data/` каталог с Parquet-сайдкарами.
-- **Schema v2** — стабильные ID архивов, версионированные сайдкары, атомарная публикация батчей.
-- **Source WARC** — только для чтения; metawarc никогда не модифицирует исходные архивы.
-- **Typed queries** — все запросы идут через allowlist-поля и bound-параметры; сырой SQL доступен только явно через CLI-флаг `--unsafe-where` и **не** экспонируется в REST/MCP.
+- **Рабочее пространство** — файл базы (по умолчанию `warcindex.db`) и каталог `<имя базы>.data/` с сайдкарами; его можно перенести через `--data-dir`.
+- **Таблицы DuckDB**: `archives`, `catalog_state`, `checkpoints`, `meta`, `runs`, `sidecars`. Сами записи, заголовки, ссылки, тексты и метаданные лежат в Parquet-файлах, перечисленных в таблице `sidecars`.
+- **Схема версии 2** — стабильные ID архивов, версионированные сайдкары, атомарная публикация.
+- **Типизированные запросы** — фильтры проходят через список разрешённых полей и связанные параметры. Сырой SQL доступен только в CLI через явно названную опцию `--unsafe-where` и не доступен через REST и MCP.
 
-Подробнее — в разделе [Architecture документации](https://ruarxive.org/metawarc/architecture/workspace).
+Подробнее — [архитектура в документации](https://ruarxive.org/metawarc/architecture/workspace).
 
-## Поддерживаемые форматы для извлечения метаданных
+## Форматы для извлечения метаданных
 
-- **Документы**: PDF, Office Open XML (DOCX, XLSX, PPTX, включая макро-включённые).
-- **Изображения**: JPEG, PNG, GIF, SVG, WebP, TIFF, HEIC и др.
+- **Документы**: PDF; Office Open XML (DOCX, XLSX, PPTX и шаблоны, включая файлы с макросами); старые DOC, XLS, PPT.
+- **Изображения**: JPEG, PNG, GIF, TIFF, JPEG 2000, BMP, ICO, WebP, SVG, PSD и другие форматы, которые читает библиотека hachoir.
 - **Видео**: MP4/QuickTime, AVI, WebM/Matroska, Ogg, MPEG, ASF/WMV, FLV.
 - **Аудио**: MP3, WAV, AIFF, FLAC, Ogg/Opus, M4A, WMA, MIDI, RealAudio.
-- **Шрифты**: TTF, OTF, WOFF, WOFF2, EOT, коллекции шрифтов.
-- **Ссылки**: извлечение `<a href>` из HTML.
+- **Шрифты**: TTF, OTF, коллекции шрифтов, WOFF, WOFF2, EOT.
+- **Ссылки** из HTML и **текст** HTML, PDF и OOXML для поиска.
 
-## Когда использовать metawarc
+Как устроен выбор экстрактора — на странице [metawarc: экстракторы](./metawarc-extractors).
 
-✅ Подходит, если у вас уже есть **WARC-коллекция** (собранная `tgarc`, `wparc`, `wpull`, `wget`, `browsertrix` или `heritrix`), и нужно:
+## Когда использовать
 
-- узнать, что внутри (типы, объёмы, домены);
-- извлечь метаданные PDF/изображений/документов;
-- искать фразу по извлечённому тексту;
-- выгрузить подмножество файлов (например, все PDF по домену);
-- поднять локальный веб-replay без pywb/OpenWayback;
-- отдать безопасный read-only API для дашбордов или агентов.
+Подходит, если у вас уже есть **WARC-коллекция** (собранная [wget](/kb/instruments/tools/wget), [Browsertrix](/kb/instruments/tools/browsertrix), [Heritrix](/kb/instruments/tools/heritrix), [grab-site](/kb/instruments/tools/grab-site), `wparc warc` или `filegetter` с `write_warc`) и нужно:
 
-❌ Не замена сборщикам: для **сбора** WARC используйте [wparc](./wparc), [tgarc](./tgarc), [ydiskarc](./ydiskarc), [filegetter](./filegetter) или сторонние кроулеры — см. [Инструменты сбора](/kb/instruments/tools).
+- узнать, что внутри (типы, объёмы, хосты);
+- извлечь метаданные PDF, изображений и документов;
+- найти фразу в извлечённом тексте;
+- выгрузить подмножество файлов, например все PDF;
+- быстро посмотреть сохранённый сайт локально;
+- дать дашборду или агенту доступ к коллекции только на чтение.
+
+Для **сбора** WARC metawarc не нужен — см. [инструменты сбора](/kb/instruments/tools).
 
 ## Сравнение с похожими инструментами
 
 | Инструмент | Назначение | Отличие от metawarc |
 | :--- | :--- | :--- |
-| **[warcio](https://github.com/webrecorder/warcio)** | Python-библиотека чтения/записи WARC | metawarc строит **готовый к запросам каталог** с Parquet-сайдкарами; warcio требует писать скрипты. |
-| **[warctools](https://github.com/internetarchive/warctools)** | CLI-утилиты (warcvalid, warcdump) | metawarc даёт **типизированный query** и REST/MCP-поверхность. |
-| **[Archives Unleashed](https://archivesunleashed.org)** | Анализ WARC через Spark | metawarc работает на одном узле без Spark; быстрее развернуть. |
-| **[pywb](https://github.com/webrecorder/pywb)** | Воспроизведение веб-архивов | metawarc имеет встроенный лёгкий replay и умеет экспортировать CDXJ для pywb. |
-| **[WARC-processing](/kb/instruments/tools/warc-processing)** (страница БЗ) | Каталог WARC-библиотек | metawarc — готовый инструмент, а не справочник. |
+| **[warcio](https://github.com/webrecorder/warcio)** | Python-библиотека чтения и записи WARC | metawarc строит готовый к запросам каталог; с warcio нужно писать свои скрипты |
+| **[warctools](https://github.com/internetarchive/warctools)** | Утилиты командной строки (warcvalid, warcdump) | metawarc даёт типизированные запросы, REST и MCP |
+| **[Archives Unleashed](https://archivesunleashed.org)** | Анализ WARC на Spark | metawarc работает на одной машине без Spark |
+| **[pywb](https://github.com/webrecorder/pywb)** | Просмотр веб-архивов | у metawarc простой встроенный просмотр без переписывания JavaScript; для полного воспроизведения он экспортирует CDXJ для pywb |
 
 ## Ограничения
 
-- **Не сборщик**: metawarc работает поверх уже существующих WARC.
-- **Python 3.10+** (на старых версиях не запустится).
-- **MCP-сервер** read-only: не даёт инструментов для удаления, изменения и сырого SQL.
-- **Replay** — локальный, без JS-rewriting (для полноценного Wombat-режима экспортируйте CDXJ и используйте [pywb](/kb/instruments/replay/pywb)).
-- **Большие коллекции** (>10M страниц) — на одном узле возможны, но требуют быстрого диска под DuckDB-каталог и Parquet.
-
-## Полезные ссылки
-
-- 📘 [Полная документация metawarc](https://ruarxive.org/metawarc/) — установка, CLI-референс, cookbook, архитектура.
-- 🧾 [CLI-референс](https://ruarxive.org/metawarc/commands/) — все команды с флагами.
-- 🍳 [Cookbook](https://ruarxive.org/metawarc/getting-started/cookbook) — задачи по ролям (архивист, исследователь, агент).
-- 🤖 [MCP-сервер для AI-агентов](./metawarc-mcp) — подробная страница по интеграции с Claude/Cursor/Continue (эта страница БЗ).
-- 🛠 [CHANGELOG](https://github.com/ruarxive/metawarc/blob/master/CHANGELOG.md) — история релизов.
-- 🔐 [SECURITY](https://github.com/ruarxive/metawarc/blob/master/SECURITY.md) — модель угроз и рекомендации.
-
-## Связанные материалы
-
-- [Формат WARC](/kb/instruments/file-formats/warc) — структура файла и типы записей.
-- [Обработка WARC](/kb/instruments/tools/warc-processing) — каталог Python/Java/Go/Rust-библиотек.
-- [WARC-инфраструктура](/kb/instruments/tools) — все инструменты раздела.
-- [wparc](./wparc), [tgarc](./tgarc), [ydiskarc](./ydiskarc), [filegetter](./filegetter) — сборщики Ruarxive.
-- [Все инструменты Ruarxive](/kb/instruments/ruarxive-tools)
-- [metawarc MCP-сервер](./metawarc-mcp) — для AI-агентов.
-- [metawarc REST API](./metawarc-rest) — для интеграций.
-- [metawarc cookbook](./metawarc-cookbook) — практические рецепты.
-- [metawarc extractors (plugin API)](./metawarc-extractors) — кастомные экстракторы.
+- Не сборщик и не упаковщик: работает только с существующими WARC.
+- Python 3.10+.
+- MCP-сервер только читает: нет инструментов изменения, удаления, сырого SQL и выдачи содержимого записей.
+- Встроенный просмотр переписывает только HTML и CSS; JavaScript не переписывается. Для сложных сайтов экспортируйте CDXJ и используйте [pywb](/kb/instruments/replay/pywb).
+- Поиск — последовательный просмотр столбца текстов в DuckDB, а не полнотекстовый индекс; на больших коллекциях он медленный.
 
 ---
 
 # Расширенные разделы
 
-## Конфигурация через переменные окружения
+## Переменные окружения
 
-metawarc читает настройки из переменных окружения (префикс `METAWARC_`):
+Переменные читаются в `metawarc/settings.py` и действуют на `serve` (REST API и просмотр):
 
-| Переменная | Значение по умолчанию | Зачем |
-|:---|:---|:---|
-| `METAWARC_BEARER_TOKEN` | unset | Bearer-token для REST/MCP. Если не задан — анонимный доступ (только localhost). |
-| `METAWARC_LIMIT_MAX_RECORDS` | 500 | Максимум записей в `/records/list` |
-| `METAWARC_SEARCH_MAX` | 100 | Максимум результатов в `/records/search` |
-| `METAWARC_JOB_MAX_CONCURRENT` | 4 | Параллельных batch-job'ов |
-| `METAWARC_JOB_TIMEOUT` | 300 с | Таймаут одного job'а |
-| `METAWARC_PAYLOAD_MAX` | 100 МБ | Максимальный payload в `/records/get/data` |
-| `METAWARC_INDEX_WORKERS` | 1 | Параллельных потоков индексирования |
-| `METAWARC_INDEX_BATCH` | 10000 | Размер батча для `/records` |
-| `METAWARC_EXTRACTION_TIMEOUT` | 60 с | Таймаут одного экстрактора на одну запись |
+| Переменная | По умолчанию | Назначение |
+| :--- | :--- | :--- |
+| `METAWARC_API_TOKEN` | не задана | Bearer-токен REST API (то же, что `serve --token`) |
+| `METAWARC_HOST` | `127.0.0.1` | Адрес, на котором слушает `serve` |
+| `METAWARC_PORT` | `8000` | Порт `serve` |
+| `METAWARC_MAX_PAGE` | `500` | Максимальный `limit` для `/records/list` и `/records/search` |
+| `METAWARC_MAX_PAYLOAD_BYTES` | `134217728` (128 МиБ) | Максимальный объём отдаваемого содержимого записи |
+| `METAWARC_REQUEST_TIMEOUT` | `30` | Таймаут одного HTTP-запроса, секунды |
+| `METAWARC_MAX_CONCURRENCY` | `16` | Одновременно обрабатываемых HTTP-запросов |
+| `METAWARC_JOB_MAX_CONCURRENT` | `4` | Одновременно выполняемых фоновых задач |
+| `METAWARC_JOB_TIMEOUT` | `300` | Таймаут одной фоновой задачи, секунды |
 
-### Примеры
+В `settings.py` есть также `METAWARC_DB_PATH`, `METAWARC_DATA_DIR` и `METAWARC_MCP_PORT`, но команды `serve` и `mcp` берут путь к базе из `--dbfile`/`--data-dir`, а порт MCP — из `--port` (по умолчанию 8191).
 
 ```bash
-# Production — параллельно + с таймаутами
-export METAWARC_JOB_MAX_CONCURRENT=8
-export METAWARC_JOB_TIMEOUT=3600
-export METAWARC_INDEX_WORKERS=4
-
-# Высокая нагрузка — увеличить лимиты
-export METAWARC_LIMIT_MAX_RECORDS=1000
-export METAWARC_PAYLOAD_MAX=500M
-
-# Защита — уменьшить
-export METAWARC_PAYLOAD_MAX=50M
-export METAWARC_JOB_TIMEOUT=60
-
-# Запуск
+export METAWARC_API_TOKEN='замените-на-случайную-строку'
+export METAWARC_JOB_TIMEOUT=1800
 metawarc serve --dbfile collection.db
 ```
 
-## Флаг `--unsafe-where`
+## Опция `--unsafe-where`
 
-По умолчанию metawarc запрещает сырой SQL в запросах. Это безопасно, но иногда нужно сделать ad-hoc-аналитику в ноутбуке.
-
-```bash
-# Безопасно: bound параметры
-metawarc list-records --dbfile collection.db --mimes text/html --limit 100
-
-# ❌ ОПАСНО: прямой SQL — может привести к эксфильтрации или DoS
-metawarc list-records --dbfile collection.db --unsafe-where "raw_sql_here"
-```
-
-**Когда использовать:**
-
-- ✅ Локальный анализ в Jupyter с локальной БД.
-- ✅ Исследовательские запросы, которые не влезают в allowlist.
-- ❌ **Никогда** на production-сервере.
-- ❌ **Никогда** через REST/MCP-эндпойнт (не экспонируется вообще).
-
-Подробности — в [CHANGELOG безопасности](https://github.com/ruarxive/metawarc/blob/master/SECURITY.md).
-
-## Команда `dump` — форматы выгрузки
-
-`metawarc dump` поддерживает три выходных формата:
-
-### CSV (по умолчанию)
+Обычные фильтры (`--mimes`, `--exts`, `--url-pattern`, `--host-pattern`, `--status-min/--status-max`, `--date-from/--date-to`, `--size-min/--size-max`) передаются в запрос как параметры. Для разового анализа на своей машине у `list-files` и `dump` есть опция `--unsafe-where` с сырым SQL-условием:
 
 ```bash
-metawarc dump --dbfile collection.db \
-  --exts pdf --mime application/pdf \
-  --limit 100 \
-  --output ./exported-files \
-  --format csv
+# Безопасно: типизированные фильтры
+metawarc list-files --dbfile collection.db --mimes text/html --limit 100
+
+# Сырой SQL — только локально и только для своих данных
+metawarc list-files --dbfile collection.db --unsafe-where "status_code >= 400"
 ```
 
-В `./exported-files/`:
+Через REST и MCP эта опция недоступна.
 
-- `data.csv` — манифест с метаданными.
-- `*.pdf` — скачанные файлы.
-- `manifest.sha256` — SHA-256 каждого файла.
+## Выгрузка содержимого: `dump` и `get`
 
-### JSON Lines
+`dump` сохраняет содержимое выбранных записей в отдельные файлы и пишет рядом `manifest.jsonl` (архив, ID записи, URL, тип, путь к файлу, размер, SHA-256). Существующие файлы не перезаписываются.
 
 ```bash
-metawarc dump --dbfile collection.db \
-  --exts jpg,png \
-  --format jsonl \
-  --output ./exported-images
+metawarc dump --dbfile collection.db --mimes application/pdf --limit 1000 --output ./pdfs
+metawarc get 'urn:uuid:<id записи>' --dbfile collection.db --output page.html
 ```
 
-Каждая строка — JSON с записью из архива + payload в base64:
+Опции `dump`: `--archive-ids`, `-m/--mimes`, `-e/--exts`, `--url-pattern`, `--unsafe-where`, `--offset`, `--limit` (по умолчанию 1000, максимум 100 000), `--max-bytes`, `-o/--output` (по умолчанию `dump`).
 
-```jsonl
-{"record_id":"rec_1","url":"https://...","mime":"image/jpeg","length":12345,"data":"<base64>"}
-```
+Табличные выгрузки списка записей делают `list-files -o records.csv --output-format csv` (или `jsonl`; не больше 1000 строк за вызов, дальше — через `--offset`) и фоновые задачи `jobs` (JSON, CSV, Parquet).
 
-### Parquet (для аналитики)
+## Просмотр сохранённых сайтов
 
-```bash
-metawarc dump --dbfile collection.db \
-  --mimes application/pdf \
-  --format parquet \
-  --output ./analytics-export
-```
+`metawarc serve` (или его синоним `metawarc replay`) поднимает просмотр по адресам:
 
-Выход:
+| Путь | Что показывает |
+| :--- | :--- |
+| `/` или `/replay` | HTML-список сохранённых хостов со ссылками |
+| `/replay/sites` | То же в JSON: хост, стартовый URL, число снимков, путь для просмотра |
+| `/replay/<штамп>/<URL>` | Ближайший по времени снимок точного URL, HTML и CSS переписаны |
+| `/replay/<штамп>mp_/<URL>` | То же, явный режим с переписыванием |
+| `/replay/<штамп>id_/<URL>` | Исходное содержимое без переписывания |
 
-```
-analytics-export/
-└── data-00000.parquet
-└── data-00001.parquet
-└── _metadata  # метаданные Parquet
-```
+Штамп — ровно 14 цифр `ГГГГММДДччммсс`, допускаются только суффиксы `mp_` и `id_`. Сокращённые штампы и шаблоны вроде `2026*` возвращают ошибку 422. Параметр `?policy=exact` требует точного совпадения времени (по умолчанию `closest`).
 
-Parquet — columnar-формат; быстро анализируется в DuckDB, Spark, Pandas.
-
-## Replay — детали
-
-Команда `metawarc serve` запускает встроенный replay на `/replay/...`.
-
-### URL-формат
-
-```
-GET /replay/<штамп>mp_/<URL>
-```
-
-Где `<штамп>`:
-
-| Значение | Что показывает |
-|:---|:---|
-| `20260315102345` | Конкретный момент |
-| `202603*` | Все снимки за март 2026 |
-| `*-` | Все снимки (острожно) |
-| (пусто) | Ближайший снимок к текущему моменту |
-
-Пример:
-
-```
+```text
 http://127.0.0.1:8000/replay/20260315102345mp_/https://example.com/news/article
 ```
 
-### Что rewrites
-
-Replay вносит следующие правки в HTML/JS для правильного воспроизведения:
-
-- **Ссылки** — все `<a href>`, `<img src>`, `<script src>`, CSS `url()` перенаправлены на локальный replay.
-- **Редиректы** — заменены на `meta refresh` или JS-редирект на replay-аналог.
-- **Post-кнопки и формы** — `action` атрибуты переписаны.
-- **Кириллица в URL** — корректно сериализуется, не ломается при редиректах.
-
-### Что НЕ поддерживается
-
-- ❌ Полная JS-rewriting (как Wombat в pywb): если страница генерирует URL через JavaScript после загрузки, они могут не пройти через rewrite.
-- ❌ WebSocket-соединения.
-- ❌ Видео-стримы и live-эфиры.
-- ❌ Cookies в браузере через Replay — изоляция между страницами не идеальна.
-
-Для полноценного Wombat-style replay — экспортируйте CDXJ и поднимите [pywb](/kb/instruments/replay/pywb).
-
-### Защита от перегрузки
-
-При большом числе снимков и большом размере страниц — replay может стать медленным. Включите кэш:
+Что делает просмотр: переписывает ссылки в HTML и CSS и заголовок `Location` у редиректов в адреса просмотра; сохраняет исходную кодировку (UTF-8, windows-1251, KOI8-R) и отдаёт страницу в UTF-8. JavaScript не переписывается, поэтому страницы, которые строят адреса скриптами, могут работать неполно. Для таких сайтов экспортируйте CDXJ и используйте pywb:
 
 ```bash
-# Через nginx (loopback перед metawarc)
-location /replay/ {
-    proxy_pass http://127.0.0.1:8000;
-    proxy_cache_valid 200 1d;
-    proxy_cache replay_zone;
-    add_header X-Cache-Status $upstream_cache_status;
-}
+metawarc export-cdxj --dbfile collection.db -o collection.cdxj --path-index paths.tsv
 ```
 
-## Job subsystem — детали
+Сохранённые скрипты могут быть небезопасны: без токена держите сервер на `127.0.0.1`.
 
-`metawarc jobs` — долгоиграющие batch-задачи, результаты которых не помещаются в обычный HTTP-запрос.
+## Фоновые задачи (`jobs`)
 
-### Виды задач (на ноябрь 2026)
-
-- `export-records` — выгрузка подмножества записей.
-- `export-cdxj` — генерация CDXJ для [pywb](/kb/instruments/replay/pywb).
-- `index-content` — извлечение метаданных из payload-ов.
-
-### CLI
+Задачи нужны для выгрузок, которые не укладываются в таймаут HTTP-запроса. Зарегистрирован один вид задачи — **`export-records`**: выгрузка списка записей (как у `list-files`) в JSON, CSV или Parquet в каталог `<имя базы>.data/jobs/<id задачи>/`.
 
 ```bash
-# Submit
-metawarc jobs submit export-records --format csv \
-  --filter '{"mime":"application/pdf","limit":5000}' \
-  --dbfile collection.db
+# Поставить задачу (опции группы, например --dbfile, указываются до подкоманды)
+metawarc jobs --dbfile collection.db submit --format csv --limit 1000 --mimes application/pdf
 
-# Список
-metawarc jobs list --dbfile collection.db --status completed
-
-# Статус
-metawarc jobs get job_xyz789 --dbfile collection.db
-
-# Ждать завершения (long-polling)
-metawarc jobs wait job_xyz789 --poll 2 --timeout 600
-
-# Отменить
-metawarc jobs cancel job_xyz789 --dbfile collection.db
+# Список, статус, ожидание, отмена
+metawarc jobs --dbfile collection.db list --status running
+metawarc jobs --dbfile collection.db get <job_id>
+metawarc jobs --dbfile collection.db wait <job_id> --poll-seconds 2 --timeout 600
+metawarc jobs --dbfile collection.db cancel <job_id>
 ```
 
-### Жизненный цикл
+Фильтры `submit`: `--archive-ids`, `--mimes`, `--exts`, `--url-pattern`, `--host-pattern`, `--status-min/--status-max`, `--size-min/--size-max`. Статусы: `pending`, `running`, `succeeded`, `failed`, `cancelled`. Состояние задач сохраняется между перезапусками.
 
-```
-[pending] → [running] → [completed]
-                ↓
-            [failed] / [cancelled]
-```
+Команда `jobs submit` только ставит задачу в очередь. Выполняет задачи фоновый обработчик `metawarc serve`: задачи, ожидающие в очереди, он подхватывает при запуске. Без работающего `serve` задача останется в статусе `pending`, а `jobs wait` завершится по таймауту.
 
-Job остаётся после завершения — можно посмотреть результат или повторить выгрузку.
+Ограничение версии 2.0.3: хотя `--limit` принимает значения до 100 000, при выполнении задача проверяет лимит запроса к каталогу и с `limit` больше 1000 завершается статусом `failed` («limit must be between 1 and 1000»). Задачи через REST описаны на странице [metawarc REST API](./metawarc-rest#фоновые-задачи).
 
-### Состояние и лимиты
+## Как выбрать интерфейс
+
+| Критерий | CLI | REST | MCP | SQL в DuckDB |
+| :--- | :-: | :-: | :-: | :-: |
+| Для чего | Скрипты, CI | Дашборды, интеграции | ИИ-агенты | Исследования |
+| Доступ | Локально | Bearer-токен | stdio или локальный HTTP без авторизации | Локально |
+| Содержимое записей | `dump`, `get` | `/records/get/.../data/...` | Нет | Через WARC |
+| Долгие выгрузки | `jobs` (выполняет `serve`) | `/jobs` | Нет | Свои скрипты |
+
+## Совместимость и обслуживание каталога
+
+Рабочее пространство 2.0 использует схему версии 2. Каталоги версий 1.2/1.3 (с таблицами `files`/`tables`) распознаются: перед переносом путей в новый каталог делается резервная копия. Если перенос неоднозначен, `doctor` выдаёт рекомендации по пересборке и не трогает исходные WARC.
 
 ```bash
-# Конкурентность: сколько job'ов одновременно
-export METAWARC_JOB_MAX_CONCURRENT=8
-
-# Таймаут job'а
-export METAWARC_JOB_TIMEOUT=3600
-
-# Состояние job'ов переживает рестарт metawarc
-# Хранится в <dbfile>.data/jobs/<job_id>/state.json
+metawarc doctor --dbfile collection.db                    # проверка
+metawarc doctor --dbfile collection.db --repair           # план ремонта (без изменений)
+metawarc doctor --dbfile collection.db --repair --apply   # применить план
+metawarc rebind <archive_id> /new/path/file.warc.gz --dbfile collection.db
+metawarc cleanup --dbfile collection.db --retention-days 7 --apply
 ```
 
-### Когда использовать job'ы
+## Полезные ссылки
 
-✅ Подходит:
+- [Документация metawarc](https://ruarxive.org/metawarc/) — установка, справочник команд, рецепты, архитектура.
+- [Справочник команд](https://ruarxive.org/metawarc/commands) — все команды и флаги.
+- [Рецепты в документации](https://ruarxive.org/metawarc/getting-started/cookbook).
+- [CHANGELOG](https://github.com/ruarxive/metawarc/blob/master/CHANGELOG.md) и [SECURITY](https://github.com/ruarxive/metawarc/blob/master/SECURITY.md).
+- OpenAPI-схема работающего сервера — `/docs` и `/openapi.json`.
 
-- **Массовая выгрузка** (тысячи записей, минуты-часы).
-- **ETL в ClickHouse / PostgreSQL / S3**.
-- **CDXJ-индексация** для pywb.
-- **Любые операции**, не влезающие в 30 с.
+## Связанные материалы
 
-❌ Не подходит:
-
-- **Одиночная запись** — через `/records/get/data`.
-- **Аналитика в реальном времени** — нужен DuckDB-WARC.
-- **Когда REST'у нужно немедленно ответить**.
-
-## Как выбрать интерфейс: REST vs MCP vs CLI
-
-| Критерий | CLI | REST | MCP | Прямой SQL |
-|:---|:-:|:-:|:-:|:-:|
-| **Цель** | Скрипты, CI/CD | Дашборды, ETL | AI-агенты | Исследования |
-| **Аутентификация** | - | Bearer-token | stdio / loopback | - |
-| **Real-time** | ❌ | ⚠️ | ❌ | ✅ |
-| **Долгие операции** | job'ы | job'ы | read-only | free-form |
-| **Безопасность** | ✅ | ⚠️ нужен bearer | ✅ (read-only) | ✅ только локально |
-| **Когда выбирать** | Любой сценарий | Web-интеграция | AI-агент | Ноутбук, ad-hoc |
-
-**Рекомендация команды Ruarxive:**
-
-1. **Скрипты автоматизации** → CLI.
-2. **Web-дашборды** → REST за reverse proxy.
-3. **AI-агенты** → MCP.
-4. **Аналитика в Jupyter** → прямой SQL через DuckDB.
-5. **Долгие выгрузки** → jobs (через CLI или REST).
-
-## Совместимость и миграция Schema v2
-
-Schema v2 — стабильная с 2025 года. Если у вас каталог **до Schema v2**, `metawarc doctor --auto-migrate` автоматически выполнит миграцию с резервной копией.
-
-```bash
-metawarc doctor collection.db
-# Если нужна миграция:
-metawarc doctor collection.db --auto-migrate --backup-dir /var/backups/metawarc/
-```
-
-Резервная копия переименовывается в `collection.db.v1-backup-<timestamp>`. Подробнее — [документация по миграции](https://ruarxive.org/metawarc/operations/migration).
-
-## Что НЕ документировано здесь
-
-- Подробный CLI-референс с **полным списком флагов** для каждой команды — [ruarxive.org/metawarc/commands](https://ruarxive.org/metawarc/commands/).
-- Полная OpenAPI-схема REST API — `/docs` в работающем сервере.
-- Cookbook для разработчиков metawarc — [ruarxive.org/metawarc/development](https://ruarxive.org/metawarc/development).
+- [metawarc REST API](./metawarc-rest)
+- [metawarc MCP-сервер](./metawarc-mcp)
+- [metawarc: рецепты](./metawarc-cookbook)
+- [metawarc: экстракторы](./metawarc-extractors)
+- [Формат WARC](/kb/instruments/file-formats/warc)
+- [Обработка WARC](/kb/instruments/tools/warc-processing)
+- [Все инструменты Ruarxive](/kb/instruments/ruarxive-tools)

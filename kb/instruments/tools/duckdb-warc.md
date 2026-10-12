@@ -1,389 +1,335 @@
 ---
-title: DuckDB-WARC и DuckDB-CDX — SQL-запросы к веб-архивам
+title: DuckDB и веб-архивы — SQL-запросы к WARC и CDX
 sidebar_label: DuckDB-WARC / DuckDB-CDX
-description: "DuckDB-warc — SQL-расширение для анализа WARC-файлов. duckdb-web-archive-cdx — SQL к Internet Archive и Common Crawl CDX. Примеры, инфраструктура, Ruarxive metawarc."
-last_updated: 2026-11-09
+description: "Как анализировать веб-архивы в DuckDB: расширение duckdb-warc от Harvard LIL (read_warc), расширение сообщества warc (parse_warc) и расширение web_archive для SQL-запросов к CDX Wayback Machine и Common Crawl."
+last_update:
+  date: 2026-10-12
 keywords: [duckdb, warc, cdx, sql, common-crawl, internet-archive, query]
 ---
 
-# DuckDB-WARC и DuckDB-CDX — SQL-запросы к веб-архивам
+# DuckDB и веб-архивы — SQL-запросы к WARC и CDX
 
-[DuckDB](https://duckdb.org/) — аналитическая in-process СУБД, идеально подходящая для анализа WARC-файлов. С 2024–2025 годов появились специализированные расширения, которые делают SQL-запросы к веб-архивам первоклассным паттерном.
+[DuckDB](https://duckdb.org/) — аналитическая встраиваемая СУБД, удобная для разового анализа файлов. Для веб-архивов есть три расширения:
 
-> **Главный инсайт:** вместо «прочитать WARC → распарсить заголовки → подсчитать» можно написать:
+| Расширение | Автор | Что делает | Как установить |
+|:---|:---|:---|:---|
+| [duckdb-warc](https://github.com/harvard-lil/duckdb-warc) | Harvard Library Innovation Lab | таблица `read_warc()` — все записи WARC-файлов с заголовками и телом | собрать из исходников, загрузить как неподписанное расширение |
+| [`warc`](https://github.com/midwork-finds-jobs/duckdb_warc) | сообщество (onnimonni) | функция `parse_warc()` — разбор **одной** WARC-записи (например, скачанной из Common Crawl по диапазону байтов) | `INSTALL warc FROM community` |
+| [`web_archive`](https://github.com/midwork-finds-jobs/duckdb-web-archive) | сообщество (onnimonni) | таблицы `wayback_machine()` и `common_crawl_index()` — SQL к CDX API Wayback Machine и Common Crawl | `INSTALL web_archive FROM community` |
+
+Все три — молодые проекты (2025–2026 годов), их совместимость с версиями DuckDB меняется. Перед работой проверьте версию, указанную ниже, и README расширения.
+
+> **Главная идея:** вместо «прочитать WARC → разобрать заголовки → подсчитать» в скрипте можно написать:
 > ```sql
-> SELECT url, content_type, length FROM warc ORDER BY length DESC LIMIT 10;
+> SELECT target_uri, content_length FROM read_warc('archive.warc.gz') ORDER BY content_length DESC LIMIT 10;
 > ```
 
 ## Зачем нужны
 
-| Задача | Старый способ | С DuckDB-WARC |
+| Задача | Обычный способ | С DuckDB |
 |:---|:---|:---|
-| «Сколько страниц со словом „выборы" в архиве?» | hours CIy + Python | one query |
-| «Самые большие записи в WARC» | `warcdump` + grep | `SELECT * ORDER BY length DESC LIMIT 10` |
-| «CDX-индекс Internet Archive по домену» | curl + парсинг | `SELECT * FROM cdx WHERE url LIKE '%example.com%'` |
-| «Объединение WARC-а и CommonCrawl CDX» | сложный ETL | `JOIN` в одном запросе |
-| «Deduplication по hash» | hours Python-скрипта | `GROUP BY hash HAVING count > 1` |
+| Самые большие записи в WARC | `warcio index` + сортировка | `SELECT … ORDER BY content_length DESC LIMIT 10` |
+| Сколько записей по каждому хосту | скрипт на Python | `GROUP BY` по хосту из `target_uri` |
+| Дубликаты по содержимому | скрипт на Python | `GROUP BY payload_digest HAVING count(*) > 1` |
+| Какие копии страницы есть в Wayback Machine | `curl` к CDX API + разбор | `SELECT … FROM wayback_machine() WHERE url = …` |
+| Выгрузить результат в CSV/Parquet | вручную | `COPY (…) TO 'result.csv'` |
 
-## DuckDB-warc (by Common Crawl)
+## duckdb-warc (Harvard LIL): чтение WARC-файлов
 
-[duckdb-warc](https://github.com/commoncrawl/duckdb-warc) — extension, добавляющее в DuckDB функции для чтения WARC и WARC.gz.
+[duckdb-warc](https://github.com/harvard-lil/duckdb-warc) — расширение на Rust от Harvard Library Innovation Lab (репозиторий создан в декабре 2025 года). Оно регистрирует одну табличную функцию `read_warc(path)`, которая возвращает по строке на каждую WARC-запись. Поддерживаются файлы `.warc` и `.warc.gz`, маски путей (`'archives/*.warc.gz'`), а в сборке по умолчанию также адреса `http(s)://` и `s3://`.
+
+В реестре расширений сообщества DuckDB этого расширения нет, готовых бинарных сборок в релизах тоже нет — его нужно собрать.
 
 ### Установка
 
-```bash
-# CLI DuckDB
-pip install duckdb
+Нужны Rust (cargo), Python 3, make и git:
 
-# Extension
-import duckdb
-duckdb.sql("INSTALL duckdb_warc FROM community")
-duckdb.sql("LOAD duckdb_warc")
+```bash
+git clone --recurse-submodules https://github.com/harvard-lil/duckdb-warc.git
+cd duckdb-warc
+make configure
+make release
+# результат: build/release/duckdb_warc.duckdb_extension
 ```
 
-### Базовое использование
+Расширение собирается под конкретную версию DuckDB (в октябре 2026 года — `TARGET_DUCKDB_VERSION=v1.5.2` в `Makefile`) и загружается только в неё. Расширение не подписано, поэтому DuckDB нужно запускать с разрешением неподписанных расширений:
+
+```bash
+pip install duckdb==1.5.2
+```
 
 ```python
 import duckdb
 
-con = duckdb.connect()
-con.sql("INSTALL duckdb_warc FROM community")
-con.sql("LOAD duckdb_warc")
+con = duckdb.connect(config={"allow_unsigned_extensions": "true"})
+con.sql("LOAD 'build/release/duckdb_warc.duckdb_extension'")
+```
 
-# Прямой запрос к WARC
-result = con.sql("""
-    SELECT
-        url,
-        content_type,
-        response_code,
-        length
-    FROM read_warc('archive.warc.gz')
-    WHERE response_code = 200
-      AND content_type LIKE 'text/html%'
-    ORDER BY length DESC
-    LIMIT 5
-""").fetchall()
+В DuckDB CLI того же номера версии: `duckdb -unsigned`, затем `LOAD 'build/release/duckdb_warc.duckdb_extension';`.
 
-for row in result:
-    print(row)
+> Сборка и все запросы ниже проверены на duckdb-warc из ветки по умолчанию с DuckDB 1.5.2 (октябрь 2026).
+
+### Колонки
+
+| Колонка | Тип | Откуда |
+|:---|:---|:---|
+| `record_source` | VARCHAR | путь к файлу, из которого прочитана запись |
+| `record_index` | INTEGER | порядковый номер записи в файле |
+| `record_id` | VARCHAR | `WARC-Record-ID` |
+| `type` | VARCHAR | `WARC-Type` (`response`, `request`, `resource`, `revisit`, `warcinfo`, `metadata`…) |
+| `target_uri` | VARCHAR | `WARC-Target-URI` |
+| `date` | TIMESTAMP | `WARC-Date` |
+| `content_length` | INTEGER | `Content-Length` WARC-записи |
+| `content_type` | VARCHAR | `Content-Type` **WARC-записи** (для ответов это `application/http; msgtype=response`, а не MIME-тип страницы) |
+| `payload_digest`, `block_digest` | VARCHAR | `WARC-Payload-Digest`, `WARC-Block-Digest` |
+| `ip_address`, `concurrent_to`, `refers_to`, `warcinfo_id`, `filename`, `profile`, `truncated`, `identified_payload_type`, `segment_*` | — | соответствующие WARC-заголовки |
+| `body` | BLOB | блок записи; для `response` — HTTP-заголовки и тело ответа как есть |
+
+Отдельной колонки с HTTP-статусом и MIME-типом ответа нет — их можно извлечь из начала `body` (см. пример ниже).
+
+### Базовое использование
+
+```sql
+-- Самые большие ответы в архиве
+SELECT target_uri, content_length
+FROM read_warc('archive.warc.gz')
+WHERE type = 'response'
+ORDER BY content_length DESC
+LIMIT 5;
 ```
 
 ### Выгрузка результатов
 
 ```sql
 COPY (
-    SELECT url, content_type, length
+    SELECT target_uri, date, content_length
     FROM read_warc('archive.warc.gz')
-    WHERE response_code = 200
-) TO 'urls-and-types.csv' (FORMAT 'csv', HEADER);
+    WHERE type = 'response'
+) TO 'urls.csv' (FORMAT csv, HEADER);
 ```
-
-### Поддерживаемые поля
-
-Каждая запись WARC доступна как `STRUCT`:
-
-| Поле WARC-заголовка | Поле DuckDB |
-|:---|:---|
-| `WARC-Type` | `warc_type` |
-| `WARC-Target-URI` | `url` |
-| `WARC-Date` | `warc_date` |
-| `WARC-Record-ID` | `record_id` |
-| `Content-Length` | `length` |
-| HTTP status | `response_code` |
-| `Content-Type` | `content_type` |
-| `WARC-Payload-Digest` | `warc_payload_digest` |
 
 ### Фильтр по дате
 
 ```sql
-SELECT url, warc_date
+SELECT target_uri, date
 FROM read_warc('archive.warc.gz')
-WHERE warc_date BETWEEN '2024-01-01' AND '2024-12-31'
-  AND response_code = 200
+WHERE type = 'response'
+  AND date BETWEEN '2024-01-01' AND '2024-12-31'
 LIMIT 100;
 ```
 
-### Декодирование тела ответа
+### HTTP-статус, MIME-тип и заголовок страницы
 
 ```sql
--- Достать title страницы
 SELECT
-    url,
-    regexp_extract(
-        content_decode(warcio_extract_body(record)),
-        '<title>([^<]+)</title>', 1
-    ) AS title
+    target_uri,
+    regexp_extract(decode(body, 'replace'), '^HTTP/[0-9.]+ ([0-9]{3})', 1) AS http_status,
+    regexp_extract(decode(body, 'replace'), '(?i)content-type: *([^;\r\n]+)', 1) AS mime,
+    regexp_extract(decode(body, 'replace'), '<title>([^<]+)</title>', 1) AS title
 FROM read_warc('archive.warc.gz')
-WHERE content_type LIKE 'text/html%'
+WHERE type = 'response'
 LIMIT 10;
 ```
 
-> **Внимание:** декодирование больших HTTP-ответов может занимать время. Используйте `LIMIT` и фильтры.
+`decode(body, 'replace')` заменяет недопустимые байты, иначе `decode` падает на бинарных ответах. Если сервер отдал тело сжатым (`Content-Encoding: gzip`, `br`), извлечь из него текст средствами SQL не получится — заголовок `title` останется пустым; для таких записей используйте [warcio](/kb/instruments/tools/warc-processing).
 
-### Подсчёт уникальных доменов
+### Дубликаты по содержимому
 
 ```sql
+SELECT payload_digest, count(*) AS copies
+FROM read_warc('archives/*.warc.gz')
+WHERE type = 'response'
+GROUP BY payload_digest
+HAVING count(*) > 1
+ORDER BY copies DESC;
+```
+
+### Статистика по хостам для нескольких WARC
+
+При проверке группировка по `target_uri` напрямую из `read_warc()` по маске из нескольких файлов аварийно завершала процесс DuckDB. Надёжнее сначала сохранить нужные колонки в таблицу:
+
+```sql
+CREATE TABLE records AS
+SELECT record_source, type, target_uri, date, content_length, payload_digest
+FROM read_warc('archives/*.warc.gz');
+
 SELECT
-    regexp_extract(url, '^(?:https?://)?([^/]+)', 1) AS domain,
-    COUNT(*) AS pages
-FROM read_warc('archive.warc.gz')
-WHERE warc_type = 'response'
-GROUP BY domain
-ORDER BY pages DESC
+    regexp_extract(target_uri, '^https?://([^/]+)', 1) AS host,
+    count(*) AS responses,
+    sum(content_length) AS bytes
+FROM records
+WHERE type = 'response'
+GROUP BY host
+ORDER BY responses DESC
 LIMIT 20;
+
+-- Сколько ответов в каждом файле
+SELECT record_source, count(*) FROM records WHERE type = 'response' GROUP BY record_source;
 ```
 
-## DuckDB-web-archive-cdx
+## Расширение сообщества `warc`: разбор отдельных записей
 
-[duckdb-web-archive-cdx](https://github.com/commoncrawl/duckdb-web-archive-cdx) — extension, добавляющее SQL-доступ к CDX-индексам Internet Archive и Common Crawl.
+Расширение [`warc`](https://github.com/midwork-finds-jobs/duckdb_warc) из реестра DuckDB Community Extensions добавляет функцию `parse_warc(data)`. Она разбирает **одну** WARC-запись (сжатую gzip или нет) и возвращает структуру с полями `warc_version`, `warc_headers` (JSON), `http_version`, `http_status`, `http_headers` (JSON), `http_body`. Расширение рассчитано на работу с Common Crawl: сначала по индексу находят нужную запись, скачивают её диапазон байтов, затем разбирают:
 
-```python
-import duckdb
-
-con = duckdb.connect()
-con.sql("INSTALL duckdb_web_archive_cdx FROM community")
-con.sql("LOAD duckdb_web_archive_cdx")
+```bash
+curl -r"46376769-46377713" "https://data.commoncrawl.org/crawl-data/…" > record.warc.gz
 ```
-
-### Запрос к Internet Archive CDX
 
 ```sql
-SELECT urlkey, timestamp, original, statuscode, mimetype, length
-FROM cdx_ia('https://example.com/', prefix=true)
-WHERE statuscode = 200
-  AND mimetype LIKE 'text/html%'
-LIMIT 50;
+INSTALL warc FROM community;
+LOAD warc;
+
+SELECT
+    (parse_warc(content)).http_status,
+    decode((parse_warc(content)).http_body) AS html
+FROM read_blob('record.warc.gz');
 ```
 
-### Запрос к Common Crawl CDX
+Если передать файл с несколькими записями, будет разобрана только первая — для целых WARC-файлов используйте `read_warc()` из duckdb-warc.
+
+На октябрь 2026 года сборки расширения опубликованы только для DuckDB 1.4.2 (с 1.4.4 и 1.5.x команда `INSTALL warc FROM community` не находит расширение).
+
+## Расширение `web_archive`: SQL к CDX Wayback Machine и Common Crawl
+
+Расширение [`web_archive`](https://github.com/midwork-finds-jobs/duckdb-web-archive) из реестра DuckDB Community Extensions добавляет две табличные функции:
+
+- `wayback_machine()` — CDX API Wayback Machine; колонки `url`, `timestamp`, `urlkey`, `mimetype`, `statuscode`, `digest`, `length`, `response`, `year`, `month`;
+- `common_crawl_index()` — индекс Common Crawl; колонки `url`, `timestamp`, `mimetype`, `statuscode`, `digest`, `filename`, `offset`, `length`, `crawl_id`, `warc`, `response`.
+
+Условия `WHERE` по `url`, `statuscode`, `mimetype`, а также `LIMIT` и `DISTINCT ON(year)` передаются в CDX API, поэтому скачиваются только нужные строки.
 
 ```sql
-SELECT url, fetch_time, content_languages
-FROM cdx_cc(
-    'https://commoncrawl-index.communitycrawl.org/',
-    url='example.com/*'
-)
+INSTALL web_archive FROM community;
+LOAD web_archive;
+
+-- Успешные захваты главной страницы
+SELECT url, timestamp, statuscode, mimetype
+FROM wayback_machine()
+WHERE url = 'ruarxive.org/'
+  AND statuscode = 200
+LIMIT 10;
+
+-- По одному захвату в год
+SELECT DISTINCT ON(year) year, url, timestamp
+FROM wayback_machine()
+WHERE url = 'ruarxive.org/'
+  AND statuscode = 200
+LIMIT 10;
+
+-- Все страницы сайта в Wayback Machine
+SELECT url, timestamp, statuscode
+FROM wayback_machine()
+WHERE url LIKE 'example.com/%'
+  AND statuscode = 200
 LIMIT 100;
+
+-- Индекс Common Crawl ("offset" — зарезервированное слово, его нужно брать в кавычки)
+SELECT url, timestamp, mimetype, filename, "offset", length
+FROM common_crawl_index()
+WHERE url LIKE 'ruarxive.org/%'
+  AND statuscode = 200
+LIMIT 10;
 ```
 
-### Объединение WARC с CDX
+Сервер индекса Common Crawl иногда отвечает ошибкой 503 — тогда повторите запрос позже.
 
-```python
-# Локальный WARC + удалённый CDX в одном запросе
-result = con.sql("""
-SELECT local.url, cdx.timestamp, local.length
-FROM read_warc('archive.warc.gz') local
-JOIN cdx_ia('https://example.com/') cdx
-  ON local.url = cdx.original
-WHERE local.response_code = 200
-LIMIT 100
-""").fetchall()
+Колонки `filename`, `offset`, `length` из `common_crawl_index()` указывают, где в Common Crawl лежит WARC-запись, — по ним её можно скачать и разобрать функцией `parse_warc()`.
+
+> Запросы проверены с DuckDB 1.4.4 (октябрь 2026; нужен Python-пакет `pytz` для колонки `timestamp`). С DuckDB 1.5.5 и 1.5.6 расширение устанавливалось, но запросы завершались ошибкой `Unrecognized option force_download` — проверьте актуальное состояние в репозитории расширения.
+
+## metawarc — каталог коллекции на DuckDB
+
+Инструмент Ruarxive [metawarc](/kb/instruments/ruarxive-tools/metawarc) индексирует коллекции WARC в версионируемый каталог DuckDB с Parquet-файлами рядом и даёт команды для статистики, поиска, выгрузки, REST API и MCP-сервер для AI-агентов. Если нужен не разовый запрос, а постоянный каталог большой коллекции, удобнее он:
+
+```bash
+metawarc index 'archives/**/*.warc*' --dbfile collection.db --resume
+metawarc stats --dbfile collection.db --mode mimes
+metawarc list-files --dbfile collection.db --mimes application/pdf
+metawarc serve --dbfile collection.db
 ```
 
-### Поиск по локализациям
-
-```sql
-SELECT url, content_languages
-FROM cdx_cc(url='*example*')
-WHERE array_contains(content_languages, 'ru')
-LIMIT 50;
-```
+Подробнее: [metawarc](/kb/instruments/ruarxive-tools/metawarc).
 
 ## Сравнение с традиционными инструментами
 
-| Возможность | warcdump | warcio + Python | DuckDB-WARC |
+| Возможность | `warcio index` | warcio + Python | DuckDB + duckdb-warc |
 |:---|:-:|:-:|:-:|
-| Подсчёт URL | ✅ | ✅ | ✅ |
-| Подсчёт по доменам | ❌ | ✅ | ✅ (GROUP BY) |
-| Сложные фильтры (regex, dates) | ❌ | ✅ | ✅ (SQL) |
-| Join между WARC и CDX | ❌ | ⚠️ сложно | ✅ |
-| Выходные таблицы | ❌ | ✅ | ✅ |
-| Производительность на больших файлах | ⚠️ | ⚠️ | ✅ (streaming) |
-| Стоимость входа | низкая | средняя | низкая |
+| Список записей и URL | ✅ | ✅ | ✅ |
+| Подсчёт по хостам | ❌ | ✅ | ✅ (GROUP BY) |
+| Сложные фильтры (регулярные выражения, даты) | ❌ | ✅ | ✅ (SQL) |
+| Распаковка сжатого HTTP-тела | ❌ | ✅ | ❌ |
+| Выгрузка в CSV/Parquet | ⚠️ | ✅ | ✅ (`COPY`) |
+| Стоимость входа | низкая | средняя | средняя (нужна сборка расширения) |
 
-## Ruarxive metawarc — реализация на DuckDB
-
-Внутренний инструмент Ruarxive [metawarc](/kb/instruments/ruarxive-tools/metawarc) уже использует DuckDB для построения индексируемого каталога:
-
-- DuckDB-база с метаданными всех WARC коллекции.
-- Parquet-сайдкары для быстрых запросов.
-- REST API и MCP-сервер для AI-агентов.
-
-Пример с metawarc (предполагает, что архив уже проиндексирован):
-
-```bash
-metawarc --input archive.warc.gz --output ./catalog
-metawarc-query "SELECT url, length FROM catalog ORDER BY length DESC LIMIT 5"
-```
-
-Подробнее: [metawarc (WARC)](/kb/instruments/ruarxive-tools/metawarc).
-
-## Workflow анализа DuckDB
-
-### Базовый анализ одной коллекции
+## Пример анализа в Python
 
 ```python
 import duckdb
-import pandas as pd
 
-con = duckdb.connect()
-con.sql("INSTALL duckdb_warc FROM community; LOAD duckdb_warc;")
+con = duckdb.connect(config={"allow_unsigned_extensions": "true"})
+con.sql("LOAD 'build/release/duckdb_warc.duckdb_extension'")
 
-# Top 20 стран
+con.sql("""
+    CREATE TABLE records AS
+    SELECT type, target_uri, date, content_length
+    FROM read_warc('archives/*.warc.gz')
+""")
+
 df = con.sql("""
     SELECT
-        url_domain(url) AS domain,
-        COUNT(*) AS page_count,
-        SUM(length) AS total_bytes,
-        AVG(length) AS avg_bytes
-    FROM read_warc('archive.warc.gz')
-    WHERE warc_type = 'response'
-      AND response_code = 200
-    GROUP BY domain
-    ORDER BY page_count DESC
+        regexp_extract(target_uri, '^https?://([^/]+)', 1) AS host,
+        count(*) AS responses,
+        sum(content_length) AS total_bytes,
+        avg(content_length) AS avg_bytes
+    FROM records
+    WHERE type = 'response'
+    GROUP BY host
+    ORDER BY responses DESC
     LIMIT 20
 """).df()
 
 print(df.to_string())
 ```
 
-### Объединение нескольких WARC
-
-```python
-import glob
-
-files = glob.glob("archives/*.warc.gz")
-files_str = "['" + "','".join(files) + "']"
-
-result = con.sql(f"""
-    SELECT
-        regexp_extract(filename, '/([^/]+)\\.warc', 1) AS collection,
-        COUNT(*) AS pages,
-        SUM(length) AS bytes
-    FROM read_warc({files_str})
-    WHERE response_code = 200
-    GROUP BY collection
-""").df()
-```
-
-### Анализ покрытия
-
-```python
-# Сколько страниц на домене со ссылками наружу (внешние ссылки)
-result = con.sql("""
-    WITH pages AS (
-        SELECT
-            url,
-            regexp_extract(url, '://([^/]+)', 1) AS domain
-        FROM read_warc('archive.warc.gz')
-        WHERE response_code = 200 AND content_type LIKE 'text/html%'
-    )
-    SELECT
-        domain,
-        COUNT(*) AS total_pages,
-        COUNT(DISTINCT url) AS unique_pages
-    FROM pages
-    GROUP BY domain
-    ORDER BY total_pages DESC
-""").df()
-```
-
-## Производительность
-
-| Операция | warcdump | DuckDB-WARC | Разница |
-|:---|:---|:---|:---|
-| Подсчёт URL в 1 ГБ WARC | ~10 с | ~2 с | 5× быстрее |
-| Подсчёт по доменам, 1 ГБ | невозможно без grep | ~3 с | ∞ |
-| Фильтр `statuscode=200`, 1 ГБ | невозможно без grep | ~2 с | ∞ |
-| Объединение 5 WARC по 1 ГБ | минуты | ~10 с | 5–10× |
-
-DuckDB использует columnar-формат и стриминг, что даёт O(n) чтения вместо O(n) Python-парсинга.
-
 ## Когда использовать
 
 ✅ Подходит:
 
-- **Любой анализ WARC коллекций** — это правильный инструмент по умолчанию.
-- **Быстрое прототипирование SQL-запросов** — интерактивный режим.
-- **Ad-hoc отчёты** для исследователей и журналистов.
-- **CI/CD пайплайн метрик** — подсчёт покрытия, валидация.
-- **Метаданные Ruarxive каталога** — подход metawarc.
-- **Databricks / Snowflake** не нужны — DuckDB in-process.
+- **разовый анализ WARC-коллекций** — подсчёты, фильтры, выгрузки;
+- **быстрые прототипы SQL-запросов** в интерактивном режиме;
+- **отчёты** для исследователей и журналистов;
+- **проверка покрытия** сайта в Wayback Machine и Common Crawl (`web_archive`);
+- **точечное извлечение записей** из Common Crawl (`common_crawl_index()` + `parse_warc()`).
 
 ❌ Не подходит:
 
-- **Полнотекстовый поиск** по содержимому ответов — нужен Solr/Shine.
-- **Real-time мониторинг** — DuckDB batch.
-- **Извлечение payload** (только метаданные) — для больших payload используйте warcio.
-- **Distributed вычисления** — DuckDB single-process; для petabyte-scale нужен Spark.
-- **Web UI из коробки** — нужны дополнительные обёртки (Streamlit и т. п.).
-
-## Установка и интеграция
-
-### В Python-скриптах
-
-```python
-import duckdb
-con = duckdb.connect(database=":memory:")
-con.sql("INSTALL duckdb_warc FROM community; LOAD duckdb_warc;")
-```
-
-### Jupyter notebooks
-
-```python
-%pip install duckdb duckdb-warc
-import duckdb
-con = duckdb.connect()
-con.sql("INSTALL duckdb_warc FROM community; LOAD duckdb_warc;")
-%load_ext sql
-%sql duckdb:///:memory:
-```
-
-### DuckDB CLI
-
-```bash
-duckdb
-INSTALL duckdb_warc FROM community;
-LOAD duckdb_warc;
-SELECT url, length FROM read_warc('archive.warc.gz') LIMIT 5;
-```
-
-### Streamlit / Dash UI
-
-```python
-import streamlit as st
-import duckdb
-
-st.title("Анализ WARC")
-uploaded = st.file_uploader("WARC файл")
-if uploaded:
-    con = duckdb.connect()
-    con.sql(f"INSTALL duckdb_warc FROM community; LOAD duckdb_warc;")
-    df = con.sql(f"SELECT * FROM read_warc('{uploaded.name}') LIMIT 100").df()
-    st.dataframe(df)
-```
+- **полнотекстовый поиск** по содержимому — нужен Solr ([SolrWayback](/kb/instruments/tools/solrwayback); [Shine](/kb/instruments/tools/shine) — архивный прототип, не развивается) или `metawarc search`;
+- **извлечение сжатых HTTP-ответов** — DuckDB не распаковывает `Content-Encoding`; используйте warcio;
+- **распределённые вычисления** — DuckDB работает в одном процессе; для петабайтных объёмов нужен Spark ([ArchiveSpark](/kb/instruments/tools/archivespark));
+- **готовый веб-интерфейс** — нужны дополнительные обёртки.
 
 ## Ограничения
 
-- **Streaming для payload через `content_decode()`** медленный — лучше использовать warcio для извлечения тела.
-- **Memory на больших GROUP BY** — DuckDB может выгружать на диск, но медленнее.
-- **Нет graph operations** — для link-graph используйте специализированные инструменты (см. [Ландшафт 2026](/kb/instruments/landscape-2026)).
-- **Не заменяет WACZ-валидацию** — для форматной проверки используйте warctools.
+- **Экспериментальные расширения**: duckdb-warc нужно собирать под конкретную версию DuckDB, расширения сообщества не всегда совместимы с последними версиями DuckDB.
+- **Нет HTTP-статуса и MIME-типа ответа как колонок** в `read_warc()` — их приходится извлекать из `body`.
+- **Память на больших GROUP BY** — DuckDB может выгружать данные на диск, но это медленнее; колонку `body` не читайте без необходимости.
+- **Нет операций над графами** — для графа ссылок используйте специализированные инструменты (см. [Ландшафт 2026](/kb/instruments/landscape-2026)).
+- **Не заменяет валидацию WARC и WACZ** — для WACZ есть `wacz validate` из пакета py-wacz.
 
 ## Ресурсы
 
-- [DuckDB documentation](https://duckdb.org/docs/)
-- [duckdb-warc GitHub](https://github.com/commoncrawl/duckdb-warc)
-- [duckdb-web-archive-cdx GitHub](https://github.com/commoncrawl/duckdb-web-archive-cdx)
-- [Common Crawl blog: «SQL for web archives»](https://commoncrawl.org/blog/)
-- [metawarc на DuckDB](https://github.com/ruarxive/metawarc) — реализация от Ruarxive.
+- [Документация DuckDB](https://duckdb.org/docs/)
+- [harvard-lil/duckdb-warc](https://github.com/harvard-lil/duckdb-warc)
+- [Реестр DuckDB Community Extensions](https://github.com/duckdb/community-extensions) — описания расширений `warc` и `web_archive`
+- [midwork-finds-jobs/duckdb_warc](https://github.com/midwork-finds-jobs/duckdb_warc) и [midwork-finds-jobs/duckdb-web-archive](https://github.com/midwork-finds-jobs/duckdb-web-archive)
+- [metawarc](https://github.com/ruarxive/metawarc) — каталог WARC-коллекций на DuckDB от Ruarxive
 
 ## Связанные материалы
 
 - [metawarc — каталог на DuckDB](/kb/instruments/ruarxive-tools/metawarc)
-- [WARC-файл: формат](/kb/instruments/file-formats/warc)
+- [Формат WARC](/kb/instruments/file-formats/warc)
 - [Обработка WARC — библиотеки](/kb/instruments/tools/warc-processing)
 - [Warchaeology](/kb/instruments/tools/warchaeology) — набор утилит для инспекции.
-- [WARC-GPT](/kb/instruments/tools/warc-gpt) — AI-интерфейс поверх DuckDB.
+- [WARC-GPT](/kb/instruments/tools/warc-gpt) — AI-интерфейс к WARC.
 - [WARC-файл: от сырого архива до публикации](/kb/guides/warc-workflow)
 - [Ландшафт 2026](/kb/instruments/landscape-2026)

@@ -5,7 +5,33 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
-## [Unreleased] — Ноябрь 2026: PR1 — Replay и Internet Archive
+## [Unreleased] — 2026-10-12: ревизия достоверности базы знаний
+
+Проверка всех 177 страниц `kb/` по первоисточникам (README и исходный код, `--help` установленных версий, спецификации, PRONOM, полная выгрузка Telegram-канала @ruarxive). Найдено и исправлено 924 замечания. Отчёты: `temp/kb-review-2026-10-12.md`, `temp/review-2026-10-12/`.
+
+> Часть описаний ниже, в разделах PR1–PR6, устарела: эти страницы переписаны в рамках этой ревизии (например, WARC-Safe — проект Национальной библиотеки Люксембурга, а не UNT; Warchaeology — Go-утилита `warc`; PastPage — реальное расширение `nabertronic/pastpage`).
+
+### Исправлено
+
+- **Выдуманные команды, флаги, конфиги и API** заменены сверенными с первоисточником на страницах инструментов (browsertrix, brozzler, heritrix, httrack, monolith, `ia`, gallery-dl, grab-site, archivebox, auto-archiver, pywb, wacz, warcio, warcprox, warc2zim, yt-dlp, wget и др.); на переписанных страницах указана версия, с которой сверялись команды.
+- **Собственные инструменты Ruarxive** (tgarc, wparc, ydiskarc, filegetter, metawarc, apibackuper, spcrawler) описаны по реальному коду; удалён несуществующий plugin API metawarc и инструмент `vk-caching`.
+- **Неверные атрибуции и несуществующие функции**: Brozzler (RethinkDB, а не Redis), WARC-Safe, Warchaeology, Shine, waybackpy, WARC-GPT, PastPage, DuckDB-WARC, CDX Summary, dvd, Obelisk, Warcworker, Squidwarc, warc2html, ReplayWeb.page.
+- **Справочные данные**: идентификаторы PRONOM, легенда CDX и формат CDXJ, структура WACZ 1.1.1, семантика revisit-записей, SIARD, JPEG 2000.
+- **Удалены выдуманные бенчмарки и детали кейсов** (большие WARC, дедупликация, «Эхо Москвы», международные кейсы, «Электронный бюджет»); утверждения со ссылками на `t.me/ruarxive/N` сверены с текстами постов.
+- **Правовые страницы**: ст. 10.1 152-ФЗ, единый срок ответа на запрос об удалении (10 рабочих дней), ст. 1259 и 1275 ГК РФ; убраны советы по обходу блокировок (VPN, Tor) и тезисы о «серой зоне»; статусы организаций указаны по подтверждённым источникам.
+- **Факты о проекте**: убраны неподтверждённые общие цифры объёма архива и числа проектов; хронология проекта вместо «с 2016 года»; `resources/stats-snapshot` — каноническая страница цифр по коллекциям.
+- **Устаревшее**: Conifer (закрыт в июне 2026), Twitter Academic API, CrowdTangle, fbarc, Social Feed Manager, Pocket/Omnivore; HTTrack с версии 3.49-14 пишет WARC/WACZ.
+- **Ошибки аудита ссылок** от 2026-10-12 (неверные замены репозиториев, оставшиеся битые ссылки).
+
+### Изменено
+
+- Frontmatter: у всех страниц есть `title`, `description` и штатное поле `last_update.date` (вместо игнорируемого `last_updated`); в `docusaurus.config.js` включён `showLastUpdateTime`.
+- Переводы строк в `kb/` приведены к LF, добавлен `.gitattributes`.
+- Сайдбар: обзорные страницы `similar`, `resources`, `downloaded-data` подключены как страницы категорий; убран дубль `guides/index`; закрытые fbarc и Social Feed Manager перенесены в конец раздела «Социальные сети».
+- Удалены неиспользуемые `_category_.json` (сайдбар задаётся явно в `sidebars.js`) и ошибочный gitlink `ruarxive_web`.
+- `CONTRIBUTING.md`, `docs/_template.md`: новый формат frontmatter и обязательные проверки (сверка команд с реальной версией, источники фактов о проекте, запрет советов по обходу блокировок). В `README.md` исправлена лицензия (Apache 2.0).
+
+## 2026-10 — PR1 — Replay и Internet Archive
 
 ### Добавлено
 
@@ -17,7 +43,7 @@
 
 - **Wayback Machine API (`kb/instruments/tools/wayback-api.md`)** — **новая страница-справочник**: SavePageNow, CDX API, Availability API, Memento API, S3-подобный API, rate limits, программные обёртки (waybackpy, cdx_toolkit, duckdb-web-archive-cdx), сценарии использования.
 
-- **Internet Archive (`kb/similar/internet-archive.md`)** — расширен: RIMA (Russian Independent Media Archive), доступ при блокировках (VPN, Tor, onion), S3 API, таблица протоколов, юридические аспекты загрузки.
+- **Internet Archive (`kb/similar/internet-archive.md`)** — расширен: доступ при блокировках (VPN, Tor, onion), S3 API, таблица протоколов, юридические аспекты загрузки.
 
 - **Похожие проекты (`kb/similar/index.md`)** — переработан в карту открытых сервисов с сравнительной таблицей «куда залить / откуда достать», обновлённой структурой под голос 51 % (Internet Archive и аналоги).
 
@@ -33,7 +59,7 @@
 
 - **Ландшафтная карта 2026 (`kb/instruments/landscape-2026.md`)** — **новая страница**: обзор всех инструментов и инициатив по 4 столпам (capture, storage, access, analysis), deprecated-инструменты, активные в 2026 сообщества и организации.
 
-- **Российские независимые архивы СМИ (`kb/similar/russian-independent-media-archives.md`)** — **новая страница**: RIMA, PEN America, «Архив „Холода"», «Медуза», «Дождь», юридические аспекты архивации.
+- **Российские независимые архивы СМИ (`kb/similar/russian-independent-media-archives.md`)** — **новая страница**: PEN America, «Архив „Холода"», «Медуза», «Дождь», юридические аспекты архивации.
 
 - **Preflight-чеклист (`kb/guides/preflight-checklist.md`)** — **новая страница**: 12-частный чек-лист перед запуском кроулера (цель, scope, инструменты, юр. ограничения, расписание, хранение, мониторинг, пост-обработка).
 
@@ -99,7 +125,7 @@
 
 - **`metawarc.md` — расширен разделами:** конфигурация через переменные окружения (10+ env-vars), `--unsafe-where` (когда и почему опасно), `dump` с примерами для CSV/JSONL/Parquet, replay-детали (URL-формат, rewrite-правила, что не поддерживается), `jobs` (жизненный цикл, CLI, лимиты), матрица выбора интерфейса (CLI vs REST vs MCP vs SQL), Schema v2 миграция.
 
-- **Российские независимые архивы СМИ (`kb/similar/russian-independent-media-archives.md`)** — **новая страница**: RIMA, PEN America, «Архив „Холода"», «Медуза», «Дождь», IStories, юридические аспекты архивации.
+- **Российские независимые архивы СМИ (`kb/similar/russian-independent-media-archives.md`)** — **новая страница**: PEN America, «Архив „Холода"», «Медуза», «Дождь», IStories, юридические аспекты архивации.
 
 - **Preflight-чеклист (`kb/guides/preflight-checklist.md`)** — **новая страница**: 12-частный чек-лист перед запуском кроулера (цель, scope, инструменты, юр. ограничения, расписание, хранение, мониторинг, пост-обработка).
 

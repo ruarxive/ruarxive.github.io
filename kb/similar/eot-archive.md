@@ -1,50 +1,57 @@
 ---
 title: End-of-Term Web Archive (EOT)
 sidebar_label: End-of-Term Archive
-description: "Президентская «жатва» — масштабная архивация федеральных сайтов США при смене администрации с 2008 года."
-last_updated: 2026-10-12
-keywords: [end-of-term, eot-archive, выборы, госархив, сша, eot2024, eot2025]
+description: "End-of-Term Web Archive — совместная архивация федеральных сайтов США при смене президентской администрации, проводится с 2008 года."
+last_update:
+  date: 2026-10-12
+keywords: [end-of-term, eot-archive, госархив, сша, eot2024]
 ---
 
 # End-of-Term Web Archive (EOT)
 
-[End-of-Term Web Archive](https://eotarchive.org/) — масштабная инициатива по архивации сайтов федеральных органов США при смене администрации (президентский переходный период). Запускается каждые 4 года с 2008-го: в 2008, 2012, 2016, 2020, 2024.
+[End-of-Term Web Archive](https://eotarchive.org/) — совместный проект по архивации сайтов федеральных органов власти США (законодательной, исполнительной и судебной ветвей) в период смены президентской администрации. Проект начался летом 2008 года; коллекции собраны за 2008, 2012, 2016 и 2020 годы, в 2024–2025 годах шёл сбор, связанный с окончанием срока администрации Байдена.
 
 ## Как устроено
 
-- **Совместный запуск** нескольких организаций: EDGI, University of North Texas, Internet Archive, Stanford University, California Digital Library.
-- **Nomination** — публичная система номинации доменов для архивации. Любой доброволец вносит URL.
-- **Sitemap-based harvesting** + Wayback Machine scraping.
-- **CDX-индексация** для поиска.
-- **WARC + WACZ** как основной формат.
+По данным [страницы проекта](https://eotarchive.org/about/):
 
-## Что архивируется
+- **Партнёры** — члены IIPC и участники программы NDIIPP: Internet Archive, Библиотека Конгресса, University of North Texas, California Digital Library; в 2016 году к ним присоединились Stanford University и George Washington University.
+- **Номинация сайтов** — University of North Texas разработал Nomination Tool, через который библиотекари, исследователи и волонтёры предлагают сайты для сбора. В 2016 году в номинации участвовали в том числе DataRefuge и EDGI (Environmental Data & Governance Initiative).
+- **Сбор** — широкие обходы доменов госорганов плюс сфокусированные обходы приоритетных сайтов; краулер — Heritrix, формат хранения — WARC.
+- **Хранение** — публичная копия в Internet Archive, копия на хранении в Библиотеке Конгресса, дополнительная копия в University of North Texas. Для передачи данных между партнёрами Библиотека Конгресса разработала библиотеку для формата BagIt.
+- **Открытость** — код на [GitHub](https://github.com/end-of-term), наборы данных — на [eotarchive.org/data](https://eotarchive.org/data/).
 
-- **EPA, NOAA, NASA, USGS, NIH** — экологические и научные данные.
-- **DOJ, DHS, DOS, DOD** — правовые и нормативные материалы.
-- **EDUC, HUD, USDA** — социальные программы.
-- **Президентские сайты** (whitehouse.gov и др.).
-- **Все cabinet-level agencies**.
+## Объёмы
+
+| Цикл | Объём |
+|:---|---:|
+| EOT 2008 | 15 ТБ |
+| EOT 2012 | 41 ТБ |
+| EOT 2016 | 139 ТБ |
+| EOT 2020 | 266 ТБ |
+
+По данным [публикации #145 (10.02.2025)](https://t.me/ruarxive/145), общий объём датасетов проекта — порядка 450 ТБ, а копия в Internet Archive превысила 582 ТБ.
 
 ## Зачем
 
-Приход новой администрации часто сопровождается массивным удалением или «смягчением» правительственных данных: лозунги 2017 г. «(Climate) Becomes (Climate Change) Becomes (Energy) Becomes (Energy Independence)» — иллюстрирует масштаб.
+При смене администрации содержимое правительственных сайтов меняется: разделы переписываются, данные и документы удаляются или переносятся. EOT фиксирует состояние федерального веба до и после перехода, чтобы изменения можно было проследить.
 
 ## Полезные ссылки
 
-- [EOT 2024–2025](https://eotarchive.org/) — текущий сбор.
-- [EOT 2016](http://digital2.library.unt.edu/nomination/eth2016/about/) — первая крупная попытка.
-- [EDGI](https://envirodatagov.org/) — координатор.
-- [Сравнение EOT и DataRefuge](https://eotarchive.org/) — это разные проекты с пересекающейся целью.
+- [eotarchive.org](https://eotarchive.org/) — главная страница проекта.
+- [Об истории проекта](https://eotarchive.org/about/).
+- [Наборы данных](https://eotarchive.org/data/).
+- [EDGI](https://envirodatagov.org/) — отдельная инициатива по мониторингу экологических данных и сайтов госорганов США.
 
 ## Связанные материалы
 
-- **[DataRefuge](/kb/similar/datarefuge)** — климатический фокус.
-- **[SUCHO](/kb/similar/sucho)** — аналогичная чрезвычайная инициатива для Украины.
+- **[DataRefuge](/kb/similar/datarefuge)** — спасение научных и экологических данных.
+- **[SUCHO](/kb/similar/sucho)** — экстренная архивация культурного наследия Украины.
 - **[Исчезновение сайтов госорганов РФ](/kb/case-studies/government-websites-disappearing)** — российский контекст.
 - **[Исчезающие российские ресурсы](/kb/case-studies/russia-resources-disappearing)** — реестр российских кейсов.
 - **[Международные примеры](/kb/case-studies/international-examples)** — обзор.
 
 ## Источник
 
-- [Публикация в Telegram-канале Ruarxive #145 (10.02.2025)](https://t.me/ruarxive/145) — подробный разбор EOT 2024–2025.
+- [Публикация в Telegram-канале Ruarxive #145 (10.02.2025)](https://t.me/ruarxive/145) — разбор EOT 2024–2025.
+- [Публикация #14 (10.03.2022)](https://t.me/ruarxive/14) — обзор общественных проектов цифровой архивации.

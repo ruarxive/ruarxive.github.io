@@ -1,416 +1,126 @@
 ---
-title: metawarc — кастомные экстракторы и Plugin API
+title: metawarc — экстракторы метаданных
 sidebar_label: metawarc extractors
 sidebar_position: 8
-description: "Plugin API metawarc для добавления собственных экстракторов форматов файлов. Архитектура ExtractorBase, регистрация в registry, тестирование и упаковка."
-last_updated: 2026-11-09
+description: "Как устроено извлечение метаданных в metawarc 2.x: встроенные экстракторы, выбор по MIME, расширению и сигнатуре, лимиты, формат результата. Публичного API плагинов нет."
+last_update:
+  date: 2026-10-12
 ---
 
-# metawarc — кастомные экстракторы и Plugin API
+# metawarc — экстракторы метаданных
 
-metawarc v2.x поставляется с набором экстракторов «из коробки»: PDF, OOXML (DOCX/XLSX/PPTX), изображения, видео, аудио, шрифты, ссылки, plain-text. Для собственных форматов (например, региональных CAD-форматов или научных датасетов) можно реализовать свой экстрактор через Plugin API.
+Команда `metawarc index-content` извлекает метаданные из содержимого записей WARC с помощью набора встроенных **экстракторов**. На этой странице описано, какие экстракторы есть, как metawarc выбирает подходящий и что попадает в результат.
 
-> **Когда это нужно:** вы работаете с «длинным хвостом» форматов или специфичной отрасли (кадастровые XML, медицинские DICOM с метаданными, CAD/DWG, особые научные журналы).
+:::info Публичного API плагинов нет
+В metawarc 2.0.3 нет механизма подключения сторонних экстракторов: ни базового класса для наследования, ни регистрации через entry points, ни метода `register()`. Набор типов в `index-content --type` фиксирован. Добавить новый формат можно только изменив код metawarc (форк или pull request в [репозиторий](https://github.com/ruarxive/metawarc)).
+:::
 
-## Архитектура Extractor API
+> Описание сверено с исходным кодом пакета `metawarc.extractor` версии 2.0.3 (октябрь 2026).
 
-```
-metawarc/
-├── extractor/
-│   ├── registry.py         # Реестр экстракторов
-│   ├── pdf.py              # PdfExtractor (встроенный)
-│   ├── text_pdf.py         # PdfTextExtractor
-│   ├── text.py             # TextExtractor (HTML→plain text)
-│   ├── office.py           # OoxmlExtractor (DOCX/XLSX/PPTX)
-│   ├── text_ooxml.py       # OoxmlTextExtractor
-│   ├── links.py            # LinkExtractor
-│   ├── media.py            # MediaMetadataExtractor
-│   └── record.py           # RecordMetadataExtractor
-```
+## Встроенные экстракторы
 
-Все встроенные экстракторы наследуют общий базовый класс с интерфейсом `extract(record) → dict`.
+| Класс | Имя (`extractor`) | Тип (`--type`) | На чём основан |
+| :--- | :--- | :--- | :--- |
+| `PdfExtractor` | `pdfminer` | `pdfs` | pdfminer.six |
+| `OoxmlExtractor` | `ooxml-properties` | `ooxmldocs` | свойства документа из ZIP-контейнера OOXML |
+| `SvgExtractor` | `svg-xml` | `images` | lxml |
+| `WebpExtractor` | `webp-header` | `images` | разбор заголовка WebP |
+| `HachoirExtractor` | `hachoir` | `images`, `videos`, `audio`, `oledocs` | hachoir |
+| `FontExtractor` | `fonttools` | `fonts` | fontTools |
+| `LinkExtractor` | `beautifulsoup-links` | `links` | BeautifulSoup |
+| `TextExtractor` | `beautifulsoup-text` | текст для `--text` | BeautifulSoup (HTML) |
+| `PdfTextExtractor` | `pdfminer-text` | текст для `--text` | pdfminer.six |
+| `OoxmlTextExtractor` | `ooxml-text` | текст для `--text` | lxml (OOXML) |
 
-## Базовый класс ExtractorBase
+Три текстовых экстрактора работают только при запуске с `--text` и пишут сайдкар `texts`, по которому ищут `metawarc search`, `GET /records/search` и MCP-инструмент `search_records`.
 
-```python
-# metawarc/extractor/base.py (упрощённо)
-from abc import ABC, abstractmethod
-from typing import Any, Optional
+## Как выбирается экстрактор
 
-class ExtractorBase(ABC):
-    """Базовый класс для всех экстракторов metawarc."""
+Реестр — класс `ExtractorRegistry` в `metawarc/extractor/registry.py`. У него три части:
 
-    #: Какие MIME-типы обрабатывает
-    handles_mimes: list[str] = []
+- конструктор `ExtractorRegistry(extractors=None)` — без аргумента собирает список встроенных экстракторов в фиксированном порядке;
+- метод `select(mime=..., filename=..., prefix=..., expected_type=...)` — выбирает экстрактор для записи;
+- функция `get_text_registry()` — возвращает реестр только из трёх текстовых экстракторов.
 
-    #: Какие расширения файлов обрабатывает (для fallback)
-    handles_exts: list[str] = []
+Порядок выбора в `select()`:
 
-    @abstractmethod
-    def extract(self, record: WarcRecord, record_id: str) -> dict[str, Any]:
-        """Вернуть dict c извлечёнными метаданными. Ключи — стабильные."""
-        raise NotImplementedError
+1. Отбираются экстракторы нужного типа (`expected_type`).
+2. Если начало содержимого похоже на HTML, а запись претендует на бинарный формат, экстрактор не выбирается (с предупреждением).
+3. Совпадение по **MIME-типу** из заголовка ответа имеет приоритет; если MIME и расширение указывают на разные экстракторы, побеждает MIME и пишется предупреждение.
+4. Затем — совпадение по **расширению** файла.
+5. Если ничего не подошло — проверка **сигнатуры** по первым 4096 байтам.
 
-    @classmethod
-    def can_handle(cls, record: WarcRecord) -> bool:
-        """Этот экстрактор умеет работать с такой записью?"""
-        ct = record.http_headers.get_header("Content-Type", "").lower()
-        return any(mime in ct for mime in cls.handles_mimes)
+Кандидаты для каждого типа заранее отбираются по спискам MIME-типов и расширений из `metawarc/constants.py` (`MIMES_EXT_TYPE_BY_GROUP`). Например, для `images` это JPEG, PNG, GIF, TIFF, JPEG 2000, BMP, ICO, WebP, SVG, PSD и другие; для `oledocs` — DOC, XLS, PPT.
 
+## Протокол экстрактора
 
-# Реестр всех встроенных экстракторов
-from metawarc.extractor.registry import ExtractorRegistry
-ExtractorRegistry.register(PdfExtractor)
-ExtractorRegistry.register(OoxmlExtractor)
-# ... и др.
-```
-
-## Написание своего экстрактора
-
-### Пример: экстрактор для FB2 (FictionBook 2)
+Все экстракторы удовлетворяют протоколу `MetadataExtractor` из `metawarc/extractor/envelope.py`:
 
 ```python
-# myplugin/fb2_extractor.py
-from metawarc.extractor.base import ExtractorBase
-from typing import Any
-import xml.etree.ElementTree as ET
-from dataclasses import dataclass
+class MetadataExtractor(Protocol):
+    name: str
+    detected_type: str
+    mimes: frozenset[str]
+    extensions: frozenset[str]
 
-@dataclass
-class FB2Metadata:
-    title: str
-    author: str
-    genre: str
-    lang: str
-    words: int | None
-    
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "title": self.title,
-            "author": self.author,
-            "genre": self.genre,
-            "language": self.lang,
-            "word_count": self.words,
-        }
+    def probe(self, prefix: bytes) -> bool: ...
 
-
-class FB2Extractor(ExtractorBase):
-    handles_mimes = ["application/x-fictionbook+xml", "application/fb2"]
-    handles_exts = [".fb2"]
-
-    def extract(self, record, record_id: str) -> dict[str, Any]:
-        payload = record.content_stream().read()
-        
-        try:
-            root = ET.fromstring(payload)
-        except ET.ParseError:
-            return {"error": "invalid-fb2"}
-        
-        # FB2 namespace
-        ns = {"fb": "http://www.gribuser.ru/xml/fictionbook/2.0"}
-        
-        title = root.findtext(".//fb:book-title", namespaces=ns) or ""
-        author = root.findtext(".//fb:author/fb:first-name", namespaces=ns) or ""
-        last_name = root.findtext(".//fb:author/fb:last-name", namespaces=ns) or ""
-        genre = root.findtext(".//fb:genre", namespaces=ns) or ""
-        lang = root.findtext(".//fb:lang", namespaces=ns) or ""
-        body_text = "".join(root.itertext())
-        
-        return {
-            "kind": "fb2",
-            "metadata": FB2Metadata(
-                title=title,
-                author=f"{author} {last_name}".strip(),
-                genre=genre,
-                lang=lang,
-                words=len(body_text.split()),
-            ).to_dict(),
-        }
+    def extract(self, payload: bytes, limits: ExtractionLimits) -> dict[str, Any] | None: ...
 ```
 
-### Регистрация через setuptools entry_points
+Это внутренний интерфейс, а не документированное API: он может измениться в любой версии.
 
-```python
-# pyproject.toml вашего плагина
-[project]
-name = "metawarc-fb2-plugin"
-version = "0.1.0"
-dependencies = [
-    "metawarc>=2.0",
-]
+## Лимиты извлечения
 
-[project.entry-points."metawarc.extractors"]
-fb2 = "metawarc_fb2_plugin.fb2_extractor:FB2Extractor"
-```
+Ограничения задаются классом `ExtractionLimits` (тот же модуль `envelope.py`). Значения по умолчанию:
 
-После установки плагина:
+| Параметр | По умолчанию |
+| :--- | :--- |
+| `max_payload_bytes` | 64 МиБ |
+| `max_duration_seconds` | 30 с |
+| `max_temporary_bytes` | 64 МиБ |
+| `max_zip_members` | 1000 |
+| `max_zip_expanded_bytes` | 128 МиБ |
+| `max_zip_ratio` | 200 |
+| `max_xml_bytes` | 8 МиБ |
+
+Через параметры командной строки эти лимиты не меняются.
+
+## Что попадает в результат
+
+Для каждой обработанной записи сохраняется строка-«конверт» (схема `METADATA_SCHEMA`) в Parquet-сайдкаре соответствующего типа (`pdfs`, `images` и т. д.):
+
+| Поле | Содержание |
+| :--- | :--- |
+| `archive_id`, `warc_id`, `source`, `url`, `filename`, `ext` | Откуда запись |
+| `declared_mime`, `detected_type` | Заявленный MIME и определённый тип |
+| `extractor`, `extractor_version`, `schema_version` | Какой экстрактор и какая версия схемы |
+| `metadata_json`, `normalized_json` | Исходные и нормализованные метаданные (JSON) |
+| `warnings_json`, `error_code`, `error_message` | Предупреждения и ошибки |
+| `bytes_inspected`, `duration_ms` | Сколько байт прочитано и сколько длилось извлечение |
+
+Ссылки (`links`) и тексты (`texts`) хранятся в собственных схемах `LINK_SCHEMA` и `TEXT_SCHEMA`.
+
+Посмотреть результат можно так:
 
 ```bash
-pip install metawarc-fb2-plugin
-metawarc index-content --dbfile collection.db --kinds fb2
-# metawarc автоматически обнаружит ваш экстрактор
+metawarc index-content --dbfile collection.db --type pdfs --type images
+metawarc dump-metadata --dbfile collection.db --type pdfs -o pdfs.jsonl
+metawarc analyze metadata --dbfile collection.db --type all --top 20
 ```
 
-### Регистрация программно (без entry_points)
+Ошибки извлечения не останавливают индексацию: они записываются в поля `error_code`/`error_message` конверта и учитываются в сводке команды.
 
-```python
-# В вашем CLI-скрипте или Jupyter
-from metawarc.extractor.registry import ExtractorRegistry
-from myplugin.fb2_extractor import FB2Extractor
+## Если нужен новый формат
 
-# Зарегистрировать
-ExtractorRegistry.register(FB2Extractor)
+- **Без изменения metawarc**: выгрузите нужные файлы (`metawarc dump --exts dwg --output ./files`) и обработайте их своим инструментом.
+- **С изменением metawarc**: нужно добавить класс, удовлетворяющий `MetadataExtractor`, включить его в список по умолчанию в `ExtractorRegistry.__init__`, а для нового типа — ещё и описать MIME-типы и расширения в `MIMES_EXT_TYPE_BY_GROUP` и добавить тип в `ContentIndexer.VALID_TYPES`. Передать собственный реестр в `ContentIndexer(registry=...)` из Python можно, но записи для обработки всё равно отбираются по встроенным спискам MIME-типов и расширений, поэтому новый формат так не добавить.
 
-# Проверить
-print(ExtractorRegistry.list_registered())
-# ['pdf', 'ooxml', 'links', 'media', 'record', 'text', 'fb2']
-```
-
-## Шаблон для экстрактора
-
-```python
-from metawarc.extractor.base import ExtractorBase
-from typing import Any
-import json
-
-class MyCustomExtractor(ExtractorBase):
-    """Описание вашего экстрактора — что он делает."""
-
-    handles_mimes = ["application/x-my-format"]
-    handles_exts = [".myf"]
-
-    def extract(self, record, record_id: str) -> dict[str, Any]:
-        """Извлечь метаданные из record."""
-        try:
-            payload = record.content_stream().read()
-            data = self._parse(payload)
-            return {
-                "kind": "myf",
-                "metadata": {
-                    "field_1": data.get("field_1"),
-                    "field_2": data.get("field_2"),
-                    "extracted_at": "2026-11-09T12:00:00Z",
-                    "extractor_version": "1.0.0",
-                },
-            }
-        except Exception as e:
-            return {
-                "kind": "myf",
-                "error": str(e),
-                "extracted_at": "2026-11-09T12:00:00Z",
-            }
-
-    def _parse(self, payload: bytes) -> dict:
-        # Ваш парсер
-        return json.loads(payload)
-```
-
-## Гарантии и контракты
-
-metawarc соблюдает **несколько жёстких правил** для всех экстракторов:
-
-### 1. Read-only
-
-Экстрактор **никогда не модифицирует** исходный WARC. Только читает payload.
-
-### 2. Bounded execution
-
-```python
-from metawarc.extractor.limits import ExtractionLimits
-
-class MyExtractor(ExtractorBase):
-    def extract(self, record, record_id):
-        # Ограничить размер обрабатываемого payload
-        if record.content_length > ExtractionLimits.MAX_PAYLOAD:
-            return {"error": "payload-too-large", "size": record.content_length}
-        # ...
-```
-
-### 3. Таймаут
-
-metawarc устанавливает таймаут на каждый экстрактор (по умолчанию 60 с). Долгие операции приводят к `error: timeout`.
-
-### 4. Возврат структурированного dict
-
-```python
-{
-    "kind": "<short identifier>",
-    "metadata": {
-        "field_1": ...,
-        "field_2": ...,
-    },
-    "extracted_at": ISO8601,
-    "extractor_version": "semver",
-}
-```
-
-Этот dict сохраняется в `*.data/<format>_metadata.parquet` и становится доступным через:
-
-- `metawarc list-files` / `dump`
-- `metadata_summary` через REST/MCP
-- прямой DuckDB-запрос
-
-### 5. Error handling
-
-```python
-return {
-    "kind": "myf",
-    "error": "human-readable message",
-    "extracted_at": "2026-11-09T12:00:00Z",
-}
-```
-
-metawarc **не падает** при ошибке экстрактора. Ошибки логируются и доступны через:
-
-```sql
-SELECT * FROM extraction_errors WHERE extractor = 'myf' AND error LIKE '%timeout%';
-```
-
-## Тестирование экстрактора
-
-```python
-# tests/test_fb2_extractor.py
-from metawarc_fb2_plugin.fb2_extractor import FB2Extractor
-
-def test_extract_metadata():
-    # Используйте warcio для создания mock-record
-    from warcio.warcwriter import WARCWriter
-    import io
-    
-    fb2_content = b"""<?xml version="1.0"?>
-    <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0">
-        <description>
-            <title-info>
-                <genre>sci_humor</genre>
-                <lang>ru</lang>
-                <author><first-name>Alex</first-name><last-name>Test</last-name></author>
-            </title-info>
-        </description>
-    </FictionBook>"""
-    
-    buf = io.BytesIO()
-    writer = WARCWriter(buf)
-    record = writer.create_warc_record(
-        "https://example.com/book.fb2",
-        "response",
-        payload=fb2_content,
-        warc_headers_dict={"Content-Type": "application/x-fictionbook+xml"},
-    )
-    writer.write_record(record)
-    buf.seek(0)
-    
-    # Конвертируем обратно в ArchiveIterator record
-    from warcio.archiveiterator import ArchiveIterator
-    record = next(ArchiveIterator(buf))
-    
-    extractor = FB2Extractor()
-    metadata = extractor.extract(record, "test_id")
-    
-    assert metadata["kind"] == "fb2"
-    assert metadata["metadata"]["author"] == "Alex Test"
-    assert metadata["metadata"]["lang"] == "ru"
-```
-
-## Упаковка и публикация плагина
-
-### Структура проекта
-
-```
-metawarc-fb2-plugin/
-├── pyproject.toml
-├── README.md
-├── src/
-│   └── metawarc_fb2_plugin/
-│       ├── __init__.py
-│       └── fb2_extractor.py
-└── tests/
-    └── test_fb2_extractor.py
-```
-
-### pyproject.toml
-
-```toml
-[build-system]
-requires = ["setuptools>=61"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "metawarc-fb2-plugin"
-version = "0.1.0"
-description = "FB2 (FictionBook) extractor for metawarc"
-requires-python = ">=3.10"
-dependencies = [
-    "metawarc>=2.0",
-]
-
-[project.entry-points."metawarc.extractors"]
-fb2 = "metawarc_fb2_plugin.fb2_extractor:FB2Extractor"
-
-[project.optional-dependencies]
-test = ["pytest"]
-
-[tool.setuptools.packages.find]
-where = ["src"]
-```
-
-### Публикация
-
-```bash
-# Тестируем локально
-pip install -e .
-
-# Публикуем в PyPI
-python -m build
-twine upload dist/*
-```
-
-После публикации пользователи:
-
-```bash
-pip install metawarc-fb2-plugin
-metawarc index-content --kinds fb2  # автоматически обнаружит
-```
-
-## Когда это нужно
-
-✅ Подходит для:
-
-- **Специфичных форматов** отрасли (DICOM, CAD/DWG, FB2, ГИС-форматы).
-- **Кастомных метаданных** для научных коллекций.
-- **Внутренних форматов**, специфичных для вашей организации.
-- **Экспериментальных ML-моделей** для извлечения метаданных.
-
-❌ Не нужно для:
-
-- **Стандартных форматов** — уже есть встроенные экстракторы.
-- **Разовая обработки** — проще Python-скрипт.
-- **Извлечения полного текста** — есть text и text_pdf.
-
-## Список встроенных экстракторов
-
-| Экстрактор | Kind | MIME | Что извлекает |
-|:---|:---|:---|:---|
-| `PdfExtractor` | pdf | application/pdf | title, author, pages, created/modified, size |
-| `PdfTextExtractor` | text_pdf | application/pdf | Plain text (через pdfminer) |
-| `OoxmlExtractor` | ooxmldocs | OOXML форматы | title, author, pages, dates, hyperlinks |
-| `OoxmlTextExtractor` | text_ooxml | OOXML форматы | Plain text (через lxml) |
-| `TextExtractor` | texts | text/* (HTML) | Plain text (через BeautifulSoup) |
-| `LinkExtractor` | links | text/html | `<a href>` с rel/path |
-| `MediaMetadataExtractor` | media | image/*, video/*, audio/* | Exif/ITU-T/RIFF метаданные |
-| `FontExtractor` | fonts | font/* | Имя, формат, hash |
-| `RecordMetadataExtractor` | record | any | HTTP-заголовки, размер, MIME |
-
-## Ресурсы
-
-- [metawarc (главная)](/kb/instruments/ruarxive-tools/metawarc)
-- [metawarc docs: extractors](https://ruarxive.org/metawarc/architecture/extractors)
-- [Python entry_points](https://packaging.python.org/en/latest/specifications/entry-points/)
-- [W3C Media Types](https://www.iana.org/assignments/media-types/media-types.xhtml)
+Как устроен процесс разработки, описано в [CONTRIBUTING](https://github.com/ruarxive/metawarc/blob/master/CONTRIBUTING.md).
 
 ## Связанные материалы
 
-- [metawarc cookbook](/kb/instruments/ruarxive-tools/metawarc-cookbook) — примеры использования.
-- [metawarc REST API](/kb/instruments/ruarxive-tools/metawarc-rest) — экспорт метаданных.
-- [metawarc MCP](/kb/instruments/ruarxive-tools/metawarc-mcp)
-- [WARC-файл: формат](/kb/instruments/file-formats/warc) — структура данных.
-- [Ландшафт 2026](/kb/instruments/landscape-2026)
+- [metawarc (обзор)](/kb/instruments/ruarxive-tools/metawarc)
+- [metawarc: рецепты](/kb/instruments/ruarxive-tools/metawarc-cookbook)
+- [Документация: метаданные и анализ](https://ruarxive.org/metawarc/use-cases/metadata-and-analysis)
+- [Инструменты идентификации форматов](/kb/instruments/file-formats/identification-tools)

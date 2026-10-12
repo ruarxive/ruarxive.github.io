@@ -1,200 +1,162 @@
 ---
 title: Brozzler
 sidebar_label: Brozzler
-description: Распределённый веб-кроулер на реальном Chrome с координацией воркеров через Redis для крупных проектов архивации
+description: "Brozzler — распределённый веб-краулер Internet Archive на реальном браузере Chrome/Chromium; состояние обхода хранится в RethinkDB, WARC пишет warcprox."
+last_update:
+  date: 2026-10-12
 ---
 
 # Brozzler
 
-**Brozzler** — это распределённый веб-кроулер, использующий реальный браузер (Chrome или Chromium) для захвата страниц и встроенных URL.
+**[Brozzler](https://github.com/internetarchive/brozzler)** («browser» + «crawler») — распределённый веб-краулер Internet Archive, который загружает страницы и встроенные ресурсы через настоящий браузер (Chrome или Chromium) и извлекает из них ссылки. Для захвата видео используется [yt-dlp](/kb/instruments/tools/yt-dlp), состояние обхода (задания, сайты, очереди страниц) хранится в базе **RethinkDB**, а WARC-файлы пишет прокси [warcprox](/kb/instruments/tools/warcprox). Лицензия — Apache-2.0.
 
 ## Когда использовать
 
 ✅ Подходит, если нужно:
 
-- архивировать **крупный JS-heavy сайт** и **распределить нагрузку** на несколько машин с координацией через Redis;
-- снимать страницы реальным Chrome/Chromium (а не headless-Puppeteer), что устойчивее к anti-bot;
-- писать WARC через интегрированный [Warcprox](/kb/instruments/tools/warcprox);
-- иметь долгоиграющие задания (дни-недели) с persistent state в Redis.
+- архивировать **крупные сайты с большим количеством JavaScript** и **распределить обход** на несколько машин: все воркеры работают с общей базой RethinkDB;
+- вести **долгие задания** (дни и недели) с сохранением состояния в базе;
+- писать WARC через [warcprox](/kb/instruments/tools/warcprox), в том числе с дедупликацией.
 
 ❌ Не лучший выбор, если:
 
-- задача маленькая — для одиночной машины проще [Browsertrix Crawler](/kb/instruments/tools/browsertrix) с веб-интерфейсом и WACZ на выходе;
-- нужно только релейнуть WARC — возьмите [Warcprox](/kb/instruments/tools/warcprox) напрямую без Brozzler;
-- инфраструктура без Redis — без него не запустится.
-
-## Описание
-
-Brozzler разработан для архивации сложных JavaScript-heavy сайтов через распределённую архитектуру с использованием Redis для координации.
-
-### Особенности
-
-*   **Распределённость**: Поддержка множественных воркеров
-*   **Реальный браузер**: Использует Chrome/Chromium для рендеринга
-*   **JavaScript поддержка**: Полная поддержка JavaScript сайтов
-*   **Redis координация**: Использование Redis для координации воркеров
+- задача небольшая — на одной машине проще [Browsertrix Crawler](/kb/instruments/tools/browsertrix), который сразу создаёт WACZ;
+- нужно просто записывать WARC при ручном просмотре — возьмите [warcprox](/kb/instruments/tools/warcprox) без Brozzler;
+- нет возможности развернуть RethinkDB — без неё воркеры и очередь заданий не работают (исключение — `brozzle-page` для одной страницы).
 
 ## Установка
 
 ### Требования
 
-*   Python 3.6+
-*   Redis
-*   Chrome или Chromium
-*   Docker (опционально, для контейнеризации)
+- Python 3.10+ (по метаданным пакета 1.9.6 на PyPI; README пока указывает 3.9);
+- RethinkDB;
+- Chromium или Google Chrome версии 64 и новее;
+- на сервере — графическое окружение для браузера (например, Xvnc или Xvfb).
 
 ### Установка через pip
 
 ```bash
-pip install brozzler
+# RethinkDB (macOS; для Linux — см. rethinkdb.com/docs/install)
+brew install rethinkdb
+rethinkdb &>>rethinkdb.log &
+
+python -m venv .venv
+source .venv/bin/activate
+pip install "brozzler[rethinkdb,warcprox,dashboard,yt-dlp]"
 ```
 
-### Установка из исходников
+Дополнительные зависимости (extras): `rethinkdb`, `warcprox`, `dashboard` (веб-интерфейс), `yt-dlp` (захват видео).
 
-```bash
-git clone https://github.com/internetarchive/brozzler
-cd brozzler
-pip install -e .
-```
+> Команды сверены с README и `brozzler/cli.py` репозитория `internetarchive/brozzler` (версия 1.9.6, октябрь 2026).
 
 ## Использование
 
-### Базовое использование
+### Одна страница
 
 ```bash
-# Запуск Redis (если не запущен)
-redis-server
-
-# Запуск воркера
-brozzler-worker
-
-# Добавление задания
-brozzler-new-job https://example.com
+brozzle-page https://example.org
 ```
 
-### Docker использование
+`brozzle-page` не требует RethinkDB, но и сам WARC не пишет: чтобы сохранить страницу в WARC, запустите warcprox и передайте его адрес через `--proxy=localhost:8000`.
+
+### Задание из YAML-файла
+
+`brozzler-new-job` принимает **YAML-файл задания**, а не URL:
+
+```yaml
+# job1.yml
+id: myjob
+time_limit: 3600   # секунды
+ignore_robots: false
+seeds:
+  - url: https://one.example.org/
+  - url: https://two.example.org/
+    time_limit: 600
+```
 
 ```bash
-# Запуск через Docker Compose
-docker-compose up
+brozzler-new-job job1.yml
+brozzler-worker --warcprox-auto
+```
+
+Описание всех параметров задания — в файле [job-conf.rst](https://github.com/internetarchive/brozzler/blob/master/job-conf.rst).
+
+### Отдельный сайт без задания
+
+```bash
+brozzler-new-site --time-limit=600 https://example.org/
 ```
 
 ## Архитектура
 
-### Компоненты
+1. **RethinkDB** — хранит задания, сайты и очередь страниц; через её реестр сервисов воркеры находят экземпляры warcprox.
+2. **brozzler-worker** — запускает браузеры и обходит страницы; воркеров может быть несколько на разных машинах.
+3. **warcprox** — прокси, через который браузер ходит в сеть и который пишет WARC.
+4. **brozzler-dashboard** — простой веб-интерфейс для просмотра состояния заданий (по умолчанию `http://localhost:8000/`).
 
-1. **Brozzler Worker**: Выполняет фактический кроулинг
-2. **Redis**: Координирует воркеры и хранит очередь заданий
-3. **Brozzler Dashboard**: Веб-интерфейс для мониторинга (опционально)
+Для пробы на одной машине есть `brozzler-easy` — он запускает воркер, warcprox, pywb и dashboard в одном процессе (по умолчанию WARC пишутся в `./warcs`, pywb слушает порт 8880, dashboard — 8881). RethinkDB при этом всё равно нужна.
 
-### Распределённая работа
+## Настройка воркеров
 
-*   Множественные воркеры могут работать параллельно
-*   Redis координирует распределение заданий
-*   Масштабируется горизонтально
+Основные параметры `brozzler-worker`:
 
-## Конфигурация
-
-### Конфигурационный файл
-
-```yaml
-# brozzler.yaml
-max_concurrent_tabs: 3
-max_browsers: 1
-warcprox_address: localhost:8000
-redis_address: localhost:6379
-```
-
-### Настройка воркера
+| Параметр | Назначение |
+| :--- | :--- |
+| `-n`, `--max-browsers` | сколько экземпляров браузера одновременно обходят страницы |
+| `--warcprox-auto` | найти работающий warcprox через реестр сервисов RethinkDB (рекомендуется для кластера) |
+| `--proxy` | явно указать HTTP-прокси, например запущенный вручную warcprox |
+| `--rethinkdb-servers`, `--rethinkdb-db` | адреса серверов и имя базы RethinkDB (или переменные окружения `BROZZLER_RETHINKDB_SERVERS`, `BROZZLER_RETHINKDB_DB`) |
+| `-e`, `--chrome-exe` | путь к исполняемому файлу Chrome/Chromium |
+| `--skip-youtube-dl` | не скачивать видео через yt-dlp |
+| `--skip-extract-outlinks` | не извлекать ссылки со страниц |
 
 ```bash
-brozzler-worker --config brozzler.yaml
+brozzler-worker --max-browsers=2 --warcprox-auto --rethinkdb-servers=db1.example.org
 ```
 
-## Сравнение с Browsertrix
-
-| Функция | Browsertrix | Brozzler | Победитель |
-| :--- | :--- | :--- | :--- |
-| Распределённость | Нет | Да | Brozzler |
-| Простота | ✅ | ⚠️ | Browsertrix |
-| Масштабируемость | Ограниченная | Высокая | Brozzler |
-| Веб-интерфейс | Да (Cloud) | Опционально | Browsertrix |
-| WACZ поддержка | Да | Нет | Browsertrix |
-
-### Когда использовать Brozzler
-
-*   Большие проекты, требующие распределённой архивации
-*   Множественные воркеры на разных машинах
-*   Нужна координация через Redis
-*   Масштабирование горизонтально
-
-### Когда использовать Browsertrix
-
-*   Простые проекты
-*   Нужен WACZ формат
-*   Веб-интерфейс из коробки
-*   Простота использования
-
-## Best practices
-
-### Настройка воркеров
+Чтобы `--warcprox-auto` работал, warcprox нужно запустить с `--rethinkdb-services-url`, указывающим на ту же таблицу сервисов в RethinkDB. Без этого можно передать адрес warcprox напрямую:
 
 ```bash
-# Запуск нескольких воркеров
-brozzler-worker --max-browsers=2 --max-concurrent-tabs=5
+warcprox --address=localhost --port=8000 --dir=./warcs --gzip
+brozzler-worker --max-browsers=2 --proxy=localhost:8000
 ```
 
-### Мониторинг
+## Мониторинг
 
-Используйте Redis CLI для мониторинга:
+- `brozzler-dashboard` — веб-интерфейс со списком заданий, сайтов и страниц;
+- `brozzler-list-jobs`, `brozzler-list-sites`, `brozzler-list-pages`, `brozzler-list-captures` — то же из командной строки;
+- `brozzler-stop-crawl` — остановить задание или сайт.
 
-```bash
-redis-cli
-> KEYS *
-> LLEN brozzler:queue
-```
+## Сравнение с Browsertrix Crawler
 
-### Ограничения
-
-*   Установите разумные лимиты на воркеры
-*   Мониторьте использование памяти
-*   Настройте таймауты для браузеров
-
-## Интеграция с Warcprox
-
-Brozzler может работать с Warcprox для создания WARC файлов:
-
-```bash
-# Запуск Warcprox
-warcprox --address=0.0.0.0 --port=8000
-
-# Настройка Brozzler для использования Warcprox
-brozzler-worker --warcprox-address=localhost:8000
-```
-
-## Ресурсы
-
-*   [GitHub репозиторий](https://github.com/internetarchive/brozzler)
-*   [Документация](https://github.com/internetarchive/brozzler/wiki)
-
-## Что дальше
-
-- Если вы не уверены, нужен ли Brozzler — посмотрите сравнительную таблицу с [Browsertrix Crawler](/kb/instruments/tools/browsertrix) выше.
-- Полученный WARC проиндексируйте через [metawarc](/kb/instruments/ruarxive-tools/metawarc) для поиска по тексту и метаданных.
-- Или подключите [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp) к Claude/Cursor для работы с коллекцией из агента.
+| Функция | Browsertrix Crawler | Brozzler |
+| :--- | :--- | :--- |
+| Распределённый обход | один контейнер с несколькими воркерами; масштабирование — через платформу Browsertrix на Kubernetes | несколько воркеров на разных машинах с общей RethinkDB |
+| Простота запуска | один Docker-контейнер | RethinkDB + warcprox + воркеры |
+| Веб-интерфейс | в платформе Browsertrix | простой dashboard |
+| Формат результата | WARC и WACZ | WARC (через warcprox) |
 
 ## Ограничения
 
-- **Требуется Redis** — без него не работает.
-- **Реальный Chrome** — высокая потребность в RAM/диске; на маленьких VPS не запустится.
-- **WARC пишется через Warcprox** — это +1 компонент в стеке, нужна корректная настройка `--warcprox-address`.
-- **Без WACZ** — если нужен WACZ (zip с WARC + метаданными), [Browsertrix Crawler](/kb/instruments/tools/browsertrix) умеет из коробки.
-- **Нет веб-интерфейса по умолчанию** — есть CLI и Redis-инспекция, но не «открыл в браузере и нажал Start».
+- **Нужна RethinkDB** — отдельный сервис, который нужно развернуть и поддерживать.
+- **Реальный браузер** — высокая потребность в памяти; на маленьких VPS работать будет плохо.
+- **WARC пишется через warcprox** — ещё один компонент в стеке, который нужно настроить (`--warcprox-auto` или `--proxy`).
+- **Нет WACZ** — если нужен WACZ (zip с WARC, индексом и метаданными), используйте [Browsertrix Crawler](/kb/instruments/tools/browsertrix) или упакуйте WARC утилитой `py-wacz`.
+
+## Что дальше
+
+- Полученные WARC проиндексируйте через [metawarc](/kb/instruments/ruarxive-tools/metawarc) для поиска по метаданным.
+- Или подключите [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp) к Claude/Cursor для работы с коллекцией из агента.
 
 ## Связанные материалы
 
-- [Browsertrix для сравнения](/kb/instruments/tools/browsertrix)
-- [Warcprox](/kb/instruments/tools/warcprox) — прокси для записи WARC
+- [Browsertrix Crawler](/kb/instruments/tools/browsertrix) — для сравнения
+- [warcprox](/kb/instruments/tools/warcprox) — прокси для записи WARC
 - [metawarc](/kb/instruments/ruarxive-tools/metawarc) — индексация и поиск
 - [metawarc MCP-сервер](/kb/instruments/ruarxive-tools/metawarc-mcp) — для AI-агентов
 - [Формат WARC](/kb/instruments/file-formats/warc)
+
+## Ресурсы
+
+- [Репозиторий на GitHub](https://github.com/internetarchive/brozzler)
+- [Описание конфигурации заданий (job-conf.rst)](https://github.com/internetarchive/brozzler/blob/master/job-conf.rst)

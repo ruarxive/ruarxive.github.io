@@ -1,353 +1,229 @@
 ---
 title: wallabag
 sidebar_label: wallabag
-description: Self-hosted «read-it-later» сервис с веб-архивацией, тегами, аннотациями, мобильными приложениями и экспортом в PDF/EPUB
+description: "wallabag — открытое self-hosted приложение «прочитать позже»: сохраняет очищенный текст статей, теги, аннотации, мобильные приложения, экспорт в EPUB/PDF/JSON."
+last_update:
+  date: 2026-10-12
 ---
 
 # wallabag
 
-**wallabag** — self-hosted сервис для сохранения статей и веб-страниц с возможностью читать их позже, аннотировать, тегировать и экспортировать. Форк известного сервиса Pocket, но с открытым кодом и собственным сервером. Сейчас — один из самых зрелых open-source альтернатив Pocket.
+**wallabag** — открытое веб-приложение (PHP, Symfony, лицензия MIT) для сохранения статей, чтобы прочитать их позже. Оно извлекает основной текст страницы, а реклама и всплывающие окна в него не попадают. Проект вырос из **poche** — приложения, которое Nicolas Lœuillet начал в 2013 году. Это самостоятельный проект, а не форк Pocket. Последняя версия — 2.6.14 (октябрь 2025).
 
-Сайт: [wallabag.it](https://wallabag.it/)
+Можно установить на свой сервер или завести аккаунт на платном хостинге [wallabag.it](https://wallabag.it/).
+
+Сайт: [wallabag.org](https://wallabag.org/)
+
+:::note Закрытые аналоги
+Популярные облачные сервисы «прочитать позже» закрылись: **Omnivore** — в ноябре 2024 года, **Pocket** (Mozilla) — в июле 2025 года. wallabag умеет импортировать их экспорты, поэтому годится для миграции сохранённых закладок.
+:::
 
 ## Зачем нужен
 
-Если [ArchiveBox](archivebox) — это «веб-архив на стероидах», то wallabag — это **«Pocket, но свой»**. Главные отличия:
+Если [ArchiveBox](archivebox) — это архив страниц с несколькими способами сохранения (включая WARC), то wallabag — это личная **библиотека для чтения**:
 
-- **Акцент на чтение** — чистый reader view, без рекламы и трекеров.
-- **Теги, аннотации, выделения** — полноценный персональный архив.
-- **Мобильные приложения** (Android, iOS) с синхронизацией.
-- **Экспорт** в PDF, EPUB, MOBI, JSON, CSV, TXT.
-- **Импорт** из Pocket, Instapaper, Readability, Pinboard, Evernote.
-- **Полнотекстовый поиск** с морфологией (для некоторых языков).
-- **API** для интеграций.
-- **Multi-user** — несколько пользователей на одном сервере.
-- **Open source** (MIT), без телеметрии, без зависимости от облака.
-
-Где незаменим:
-- **Личный «read-it-later»** с приватностью.
-- **Команды исследователей** с общей базой статей.
-- **Альтернатива Pocket** для тех, кто не хочет облако Mozilla.
-- **Архив** с удобным чтением вместо «кучи MAFF-файлов».
-
-## Возможности
-
-- **Сохранение URL** через:
-  - Веб-интерфейс.
-  - Браузерное расширение (Firefox, Chrome, Safari, Edge).
-  - Мобильные приложения.
-  - Email (отправить на специальный адрес).
-  - API.
-  - RSS-фид для автоматического импорта.
-- **Reader view** — очистка от рекламы, навигации, комментариев.
-- **Аннотации** — выделение текста, заметки.
-- **Теги, цвета, категории**.
-- **Поиск** по заголовку, содержимому, тегам, аннотациям.
-- **Фильтры** — по статусу (прочитано/не прочитано), по тегу, по дате.
-- **Полная офлайн-работа** (через мобильные приложения).
-- **Импорт**: Pocket, Instapaper, Readability, Pinboard, Evernote, Firefox Readerview.
-- **Экспорт**: PDF, EPUB, MOBI, JSON, CSV, TXT, Markdown.
-- **Multi-user** — изоляция пользователей.
-- **OAuth/OIDC** для авторизации.
-- **2FA** через TOTP.
-- **REST API** с полным покрытием.
-- **Webhook-и** для интеграций.
+- **очищенный текст статьи** без рекламы и навигации;
+- **теги и аннотации** (выделение фрагментов с заметками);
+- **мобильные приложения** для Android и iOS;
+- **экспорт** в EPUB, PDF, CSV, JSON, XML, TXT, Markdown;
+- **импорт** из Pocket, Omnivore, Instapaper, Pinboard, Readability, Delicious, Shaarli, Elcurator, закладок Firefox и Chrome, wallabag v1/v2;
+- **REST API** для интеграций;
+- **несколько пользователей** на одном сервере;
+- **двухфакторная аутентификация**.
 
 ## Когда использовать
 
 ✅ Подходит для:
 
-- **Личного архива статей** с удобным чтением.
-- **Замены Pocket** без зависимости от Mozilla.
-- **Команды** с общей базой материалов.
-- **Архива исследователя** — собрать 1000+ статей по теме.
-- **Сохранения для последующего цитирования** в научной работе.
+- личного архива статей с удобным чтением;
+- команды исследователей с общей базой статей по теме;
+- сохранения текстов для цитирования;
+- переноса закладок из закрытых Pocket и Omnivore.
 
 ❌ Не подходит для:
 
-- **Циклических краулингов** (для этого — [Browsertrix](browsertrix), [Heritrix](heritrix)).
-- **Архивации всего сайта** (для этого — [Wget](wget)).
-- **Сиюминутной ссылки** (для этого — [Archive.ph](archive-ph)).
-- **Изображений и видео** (для этого — [gallery-dl](gallery-dl), [yt-dlp](yt-dlp)).
+- архивации сайтов целиком или по расписанию: используйте [Wget](wget), [Browsertrix](browsertrix), [Heritrix](heritrix);
+- точной копии страницы с оформлением и скриптами: используйте [SingleFile](singlefile) или WARC;
+- изображений и видео: используйте [gallery-dl](gallery-dl), [yt-dlp](yt-dlp);
+- быстрой публичной ссылки на снимок: используйте [Archive.ph](archive-ph).
 
 ## Установка
 
-### Docker Compose (рекомендуется)
+### Docker Compose (официальный пример)
+
+Пример основан на README [wallabag/docker](https://github.com/wallabag/docker):
 
 ```yaml
-# docker-compose.yml
-version: "3"
-
 services:
   wallabag:
-    image: wallabag/wallabag:latest
+    image: wallabag/wallabag
+    restart: unless-stopped
     environment:
+      - MYSQL_ROOT_PASSWORD=wallaroot
       - SYMFONY__ENV__DATABASE_DRIVER=pdo_mysql
       - SYMFONY__ENV__DATABASE_HOST=db
       - SYMFONY__ENV__DATABASE_PORT=3306
       - SYMFONY__ENV__DATABASE_NAME=wallabag
       - SYMFONY__ENV__DATABASE_USER=wallabag
-      - SYMFONY__ENV__DATABASE_PASSWORD=secret
+      - SYMFONY__ENV__DATABASE_PASSWORD=wallapass
       - SYMFONY__ENV__DATABASE_CHARSET=utf8mb4
-      - SYMFONY__ENV__MAILER_HOST=smtp.example.com
-      - SYMFONY__ENV__MAILER_USER=wallabag@example.com
-      - SYMFONY__ENV__MAILER_PASSWORD=mail-password
+      - SYMFONY__ENV__DATABASE_TABLE_PREFIX="wallabag_"
+      - SYMFONY__ENV__MAILER_DSN=smtp://127.0.0.1
       - SYMFONY__ENV__FROM_EMAIL=wallabag@example.com
       - SYMFONY__ENV__DOMAIN_NAME=https://wallabag.example.com
-      - SYMFONY__ENV__SERVER_NAME=Your wallabag
+      - SYMFONY__ENV__SERVER_NAME="Your wallabag instance"
     ports:
       - "8080:80"
     volumes:
-      - ./images:/var/www/wallabag/web/assets/images
+      - /opt/wallabag/images:/var/www/wallabag/web/assets/images
     depends_on:
       - db
       - redis
-
   db:
-    image: mariadb:10
+    image: mariadb
+    restart: unless-stopped
     environment:
-      - MARIADB_DATABASE=wallabag
-      - MARIADB_USER=wallabag
-      - MARIADB_PASSWORD=secret
-      - MARIADB_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_ROOT_PASSWORD=wallaroot
     volumes:
-      - ./db:/var/lib/mysql
-
+      - /opt/wallabag/data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh", "--innodb_initialized"]
+      interval: 20s
+      timeout: 3s
   redis:
-    image: redis:7
-    volumes:
-      - ./redis:/data
+    image: redis:alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 20s
+      timeout: 3s
 ```
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-Через 1-2 минуты будет доступен на `http://localhost:8080`. Логин/пароль по умолчанию: `wallabag` / `wallabag` (смените сразу!).
+Логин по умолчанию — `wallabag` / `wallabag`: смените пароль сразу после входа. Почта настраивается одной переменной `SYMFONY__ENV__MAILER_DSN`; старые `MAILER_HOST/USER/PASSWORD` больше не используются. Если Redis-контейнер называется `redis`, отдельные переменные `SYMFONY__ENV__REDIS_*` не нужны.
 
-### Через пакетные менеджеры
+Самый простой вариант для пробы — SQLite в одном контейнере:
 
 ```bash
-# Arch
-yay -S wallabag
-
-# Ubuntu (через PPA)
-sudo add-apt-repository ppa:wallabag/wallabag
-sudo apt install wallabag
+docker run -p 80:80 -e "SYMFONY__ENV__DOMAIN_NAME=http://localhost" wallabag/wallabag
 ```
 
-### Из исходников (для разработчиков)
+### Из исходников
 
 ```bash
 git clone https://github.com/wallabag/wallabag.git
-cd wallabag
-make install
+cd wallabag && make install
 ```
+
+Затем настройте виртуальный хост веб-сервера по [документации](https://doc.wallabag.org/). Официального PPA для Ubuntu нет.
+
+> Команды и переменные сверены с README wallabag/wallabag и wallabag/docker (октябрь 2026).
 
 ## Использование
 
-### Сохранить URL
+### Сохранить статью
 
-#### Через веб-интерфейс
+- **Веб-интерфейс**: значок «+» в верхней панели, вставить URL, Enter.
+- **Букмарклет** `bag it!` со страницы «How-to» в меню аккаунта.
+- **Расширение браузера** [wallabagger](https://github.com/wallabag/wallabagger): [Firefox](https://addons.mozilla.org/firefox/addon/wallabagger/), Chrome и другие.
+- **Мобильные приложения**: Android — [Google Play](https://play.google.com/store/apps/details?id=fr.gaulupeau.apps.InThePoche) и [F-Droid](https://f-droid.org/packages/fr.gaulupeau.apps.InThePoche/); iOS — [официальное приложение в App Store](https://apps.apple.com/us/app/wallabag-2-official/id1170800946).
+- **API**.
 
-1. Открыть `https://wallabag.example.com`.
-2. Вставить URL в поле «Save a link».
-3. Нажать **Save**.
-4. wallabag скачает страницу, очистит от мусора, сохранит контент.
+### Через API
 
-#### Через браузерное расширение
-
-Установить [Wallabagger для Firefox/Chrome](https://www.wallabag.it/features) → клик → статья сохранена.
-
-#### Через мобильное приложение
-
-- [Android (Material Wallabag)](https://play.google.com/store/apps/details?id=fr.gaulupeau.apps.Poche)
-- [iOS (iWallabag)](https://apps.apple.com/app/iwallabag/id1607321548)
-
-#### Через email
-
-Каждый пользователь имеет уникальный email-адрес (настраивается). Отправить URL на этот email — статья сохранится автоматически.
-
-#### Через API
+Создайте клиента API в разделе «API clients management», затем:
 
 ```bash
-TOKEN=$(curl -s -X POST https://wallabag.example.com/api/v1/oauth/v2/token \
+TOKEN=$(curl -s -X POST https://wallabag.example.com/oauth/v2/token \
   -d "grant_type=password&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&username=user&password=pass" \
   | jq -r .access_token)
 
-curl -X POST https://wallabag.example.com/api/v1/entries \
+curl -X POST https://wallabag.example.com/api/entries.json \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com/article"}'
 ```
 
+Описание API — по адресу `/api/doc` вашего сервера (пример: [app.wallabag.it/api/doc](https://app.wallabag.it/api/doc)).
+
 ### Читать, аннотировать, тегировать
 
-1. **Список статей** — входящие, прочитанные, по тегам, по дате.
-2. **Reader view** — клик на статью → чистый текст с навигацией.
-3. **Выделение** — выделить фрагмент → выбрать цвет, добавить заметку.
-4. **Теги** — добавить тег прямо из reader view.
-5. **Архивация** — пометить как «прочитано» или удалить.
+1. Список статей: непрочитанные, избранные, архив, по тегам.
+2. Статья открывается в режиме чтения.
+3. Выделите фрагмент, чтобы добавить аннотацию.
+4. Теги добавляются из карточки статьи.
 
 ### Экспорт
 
-#### Через веб-интерфейс
+Каждую статью и целые разделы (непрочитанные, избранные, архив) можно скачать в EPUB, PDF, CSV, JSON, XML, TXT или Markdown. Экспорт в MOBI убран в версии 2.6.
 
-Статья → «Export» → выбрать формат (PDF, EPUB, MOBI, JSON, CSV, TXT, Markdown).
+### RSS
 
-#### Batch-экспорт всех статей
+wallabag отдаёт RSS-ленты своих разделов (непрочитанные, избранное, архив) по персональному токену: их можно читать в RSS-ридере. Импорта из RSS в wallabag нет.
 
-```bash
-# Экспорт в JSON через API
-curl -H "Authorization: Bearer $TOKEN" \
-  "https://wallabag.example.com/api/v1/entries.json?perPage=100" \
-  > all-entries.json
-```
+### Импорт
 
-#### Импорт в другие системы
-
-- **Firefox Reading List** — wallabag импортирует JSON.
-- **Pocket** — экспорт в Pocket-HTML → импорт в wallabag.
-- **Instapaper CSV** — прямой импорт.
-- **Evernote ENEX** — через API или UI.
-
-## Конфигурация
-
-### Параметры окружения (Docker)
-
-```yaml
-SYMFONY__ENV__DOMAIN_NAME=https://wallabag.example.com  # обязательно
-SYMFONY__ENV__SERVER_NAME=My Wallabag
-SYMFONY__ENV__FOSUSER_REGISTRATION=false  # отключить регистрацию
-SYMFONY__ENV__FOSUSER_CONFIRMATION=true  # подтверждение email
-SYMFONY__ENV__TWO_FACTOR_AUTH=true  # включить 2FA
-SYMFONY__ENV__INTERNAL_HTACCESS=true  # защитить /var/www/wallabag/web
-SYMFONY__ENV__PAYPAL_ENABLED=false
-SYMFONY__ENV__SAML_SUPPORT=false
-```
-
-### Настройка через UI
-
-`Settings` → `Parameters`:
-
-- Язык интерфейса.
-- Количество статей на странице.
-- Экспорт по умолчанию.
-- Сортировка.
-- Тема оформления (light/dark).
-
-### Плагины (через Composer)
-
-- **Readability** — улучшенный reader view.
-- **Matomo** — статистика.
-- **Pocket/Instapaper/Readability/Evernote импортеры**.
-- **Firefox/Chrome bookmarks sync**.
+Раздел «Import»: Pocket (через API или экспорт CSV/HTML), Omnivore, Instapaper, Pinboard, Readability, Delicious, Shaarli, Elcurator, закладки Firefox и Chrome, wallabag v1/v2. Для больших импортов можно включить асинхронную очередь на Redis или RabbitMQ: в Docker воркер запускается командой `wallabag/wallabag import <type>`.
 
 ## Сравнение с другими инструментами
 
-| Инструмент | Self-hosted | Reader view | Теги | Аннотации | API | Мобильные |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **wallabag** | ✅ | ✅ | ✅ | ✅ | ✅ REST | ✅ |
-| **[ArchiveBox](archivebox)** | ✅ | ❌ | ❌ | ❌ | ⚠️ | ❌ |
-| **Pocket** | ❌ | ✅ | ✅ | ✅ | ⚠️ | ✅ |
-| **Shiori** | ✅ | ✅ | ✅ | ❌ | ✅ | ⚠️ |
-| **Linkding** | ✅ | ❌ | ✅ | ❌ | ✅ | ❌ |
-| **Omnivore** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-
-### Когда wallabag лучше всех
-
-- Нужен **полноценный «read-it-later»** с reader view, тегами, аннотациями.
-- Важна **multi-user** поддержка (команда, семья).
-- Нужен **экспорт в PDF/EPUB** для чтения на Kindle.
-- Хочется **зрелый проект** с 10+ годами истории (с 2013).
+| Инструмент | Self-hosted | Режим чтения | Теги | Аннотации | API | Статус |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **wallabag** | ✅ | ✅ | ✅ | ✅ | ✅ REST | Активен |
+| **[ArchiveBox](archivebox)** | ✅ | ⚠️ | ✅ | ❌ | ⚠️ | Активен |
+| **[Shiori](https://github.com/go-shiori/shiori)** | ✅ | ✅ | ✅ | ❌ | ✅ | Активен (Go) |
+| **[linkding](https://github.com/sissbruecker/linkding)** | ✅ | ❌ | ✅ | ❌ | ✅ | Активен (закладки) |
+| **Pocket** | ❌ | — | — | — | — | Закрыт в июле 2025 |
+| **Omnivore** | — | — | — | — | — | Закрыт в ноябре 2024 |
 
 ### Когда лучше ArchiveBox
 
-- Цель — **архивация** (с метаданными, в WARC), а не чтение.
-- Нужна **полная версия страницы** с ресурсами, а не очищенный текст.
+- Цель — архивация (несколько форматов, включая WARC), а не чтение.
+- Нужна полная версия страницы с ресурсами, а не очищенный текст.
 
 ### Когда лучше Shiori
 
-- Хочется **минимализм** и лёгкий стек (Go, SQLite).
-- Не нужны **аннотации** и EPUB-экспорт.
+- Хочется лёгкий стек (Go, SQLite) и не нужны аннотации и EPUB.
 
-### Когда лучше Linkding
+## Рекомендации
 
-- Нужен **просто закладочник** (как Pinboard), без reader view.
-
-### Когда лучше Pocket
-
-- Не хочется **поддерживать сервер**.
-- Нужна **глубокая интеграция** с Firefox.
-
-## Best practices
-
-### 1. Сразу смените пароль администратора
+1. **Смените пароль администратора** (`wallabag` / `wallabag`) сразу после установки.
+2. **Включите двухфакторную аутентификацию** в настройках аккаунта, если сервер доступен из интернета.
+3. **Отключите открытую регистрацию** (`SYMFONY__ENV__FOSUSER_REGISTRATION=false`, значение по умолчанию).
+4. **Делайте резервные копии базы**:
 
 ```bash
-# Через API или UI
-# Default: wallabag / wallabag
+docker compose exec db mysqldump -u root -pwallaroot wallabag | gzip > backup-$(date +%F).sql.gz
 ```
 
-### 2. Включите 2FA
-
-Settings → Account → Two-factor authentication → сканировать QR в TOTP-приложении.
-
-### 3. Настройте регулярный импорт из RSS
-
-wallabag поддерживает импорт из RSS — для автоматического сохранения новых постов из любимых блогов.
-
-### 4. Используйте теги как «проекты»
-
-```
-#research/quantum-cryptography
-#work/article-archive
-#reading-list/2025
-#reference/documentation
-```
-
-### 5. Регулярный экспорт бэкапа
-
-```bash
-# Weekly backup
-docker exec wallabag-db mysqldump -u wallabag -psecret wallabag | \
-  gzip > backup-$(date +%F).sql.gz
-```
-
-### 6. Включите Redis для производительности
-
-Без Redis с 1000+ статей будут тормоза. С Redis — мгновенный поиск и быстрый reader view.
-
-### 7. Используйте Firefox Sync (через плагин)
-
-Синхронизация закладок Firefox с wallabag — статья в браузере автоматически попадает в архив.
+5. **Сохраняйте важные материалы и в другом формате.** wallabag хранит очищенный текст. Если важен исходный вид страницы, дополнительно сохраните её через [SingleFile](singlefile) или в WARC.
 
 ## Ограничения
 
-- **Тяжёлый стек** — Symfony + PHP + MySQL/PostgreSQL + Redis. Минимум 1 ГБ RAM.
-- **Не сохраняет полную страницу** — только reader view, без JS-интерактива.
-- **Не для медиа** — картинки сохраняются как `<img>`, видео обычно выпадает.
-- **Зависит от качества парсера** — некоторые сайты ломают reader view.
-- **Большие коллекции** (10k+ статей) — нужна оптимизация БД.
-- **Миграция с Pocket** — не 1-к-1, теряются «рекомендации» и социальные функции.
+- Стек: PHP, Symfony, база данных (SQLite, MySQL/MariaDB или PostgreSQL), для очередей — Redis.
+- Сохраняется очищенный текст статьи, а не полная страница с интерактивом.
+- Видео и сложные медиа обычно не сохраняются.
+- Качество зависит от извлечения текста: некоторые сайты сохраняются плохо (в документации есть раздел о проблемах загрузки статей).
 
 ## Ресурсы
 
-- [Официальный сайт wallabag](https://wallabag.it/) — главная.
-- [Документация](https://doc.wallabag.org/) — установка, настройка, API.
-- [GitHub: wallabag](https://github.com/wallabag/wallabag) — исходный код.
-- [Demo](https://demo.wallabag.it/) — попробовать онлайн.
-- [API Reference](https://app.wallabag.it/api/doc) — Swagger-документация.
-- [Wallabagger (расширение)](https://www.wallabag.it/features) — для Firefox/Chrome.
-- [Mobile apps](https://www.wallabag.it/features#mobile) — Android, iOS.
+- [wallabag.org](https://wallabag.org/)
+- [Документация](https://doc.wallabag.org/)
+- [GitHub: wallabag](https://github.com/wallabag/wallabag)
+- [GitHub: wallabag/docker](https://github.com/wallabag/docker)
+- [Экосистема wallabag](https://github.com/wallabag/wallabag/wiki/wallabag-ecosystem) — приложения и интеграции
+- [wallabag.it](https://wallabag.it/) — платный хостинг от разработчиков
 
 ## Связанные материалы
 
 - **[ArchiveBox](archivebox)** — для архивации, а не чтения.
 - **[SingleFile](singlefile)** — для сохранения полной страницы.
-- **[WebScrapBook](webscrapbook)** — для коллекций с структурой.
-- **[WARC](/kb/instruments/file-formats/warc)** — если нужно долгосрочное хранение.
-- **[Shiori](https://github.com/go-shiori/shiori)** — Go-альтернатива.
-- **[Правовые вопросы](/kb/legal/copyright)** — личное использование статей.
-- **[Пользовательские workflow](/kb/guides/custom-workflows)** — wallabag в пайплайнах.
-- **[Как пользоваться архивами](/kb/users)** — практические сценарии.
+- **[WebScrapBook](webscrapbook)** — коллекции сохранённых страниц.
+- **[Obelisk](obelisk)** — сохранение страницы в один HTML-файл (используется в Shiori).
+- **[WARC](/kb/instruments/file-formats/warc)** — для долгосрочного хранения.
+- **[Правовые вопросы](/kb/legal/copyright)**
+- **[Пользовательские workflow](/kb/guides/custom-workflows)**
+- **[Как пользоваться архивами](/kb/users)**

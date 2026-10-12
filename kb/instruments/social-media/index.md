@@ -1,81 +1,54 @@
 ---
 sidebar_position: 1
-last_updated: 2026-10-07
+last_update:
+  date: 2026-10-12
 title: Архивация социальных сетей
-description: Инструменты для архивации контента из различных социальных сетей и платформ.
+description: "Обзор способов архивации социальных сетей и мессенджеров на 2026 год: какие API ещё доступны, какие инструменты устарели и чем их заменить."
 ---
 
 # Архивация социальных сетей
 
-Инструменты для архивации контента из различных социальных сетей и платформ.
+Архивация социальных сетей за последние годы сильно усложнилась: большинство платформ закрыли или сделали платными свои API, а многие известные инструменты перестали развиваться. Ниже — обзор страниц раздела с учётом состояния на 2026 год.
 
-## Обзор инструментов
+## Обзор по платформам
 
-### Twitter
+| Платформа | Что работает сейчас | Страница |
+| :--- | :--- | :--- |
+| Twitter/X | Платный API v2 (оплата за каждый запрос), выгрузка собственного архива, Wayback Machine | [twarc](/kb/instruments/social-media/twarc), [выгрузка из X](/kb/instruments/data-take-out/dto-twitter) |
+| Facebook | Выгрузка собственных данных, браузерная архивация, Meta Content Library для исследователей | [Facebook](/kb/instruments/social-media/facebook) |
+| Instagram | Instaloader, gallery-dl, браузерная архивация, выгрузка собственных данных | [Instagram](/kb/instruments/social-media/instagram) |
+| ВКонтакте | Официальный VK API (ключ пользователя или сервисный ключ), выгрузка собственных данных | [ВКонтакте](/kb/instruments/social-media/vk) |
+| YouTube, Rutube, VK Видео | yt-dlp | [Видео](/kb/instruments/social-media/youtube-video), [Rutube](/kb/instruments/social-media/rutube) |
+| TikTok | yt-dlp, Research API (только для одобренных исследователей) | [TikTok](/kb/instruments/social-media/tiktok) |
+| Mastodon, Bluesky, Threads | Открытые API Mastodon и Bluesky, официальный Threads API | [Mastodon, Bluesky, Threads](/kb/instruments/social-media/mastodon) |
+| Telegram | Экспорт в Telegram Desktop, MTProto-клиенты | [Telegram](/kb/instruments/data-take-out/dto-telegram) |
+| MAX | Нет публичного просмотра каналов и экспорта данных; есть только Bot API | [MAX](/kb/instruments/social-media/max) |
 
-- **[twarc](/kb/instruments/social-media/twarc)** — командная строка и Python библиотека для архивации Twitter JSON данных через Twitter API
+## Устаревшие инструменты
 
-### Facebook
+Эти страницы сохранены как справочные, но для новых проектов инструменты не рекомендуются:
 
-- **[fbarc](/kb/instruments/social-media/fbarc)** — командная строка и Python библиотека для архивации данных из Facebook через Graph API
+- **[F(b)arc](/kb/instruments/social-media/fbarc)** — репозиторий в архиве с 2018 года, после ужесточения Graph API практически неработоспособен.
+- **[Social Feed Manager](/kb/instruments/social-media/social-feed-manager)** — Университет Джорджа Вашингтона (GWU) в 2024 году прекратил развитие и закрыл свой хостинг SFM.
+- **Academic Research API Twitter** — закрыт в 2023 году; [twarc](/kb/instruments/social-media/twarc) работает только с платным доступом к API.
 
-### Instagram
+## Выбор метода
 
-- **[Instagram архивация](/kb/instruments/social-media/instagram)** — методы архивации контента из Instagram
+- **Свои данные** — начните с официальной выгрузки (data take-out): это самый полный и законный способ. См. [Data Take-Out](/kb/instruments/data-take-out/data-take-out-main).
+- **Публичные видео** — [yt-dlp](/kb/instruments/tools/yt-dlp) поддерживает YouTube, Rutube, VK Видео, TikTok и тысячи других сайтов.
+- **Публичные изображения и галереи** — [gallery-dl](/kb/instruments/tools/gallery-dl).
+- **Внешний вид страниц, комментарии, динамический контент** — браузерная архивация в WARC/WACZ через [Browsertrix](/kb/instruments/tools/browsertrix).
+- **Фиксация отдельных постов для расследований** — [Auto-Archiver](/kb/instruments/tools/auto-archiver).
+- **Уже исчезнувшие материалы** — проверьте [Wayback Machine](/kb/instruments/tools/wayback-api) и [archive.ph](/kb/instruments/tools/archive-ph).
 
-### YouTube
+## Доступ к API
 
-- **[YouTube видео](/kb/instruments/social-media/youtube-video)** — архивация видео с YouTube
+Там, где API ещё доступен, порядок обычно одинаковый: зарегистрироваться на портале разработчиков платформы, создать приложение, получить ключ или токен и передать его инструменту. Условия меняются часто, поэтому сверяйтесь с официальной документацией платформы перед началом проекта.
 
-### Множественные платформы
-
-- **[Social Feed Manager](/kb/instruments/social-media/social-feed-manager)** — инструмент для архивации контента из множественных социальных сетей
-
-## Сравнение инструментов
-
-| Инструмент | Платформы | API | Формат | Аутентификация | Рекомендация |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **twarc** | Twitter | Twitter API | JSON | API ключи | **Для Twitter** |
-| **fbarc** | Facebook | Graph API | JSON | Access Token | **Для Facebook** |
-| **Social Feed Manager** | Множественные | Различные | Различные | Зависит от платформы | **Для множественных платформ** |
-| **Instagram** | Instagram | Instagram API | Различные | API ключи | Для Instagram |
-| **YouTube** | YouTube | YouTube API | Видео файлы | API ключи | Для YouTube |
-
-## Выбор инструмента
-
-### Для одной платформы
-
-- **Twitter**: Используйте [twarc](/kb/instruments/social-media/twarc)
-- **Facebook**: Используйте [fbarc](/kb/instruments/social-media/fbarc)
-- **Instagram**: Используйте [методы архивации Instagram](/kb/instruments/social-media/instagram)
-- **YouTube**: Используйте [YouTube архивацию](/kb/instruments/social-media/youtube-video)
-
-### Для множественных платформ
-
-Используйте [Social Feed Manager](/kb/instruments/social-media/social-feed-manager) для централизованной архивации контента из различных социальных сетей.
-
-## Аутентификация
-
-Большинство инструментов требуют API ключи или токены доступа:
-
-1. Зарегистрируйтесь в Developer Portal соответствующей платформы
-2. Создайте приложение
-3. Получите API ключи или токены
-4. Настройте инструмент с полученными учетными данными
-
-Подробные инструкции по настройке доступны на страницах каждого инструмента.
-
-## Альтернативные методы
-
-Для некоторых платформ доступны альтернативные методы архивации:
-
-- **Data Take-Out**: Использование встроенных функций экспорта данных платформ
-- **Веб-архивация**: Использование инструментов веб-архивации для сохранения веб-версий
-
-Подробнее: [Data Take-Out](/kb/instruments/data-take-out/data-take-out-main)
+При сборе чужих публикаций учитывайте [правила обработки персональных данных](/kb/legal/personal-data) и [авторское право](/kb/legal/copyright): публичная доступность материалов не означает разрешения на их распространение.
 
 ## Связанные материалы
 
-- [Data Take-Out](/kb/instruments/data-take-out/data-take-out-main) — альтернативный метод получения данных
+- [Data Take-Out](/kb/instruments/data-take-out/data-take-out-main) — официальные выгрузки собственных данных
 - [Инструменты веб-архивации](/kb/instruments/tools) — для веб-версий социальных сетей
 - [Руководства по архивации](/kb/guides) — общие руководства

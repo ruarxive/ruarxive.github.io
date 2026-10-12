@@ -1,50 +1,49 @@
 ---
-title: DVD (David Video Downloader)
-sidebar_label: DVD
-description: "GUI-приложение для macOS поверх yt-dlp с drag&drop и удобной очередью загрузок."
-last_updated: 2026-10-12
-keywords: [dvd, david video downloader, macos, gui, yt-dlp]
+title: dvd — загрузчик видео для Android
+sidebar_label: dvd
+description: "dvd — открытое Android-приложение для скачивания видео на базе youtubedl-android (youtube-dl). Не развивается с 2022 года."
+last_update:
+  date: 2026-10-12
+keywords: [dvd, android, youtube-dl, youtubedl-android, загрузчик видео]
 ---
 
-# DVD (David Video Downloader)
+# dvd — загрузчик видео для Android
 
-[DVD](https://github.com/dsheeler525/dvd) (David Video Downloader) — GUI-обёртка над [yt-dlp](/kb/instruments/tools/yt-dlp) для **macOS**. Минималистичный интерфейс: drag&drop URL, очередь загрузок.
+:::warning Проект не развивается
+Последний релиз dvd — 0.1.5 (август 2022 года), последний коммит в основной ветке репозитория — сентябрь 2022 года. Приложение использует youtube-dl, поэтому с части сайтов (включая YouTube) скачивание может не работать. Для надёжной архивации используйте [yt-dlp](/kb/instruments/tools/yt-dlp) на компьютере.
+:::
+
+[dvd](https://github.com/yausername/dvd) — открытое **Android-приложение** для скачивания видео. Оно построено на библиотеке [youtubedl-android](https://github.com/yausername/youtubedl-android), которая запускает youtube-dl на телефоне, поэтому поддерживает те же сайты, что и youtube-dl (по README — более 1000).
+
+- Язык: Kotlin.
+- Лицензия: GPL-3.0.
+- Платформа: Android 5.0 и новее (`minSdkVersion 21`). Версий для Windows, macOS и Linux нет.
 
 ## Когда использовать
 
 ✅ Подходит, если:
 
-- вы работаете в **macOS** и хотите простой GUI поверх yt-dlp;
-- нужна **drag&drop** функциональность;
-- важна **нативная интеграция** с системой (иконки, уведомления).
+- нужно быстро сохранить отдельное видео прямо на Android-устройстве, без компьютера;
+- вы не работаете с командной строкой.
 
 ❌ Не подходит:
 
-- для Windows/Linux — нет сборки;
-- для продвинутых сценариев (тонкая настройка форматов) — нативный yt-dlp будет точнее.
+- для массовой и систематической архивации — используйте [yt-dlp](/kb/instruments/tools/yt-dlp) со списком URL и `--download-archive`;
+- если нужны метаданные, субтитры и контроль форматов — на компьютере это удобнее делать в yt-dlp или в [GUI-обёртках](/kb/instruments/tools/youtube-dl-gui).
 
 ## Установка
 
-```bash
-# Через Homebrew
-brew install david-video-downloader
-```
+Готовые APK (отдельные сборки для `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`) публикуются на [странице релизов](https://github.com/yausername/dvd/releases). Для большинства современных телефонов подходит `app-arm64-v8a-debug.apk`. Для установки нужно разрешить установку приложений из неизвестных источников.
 
-Или скачать `.dmg` с [GitHub релизов](https://github.com/dsheeler525/dvd/releases).
+Раньше приложение было доступно в F-Droid (`org.yausername.dvd`), но в октябре 2026 года страница пакета в F-Droid не открывается. В Google Play приложения нет: автор указывает, что его публикация там нарушает правила магазина.
 
-## Ключевые функции
-
-- **drag&drop URL**: перетащите ссылку из браузера в окно DVD.
-- **Очередь**: видео ставятся в очередь и качаются последовательно (или параллельно, по настройкам).
-- **Выбор качества**: автоматически или вручную.
-- **Сохраняет метаданные и субтитры**.
-- **Импорт cookie** (например, если у вас платный аккаунт YouTube, что требует особого обращения).
+> Сведения сверены с README и релизами репозитория `yausername/dvd` (версия 0.1.5, октябрь 2026).
 
 ## Связанные материалы
 
-- **[GUI-обёртки yt-dlp](/kb/instruments/tools/youtube-dl-gui)** — обзор альтернатив.
-- **[yt-dlp](/kb/instruments/tools/yt-dlp)** — базовый CLI.
+- **[GUI-обёртки yt-dlp](/kb/instruments/tools/youtube-dl-gui)** — обзор альтернатив для компьютера.
+- **[yt-dlp](/kb/instruments/tools/yt-dlp)** — основной инструмент для скачивания видео.
 
 ## Источник
 
-- [Публикация в Telegram-канале Ruarxive #10 (07.03.2022)](https://t.me/ruarxive/10).
+- [Публикация в Telegram-канале Ruarxive #10 (07.03.2022)](https://t.me/ruarxive/10) — подборка инструментов для сохранения видео с YouTube.

@@ -1,283 +1,171 @@
 ---
 title: WebScrapBook
 sidebar_label: WebScrapBook
-description: Мощное расширение Firefox/Chrome для захвата, организации и аннотирования веб-страниц с поддержкой WARC-экспорта
+description: "WebScrapBook — расширение для Firefox и Chromium-браузеров для сохранения, организации и аннотирования веб-страниц (форматы Folder, HTZ, MAFF, Single HTML) с сервером PyWebScrapBook."
+last_update:
+  date: 2026-10-12
 ---
 
 # WebScrapBook
 
-**WebScrapBook** — браузерное расширение для Firefox и Chromium с серверным компонентом. Создано как духовный наследник легендарного **ScrapBook** (2007–2017). Поддерживает многоуровневое сохранение веб-страниц, гибкую организацию в виде дерева, аннотирование, полнотекстовый поиск и **экспорт в WARC**.
+**WebScrapBook** — браузерное расширение для Firefox и Chromium-браузеров (Chrome, Edge, Opera, Vivaldi, Brave), которое сохраняет веб-страницы для последующего просмотра, организации, аннотирования и редактирования. Автор — Danny Lin (danny0838), лицензия MPL-2.0. Проект продолжает расширение **ScrapBook X** для старого Firefox; сам ScrapBook появился в середине 2000-х годов. Серверная часть и консольные инструменты — отдельный проект **PyWebScrapBook**.
 
-Сайт: [github.com/danny0838/webscrapbook](https://github.com/danny0838/webscrapbook)
+Сайт: [github.com/danny0838/webscrapbook](https://github.com/danny0838/webscrapbook), документация — [wiki](https://github.com/danny0838/webscrapbook/wiki/Intro).
+
+:::note WARC
+WebScrapBook **не сохраняет и не экспортирует WARC**. Его форматы: папка (Folder), HTZ (ZIP), MAFF и Single HTML. Если нужен WARC для передачи в веб-архив, используйте [ArchiveWeb.page](https://archiveweb.page/) или [Browsertrix](browsertrix).
+:::
 
 ## Зачем нужен архивисту
 
-Одиночные расширения ([SingleFile](singlefile)) сохраняют одну страницу. WebScrapBook — это **полноценный архив с структурой**: можно собирать сотни страниц, раскладывать по папкам, аннотировать, искать, экспортировать в стандартный WARC для долгосрочного хранения.
-
-Где незаменим:
-- **Исследовательские проекты** — собрать все источники по теме в одном архиве с аннотациями.
-- **Личный архив** — заменяет Pinterest и Pocket, но **локально**.
-- **Журналистские расследования** — собрать доказательства с метаданными.
-- **Миграция с Pocket, Evernote, OneNote** — импорт из HTML.
+[SingleFile](singlefile) сохраняет одну страницу. WebScrapBook собирает сохранённые страницы в **коллекцию со структурой** (scrapbook): дерево папок, заметки, аннотации, поиск по тексту. Подходит для исследовательских проектов и личных архивов источников по теме.
 
 ## Возможности
 
-- **Несколько режимов захвата**:
-  - **Save** — текущая видимая страница.
-  - **Save As** — выбор конкретной страницы (главная, дочерняя, все).
-  - **Capture As** — глубокий кроулинг с настройкой глубины и фильтров.
-  - **Selective** — выборочное сохранение элементов.
+- **Режимы захвата**: страница целиком, выделенные фрагменты, фрейм, ссылка, медиафайл, все открытые вкладки. Также доступны варианты «как…» (с настройкой параметров), «закладка» (только ссылка) и «исходник» (без обработки).
+- **Захват по ссылкам со страницы** с глубиной и фильтрами (все ссылки, тот же домен, тот же путь, include/exclude по шаблону).
 - **Форматы сохранения**:
-  - HTML-файл с инлайн-ресурсами (как SingleFile).
-  - **MAFF** (Mozilla Archive Format, ZIP с HTML + медиа + метаданные).
-  - **WARC** (через экспорт) — стандарт архивирования.
-  - **PNG/Screenshot** — для динамических страниц.
-- **Дерево папок** с перетаскиванием, тегами, цветами.
-- **Аннотации**: выделение, заметки, sticky notes.
-- **Полнотекстовый поиск** по сохранённому контенту.
-- **Импорт**: HTML, MAFF, PDF, Pocket-export, Evernote-export, OneNote-export.
-- **Экспорт**: WARC, ZIP, HTML-папка.
-- **ScrapBook-совместимость** — импорт старых ScrapBook-архивов.
-- **Серверная часть** (WebScrapBook backend) — для синхронизации между устройствами.
-- **Автосохранение** по расписанию для указанных URL.
+  - **Folder** — папка с HTML и файлами ресурсов;
+  - **HTZ** — ZIP-архив с той же структурой;
+  - **MAFF** — Mozilla Archive Format;
+  - **Single HTML** — один HTML-файл с встроенными ресурсами.
+- **Дерево** коллекции с папками, разделителями, заметками.
+- **Аннотации**: маркер, стикеры (в том числе с форматированием), редактирование сохранённой страницы.
+- **Полнотекстовый поиск** по коллекции (нужен кеш, его строит сервер или `wsb cache`).
+- **Повторный захват** и объединение захватов.
+- **Сервер PyWebScrapBook**: хранение коллекции на диске или сервере, доступ с нескольких устройств, просмотр HTZ/MAFF.
 
 ## Когда использовать
 
 ✅ Подходит для:
 
-- **Личного архива** статей, постов, документов.
-- **Исследовательских коллекций** с аннотациями и тегами.
-- **Импорта из Pocket/Evernote** в самохостинг.
-- **Захвата сложных страниц** (с комментариями, iframe) в один ZIP.
-- **Экспорта в WARC** для передачи в долгосрочный архив.
-- **Альтернативы Pinterest** без привязки к облаку.
+- личного архива статей и документов с аннотациями;
+- исследовательских коллекций с деревом папок;
+- миграции старых коллекций ScrapBook и ScrapBook X;
+- точного сохранения сложных страниц (с фреймами) в HTZ или MAFF.
 
 ❌ Не подходит для:
 
-- **Серверного автоматического краулинга** (для этого — Heritrix, Browsertrix).
-- **Массовой выгрузки сайта** (используйте [Wget](wget), [Wpull](wpull)).
-- **Командной работы** без сервера (нужен backend).
+- автоматического обхода по расписанию на сервере: используйте [Heritrix](heritrix) или [Browsertrix](browsertrix);
+- массовой выгрузки сайта: используйте [Wget](wget);
+- передачи в веб-архив в стандартном формате: WARC он не пишет.
 
 ## Установка
 
-### Расширение для браузера
+### Расширение
 
-#### Firefox
+- Firefox: [Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/webscrapbook/)
+- Chrome: [Chrome Web Store](https://chromewebstore.google.com/detail/oegnpmiddfljlloiklpkeelagaeejfai)
+- Edge: [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/lodlipoddpmffbngkadebncbbidnambc)
 
-- [Mozilla Add-ons: WebScrapBook](https://addons.mozilla.org/firefox/addon/webscrapbook/)
-- Установить → появится иконка в панели инструментов.
+Расширение работает и без сервера: тогда страницы сохраняются в папку загрузок браузера. Для полноценной коллекции с деревом и поиском рекомендуется сервер.
 
-#### Chrome / Edge / Brave
+### Сервер PyWebScrapBook (рекомендуется)
 
-- [Chrome Web Store: WebScrapBook](https://chrome.google.com/webstore/detail/webscrapbook/jnhffcdjfjhcflgnmfaaiobenlpdibpa)
-- [Edge Add-ons: WebScrapBook](https://microsoftedge.microsoft.com/addons/detail/webscrapbook/kpdkgmnimigkgjaldpnnhkglppfokibj)
-
-> [!NOTE]
-> Manifest V3 (новые версии Chrome) ограничивает возможности расширений. **Firefox рекомендуется** — там работают все функции, включая MAFF и глубокий capture.
-
-### Backend (опционально)
-
-Для синхронизации и общего доступа:
+Нужен Python 3.8+.
 
 ```bash
-pip install webscrapbook
-webscrapbook server --host 0.0.0.0 --port 8080
+python -m pip install -U webscrapbook
 ```
 
-Веб-интерфейс: `http://localhost:8080`. В расширении указать URL сервера.
+Есть также готовые бинарники на [странице релизов](https://github.com/danny0838/PyWebScrapBook/releases/latest).
+
+Запуск для каталога с коллекцией:
+
+```bash
+cd /path/to/scrapbook
+wsb config -ba     # создать файлы настроек в .wsb/
+wsb serve          # запустить сервер
+```
+
+Настройки — в `.wsb/config.ini` (редактирование: `wsb config -be`, описание: `wsb help config`). Адрес сервера указывается в настройках расширения (раздел Backend).
+
+> Команды сверены с README WebScrapBook и PyWebScrapBook 2.10.2 (октябрь 2026), формат сохранения и режимы захвата — со строками интерфейса расширения.
+
+### Консольные команды `wsb`
+
+| Команда | Назначение |
+| :--- | :--- |
+| `wsb serve` | Запустить сервер |
+| `wsb config` | Показать, создать или изменить настройки |
+| `wsb cache` | Обновить кеш полнотекстового поиска и статические страницы |
+| `wsb check` | Проверить и исправить данные коллекции |
+| `wsb search` / `wsb query` | Поиск и запросы по коллекции |
+| `wsb export` / `wsb import` | Экспорт и импорт элементов в архивы `.wsba` |
+| `wsb convert` | Конвертация: из ScrapBook X (`sb2wsb`) и обратно, из папки с файлами (`file2wsb`), в обычные файлы (`wsb2file`), миграция |
+| `wsb view` | Открыть HTZ или MAFF в браузере |
 
 ## Использование
 
-### Базовый захват страницы
+### Сохранить страницу
 
-1. Открыть страницу.
-2. Кликнуть на иконку WebScrapBook → **Capture**.
-3. Выбрать формат (HTML, MAFF, PNG).
-4. Указать папку в дереве.
-5. **Done** — страница сохранена.
+1. Откройте страницу.
+2. Нажмите на значок WebScrapBook и выберите «Capture page» (или пункт контекстного меню).
+3. Для настройки формата, папки и глубины захвата ссылок выберите «Capture page as».
 
-### Глубокий capture (краулинг)
-
-1. Кликнуть → **Capture As** (или "Capture All Pages" в меню).
-2. Настроить:
-   - **Глубина** (0 = только эта страница, 1 = + ссылки на ней, и т.д.).
-   - **Фильтры**: include/exclude по URL-паттернам.
-   - **Лимит страниц**.
-   - **Задержки** (для вежливого краулинга).
-3. Запустить → WebScrapBook рекурсивно сохранит.
+Формат по умолчанию задаётся в настройках («Save captured data as»: Folder, HTZ, MAFF или Single HTML).
 
 ### Аннотирование
 
-1. Открыть сохранённую страницу (правый клик → "Open" в WebScrapBook).
-2. Выделить текст → появится всплывающее меню аннотации.
-3. Добавить заметку, тег, цвет.
-4. Сохранить — аннотация хранится вместе со страницей.
-
-### Экспорт в WARC
-
-1. Выделить страницу или папку в дереве.
-2. Правый клик → **Export** → **WARC**.
-3. Получится `.warc.gz`, совместимый с [pywb](/kb/instruments/replay/pywb), [ReplayWeb.page](/kb/instruments/replay/replayweb-page).
-
-### Импорт из Pocket
-
-1. В Pocket: Settings → Export → Save as HTML.
-2. В WebScrapBook: правый клик на папку → **Import** → **Pocket HTML**.
-3. Все сохранённые статьи импортируются с метаданными.
+Откройте сохранённую страницу из боковой панели WebScrapBook и включите редактор. Доступны маркер, стикеры и редактирование DOM. Изменения сохраняются вместе со страницей.
 
 ### Поиск
 
-1. Кликнуть на иконку → вкладка **Search**.
-2. Ввести запрос — найдёт по заголовкам, тегам, аннотациям, **полному тексту страниц**.
-
-## Конфигурация
-
-### Настройки расширения
-
-В `about:addons` → WebScrapBook → Preferences:
-
-```yaml
-# Формат сохранения по умолчанию
-Default save format: MAFF (с ресурсами)
-
-# Автосохранение
-Auto-save interval: 30 days
-Auto-save items: ["https://news.example.com/*", "https://blog.example.com/*"]
-
-# Захват
-Capture depth: 2
-Capture delay: 1.0 sec/page
-Capture max-size: 100 MB
-```
-
-### Серверный backend (`config.ini`)
-
-```ini
-[server]
-host = 0.0.0.0
-port = 8080
-root = /var/lib/webscrapbook
-allow_tempdir = true
-```
+Вкладка поиска в боковой панели ищет по заголовкам, комментариям и, при наличии кеша, по полному тексту сохранённых страниц.
 
 ## Сравнение с другими инструментами
 
-| Инструмент | Форматы | Дерево | Аннотации | WARC-экспорт | Сервер |
+| Инструмент | Форматы | Дерево | Аннотации | WARC | Сервер |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| **WebScrapBook** | MAFF, WARC, ZIP, HTML | ✅ | ✅ | ✅ | ✅ |
-| **[SingleFile](singlefile)** | HTML | ❌ | ❌ | ❌ | ❌ |
+| **WebScrapBook** | Folder, HTZ, MAFF, Single HTML | ✅ | ✅ | ❌ | ✅ PyWebScrapBook |
+| **[SingleFile](singlefile)** | HTML, ZIP | ❌ | ⚠️ | ❌ | ❌ |
 | **[monolith](monolith)** | HTML | ❌ | ❌ | ❌ | ❌ |
-| **ScrapBook (XUL)** | MAFF, HTML | ✅ | ✅ | ❌ | ❌ |
-| **Pocket (online)** | HTML | ❌ | ✅ | ❌ | ❌ |
-| **Hypothes.is** | — | ❌ | ✅ | ❌ | ✅ |
-| **Notion Web Clipper** | HTML | ✅ | ✅ | ❌ | ❌ |
+| **[ArchiveWeb.page](https://archiveweb.page/)** | WARC/WACZ | ❌ | ❌ | ✅ | ❌ |
+| **[Hypothesis](https://web.hypothes.is/)** | — | ❌ | ✅ | ❌ | ✅ (облако) |
 
 ### Когда WebScrapBook лучше всех
 
-- Нужен **локальный архив с структурой** (папки, теги, аннотации).
-- Важна **миграция с Pocket/Evernote** в самохостинг.
-- Нужен **экспорт в WARC** для передачи в долгосрочный архив.
-- Используется **Firefox** (там все функции работают).
+- Нужен локальный архив со структурой (папки, заметки, аннотации).
+- Нужна миграция старых коллекций ScrapBook.
+- Нужно точно сохранить страницу с фреймами в один архивный файл (HTZ или MAFF).
 
 ### Когда лучше SingleFile
 
-- Нужна **только одна страница** в HTML — нет смысла в дереве.
-- Работа в **Chrome/Edge** — WebScrapBook там ограничен.
+- Нужна только одна страница в одном HTML-файле без коллекции.
 
-### Когда лучше Hypothesis.is
+### Когда лучше ArchiveWeb.page или Browsertrix
 
-- Нужны **аннотации на любых страницах** в интернете (а не только сохранённых).
-- **Командная работа** с обсуждениями.
+- Нужен стандартный WARC/WACZ для передачи в веб-архив или воспроизведения в [ReplayWeb.page](/kb/instruments/replay/replayweb-page).
 
-### Когда лучше ArchiveBox
+## Рекомендации
 
-- Нужен **автоматический** сбор из RSS/закладок.
-- Множественные **методы** захвата (wget + Chrome + SingleFile).
-
-## Best practices
-
-### 1. Используйте MAFF как формат по умолчанию
-
-MAFF — это ZIP-контейнер с HTML, медиа и метаданными. Преимущества:
-- Один файл, удобно передавать.
-- Все ресурсы внутри.
-- Метаданные (дата, теги) не теряются.
-- Конвертируется в WARC без потерь.
-
-### 2. Структурируйте архив с самого начала
-
-```
-📁 Архив
-├── 📁 2024
-│   ├── 📁 Новости
-│   ├── 📁 Исследования
-│   └── 📁 Референсы
-├── 📁 2025
-│   └── 📁 Проект X
-└── 📁 Templates
-```
-
-### 3. Добавляйте аннотации сразу
-
-Не откладывайте. Свежие мысли через неделю уже не восстановить. Аннотация в 5 слов экономит часы.
-
-### 4. Регулярно экспортируйте в WARC
-
-```bash
-# WebScrapBook → правый клик на корень → Export → WARC
-# Сохранить в /mnt/backup/webscrapbook-YYYY-MM-DD.warc.gz
-```
-
-WARC — это стандарт, который проживёт десятилетия. MAFF — это «родной» формат, но менее распространён.
-
-### 5. Используйте автосохранение для важных источников
-
-```yaml
-Auto-save items:
-  - "https://news.ycombinator.com/*"
-  - "https://www.bbc.com/news/*"
-```
-
-Раз в месяц все новые страницы автоматически попадают в архив.
-
-### 6. Синхронизируйте через backend
-
-Если используете несколько устройств — поднимите WebScrapBook server (в Docker, на домашнем NAS) и подключите к нему все браузеры.
-
-### 7. Делайте бэкапы
-
-```bash
-# Ежедневный бэкап MAFF-файлов
-tar -czf backup-$(date +%F).tar.gz ~/.local/share/webscrapbook/
-```
+1. **Используйте сервер PyWebScrapBook**: коллекция живёт в обычном каталоге на диске, её легко копировать и бэкапить.
+2. **Выбирайте формат осознанно.** HTZ и MAFF — один файл на страницу, удобно хранить. Folder — удобно смотреть и обрабатывать скриптами. Single HTML — удобно пересылать.
+3. **Делайте резервные копии** каталога коллекции, например `tar -czf scrapbook-$(date +%F).tar.gz /path/to/scrapbook`.
+4. **Для долговременного хранения в веб-архиве** дополнительно сохраняйте важные страницы в WARC другими инструментами.
 
 ## Ограничения
 
-- **Manifest V3** в Chrome ограничивает некоторые функции (нет MAFF, нет глубокого capture в новых версиях). **Firefox** — рекомендуемая платформа.
-- **Тяжёлые страницы** (видео-плееры, сложные SPA) сохраняются, но воспроизведение может быть затруднено.
-- **Нет OCR** — текст из картинок не извлекается.
-- **Нет командной работы** без backend-сервера.
-- **Дублирование контента** при сохранении одной страницы в разные папки.
-- **Большие коллекции** (>10k страниц) начинают тормозить.
+- Нет WARC и WACZ.
+- Тяжёлые страницы (видеоплееры, сложные SPA) сохраняются, но воспроизведение может быть неполным.
+- Нет OCR: текст из картинок не извлекается.
+- Совместная работа требует сервера.
 
 ## Ресурсы
 
-- [GitHub: WebScrapBook](https://github.com/danny0838/webscrapbook) — исходный код.
-- [Документация](https://github.com/danny0838/webscrapbook/wiki) — подробный гайд.
-- [Mozilla Add-ons: WebScrapBook](https://addons.mozilla.org/firefox/addon/webscrapbook/) — установка в Firefox.
-- [Chrome Web Store: WebScrapBook](https://chrome.google.com/webstore/detail/webscrapbook/jnhffcdjfjhcflognmfaaiobenlpdibpa) — установка в Chrome.
-- [Онлайн-демо](https://danny0838.github.io/webscrapbook/) — посмотреть как выглядит.
-- [ScrapBook Wiki (legacy)](https://wiki.greasespot.net/ScrapBook) — документация предшественника.
+- [GitHub: WebScrapBook](https://github.com/danny0838/webscrapbook)
+- [Документация (wiki)](https://github.com/danny0838/webscrapbook/wiki/Intro)
+- [GitHub: PyWebScrapBook](https://github.com/danny0838/PyWebScrapBook)
+- [ScrapBook X](https://github.com/danny0838/firefox-scrapbook) — предшественник для старого Firefox
 
 ## Связанные материалы
 
-- **[SingleFile](singlefile)** — для одной страницы без структуры.
-- **[monolith](monolith)** — CLI-альтернатива на Rust.
-- **[Obelisk](obelisk)** — CLI-альтернатива на Go.
+- **[SingleFile](singlefile)** — одна страница без структуры.
+- **[monolith](monolith)** — CLI на Rust.
+- **[Obelisk](obelisk)** — CLI на Go.
 - **[Archive.ph](/kb/instruments/tools/archive-ph)** — мгновенный онлайн-снимок.
-- **[ArchiveBox](archivebox)** — автоматический сбор из RSS.
-- **[WARC](/kb/instruments/file-formats/warc)** — куда экспортировать для долгосрочного хранения.
-- **[pywb](/kb/instruments/replay/pywb)** — сервер воспроизведения WARC.
-- **[ReplayWeb.page](/kb/instruments/replay/replayweb-page)** — клиентский просмотр WARC.
-- **[Глоссарий](/kb/glossary)** — термин MAFF, WARC.
-- **[Пользовательские workflow](/kb/guides/custom-workflows)** — WebScrapBook в пайплайнах.
+- **[ArchiveBox](archivebox)** — автоматический сбор с WARC.
+- **[WARC](/kb/instruments/file-formats/warc)**
+- **[ReplayWeb.page](/kb/instruments/replay/replayweb-page)**
+- **[Глоссарий](/kb/glossary)**
+- **[Пользовательские workflow](/kb/guides/custom-workflows)**

@@ -1,70 +1,103 @@
 ---
+title: Как цитировать архив Ruarxive
+description: "Образцы ссылок на архивы Ruarxive для научных и публицистических работ: краткий формат, ГОСТ Р 7.0.100–2018, английский вариант и BibTeX; как сослаться на отдельную страницу внутри WARC."
 sidebar_position: 3
-last_updated: 2026-10-07
+last_update:
+  date: 2026-10-12
 ---
 
 # Как цитировать архив Ruarxive
 
 Корректное цитирование архивов в научных и публицистических работах.
 
+В ссылке стоит указывать:
+
+- название коллекции и дату (или период) сбора;
+- прямой URL файла архива;
+- дату обращения;
+- по возможности — контрольную сумму файла (SHA-256), чтобы читатель мог убедиться, что работает с тем же файлом.
+
 ## Базовый формат (RU)
 
 ```
-Национальный цифровой архив России (Ruarxive). Архив [название коллекции]
-[дата снимка или диапазон]. URL: https://...
+Национальный цифровой архив (Ruarxive). Архив [название коллекции]
+[дата снимка или диапазон]. URL: https://... (дата обращения: ДД.ММ.ГГГГ).
 ```
 
 **Пример:**
 
 ```
-Национальный цифровой архив России (Ruarxive). Архив сайта «Эхо Москвы»
-(3–4 марта 2022 г.). URL: https://cdn.ruarxive.org/public/webcollect2022/echomskru2022/echo.msk.ru/echo.msk.ru.warc.gz
+Национальный цифровой архив (Ruarxive). Архив сайта «Эхо Москвы» (echo.msk.ru)
+(3–4 марта 2022 г.). WARC-файл. URL: https://f001.backblazeb2.com/file/IKPUBLIC/webcollect2022/echomskru2022/echo.msk.ru/echo.msk.ru.warc.gz
+(дата обращения: 12.10.2026).
+```
+
+## По ГОСТ Р 7.0.100–2018
+
+Для русскоязычных научных работ библиографическую ссылку на электронный ресурс оформляют по ГОСТ Р 7.0.100–2018. Пример (проверьте требования своего журнала или вуза к пунктуации):
+
+```
+Архив сайта «Эхо Москвы» (echo.msk.ru), 3–4 марта 2022 г. : WARC-файл /
+Национальный цифровой архив (Ruarxive), АНО «Инфокультура». – 2022. –
+URL: https://f001.backblazeb2.com/file/IKPUBLIC/webcollect2022/echomskru2022/echo.msk.ru/echo.msk.ru.warc.gz
+(дата обращения: 12.10.2026). – Текст : электронный.
 ```
 
 ## Базовый формат (EN)
 
 ```
-Ruarxive Russian Digital Archive. [Collection Name] [snapshot date(s)].
-Retrieved from <URL>.
+Ruarxive (National Digital Archive). [Collection Name], [snapshot date(s)].
+[Format]. Available at: <URL> (accessed DD Month YYYY).
 ```
 
 ## BibTeX
 
 ```bibtex
 @misc{ruarxive_echomsk_2022,
-  author       = {{National Digital Archive of Russia (Ruarxive)}},
-  title        = {Archive of Echo of Moscow (echo.msk.ru)},
+  author       = {{Ruarxive (National Digital Archive)}},
+  title        = {Archive of the Echo of Moscow website (echo.msk.ru), 3--4 March 2022},
   year         = {2022},
   month        = mar,
-  howpublished = {\url{https://cdn.ruarxive.org/public/webcollect2022/echomskru2022/echo.msk.ru/echo.msk.ru.warc.gz}},
-  note         = {WARC archive, \textasciitilde{}173 GB},
-  organization = {Information Culture},
+  howpublished = {WARC file},
+  url          = {https://f001.backblazeb2.com/file/IKPUBLIC/webcollect2022/echomskru2022/echo.msk.ru/echo.msk.ru.warc.gz},
+  urldate      = {2026-10-12},
+  note         = {186\,234\,035\,346 bytes (about 173 GiB). Project of ANO Infoculture},
 }
 ```
 
+Поле `urldate` понимают biblatex и большинство современных стилей; в классическом BibTeX дату обращения можно перенести в `note`.
+
 ## Цитирование конкретной страницы
 
-Когда используется одна страница из архива, указывайте её URL внутри архива:
+Когда используется одна страница из архива, укажите её исходный URL и дату снимка (поле `WARC-Date` или timestamp из CDX-индекса):
 
 ```
-Национальный цифровой архив России (Ruarxive).
-Архив «Эхо Москвы», страница «https://echo.msk.ru/blog/echomsk/12345/».
-WARC: https://cdn.ruarxive.org/.../echo.msk.ru.warc.gz
-CDX-запись: см. https://f001.backblazeb2.com/file/IKPUBLIC/webcollect2022/echomskru2022/echo.msk.ru/echo.msk.ru.cdx.zip
+Национальный цифровой архив (Ruarxive).
+Архив сайта «Эхо Москвы», страница https://echo.msk.ru/... , снимок от 03.03.2022.
+WARC: https://f001.backblazeb2.com/file/IKPUBLIC/webcollect2022/echomskru2022/echo.msk.ru/echo.msk.ru.warc.gz
+CDX-индекс: https://f001.backblazeb2.com/file/IKPUBLIC/webcollect2022/echomskru2022/echo.msk.ru/echo.msk.ru.cdx.zip
 ```
 
-## Лицензия и условия использования
+Найти страницу и дату снимка можно по CDX-индексу, не скачивая весь архив, — см. [«Вскрытие» WARC](/kb/users/inspect-warc). Если страница доступна и в Wayback Machine, можно дополнительно дать ссылку на снимок там.
 
-Большинство материалов Ruarxive распространяются по **CC-BY 4.0** — разрешено использовать
-с указанием авторства. Конкретные ограничения для каждого архива см. в таблице сохранённых
-проектов.
+## Контрольная сумма
+
+Чтобы ссылка была проверяемой, вычислите SHA-256 скачанного файла и укажите его в примечании:
+
+```bash
+sha256sum echo.msk.ru.warc.gz
+```
+
+## Права и условия использования
+
+Лицензия CC BY 4.0 распространяется на тексты сайта и базы знаний Ruarxive. Права на сами архивированные материалы принадлежат их правообладателям; публичная доступность архива не означает разрешения на любое использование. Подробнее — в разделе [Авторское право](/kb/legal/copyright).
 
 :::warning
 Часть архивов содержит персональные данные. Использование таких архивов в публикациях
 регулируется [законодательством о персональных данных](/kb/legal/personal-data).
 :::
 
-## Где публиковать метаданные об использовании
+## Где сообщить об использовании
 
 Если вы использовали архивы Ruarxive в исследовании, сообщите об этом в
-[Telegram-чат](https://t.me/ruarxivechat) — мы добавим ссылку в каталог использования.
+[Telegram-чат](https://t.me/ruarxivechat) — это помогает проекту понимать, какие коллекции востребованы.

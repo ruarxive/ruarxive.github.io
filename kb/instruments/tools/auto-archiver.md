@@ -1,329 +1,271 @@
 ---
-title: Auto-Archiver (Bellingcat) — workflow-оркестратор
+title: Auto-Archiver (Bellingcat) — оркестратор архивации ссылок
 sidebar_label: Auto-Archiver
-description: "Auto-Archiver — open-source инструмент Bellingcat для автоматической архивации ссылок из Google Sheets, CSV, Telegram, Atlos. Сохраняет в WACZ/WARC, выгружает в S3/локально."
-last_updated: 2026-11-09
+description: "Auto-Archiver — открытый инструмент Bellingcat для автоматической архивации ссылок из Google Sheets, CSV, командной строки и Atlos: подбирает модуль под тип ссылки, сохраняет медиа, метаданные и хеши локально, в S3 или Google Drive."
+last_update:
+  date: 2026-10-12
 keywords: [auto-archiver, bellingcat, osint, archiving, workflow, google-sheets]
 ---
 
 # Auto-Archiver (Bellingcat)
 
-[Auto-Archiver](https://github.com/bellingcat/auto-archiver) — open-source Python-инструмент от [Bellingcat](https://www.bellingcat.com/) для **автоматической архивации ссылок** из Google Sheets, CSV, Telegram и других источников. С 2023 года используется в OSINT-расследованиях для архивации соцсетей, видео, новостных материалов и веб-страниц.
+[Auto-Archiver](https://github.com/bellingcat/auto-archiver) — открытый (MIT) инструмент на Python от [Bellingcat](https://www.bellingcat.com/) для **автоматической архивации ссылок**. Он берёт URL из разных источников (CSV-файл, Google Sheets, командная строка, платформа Atlos), архивирует содержимое каждого — посты в соцсетях, видео, изображения, веб-страницы, — обогащает его метаданными и хешами и сохраняет локально или в облако. Разрабатывается с 2021 года и используется в OSINT-расследованиях.
 
-> **Главное отличие от Browsertrix и wget:** Auto-Archiver не собирает сам сайт — он **координирует** запуск нужного инструмента под каждый тип ссылки. Пост с Telegram → `telegram_extractor`, видео YouTube → `yt_dlp_extractor`, сайт → `wacz_extractor`, картинка → `image_extractor`. Всё записывается в Google Sheets с метаданными.
+> **Главное отличие от Browsertrix и wget:** Auto-Archiver не обходит сайты целиком — он **прогоняет каждую ссылку через цепочку модулей**: извлечение (например, `generic_extractor` на базе yt-dlp для видео, `telegram_extractor` для постов Telegram), обогащение (хеши, миниатюры, SSL-сертификат), запись статуса в базу (например, обратно в Google Sheets) и сохранение файлов.
 
-> По данным Bellingcat на 2025 год, Auto-Archiver помог сохранить более **150 000 материалов** онлайн-доказательств. Включая систематическую архивацию во время конфликта Россия-Украина.
+> По данным [Bellingcat (август 2025 года)](https://www.bellingcat.com/resources/2025/08/13/the-open-source-tool-that-has-preserved-150000-pieces-of-online-evidence/), с помощью Auto-Archiver сохранено более **150 000 материалов** онлайн-доказательств.
 
 ## Зачем нужен
 
-| Задача | Стандартный способ | С Auto-Archiver |
+| Задача | Без Auto-Archiver | С Auto-Archiver |
 |:---|:---|:---|
-| Архивировать 50 ссылок из Telegram за день | Вручную качать каждый | Добавить ссылки в Google Sheets, запустить раз в день |
-| OSINT-расследование по 200 материалов | 8 часов ручного труда | 30 мин на запуск + проверить результат |
-| Регулярная архивация соцсетей | Сложные скрипты | Шаблон: `telegram_extractor` + `instagram_extractor` |
-| Автоматическое обогащение метаданными | Самописные скрипты | Из коробки: hash, MIME, дата, скриншот |
+| Архивировать десятки ссылок на посты в Telegram | Скачивать каждый вручную | Добавить ссылки в Google Sheets или CSV и запустить по расписанию |
+| Совместный сбор материалов для расследования | Ссылки в чатах и документах | Общая таблица, в которую Auto-Archiver записывает статус, путь к архиву, хеш |
+| Подтвердить неизменность материала | Самописные скрипты | Хеши (SHA-256 по умолчанию), перцептивные хеши, метки времени |
 
-## Возможности
+## Как устроена конфигурация
 
-### Источники (Inputs)
+Вся настройка хранится в одном файле **`orchestration.yaml`** (обычно в папке `secrets/`). При первом запуске без `--config` Auto-Archiver сам создаёт `secrets/orchestration.yaml` с рекомендуемыми настройками.
 
-| Тип входа | Как |
+Файл состоит из двух частей:
+
+1. **`steps`** — какие модули запускать, по шагам: `feeders` (источники ссылок), `extractors` (извлечение), `enrichers` (обогащение), `databases` (куда записывать статус), `storages` (куда сохранять файлы), `formatters` (итоговая HTML-страница).
+2. **Настройки модулей** — секции с именем модуля на верхнем уровне (`local_storage:`, `csv_feeder:`, `hash_enricher:` и т. д.).
+
+Любую настройку можно переопределить из командной строки: `--имя_модуля.параметр=значение`.
+
+## Модули
+
+Список по версии 1.2.9 (полный — в `auto-archiver --help` и в [документации](https://auto-archiver.readthedocs.io/en/latest/)).
+
+### Источники (feeders)
+
+| Модуль | Что делает |
 |:---|:---|
-| **Google Sheets** | Самая частая схема; рекодёрская колонка `url` + служебные |
-| **CSV-файл** | `auto-archiver run --csv=./urls.csv` |
-| **Airtable** | Через интеграционный скрипт |
-| **Atlos** | Платформа расследований Bellingcat |
-| **Telegram-бот** | Регистрация материалов через Telegram |
-| **API** | Из собственных скриптов |
+| `cli_feeder` | URL из командной строки (по умолчанию) |
+| `csv_feeder` | URL из CSV-файлов (настройки `files`, `column`) |
+| `gsheet_feeder_db` | строки из Google Sheets; одновременно записывает результаты обратно в таблицу |
+| `atlos_feeder_db_storage` | материалы из платформы расследований [Atlos](https://www.atlos.org/); может также хранить результаты в Atlos |
 
-### Экстракторы (по типу материала)
+### Извлечение (extractors)
 
-| Тип ссылки | Экстрактор | Что делает |
-|:---|:---|:---|
-| Telegram-пост (публичный) | `telegram_extractor` | Скачивает текст + медиа + метаданные |
-| Telegram-канал (с логином) | `telethon_extractor` | Полная история канала через Telethon |
-| YouTube / Vimeo / видео | `yt_dlp_extractor` | Видео + метаданные + субтитры через yt-dlp |
-| Веб-страница | `wacz_extractor` | WACZ через Browsertrix Cloud или self-hosted |
-| Instagram пост | `instagram_extractor` | Через instaloader |
-| VK | `vk_extractor` | Через vk-caching или API |
-| Изображение | `image_extractor` | Оригинал + хеш |
-| PDF | `pdf_extractor` | Скачивание + OCR (опционально) |
-| Произвольный URL | `generic_extractor` | Хеш + заголовки + базовая метаинформация |
+| Модуль | Что делает |
+|:---|:---|
+| `generic_extractor` | видео и посты с сайтов, которые поддерживает [yt-dlp](/kb/instruments/tools/yt-dlp) (YouTube, Facebook и др.), с субтитрами и метаданными |
+| `telegram_extractor` | медиа из публичных постов Telegram по ссылке, без входа в аккаунт |
+| `telethon_extractor` | посты и медиа из каналов и групп Telegram через Telethon, включая закрытые (нужны `api_id`, `api_hash`) |
+| `instagram_api_extractor`, `instagram_tbot_extractor`, `instagram_extractor` | Instagram через API, через Telegram-бота или через Instaloader (последний не поддерживается из-за блокировок) |
+| `twitter_api_extractor` | X/Twitter через API |
+| `wacz_extractor_enricher` | WACZ-архив страницы через локальный [Browsertrix Crawler](/kb/instruments/tools/browsertrix), запускаемый в Docker |
+| `wayback_extractor_enricher` | отправка URL в Wayback Machine (нужны ключ и секрет SPN API) |
+| `antibot_extractor_enricher` | браузер на SeleniumBase: HTML, медиа, скриншот и PDF страницы |
 
-### Хранилища (Outputs)
+### Обогащение, базы, хранилища
 
-| Куда | Формат | Когда |
-|:---|:---|:---|
-| Локальная папка | Файлы + JSON-метаданные | Разработка, малые проекты |
-| AWS S3 / Backblaze | Файлы + JSON | Продакшен |
-| Google Drive | Файлы | Нетехнические пользователи |
-| Hugging Face Datasets | Датасет | ML-исследования |
-| Локальная БД (SQLite) | Метаданные | Поиск по архивам |
+- **Обогащение:** `hash_enricher`, `pdq_hash_enricher` (перцептивные хеши), `thumbnail_enricher`, `ssl_enricher`, `meta_enricher`, `metadata_enricher` (exiftool), `timestamping_enricher` и `opentimestamps_enricher` (доверенные метки времени), `whisper_enricher` (расшифровка аудио).
+- **Базы:** `console_db`, `csv_db`, `gsheet_feeder_db`, `api_db`, `atlos_feeder_db_storage`.
+- **Хранилища:** `local_storage`, `s3_storage` (S3-совместимые, в том числе с `endpoint_url`), `gdrive_storage`, `atlos_feeder_db_storage`.
+
+:::warning Обход защиты от ботов
+В конфигурации, которую Auto-Archiver создаёт по умолчанию, включён `antibot_extractor_enricher`; по описанию модуля он пытается обходить антибот-защиту вроде Cloudflare Turnstile и reCAPTCHA. Обходить технические средства защиты нельзя: если у вас нет на это явного правового основания, уберите модуль из `steps` и проконсультируйтесь с юристом.
+:::
 
 ## Установка
 
-### Через pip
-
-```bash
-pip install auto-archiver
-```
-
-### Через Docker
+### Через Docker (рекомендуется)
 
 ```bash
 docker pull bellingcat/auto-archiver
-docker run -v $(pwd)/config.yaml:/app/config.yaml \
-  -v $(pwd)/output:/app/output \
-  bellingcat/auto-archiver
+docker run -it --rm -v $PWD/secrets:/app/secrets -v $PWD/local_archive:/app/local_archive \
+  bellingcat/auto-archiver -- "https://example.com/1/"
 ```
 
-### Из исходников
+Папка `secrets/` хранит `orchestration.yaml` и ключи доступа, `local_archive/` — результаты `local_storage`.
+
+### Через pip
+
+Нужен Python 3.10–3.12:
 
 ```bash
-git clone https://github.com/bellingcat/auto-archiver
-cd auto-archiver
-pip install -e .
+pip install auto-archiver
+auto-archiver --help
 ```
+
+Для локальной установки также нужны `ffmpeg` (видео), `exiftool` (для `metadata_enricher`) и Docker-образ `webrecorder/browsertrix-crawler` (для WACZ).
+
+> Команды и имена модулей сверены с README, документацией и `auto-archiver --help` версии 1.2.9 (октябрь 2026).
 
 ## Быстрый старт
 
-### 1. Подготовьте Google Sheets
-
-| url | tags | folder |
-|:---|:---|:---|
-| https://t.me/example/123 | "расследование" | "month-1" |
-| https://youtube.com/watch?v=abc | "видео" | "month-1" |
-| https://example.com/article | "" | "month-1" |
-
-Создайте сервисный аккаунт Google, расшарьте таблицу.
-
-### 2. config.yaml
-
-```yaml
-input:
-  google_sheets:
-    sheet_id: "1AbC..."
-    credentials_file: "./google-credentials.json"
-    worksheet: "Sheet1"
-    url_column: "url"
-    headers_in_first_row: true
-
-extractors:
-  telegram_extractor:
-    enabled: true
-  yt_dlp_extractor:
-    enabled: true
-  wacz_extractor:
-    enabled: true
-    browsertrix_url: "http://localhost:3030"   # self-hosted Browsertrix Cloud
-  generic_extractor:
-    enabled: true
-
-storages:
-  local:
-    folder: "./output"
-  s3:
-    enabled: false
-    bucket: "my-bucket"
-
-database:
-  type: sqlite
-  file: "./auto-archiver.db"
-
-logging:
-  level: info
-  log_file: "./auto-archiver.log"
-```
-
-### 3. Запуск
+### 1. Архивация нескольких ссылок из командной строки
 
 ```bash
-auto-archiver run --config config.yaml
+auto-archiver "https://t.me/example/123" "https://www.youtube.com/watch?v=VIDEO_ID"
 ```
 
-Auto-Archiver читает Google Sheets, обрабатывает каждую строку, записывает результаты обратно в Sheets (статус, путь к файлу, hash, дата).
+При первом запуске будет создан `secrets/orchestration.yaml`, результаты попадут в `./local_archive`, а сводка — в `db.csv` (модуль `csv_db`).
+
+### 2. Ссылки из CSV-файла
+
+```bash
+auto-archiver --config secrets/orchestration.yaml \
+  --feeders=csv_feeder --csv_feeder.files=urls.csv --csv_feeder.column=url
+```
+
+### 3. Google Sheets
+
+Нужен сервисный аккаунт Google с доступом к таблице (инструкция — в разделе [How-to → Google Sheets](https://auto-archiver.readthedocs.io/en/latest/) документации). По умолчанию модуль ожидает столбцы `link`, `archive status`, `archive location`, `archive date`, `hash`, `screenshot`, `wacz` и др.; свои названия задаются через `columns`.
+
+Фрагмент `orchestration.yaml`:
+
+```yaml
+steps:
+  feeders:
+  - gsheet_feeder_db
+  extractors:
+  - generic_extractor
+  - telegram_extractor
+  enrichers:
+  - thumbnail_enricher
+  - hash_enricher
+  databases:
+  - gsheet_feeder_db
+  storages:
+  - local_storage
+  formatters:
+  - html_formatter
+
+gsheet_feeder_db:
+  sheet: "Название таблицы"
+  service_account: secrets/service_account.json
+  header: 1
+
+local_storage:
+  save_to: ./local_archive
+
+hash_enricher:
+  algorithm: SHA-256
+```
+
+Запуск:
+
+```bash
+auto-archiver --config secrets/orchestration.yaml
+```
+
+Auto-Archiver возьмёт строки без статуса, обработает их и запишет в таблицу статус, ссылку на архив, дату и хеш.
+
+### 4. WACZ-архив страницы
+
+```yaml
+steps:
+  extractors:
+  - wacz_extractor_enricher
+
+wacz_extractor_enricher:
+  timeout: 120
+  # profile: secrets/profile.tar.gz   # профиль браузера Browsertrix для страниц с входом
+```
+
+Модуль сам запускает Browsertrix Crawler через `docker`, поэтому Docker должен быть доступен.
 
 ## Сценарии использования
 
-### Сценарий 1. OSINT-расследование (50–500 ссылок)
+### Расследование (десятки и сотни ссылок)
 
-1. Создать Google Sheet, расшарить с командой.
-2. Каждый член команды добавляет найденные ссылки.
-3. Один раз в день — `auto-archiver run`.
-4. На следующий день — таблица обновлена; можно переходить к анализу.
+1. Создать Google Sheet и дать доступ команде и сервисному аккаунту.
+2. Участники добавляют найденные ссылки в столбец `link`.
+3. Auto-Archiver запускается по расписанию и заполняет остальные столбцы.
 
-### Сценарий 2. Регулярная архивация Telegram-каналов
+### Архивация постов из Telegram
 
-```yaml
-extractors:
-  telethon_extractor:
-    enabled: true
-    api_id: 12345
-    api_hash: "your_hash"
-    channels:
-      - "channelname1"
-      - "channelname2"
-
-storages:
-  s3:
-    enabled: true
-    bucket: "telegram-archives"
-```
-
-Запуск по cron ежедневно:
-
-```cron
-0 3 * * *  cd /opt/auto-archiver && auto-archiver run --config telegram-config.yaml
-```
-
-### Сценарий 3. Журналистский мониторинг
-
-Коллеги скидывают ссылки в общий Telegram-бот → Auto-Archiver складывает всё в S3 с метаданными. Через неделю — датасет для редакции.
-
-### Сценарий 4. Локальный исследователь
-
-Несколько папок с разными тегами, auto-archiver бежит по очереди:
+`telethon_extractor` архивирует **посты по ссылкам**, а не выгружает канал целиком. Для полной выгрузки истории каналов используйте [tgarc](/kb/instruments/ruarxive-tools/tgarc) или другие инструменты из раздела про Telegram.
 
 ```yaml
-input:
-  csv:
-    file: "./investigation-2026-11.csv"
-    url_column: "link"
+steps:
+  extractors:
+  - telethon_extractor
+  - telegram_extractor
 
-storages:
-  local:
-    folder: "/data/investigations/2026-11"
+telethon_extractor:
+  api_id: 12345
+  api_hash: "ваш_api_hash"
+  session_file: secrets/anon
 ```
 
-## Метаданные, которые Auto-Archiver собирает
+Используйте **отдельный** Telegram-аккаунт, а не личный: при активной работе через API аккаунт могут ограничить.
 
-Для каждого заархивированного URL:
-
-```json
-{
-  "url": "https://t.me/example/123",
-  "type": "telegram",
-  "status": "archived",
-  "hash_md5": "5f4dcc3b...",
-  "hash_sha256": "...",
-  "size_bytes": 102400,
-  "mimetype": "image/jpeg",
-  "archived_at": "2026-11-09T12:00:00Z",
-  "downloaded_at": "2026-11-09T12:05:00Z",
-  "title": "Заголовок поста",
-  "description": "Текст сообщения",
-  "author": "Канал Example",
-  "date_published": "2026-11-08T10:00:00Z",
-  "screenshot_path": "screenshot.png",
-  "wacz_path": null,
-  "thumbnail_path": "thumb.jpg",
-  "tags": ["расследование", "month-1"],
-  "folder": "month-1/"
-}
-```
-
-Метаданные сохраняются в SQLite, JSON-файл рядом с архивом, и в Google Sheets (для удобства анализа).
-
-## Конфигурация расписания
-
-### Однократный запуск
-
-```bash
-auto-archiver run
-```
+## Запуск по расписанию
 
 ### Через cron
 
 ```cron
 # Каждые 6 часов
-0 */6 * * * cd /opt/auto-archiver && auto-archiver run
+0 */6 * * * cd /opt/auto-archiver && auto-archiver --config secrets/orchestration.yaml
 ```
 
 ### Через systemd timer
 
 ```ini
-[Unit]
-Description=Auto-Archiver periodic run
+# auto-archiver.service
+[Service]
+Type=oneshot
+WorkingDirectory=/var/lib/auto-archiver
+ExecStart=/usr/local/bin/auto-archiver --config secrets/orchestration.yaml
 
+# auto-archiver.timer
 [Timer]
 OnCalendar=hourly
 Persistent=true
 
-[Service]
-ExecStart=/usr/local/bin/auto-archiver run --config /etc/auto-archiver.yaml
-WorkingDirectory=/var/lib/auto-archiver
+[Install]
+WantedBy=timers.target
 ```
 
-### Airflow / Prefect / Prefect Cloud
+## Практические советы
 
-Auto-Archiver можно встроить в DAG-графы Python-orchestration систем. Каждый шаг (extract, archive, store) — отдельный task.
-
-## Production tips
-
-### Изоляция аккаунтов
-
-Для `telethon_extractor` используйте **отдельный** Telegram-аккаунт (не личный). Иначе риск бана.
-
-### Лимиты API
-
-YouTube Data API v3 — есть квоты. Либо используйте только `yt_dlp_extractor` (без API), либо комбинируйте с `yt_dlp_extractor` для большинства ссылок.
-
-### Хранилище больших файлов
-
-Видео и Telegram-каналы быстро наполняют диск. Настройте S3 Glacier или холодное хранилище для старых архивов.
-
-### Удаление дубликатов
-
-Auto-Archiver проверяет SHA-256 — если архив уже есть, повторно не скачивает. Это экономит трафик и место.
-
-### Антибот-защита
-
-Для сайтов с Cloudflare DataDome — часто нужен browser-extractor (через WACZ). Если и так не работает — увы, никакой инструмент не поможет без белого списка IP от владельцев.
+- **Хранилище.** Видео быстро занимают место — используйте `s3_storage` и холодное хранение для старых материалов.
+- **Повторы.** Из Google Sheets берутся только строки без статуса архивации, поэтому повторный запуск не архивирует одно и то же заново.
+- **Сайты с защитой от ботов.** Если сайт закрыт защитой, не пытайтесь её обходить; проверьте, нет ли материала в других архивах (Wayback Machine, archive.today), или обратитесь к владельцу ресурса.
+- **Персональные данные.** Архив содержит имена авторов, тексты и медиа; перед публикацией проверьте, есть ли основания (см. раздел [о персональных данных](/kb/legal/personal-data)).
 
 ## Когда использовать
 
 ✅ Подходит:
 
-- **OSINT-расследования** с десятками/сотнями ссылок из разных источников.
-- **Журналистский workflow** — материалы приходят в Telegram, автоматически архивируются.
-- **Регулярная архивация каналов/аккаунтов** с метаданными.
-- **Команды без навыков кодинга** — UI через Google Sheets проще, чем скрипты.
-- **Проекты с лимитом времени** — автоматизация убирает рутину.
+- **OSINT-расследования** с десятками и сотнями ссылок из разных источников.
+- **Совместная работа** через Google Sheets или Atlos — участникам не нужно работать с командной строкой.
+- **Регулярная архивация** ссылок с метаданными и хешами.
 
 ❌ Не подходит:
 
-- **Один URL** — проще [Archive.ph](https://archive.ph/).
-- **Полная архивация большого сайта** — нужен [Browsertrix](/kb/instruments/tools/browsertrix) или [wparc](/kb/instruments/ruarxive-tools/wparc).
-- **Real-time мониторинг** — Auto-Archiver пакетный, не непрерывный.
-- **Платформы без публичного API/веб-доступа** — закрытые чаты, защищённые CDN — нужны специальные инструменты.
-- **Юридически чувствительные данные** — метаданные с именами авторов, датами публикации нужно проверять до публикации.
+- **Один URL** — проще [archive.today](/kb/instruments/tools/archive-ph) или Save Page Now.
+- **Полная архивация большого сайта** — нужен [Browsertrix Crawler](/kb/instruments/tools/browsertrix), [wget](/kb/instruments/tools/wget) или [wparc](/kb/instruments/ruarxive-tools/wparc) (для WordPress).
+- **Непрерывный мониторинг в реальном времени** — Auto-Archiver работает пакетно.
 
 ## Сравнение с аналогами
 
-| Возможность | Auto-Archiver | ad-hoc скрипты | Browsertrix | ArchiveBot |
+| Возможность | Auto-Archiver | Самописные скрипты | Browsertrix Crawler | ArchiveBot |
 |:---|:-:|:-:|:-:|:-:|
-| Multi-source вход | ✅ Sheets, CSV | ⚠️ только код | ❌ | ❌ |
-| Multi-extractor | ✅ | ⚠️ | ❌ | ❌ |
-| Метаданные автоматически | ✅ | ⚠️ | ❌ | ❌ |
-| WACZ | ✅ | ⚠️ | ✅ | ✅ |
-| Real-time | ❌ | ✅ | ❌ | ✅ |
-| Production-ready | ✅ | ⚠️ | ✅ | ✅ |
-| Простота для нетех. пользователя | ✅ | ❌ | ⚠️ | ✅ |
+| Несколько источников ссылок | ✅ CLI, CSV, Sheets, Atlos | ⚠️ только код | ⚠️ список URL | ⚠️ команды в IRC |
+| Разные модули под тип ссылки | ✅ | ⚠️ | ❌ | ❌ |
+| Метаданные и хеши автоматически | ✅ | ⚠️ | ⚠️ | ❌ |
+| Формат | файлы + JSON, WACZ через модуль | любой | WARC/WACZ | WARC |
+| Простота для нетехнических пользователей | ✅ (через Sheets) | ❌ | ⚠️ | ⚠️ нужен доступ к IRC и одобрение оператора |
 | Бесплатный | ✅ | ✅ | ✅ | ✅ |
 
 ## Ресурсы
 
-- [GitHub репозиторий](https://github.com/bellingcat/auto-archiver)
-- [Документация](https://auto-archiver.readthedocs.io/)
-- [Конфигурация по умолчанию](https://github.com/bellingcat/auto-archiver/blob/main/config.yaml)
-- [Bellingcat — Auto-Archiver announcement](https://www.bellingcat.com/resources/2025/08/13/the-open-source-tool-that-has-preserved-150000-pieces-of-online-evidence/)
-- [Agentic AI Meets Archiving Tools](https://www.linkedin.com/pulse/agentic-ai-meets-archiving-tools-framework-rapidly-preserve-nickel-rap8e) — связка с LLM-агентами.
+- [Репозиторий на GitHub](https://github.com/bellingcat/auto-archiver)
+- [Документация](https://auto-archiver.readthedocs.io/en/latest/) и [страница о конфигурации](https://auto-archiver.readthedocs.io/en/latest/installation/configurations.html)
+- [Bellingcat: статья об инструменте (2022)](https://www.bellingcat.com/resources/2022/09/22/preserve-vital-online-content-with-bellingcats-auto-archiver-tool/)
+- [Bellingcat: «The Open Source Tool That Has Preserved 150,000 Pieces of Online Evidence» (2025)](https://www.bellingcat.com/resources/2025/08/13/the-open-source-tool-that-has-preserved-150000-pieces-of-online-evidence/)
 
 ## Связанные материалы
 
-- [Browsertrix](/kb/instruments/tools/browsertrix) — для сайтов под WACZ.
+- [Browsertrix](/kb/instruments/tools/browsertrix) — для WACZ-архивов сайтов.
 - [yt-dlp](/kb/instruments/tools/yt-dlp) — для видео.
-- [Wget](/kb/instruments/tools/wget) — базовый кроулер.
+- [Wget](/kb/instruments/tools/wget) — базовый краулер.
 - [Wayback Machine API](/kb/instruments/tools/wayback-api) — для проверки в Wayback.
 - [Социальные сети](/kb/instruments/social-media) — ручные методы по платформам.
-- [Ландшафт 2026](/kb/instruments/landscape-2026) — где Auto-Archiver в общей картине.
+- [Ландшафт 2026](/kb/instruments/landscape-2026) — место Auto-Archiver в общей картине.

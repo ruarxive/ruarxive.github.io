@@ -1,42 +1,31 @@
+---
+title: Архивация видео (YouTube и др.)
+description: "Краткий обзор архивации видео с YouTube, Rutube, VK Видео и других платформ: основной инструмент — yt-dlp, подробности — на отдельных страницах."
+last_update:
+  date: 2026-10-12
+---
+
 # Архивация видео (YouTube и др.)
 
-Для сохранения видеоконтента стандартом де-факто является **yt-dlp**.
+Для сохранения видеоконтента стандартом де-факто является **[yt-dlp](/kb/instruments/tools/yt-dlp)** — активно развивающийся форк youtube-dl, который поддерживает YouTube, Rutube, VK Видео, TikTok, Vimeo и тысячи других сайтов.
 
-## yt-dlp
-
-[yt-dlp](https://github.com/yt-dlp/yt-dlp) — это форк youtube-dl с активной разработкой и новыми функциями. Поддерживает тысячи сайтов (не только YouTube, но и VK, Rutube, Vimeo).
-
-### Установка
+## Минимальный пример
 
 ```bash
 pip install yt-dlp
-# или
-brew install yt-dlp
+
+# Видео с описанием, метаданными в JSON, субтитрами и обложкой
+yt-dlp --write-description --write-info-json --write-subs --write-thumbnail URL
+
+# Канал целиком с журналом уже скачанных видео
+yt-dlp --download-archive archive.txt "https://www.youtube.com/@ChannelHandle/videos"
 ```
 
-### Рекомендуемая команда для архивации
+Опция `--download-archive` запоминает скачанные видео и пропускает их при повторном запуске. Комментарии сохраняются в `*.info.json` при указании `--write-comments`.
 
-Для сохранения метаданных, описания, субтитров и обложки используйте:
+## Где подробнее
 
-```bash
-yt-dlp --write-description \
-       --write-info-json \
-       --write-annotations \
-       --write-sub \
-       --write-thumbnail \
-       --embed-metadata \
-       URL
-```
-
-### Скачивание каналов
-
-yt-dlp умеет скачивать каналы и плейлисты целиком.
-
-```bash
-yt-dlp --download-archive archive.txt https://www.youtube.com/c/ChannelName
-```
-Опция `--download-archive` позволяет запоминать уже скачанные видео и не качать их повторно при следующем запуске.
-
-## Архивация комментариев
-
-yt-dlp может сохранять комментарии в JSON (`--write-comments`), но для глубокого анализа дискуссий лучше использовать специализированные инструменты.
+- **[yt-dlp](/kb/instruments/tools/yt-dlp)** — установка, рекомендуемые флаги для архивации, работа с каналами и плейлистами.
+- **[Как сохранить видео с YouTube](/kb/instruments/data-take-out/dto-youtube)** — графические программы для тех, кто не работает с командной строкой, и выгрузка собственного канала через Google Takeout.
+- **[Rutube](/kb/instruments/social-media/rutube)** и **[TikTok](/kb/instruments/social-media/tiktok)** — особенности этих платформ.
+- **[Google Takeout](/kb/instruments/data-take-out/dto-google)** — выгрузка оригиналов видео, загруженных в собственный канал.

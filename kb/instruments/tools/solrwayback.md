@@ -1,364 +1,181 @@
 ---
 title: SolrWayback
 sidebar_label: SolrWayback
-description: Полнотекстовый поиск по WARC-файлам с веб-интерфейсом от Королевской библиотеки Дании, поддержка морфологии, фасетов и URL-воспроизведения
+description: "SolrWayback — веб-приложение Королевской библиотеки Дании для полнотекстового поиска, аналитики и воспроизведения ARC/WARC-файлов на основе Solr-индекса warc-indexer."
+last_update:
+  date: 2026-10-12
 ---
 
 # SolrWayback
 
-**SolrWayback** — веб-приложение от Королевской библиотеки Дании (Royal Danish Library) для **полнотекстового поиска и воспроизведения** WARC-файлов. Построен на Apache Solr, поддерживает морфологию для десятков языков, фасетный поиск, графики и интеграцию с pywb.
+**SolrWayback** — веб-приложение для поиска и просмотра ARC/WARC-файлов, похожее на Wayback Machine Internet Archive, но с полнотекстовым поиском. Разрабатывается Королевской библиотекой Дании (проект netarchivesuite, ведущий разработчик — Thomas Egense), лицензия Apache-2.0. SolrWayback работает поверх сервера Apache Solr, в котором WARC-файлы проиндексированы инструментом `warc-indexer` из проекта [ukwa/webarchive-discovery](https://github.com/ukwa/webarchive-discovery) (его поддерживает Британская библиотека).
 
-Сайт: [github.com/Det-Kongelige-Bibliotek/solrwayback](https://github.com/Det-Kongelige-Bibliotek/solrwayback)
+Сайт: [github.com/netarchivesuite/solrwayback](https://github.com/netarchivesuite/solrwayback)
 
 ## Зачем нужен
 
-WARC-файл — это «мёртвые данные», пока не проиндексированы. Без индекса:
+Пока WARC-файлы не проиндексированы, в них нельзя искать по словам, фильтровать по дате, домену и типу контента или строить статистику. SolrWayback превращает коллекцию WARC в поисковую систему с инструментами для исследователей.
 
-- Нельзя **найти документ** по слову.
-- Нельзя **фильтровать** по дате, домену, типу контента.
-- Нельзя **строить отчёты** (топ слов, топ доменов, распределение по датам).
-- Нельзя делать **research-проекты** по корпусу архивов.
+Возможности (по README):
 
-SolrWayback решает все эти задачи:
+- полнотекстовый поиск по всем ресурсам: HTML, PDF, метаданным медиафайлов, URL;
+- фасеты по домену, типу контента, году и другим полям Solr;
+- **собственное воспроизведение** архивных страниц (API ссылок как у Wayback Machine: `/solrwayback/services/web/<timestamp>/<url>`); при желании можно подключить внешний движок воспроизведения, например pywb или OpenWayback;
+- интерактивный граф ссылок между доменами и экспорт графов в формате Gephi;
+- экспорт результатов поиска в WARC (потоково, без ограничения размера), в ZIP (файлы в исходных форматах) и в CSV с выбором полей;
+- облако слов для домена, визуализация n-грамм по годам, статистика доменов во времени;
+- поиск изображений по тексту, по геокоординатам из EXIF и по похожести (p-hash, PDQ);
+- поиск по загруженному файлу: был ли он заархивирован и на каких страницах встречается;
+- просмотр всех проиндексированных полей и WARC-заголовков записи;
+- поддержка Memento API.
 
-- **Полнотекстовый индекс** с морфологией.
-- **Веб-интерфейс** с поиском, фасетами, графиками.
-- **Воспроизведение страниц** через интеграцию с pywb.
-- **Domain graphs** — графики связей между доменами.
-- **Экспорт** результатов поиска.
-
-Используется в:
-- **Королевская библиотека Дании** (netarkivet.dk — национальный веб-архив Дании).
-- **Британская библиотека** (UK Web Archive).
-- **Европейские национальные архивы** (Iceland, Norway).
-
-## Возможности
-
-- **Полнотекстовый поиск** с морфологическим анализом.
-- **Поддержка 30+ языков**: русский, английский, датский, немецкий, французский, украинский и др.
-- **Фасетный поиск**: по домену, дате, типу контента, кодировке.
-- **Графики**:
-  - Распределение по годам.
-  - Топ доменов.
-  - Топ слов и N-gram.
-  - Карты связей между доменами (domain graph).
-- **Воспроизведение страниц** через pywb (iframe-интеграция).
-- **URL-поиск** (поиск по конкретному URL в архиве).
-- **CDX-интеграция** для навигации по датам.
-- **Image-поиск** (по метаданным изображений).
-- **Geo-поиск** (если в метаданных WARC есть координаты).
-- **REST API** для интеграций.
-- **Морфология** через Lucene/Solr анализаторы.
+Демо: [webadmin.oszk.hu/solrwayback](https://webadmin.oszk.hu/solrwayback/) (Национальная библиотека Венгрии имени Сечени). Через SolrWayback открыт доступ и к ряду [коллекций IIPC](https://netpreserve.org/projects/collections-access/).
 
 ## Когда использовать
 
 ✅ Подходит для:
 
-- **Research-проектов** по большому архиву (10k+ страниц).
-- **Поиска** в национальных веб-архивах.
-- **Аналитики**: тренды, топики, графы связей.
-- **Библиотек и архивов** с собственным WARC-хранилищем.
-- **Исследований** по сетевому пространству (domain graph).
+- исследовательских проектов по большой коллекции WARC;
+- библиотек и архивов с собственным WARC-хранилищем;
+- анализа связей между сайтами, трендов и тем.
 
 ❌ Не подходит для:
 
-- **Маленьких архивов** (несколько WARC) — overkill, хватит pywb.
-- **Простого воспроизведения** — pywb проще.
-- **Real-time** (индексация занимает время).
-- **Нераспределённого** (по умолчанию single-node Solr).
+- нескольких WARC, которые нужно просто посмотреть: проще [ReplayWeb.page](/kb/instruments/replay/replayweb-page) или [pywb](/kb/instruments/replay/pywb);
+- задач «в реальном времени»: индексация занимает время (по README — до 20 минут на 1 ГБ WARC).
 
 ## Архитектура
 
 ```mermaid
 flowchart LR
-    WARC["WARC files"] --> Solr["Solr Index<br/>(Lucene)"]
-    Solr --> UI["SolrWayback<br/>Web UI"]
-    pywb["pywb<br/>(replay)"] --> Solr
-    pywb --> UI
+    WARC["ARC/WARC-файлы"] --> IDX["warc-indexer<br/>(webarchive-discovery)"]
+    IDX --> Solr["Solr 9<br/>коллекция netarchivebuilder"]
+    Solr --> SW["SolrWayback<br/>(WAR в Tomcat)"]
+    WARC -. "чтение записей при воспроизведении" .-> SW
 ```
 
-SolrWayback не заменяет Solr — он **обёртка** вокруг Solr + pywb + CDX. Устанавливается рядом.
+После индексации WARC-файлы должны оставаться на месте: SolrWayback читает из них записи при воспроизведении и экспорте.
 
 ## Установка
 
-### Docker Compose (рекомендуется)
+### Bundle (рекомендуемый способ)
 
-```yaml
-# docker-compose.yml
-version: "3"
-services:
-  solr:
-    image: solr:9
-    ports:
-      - "8983:8983"
-    volumes:
-      - solr-data:/var/solr
-    command: solr-precreate netarchive
-
-  solrwayback:
-    image: detkbib/solrwayback:latest
-    ports:
-      - "8080:8080"
-    environment:
-      - SOLR_URL=http://solr:8983/solr/netarchive
-      - WARC_SERVER=http://pywb:8080
-    depends_on:
-      - solr
-      - pywb
-
-  pywb:
-    image: webrecorder/pywb:latest
-    ports:
-      - "8081:8080"
-    volumes:
-      - ./warcs:/data/warcs
-      - ./cdxj:/data/cdxj
-    command: pywb
-
-volumes:
-  solr-data:
-```
+Авторы рекомендуют начинать с готового пакета (bundle), в котором уже есть Solr, `warc-indexer` и SolrWayback в Tomcat. Последняя версия — [5.5.0](https://github.com/netarchivesuite/solrwayback/releases) (сентябрь 2026). Требования: Java 11 или 17; для превью страниц — Chrome или Chromium.
 
 ```bash
-docker-compose up -d
+wget https://github.com/netarchivesuite/solrwayback/releases/download/5.5.0/solrwayback_package_5.5.0.zip
+unzip solrwayback_package_5.5.0.zip
+cd solrwayback_package_5.5.0
+
+# файлы настроек — в домашний каталог
+cp properties/solrwayback.properties properties/solrwaybackweb.properties ~/
+
+# запуск Solr и Tomcat
+chmod +x solrwayback_bundle.sh
+./solrwayback_bundle.sh start
 ```
 
-Web UI: `http://localhost:8080`.
-Solr admin: `http://localhost:8983/solr/`.
-pywb: `http://localhost:8081`.
+После запуска:
 
-### Из исходников
+- интерфейс SolrWayback — `http://localhost:8080/solrwayback/`;
+- Solr — `http://localhost:8983/solr/#/netarchivebuilder`.
 
-```bash
-git clone https://github.com/Det-Kongelige-Bibliotek/solrwayback
-cd solrwayback
-./gradlew build
-java -jar build/libs/solrwayback-*.war
-```
-
-### Зависимости
-
-- **Java 11+**.
-- **Apache Solr 8.x или 9.x** (с морфологическими компонентами).
-- **pywb 2.x+** (для воспроизведения).
-- **Минимум 4 ГБ RAM** для индексации 100k+ страниц.
-
-## Использование
+Solr и Tomcat можно запускать и по отдельности: `solr-9/bin/solr start -c -m 4g` и `tomcat-9/bin/startup.sh`. Для индекса больше 100 млн записей README советует давать Solr 8–16 ГБ памяти.
 
 ### Индексация WARC
 
 ```bash
-# Используя утилиту от SolrWayback
-java -jar solrwayback-tools.jar \
-  --warc-dir /path/to/warcs \
-  --solr-url http://localhost:8983/solr/netarchive
+cd indexing
+./warc-indexer.sh -h                 # справка
+THREADS=2 ./warc-indexer.sh warcs1/*
 ```
 
-### Поиск в веб-интерфейсе
+Скрипт запоминает уже проиндексированные файлы (журналы в каталоге `status`), поэтому коллекцию можно пополнять: добавить WARC и запустить скрипт снова. Каждый поток индексации требует около 1 ГБ памяти; потоков не должно быть больше, чем ядер процессора. Новые документы видны в поиске с задержкой до 5 минут. Чтобы они появились сразу, откройте `http://localhost:8983/solr/netarchivebuilder/update?commit=true`.
 
-1. Открыть `http://localhost:8080/`.
-2. Ввести запрос: `"выборы 2024" AND site:example.com`.
-3. Получить результаты с фасетами, графиками, превью.
-4. Кликнуть на результат → воспроизведение через pywb.
+Собственные коллекции задаются полями `collection`, `collection_id` и `institution`:
 
-### Поддерживаемые синтаксисы запросов
-
-```
-# Простой поиск
-climate change
-
-# Фраза
-"climate change"
-
-# Wildcard
-clim* change
-
-# Boolean
-elections AND (russia OR ukraine)
-
-# По домену
-site:example.com
-
-# По типу контента
-content_type:text/html
-
-# По дате (диапазон WARC-Date)
-warc_date:[2024-01-01 TO 2024-12-31]
-
-# По языку
-lang:ru
-
-# Комбинация
-"climate change" AND site:bbc.com AND warc_date:[2024-01-01 TO *]
+```bash
+THREADS=4 INDEXER_CUSTOM="--collection-id collection1 --collection corona2021 --institution institution1" \
+  ./warc-indexer.sh warcs1/*
 ```
 
-### Domain Graph (граф доменов)
+В Windows используются скрипты `batch_warcs1_folder.bat`. Имена WARC-файлов лучше давать без пробелов: с ними на некоторых системах не работают превью и воспроизведение.
 
-Вкладка **Domain Graph** → визуализация связей между доменами в архиве. Полезно для исследования «какие сайты ссылаются друг на друга».
+### Сборка из исходников
 
-### Image Search
+Проект собирается Maven:
 
-Вкладка **Image Search** → поиск изображений по метаданным (alt, описание, размер, тип).
-
-### Geo Search
-
-Если в WARC есть гео-метаданные (через WARC-Tagged-Image-File-Format или в HTTP-заголовках), SolrWayback покажет карту.
-
-### Экспорт результатов
-
-- **JSON** — для скриптов.
-- **CSV** — для Excel/Google Sheets.
-- **BibTeX** — для научных работ.
-
-## Конфигурация
-
-### `solrwayback.conf` (или через env)
-
-```ini
-# Solr
-SOLR_URL=http://localhost:8983/solr/netarchive
-
-# pywb для воспроизведения
-WARC_SERVER=http://localhost:8081
-
-# Морфологические компоненты
-LANGUAGES=ru,en,da,de,fr,uk
-
-# Лимит выдачи
-MAX_RESULTS=1000
+```bash
+git clone https://github.com/netarchivesuite/solrwayback
+cd solrwayback
+mvn package
+# target/solrwayback-*.war развернуть в Tomcat 9+,
+# скопировать properties/solrwayback.properties и properties/solrwaybackweb.properties в домашний каталог
 ```
 
-### Solr schema (для русского)
+Для этого нужен отдельный Solr 9+ с индексом от `warc-indexer` версии 3.2.0-SNAPSHOT или новее; про установку Solr Cloud — в [Extended Solr guide](https://github.com/netarchivesuite/solrwayback/blob/master/src/bundle/solr/SOLR.md).
 
-SolrWayback поставляется с готовой схемой, поддерживающей русскую морфологию (стемминг Snowball + словари Lucene).
+### Docker
 
-```xml
-<!-- В custom solr configset -->
-<fieldType name="text_ru" class="solr.TextField">
-  <analyzer>
-    <tokenizer class="solr.StandardTokenizerFactory"/>
-    <filter class="solr.LowerCaseFilterFactory"/>
-    <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
-  </analyzer>
-</fieldType>
+Готового официального образа в Docker Hub нет. В репозитории лежит пример [`Dockerfile`](https://github.com/netarchivesuite/solrwayback/blob/master/Dockerfile), который скачивает bundle и запускает Solr и Tomcat внутри контейнера (в нём зафиксирована версия bundle 5.1.2). Инструкции — в комментариях к файлу.
+
+> Команды сверены с README и релизами репозитория netarchivesuite/solrwayback, версия 5.5.0 (октябрь 2026).
+
+## Настройка
+
+Настройки хранятся в двух файлах в домашнем каталоге:
+
+- `solrwayback.properties` — адреса Solr и самого приложения (`wayback.baseurl`), путь к Chrome для превью (`chrome.command`, `screenshot.temp.imagedir`);
+- `solrwaybackweb.properties` — интерфейс: начальный год для графиков (`archive.start.year`), логотип (`top.left.logo.image`), тексты «О коллекции», настройки карты, стоп-слова облака слов (`wordcloud.stopwords`, для русского языка их нужно заменить), фасеты.
+
+После изменения настроек перезапустите Tomcat.
+
+## Поиск
+
+Запросы пишутся в синтаксисе Solr/Lucene. Подсказку по синтаксису и полям показывает кнопка «?» в строке поиска. Несколько примеров с полями схемы `warc-indexer`:
+
+```text
+"изменение климата"
+выборы AND domain:example.ru
+content_type_norm:pdf AND crawl_year:2022
+title:отчёт AND crawl_date:[2022-01-01T00:00:00Z TO 2022-12-31T23:59:59Z]
 ```
+
+В стандартной схеме `warc-indexer` текстовые поля используют общий анализатор `text_general` без морфологии конкретного языка. Поэтому поиск по русским словоформам без доработки схемы находит только точные формы слова (используйте `*`).
+
+## Масштабирование
+
+По README, отдельный Solr из bundle и скрипт `warc-indexer.sh` справляются примерно с 20 000 WARC-файлов по 1 ГБ. На 20 потоках индексация такой коллекции займёт до трёх недель, индекс получится около 1 ТБ (500 млн документов), Solr понадобится не меньше 12 ГБ памяти, а индекс нужно хранить на SSD. Для коллекций больше требуется Solr Cloud; распределённую индексацию поддерживает workflow archon/arctika из [netarchivesuite/netsearch](https://github.com/netarchivesuite/netsearch).
 
 ## Сравнение с другими инструментами
 
-| Инструмент | Полнотекст | Морфология | Графики | Воспроизведение | Сложность |
-| :--- | :---: | :---: | :---: | :---: | :--- |
-| **SolrWayback** | ✅ | ✅ 30+ языков | ✅ | ✅ через pywb | Высокая |
-| **[pywb](/kb/instruments/replay/pywb)** | ⚠️ базовый | ❌ | ❌ | ✅ | Средняя |
-| **[Shine](shine)** | ✅ | ✅ | ⚠️ | ✅ | Средняя |
-| **[Archive.ph](archive-ph)** | ❌ | ❌ | ❌ | ✅ | Низкая |
-| **Internet Archive (web.archive.org)** | ✅ | ✅ | ❌ | ✅ | — (SaaS) |
-
-### Когда SolrWayback лучше всех
-
-- **Большой архив** (миллионы страниц), нужен быстрый поиск.
-- **Морфологический поиск** на русском/украинском/других языках с падежами.
-- **Research-проект** по корпусу архивов (тренды, графы, аналитика).
-- **Национальный веб-архив** или крупная библиотека.
-- **Domain graph** — нужен для анализа связей.
-
-### Когда лучше Shine
-
-- Не хочется **Java/Solr** в стеке.
-- Архив **поменьше** (тысячи страниц).
-- Нужен **REST API** для интеграций.
-
-### Когда лучше pywb
-
-- Нужен **только сервер воспроизведения**, без поиска.
-- Архив **небольшой** (десятки тысяч страниц).
-- Хочется **минимальный стек** (только Python).
-
-## Best practices
-
-### 1. Морфологию настраивайте под язык корпуса
-
-```bash
-# В конфигурации Solr
-# Русский: SnowballPorter Russian
-# Украинский: SnowballPorter Ukrainian
-# Немецкий: GermanLightStem
-# Французский: FrenchLightStem
-```
-
-### 2. Индексируйте пакетно, не по одному WARC
-
-```bash
-# Параллельная индексация через 4 ядра
-java -jar solrwayback-tools.jar \
-  --warc-dir /path/to/warcs \
-  --threads 4
-```
-
-### 3. Используйте CDX-индексы для URL-навигации
-
-```bash
-# Генерация CDX из WARC
-warc-tools cdx -i archive.warc.gz > archive.cdx
-```
-
-### 4. Регулярно пересобирайте индекс
-
-При добавлении новых WARC:
-
-```bash
-# Инкрементальное обновление
-java -jar solrwayback-tools.jar --update
-
-# Или полная переиндексация
-java -jar solrwayback-tools.jar --rebuild
-```
-
-### 5. Настройте бэкап Solr
-
-```bash
-# Бэкап индекса
-curl "http://localhost:8983/solr/netarchive/replication?command=backup&name=backup-$(date +%F)"
-```
-
-### 6. Используйте Solr Cloud для больших архивов
-
-Single-node Solr справится с 10M документов. Для 100M+ — **Solr Cloud** с шардированием.
-
-### 7. Ограничивайте размер индексируемого
-
-```bash
-# Пропустить большие медиа
-java -jar solrwayback-tools.jar \
-  --warc-dir /path/to/warcs \
-  --max-content-size 10MB \
-  --skip-content-types "video/*,audio/*"
-```
+| Инструмент | Полнотекстовый поиск | Аналитика и графики | Воспроизведение | Сложность |
+| :--- | :---: | :---: | :---: | :--- |
+| **SolrWayback** | ✅ | ✅ | ✅ своё (можно подключить pywb) | Высокая: Java, Tomcat, Solr |
+| **[pywb](/kb/instruments/replay/pywb)** | ❌ (поиск по URL) | ❌ | ✅ | Средняя |
+| **[ReplayWeb.page](/kb/instruments/replay/replayweb-page)** | ⚠️ по страницам внутри WACZ | ❌ | ✅ | Низкая |
+| **[Shine](shine)** | ✅ | ✅ | — | Архивный прототип, не развивается |
 
 ## Ограничения
 
-- **Java + Solr** — тяжёлый стек, минимум 4 ГБ RAM.
-- **Сложная настройка** морфологии для каждого языка.
-- **Медленная индексация** — 1000 страниц/сек на обычном железе.
-- **Не полнотекст по картинкам** — только метаданные.
-- **Большие WARC** (>10 ГБ) обрабатываются долго.
-- **Domain Graph** визуализация тяжёлых графов (>10k доменов) — нужна оптимизация.
+- Тяжёлый стек: Java, Tomcat, Solr; индексация требует памяти и времени.
+- Без доработки схемы нет морфологии для русского языка.
+- При воспроизведении возможны «утечки» абсолютных ссылок на живой веб. README рекомендует проверять вкладку «Сеть» в инструментах разработчика или отключать интернет во время просмотра; для старых браузеров есть дополнительный root-servlet.
 
 ## Ресурсы
 
-- [GitHub: SolrWayback](https://github.com/Det-Kongelige-Bibliotek/solrwayback) — исходный код.
-- [Wiki](https://github.com/Det-Kongelige-Bibliotek/solrwayback/wiki) — подробная документация.
-- [Netarchive.dk](https://netarkivet.dk/) — датский национальный архив, использующий SolrWayback.
-- [UK Web Archive](https://www.webarchive.org.uk/) — британский архив на SolrWayback.
-- [Solr Reference Guide](https://solr.apache.org/guide/) — официальная документация Solr.
-- [Lucene Analysis](https://lucene.apache.org/core/) — для морфологии.
+- [GitHub: SolrWayback](https://github.com/netarchivesuite/solrwayback) — исходный код и инструкция по bundle.
+- [Wiki](https://github.com/netarchivesuite/solrwayback/wiki) — описание функций.
+- [webarchive-discovery / warc-indexer](https://github.com/ukwa/webarchive-discovery) — индексатор.
+- [Solr Reference Guide](https://solr.apache.org/guide/) — документация Solr.
 
 ## Связанные материалы
 
-- **[Shine](shine)** — Go-альтернатива с проще стеком.
-- **[pywb](/kb/instruments/replay/pywb)** — для воспроизведения.
-- **[WARC-processing](warc-processing)** — обработка WARC перед индексацией.
+- **[pywb](/kb/instruments/replay/pywb)** — воспроизведение без поиска.
+- **[Shine](shine)** — предшественник из UK Web Archive (архивный прототип).
+- **[Обработка WARC](warc-processing)** — инструменты для работы с WARC.
+- **[WARC-Safe](warc-safe)** — проверка коллекции на вирусы и NSFW; результаты можно добавить в Solr через netarchivesuite/warc-indexer.
 - **[Browsertrix](browsertrix)** — для создания WARC.
-- **[Формат WARC](/kb/instruments/file-formats/warc)** — что внутри.
-- **[Формат CDX](/kb/instruments/file-formats/cdx)** — для URL-навигации.
-- **[Кейс: API-архивация в масштабе](/kb/case-studies/api-archiving-scale)** — большие архивы.
-- **[Сравнения ресурсов](/kb/resources/comparisons)** — SolrWayback vs Shine vs pywb.
+- **[Формат WARC](/kb/instruments/file-formats/warc)**
+- **[Формат CDX](/kb/instruments/file-formats/cdx)**
+- **[Сравнения ресурсов](/kb/resources/comparisons)**

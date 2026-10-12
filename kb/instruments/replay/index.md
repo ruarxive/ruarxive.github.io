@@ -2,8 +2,9 @@
 title: Воспроизведение архивов
 sidebar_label: Воспроизведение архивов
 sidebar_position: 1
-description: Инструменты для воспроизведения WARC- и WACZ-архивов в режиме, приближенном к оригинальному сайту. ReplayWeb.page, pywb, OpenWayback, IPWB, warc2html, Memento.
-last_updated: 2026-11-09
+description: "Инструменты для воспроизведения WARC- и WACZ-архивов в режиме, приближенном к оригинальному сайту: ReplayWeb.page, pywb, OpenWayback, IPWB, warc2html и протокол Memento."
+last_update:
+  date: 2026-10-12
 ---
 
 # Воспроизведение архивов
@@ -13,63 +14,66 @@ last_updated: 2026-11-09
 ## Зачем нужны
 
 * **Проверка качества** записанного архива: сразу видно, какие страницы поломались, где не загрузились изображения.
-* **Доступ исследователям и читателям**: не нужно ставить себе спец-ПО, достаточно обычного браузера.
-* **Сохранение ссылочной целостности**: реплей-система переписывает ссылки так, чтобы навигация оставалась внутри архива.
-* **Публикация для публики**: исследователи и редакции получают постоянные ссылки на материалы.
+* **Доступ исследователям и читателям**: не нужно ставить себе специальное ПО, достаточно обычного браузера.
+* **Сохранение ссылочной целостности**: replay-система переписывает ссылки так, чтобы навигация оставалась внутри архива.
+* **Публикация**: исследователи и редакции получают постоянные ссылки на материалы.
 
 ## Как выбрать инструмент
 
-### По размеру и нагрузке
+### По сценарию и нагрузке
 
-| Размер архива | Сценарий | Рекомендация |
-|:---|:---|:---|
-| < 1 ГБ | Разово открыть один файл, проверить качество | **[ReplayWeb.page](/kb/instruments/replay/replayweb-page)** |
-| 1 – 50 ГБ | Личная коллекция или небольшой исследовательский проект (1–3 пользователя) | **ReplayWeb.page** (десктоп) или **[pywb](/kb/instruments/replay/pywb)** на одном VPS |
-| 50 ГБ – 500 ГБ | Архив отдела, газеты, университета (5–50 пользователей) | **pywb** на выделенном сервере с nginx + Redis |
-| 500 ГБ – 10 ТБ | Национальный архив, ежедневная нагрузка | **pywb** + CDN (CloudFront / Cloudflare) |
-| > 10 ТБ | Archive-scale (Internet Archive, Common Crawl) | **OpenWayback** + Hadoop-стек |
+Ниже — ориентиры, а не измеренные пороги: многое зависит от числа файлов, индекса и железа.
+
+| Сценарий | Рекомендация |
+|:---|:---|
+| Разово открыть файл, проверить качество | **[ReplayWeb.page](/kb/instruments/replay/replayweb-page)** (веб-версия или десктоп) |
+| Опубликовать один или несколько WACZ без своего сервера | ReplayWeb.page + статический хостинг (S3, R2 и т. п.) |
+| Личная или командная коллекция на своём сервере | **[pywb](/kb/instruments/replay/pywb)** |
+| Крупная институциональная коллекция | pywb + внешний индекс [OutbackCDX](https://github.com/nla/outbackcdx) + nginx — именно такую связку описывает руководство IIPC по переходу с OpenWayback |
 
 ### По формату деплоя
 
 | Сценарий | Инструмент | Почему |
 |:---|:---|:---|
 | Не нужно ничего ставить — открыл файл и смотришь | ReplayWeb.page | Полностью клиентский |
-| Свой сервер с произвольным URL | pywb | Поддержка всех форматов, CDX/Memento API |
-| Уже есть Java-инфраструктура | OpenWayback | JVM-экосистема |
-| Распространение через P2P / IPFS | IPWB | Распределённое хранение |
-| Конвертация в одиночные HTML | [warc2html](/kb/instruments/replay/warc2html) | Без браузера |
-| Огромные архивы (ТБ+) с полнотекстовым поиском | pywb + [SolrWayback](/kb/instruments/tools/solrwayback) или [Shine](/kb/instruments/tools/shine) | Полноценное discovery |
+| Свой сервер с произвольным URL | pywb | Коллекции, CDX API, Memento |
+| Уже есть установка OpenWayback | OpenWayback → план перехода на pywb | OpenWayback больше не развивается |
+| Распространение через P2P / IPFS | IPWB | Хранение в IPFS |
+| Статическая копия в виде обычных HTML-файлов | [warc2html](/kb/instruments/replay/warc2html) | Не нужен replay-сервер |
+| Полнотекстовый поиск по большой коллекции | [SolrWayback](/kb/instruments/tools/solrwayback) | Индекс Solr + собственный replay |
 
 ### По требуемому функционалу
 
 | Возможность | ReplayWeb.page | pywb | OpenWayback | IPWB |
 |:---|:-:|:-:|:-:|:-:|
-| **CDX API** (поиск по всем URL) | ❌ | ✅ | ✅ | ❌ |
-| **Memento TimeGate/TimeMap** | ❌ | ✅ | ⚠️ | ❌ |
-| **WARC/WACZ/ARC** | ✅/✅/❌ | ✅/✅/✅ | ✅/❌/✅ | ✅/❌/❌ |
-| **CDXJ-индексация на лету** | ❌ | ✅ | ❌ | ❌ |
-| **Multiple collections** | через URL | ✅ | ✅ | ❌ |
-| **Mixed-content (HTTP-страницы на HTTPS)** | ⚠️ | ✅ | ✅ | ⚠️ |
-| **Анонтации в архиве** | ✅ | ❌ | ❌ | ❌ |
-| **Self-hosted** | ✅ статика | ✅ | ✅ | ❌ нужен IPFS |
-| **Production-ready** | ✅ | ✅ | ✅ | Эксперимент |
+| **CDX API** (поиск снимков по URL) | ❌ | ✅ | ✅ (отдельный CDX-сервер) | ❌ |
+| **Memento TimeGate/TimeMap** | ❌ | ✅ | ✅ | ✅ |
+| **WARC / WACZ / ARC** | ✅ / ✅ / ❌ | ✅ / ⚠️ / ✅ | ✅ / ❌ / ✅ | ✅ / ❌ / ❌ |
+| **Индексация** | WARC индексируется в браузере при загрузке, WACZ уже содержит индекс | `wb-manager add`, автоиндексация `wayback -a` | внешний CDX-индекс | `ipwb index` |
+| **Полнотекстовый поиск** | ✅ для WACZ с извлечённым текстом | ❌ | ❌ | ❌ |
+| **Несколько коллекций** | список загруженных архивов | ✅ | ✅ | ❌ (один индекс на запуск) |
+| **Self-hosted** | ✅ статика (`ui.js` + `sw.js`) | ✅ | ✅ | ✅ (нужен узел IPFS) |
+| **Статус проекта** | активно развивается | активно развивается | не развивается | поддерживается, базовый replay |
+
+⚠️ pywb принимает WACZ через `wb-manager add --unpack-wacz`: WARC-файлы и индексы распаковываются в коллекцию.
 
 ## Подробный обзор инструментов
 
-* **[ReplayWeb.page](/kb/instruments/replay/replayweb-page)** — браузерный replay без сервера. Лучший выбор для разовых просмотров, отладки и офлайн-работы.
-* **[pywb](/kb/instruments/replay/pywb)** — основной серверный replay на Python. Используется Internet Archive и большинством национальных веб-архивов. Полная поддержка CDX/Memento, WARC/WACZ/ARC, multi-collection.
-* **[OpenWayback](/kb/instruments/replay/openwayback)** — Java-альтернатива pywb. Полезна там, где уже есть JVM-инфраструктура (исследовательские центры на Java).
-* **[IPWB](/kb/instruments/replay/ipwb)** — распределённый replay через IPFS. Полезен для P2P-распространения, но требует IPFS-инфраструктуры.
-* **[warc2html](/kb/instruments/replay/warc2html)** — конвертация в одиночные HTML-файлы. Подходит для отправки материалов в публикации, где нет браузера.
+* **[ReplayWeb.page](/kb/instruments/replay/replayweb-page)** — браузерный replay без сервера. Лучший выбор для разовых просмотров, проверки и публикации WACZ на статическом хостинге.
+* **[pywb](/kb/instruments/replay/pywb)** — основной серверный replay на Python от Webrecorder. IIPC рекомендует его как замену OpenWayback; на pywb основаны, например, системы UK Web Archive ([ukwa/ukwa-pywb](https://github.com/ukwa/ukwa-pywb)) и Arquivo.pt ([arquivo/pywb](https://github.com/arquivo/pywb)).
+* **[OpenWayback](/kb/instruments/replay/openwayback)** — Java-реализация Wayback. Больше не развивается; для новых установок не рекомендуется.
+* **[IPWB](/kb/instruments/replay/ipwb)** — replay через IPFS. Полезен для P2P-распространения, но требует работающего узла IPFS.
+* **[warc2html](/kb/instruments/replay/warc2html)** — конвертация WARC в статические HTML-файлы с относительными ссылками.
+* **[Memento](/kb/instruments/replay/memento)** — протокол «путешествий во времени» (RFC 7089), который поддерживают pywb, OpenWayback, IPWB и Wayback Machine.
 
-## CDX и Memento — стандарты протокола
+## CDX и Memento
 
-Все серверные replay-инструменты поддерживают два ключевых протокола IIPC:
+Серверные replay-системы обычно предоставляют два интерфейса:
 
-- **CDX API** — индекс всех URL в коллекции с метаданными (дата, тип, хеш, длина). Используется для: «дайте список страниц X», «дайте все версии Y за 2026 год».
-- **Memento (RFC 7089)** — стандарт «time travel». TimeGate делает редирект к ближайшему снимку по дате; TimeMap возвращает список всех снимков URL.
+- **CDX API** — запрос к индексу коллекции: список снимков URL с датой, MIME-типом, статусом, хешем. Это не формальный стандарт: у pywb, Wayback Machine и OpenWayback параметры и формат ответа различаются.
+- **Memento (RFC 7089)** — стандарт IETF. TimeGate отдаёт снимок, ближайший к нужной дате; TimeMap возвращает список всех снимков URL.
 
-Подробнее — на странице [pywb](/kb/instruments/replay/pywb) (раздел «CDX API»).
+Подробнее — на странице [pywb](/kb/instruments/replay/pywb) (разделы «CDX API» и «Memento») и в статье [Memento](/kb/instruments/replay/memento).
 
 ## Общий пайплайн: от записи до публикации
 
@@ -77,22 +81,23 @@ last_updated: 2026-11-09
 flowchart TB
     A["WARC/WACZ"] --> B["ReplayWeb.page<br/><i>быстрая проверка</i>"]
     B --> C["pywb<br/><i>публичный хостинг</i>"]
-    C --> D["SolrWayback / Shine<br/><i>полнотекстовый поиск</i>"]
+    B --> E["ReplayWeb.page + статический хостинг<br/><i>публикация WACZ</i>"]
+    C --> D["SolrWayback<br/><i>полнотекстовый поиск</i>"]
 ```
 
-Реальные сценарии Ruarxive:
+Типовые сценарии:
 
 - **Экспресс-проверка качества** — после Browsertrix открываем WACZ в ReplayWeb.page.
-- **Публикация для исследователей** — WACZ на S3, ReplayWeb.page по ссылке.
-- **Публикация для сообщества** — pywb на VPS, домен playback.ruarxive.org.
-- **Discovery для большой коллекции** — pywb + SolrWayback (Королевская библиотека Дании).
+- **Публикация для исследователей** — WACZ на объектном хранилище, ссылка вида `https://replayweb.page/?source=...`.
+- **Публичный архив с постоянными URL** — pywb на своём сервере за nginx.
+- **Поиск по содержимому большой коллекции** — SolrWayback (разработан Королевской библиотекой Дании).
 
 Подробнее — [WARC-файл: от сырого архива до публикации](/kb/guides/warc-workflow) и [обработка WARC](/kb/instruments/tools/warc-processing).
 
 ## Связанные разделы
 
-- [Справочник форматов](/kb/instruments/file-formats/warc) — что внутри WARC и почему его нельзя открыть напрямую.
+- [Формат WARC](/kb/instruments/file-formats/warc) — что внутри WARC и почему его нельзя открыть напрямую.
 - [Формат CDX/CDXJ](/kb/instruments/file-formats/cdx) — формат индексов.
-- [Программы и утилиты](/kb/instruments/tools) — браузерные кроулеры (Browsertrix, Brozzler), которые пишут архивы.
-- [WARC-инфраструктура](/kb/instruments/tools/warc-processing) — обработка и переупаковка архивов.
+- [Программы и утилиты](/kb/instruments/tools) — браузерные краулеры (Browsertrix, Brozzler), которые пишут архивы.
+- [Обработка WARC](/kb/instruments/tools/warc-processing) — обработка и переупаковка архивов.
 - [Кейс: wparc → metawarc → индекс](/kb/case-studies/wparc-to-metawarc-pipeline) — конкретный пайплайн Ruarxive.

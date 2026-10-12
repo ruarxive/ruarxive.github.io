@@ -1,16 +1,17 @@
 ---
 title: wparc
 sidebar_label: wparc (WordPress)
-description: "Архивация сайтов на WordPress через открытый REST API (/wp-json/wp/v2/): статьи, страницы, медиа, комментарии, метаданные в чистом JSON"
+description: "Выгрузка открытых данных сайтов на WordPress через REST API (/wp-json/): записи, страницы, метаданные медиа, комментарии в JSONL и скачивание медиафайлов."
+last_update:
+  date: 2026-10-12
 ---
 
 # wparc (WordPress)
 
-**wparc** — утилита для сохранения содержимого сайтов на WordPress через [REST API](https://developer.wordpress.org/rest-api/).
+**wparc** — утилита командной строки для резервного копирования публичных данных сайтов на WordPress через [REST API](https://developer.wordpress.org/rest-api/) (точка `/wp-json/`, есть в WordPress начиная с версии 4.7). Вместо обхода HTML-страниц она читает структурированные данные API, поэтому выгрузка получается быстрее и сохраняет метаданные: даты, авторов, рубрики, теги.
 
-Многие сайты на WordPress имеют открытый API по адресу `/wp-json/wp/v2/`. Это позволяет получить контент в чистом структурированном виде (JSON), минуя HTML-парсинг. Такой подход радикально надёжнее, чем `wget -m` или ручной кроулинг, и сохраняет важные метаданные (авторы, теги, рубрики, точные даты).
-
-- Репозиторий: [github.com/ruarxive/wparc](https://github.com/ruarxive/wparc) · Лицензия: MIT · Язык: Python
+- Репозиторий: [github.com/ruarxive/wparc](https://github.com/ruarxive/wparc) · Лицензия: Apache-2.0 · Язык: Python
+- Первая (бета) версия анонсирована в [посте #32 от 31.03.2022](https://t.me/ruarxive/32).
 
 ## Установка
 
@@ -18,101 +19,93 @@ description: "Архивация сайтов на WordPress через откр
 pip install wparc
 ```
 
-Требуется Python 3.8+.
-
-## Как это работает
-
-Утилита обходит эндпоинты API:
-
-- **`/posts`** — статьи (записи блога).
-- **`/pages`** — статические страницы.
-- **`/media`** — медиафайлы (изображения, документы).
-- **`/comments`** — комментарии (если не отключены модератором).
-- **`/users`**, **`/categories`**, **`/tags`** — авторы и таксономия.
-
-Дополнительно `wparc` обходит пагинацию и сохраняет все медиа на диск по SHA-1 URL-у.
-
-## Использование
+На PyPI опубликована версия **1.0.8** (июль 2026 года): команды `ping`, `analyze`, `dump`, `getfiles`. В репозитории уже есть версия **1.0.9** (5 октября 2026 года) с дополнительными командами `index` и `warc`, параллельной выгрузкой `--workers`, HTTP Basic Auth и ограничением частоты запросов. Пока она не опубликована на PyPI, её можно поставить из GitHub:
 
 ```bash
-wparc https://example.com/ --output ./site-archive
+pip install git+https://github.com/ruarxive/wparc.git
 ```
 
-### Опции
+Требуется Python 3.8 или новее (`requires-python` в пакете; README рекомендует 3.9+).
+
+> Команды сверены с README и `--help` версий 1.0.8 (PyPI) и 1.0.9 (GitHub), октябрь 2026.
+
+## Команды
+
+Домен передаётся позиционным аргументом, без `https://`.
+
+| Команда | Что делает | Версия |
+| :--- | :--- | :--- |
+| `wparc ping example.com` | Проверяет, что `/wp-json/` доступен, и выводит число маршрутов API | 1.0.8 |
+| `wparc analyze example.com` | Сравнивает маршруты сайта со списком известных и проверяет неизвестные | 1.0.8 |
+| `wparc dump example.com` | Выгружает данные всех маршрутов API в JSONL | 1.0.8 |
+| `wparc getfiles example.com` | Скачивает медиафайлы из `wp_v2_media.jsonl` (нужен предварительный `dump`) | 1.0.8 |
+| `wparc index example.com` | Строит SQLite-индекс `example.com/index.sqlite3` по результатам `dump` | 1.0.9 |
+| `wparc warc example.com` | Упаковывает результаты `dump` в файл WARC 1.1 | 1.0.9 |
+
+### Основные опции
+
+- Общие для `ping`, `dump`, `analyze`: `--https/--no-https` (по умолчанию HTTPS), `--no-verify-ssl`, `--timeout` (по умолчанию 360 с), `-v/--verbose`.
+- `dump`: `--page-size` (по умолчанию 100), `--retry-count` (по умолчанию 5), `--all/-a` (включать неизвестные маршруты, по умолчанию включено).
+- Только в 1.0.9: `dump --workers N` и `--index`; `getfiles --workers N` (по умолчанию 5) и `--no-resume`; `--user`, `--password`, `--rate-limit` у `ping`, `dump`, `analyze`; `warc --output FILE` (по умолчанию `dump.warc.gz`) и `--no-compress`.
+
+## Пример
 
 ```bash
-# Только статьи, без комментариев
-wparc https://example.com/ --output ./site-archive --no-comments
+# 1. Проверить доступность API
+wparc ping example.com
 
-# С лимитом на размер архива
-wparc https://example.com/ --output ./site-archive --max-media-size 100M
+# 2. Выгрузить данные
+wparc dump example.com --verbose
 
-# С пользовательским API-токеном (для приватных разделов)
-wparc https://example.com/ --output ./site-archive --auth "Bearer <token>"
+# 3. Скачать медиафайлы
+wparc getfiles example.com
 
-# Продолжить прерванную архивацию
-wparc https://example.com/ --output ./site-archive --resume
+# Только в версии 1.0.9 из GitHub:
+wparc index example.com
+wparc warc example.com --output example.warc.gz
 ```
 
-## Преимущества перед wget
+## Формат результата
 
-1. **Чистота данных**: Вы получаете текст статьи без рекламы, навигации и посторонней разметки.
-2. **Метаданные**: Сохраняются точные даты публикации/изменения, авторы, теги, рубрики, ревизии.
-3. **Скрытый контент**: Иногда API отдаёт больше данных, чем видно на сайте (например, draft-версии или поля из custom post types).
-4. **Скорость**: Один HTTP-запрос может вернуть пачку из 100 постов — это на порядки быстрее, чем обход по HTML-страницам.
-5. **Устойчивость к редизайну**: HTML-классы могут меняться, а контракт API — намного стабильнее.
+Все результаты складываются в каталог с именем домена в текущей папке:
 
-## Формат выходных данных
-
-```
-site-archive/
-├── posts/
-│   ├── 1.json         # пост с id=1 (полный объект WordPress API)
-│   ├── 2.json
-│   └── …
-├── pages/
-├── media/
-│   ├── 1.jpg
-│   └── …
-├── comments.jsonl
-├── authors.json
-├── tags.json
-├── categories.json
-└── meta.json          # URL, время архивации, число записей
+```text
+example.com/
+├── data/
+│   ├── wp-json.json            # корневой ответ /wp-json/
+│   ├── wp_v2_posts.jsonl       # записи
+│   ├── wp_v2_pages.jsonl       # страницы
+│   ├── wp_v2_media.jsonl       # метаданные медиафайлов
+│   ├── wp_v2_types.json
+│   └── ...                     # остальные маршруты: по файлу на маршрут
+├── files/
+│   └── wp-content/uploads/...  # медиафайлы с исходной структурой путей
+├── .wparc_checkpoint.json      # список уже скачанных файлов (докачка)
+├── index.sqlite3               # wparc index (1.0.9)
+└── dump.warc.gz                # wparc warc (1.0.9)
 ```
 
-## Проверка доступности API
+Повторный `dump` перезаписывает файлы в `data/`. `getfiles` пропускает файлы, уже отмеченные в `.wparc_checkpoint.json`.
 
-Перед запуском проверьте, доступен ли API. Откройте в браузере `https://example.com/wp-json/`. Если видите JSON-ответ, сайт можно архивировать с `wparc`.
+### О WARC из `wparc warc`
 
-Если API возвращает ошибку `404` или `rest_cookie_invalid_nonce`, попробуйте обратиться напрямую к эндпоинту:
-
-```bash
-curl -I https://example.com/wp-json/wp/v2/posts
-```
+Команда `warc` записывает одну запись `warcinfo` и по одной записи `response` на каждую строку JSONL. Адрес записи (`WARC-Target-URI`) имеет вид `<файл>#<id>`, а в теле лежит JSON-объект WordPress. Такой файл удобно хранить вместе с другими WARC и индексировать [metawarc](./metawarc), но это не веб-архив страниц сайта: открыть его в pywb как сайт нельзя.
 
 ## Ограничения
 
-- **Только сайты с открытым REST API**. Многие WP-сайты (особенно `.com`) либо закрыли API, либо ограничили эндпоинты до авторизованных пользователей.
-- **Плагины с custom endpoints** не покрываются автоматически — `wparc` знает только стандартные маршруты.
-- **Только опубликованный контент**, если не задан токен авторизации. `draft`-ы, `private`-посты и медиа в «закрытом» статусе не попадут в архив.
-- **Не сохраняет вёрстку страницы как HTML** (нет фронтенда, CSS, JS) — только структурированные данные. Если нужна «как выглядит», используйте [Browsertrix Crawler](/kb/instruments/tools/browsertrix) или [wpull](https://github.com/ArchiveTeam/wpull) + metawarc.
-- **Не выполняет JavaScript** — `wparc` работает с JSON, а не с DOM.
+- Работает только там, где REST API открыт. Часть владельцев сайтов закрывает `/wp-json/` для неавторизованных пользователей, у WordPress старше 4.7 этой точки нет.
+- Выгружается только опубликованный и публично доступный контент. Маршруты, отвечающие 401/403, пропускаются.
+- Вёрстка, CSS и JavaScript не сохраняются. Если важно, как сайт выглядел, дополнительно снимите его краулером с записью в WARC: [Browsertrix Crawler](/kb/instruments/tools/browsertrix), [wget](/kb/instruments/tools/wget) с `--warc-file` или [grab-site](/kb/instruments/tools/grab-site).
+- Маршруты плагинов выгружаются, если они видны в `/wp-json/` и не требуют авторизации; `analyze` помогает их найти.
 
 ## Когда выбрать другой инструмент
 
 | Задача | Лучше подойдёт |
 | :--- | :--- |
-| Нужен рендеринг с JS (SPA, ленивая подгрузка) | [Browsertrix Crawler](/kb/instruments/tools/browsertrix) |
-| Сайт без открытого WP API | [wpull](https://github.com/ArchiveTeam/wpull) / [wget](https://www.gnu.org/software/wget/) + [metawarc](./metawarc) для пост-обработки |
-| Нужен стандартный WARC на выходе | конвертация через [metawarc](./metawarc) |
-| Архивировать WordPress из Telegram-канала (бота) | [tgarc](./tgarc) |
-
-## Что дальше
-
-- Проиндексировать WARC для поиска по тексту: [metawarc](./metawarc).
-- Поднять локальный replay: [metawarc serve](./metawarc#быстрый-старт).
-- Опубликовать статический дамп: см. [инструкции для пользователей архивов](/kb/users).
+| Нужен вид страниц, JavaScript, ленивая подгрузка | [Browsertrix Crawler](/kb/instruments/tools/browsertrix) |
+| Сайт без открытого `/wp-json/` | [wget](/kb/instruments/tools/wget) с `--warc-file`, [grab-site](/kb/instruments/tools/grab-site) |
+| Нужен WARC с HTTP-ответами для просмотра | краулеры выше; для просмотра — [pywb](/kb/instruments/replay/pywb) |
+| Поиск и анализ уже собранных WARC | [metawarc](./metawarc) |
 
 ## Связанные материалы
 

@@ -1,27 +1,29 @@
 ---
 title: Waybackpy — Python-обёртка для Wayback Machine
 sidebar_label: Waybackpy
-description: "Waybackpy — Python-библиотека для работы с Wayback Machine API: сохранение страниц, поиск по близости, списки снимков, Memento. CLI-режим."
-last_updated: 2026-11-09
-keywords: [waybackpy, wayback-machine, archive.org, api, python, memento]
+description: "Waybackpy — Python-библиотека и CLI для API Wayback Machine: сохранение страниц через SavePageNow, поиск снимков через CDX API, Availability API."
+last_update:
+  date: 2026-10-12
+keywords: [waybackpy, wayback-machine, archive.org, api, python, cdx]
 ---
 
 # Waybackpy — Python-обёртка для Wayback Machine
 
-[waybackpy](https://github.com/akamhy/waybackpy) — Python-библиотека и CLI-утилита от [Akash Hamal](https://github.com/akamhy) для удобной работы с Wayback Machine API. С 2021 года **де-факто стандарт** для Python-проектов, которым нужно взаимодействовать с [web.archive.org](https://web.archive.org/).
+[waybackpy](https://github.com/akamhy/waybackpy) — Python-библиотека и консольная утилита для работы с API Wayback Machine. Автор — Akash Mahanty ([akamhy](https://github.com/akamhy)), лицензия MIT. Последний релиз — 3.0.6, последние изменения в репозитории — февраль 2024 года: проект работает, но почти не развивается.
 
-> **Зачем:** обёртка над [Wayback Machine API](/kb/instruments/tools/wayback-api), которую мы описали ранее. Экономит часы ручного HTTP-кода и валидирует ответы.
+> **Зачем:** обёртка над [Wayback Machine API](/kb/instruments/tools/wayback-api). Избавляет от ручного разбора ответов CDX и SavePageNow.
 
-## Возможности
+## Что умеет
 
-- **Поиск ближайшего снимка** URL к заданной дате (`near()`).
-- **Список всех снимков** URL за период (`snapshots()`).
-- **Сохранение страницы** в Wayback Machine (`save()`).
-- **Memento TimeMap** — все снимки в JSON-формате.
-- **CDX-запросы** к индексу Internet Archive.
-- **Разные режимы вывода** — объект, JSON, dataclass.
-- **Полная асинхронность** через `WaybackMachineSession`.
-- **CLI-режим** — `python -m waybackpy ...`.
+Библиотека экспортирует три класса (плюс устаревший класс `Url` для совместимости):
+
+| Класс | API Internet Archive | Основные методы |
+|:---|:---|:---|
+| `WaybackMachineSaveAPI` | SavePageNow (`/save/`) | `save()`, `timestamp()`, свойство `cached_save` |
+| `WaybackMachineCDXServerAPI` | CDX Server | `oldest()`, `newest()`, `near(...)`, `snapshots()` |
+| `WaybackMachineAvailabilityAPI` | Availability API | `oldest()`, `newest()`, `near(...)` |
+
+Библиотека синхронная (построена на `requests`), асинхронного интерфейса нет.
 
 ## Установка
 
@@ -29,288 +31,147 @@ keywords: [waybackpy, wayback-machine, archive.org, api, python, memento]
 pip install waybackpy
 ```
 
-Требования: Python 3.6+. Поддерживается Windows, Linux, macOS.
+Также есть пакет в conda-forge (`conda install -c conda-forge waybackpy`).
 
-## Использование
+> Команды и примеры сверены с README и установленной версией 3.0.6 (октябрь 2026).
 
-### Базовый сценарий: один URL
+Во всех классах вторым аргументом передаётся `user_agent`. Укажите осмысленную строку с контактом: это вежливо по отношению к Internet Archive и снижает риск блокировки.
 
-```python
-from waybackpy import WaybackMachine
+## Использование в Python
 
-wm = WaybackMachine("https://example.com/")
-
-# Ближайший снимок к сегодня
-snap = wm.near()
-print(snap.url)        # "https://web.archive.org/web/20261109.../https://example.com/"
-print(snap.timestamp)  # "20261109..."
-
-# Ближайший к 2026-06-15
-snap = wm.near(time="2026-06-15")
-print(snap.url)
-```
-
-### Список всех снимков
+### Сохранить страницу (SavePageNow)
 
 ```python
-for snap in wm.snapshots(year_start=2024, year_end=2026):
-    print(snap.timestamp, snap.url)
+from waybackpy import WaybackMachineSaveAPI
+
+ua = "MyArchiveBot/1.0 (+mailto:me@example.org)"
+save_api = WaybackMachineSaveAPI("https://example.com/article", ua)
+archive_url = save_api.save()
+print(archive_url)            # https://web.archive.org/web/2026.../https://example.com/article
+print(save_api.cached_save)   # True, если IA вернул недавний снимок вместо нового
+print(save_api.timestamp())   # datetime снимка
 ```
 
-### Сохранение страницы
-
-```python
-import waybackpy
-
-# Создать запрос на сохранение
-result = waybackpy.WaybackMachine("https://example.com/article").save()
-print(result.url)         # URL в Wayback после сохранения
-print(result.status_code) # 200 если успешно
-print(result.headers)     # HTTP-заголовки ответа IA
-```
-
-### CDX-запросы
+### Найти снимки (CDX API)
 
 ```python
 from waybackpy import WaybackMachineCDXServerAPI
 
-api = WaybackMachineCDXServerAPI(
-    "https://example.com/",
-    match_type=WaybackMachineCDXServerAPI.MatchType.PREFIX,
-    filter_statuscode="200",
-    limit=100,
-)
+ua = "MyArchiveBot/1.0 (+mailto:me@example.org)"
+cdx = WaybackMachineCDXServerAPI("https://example.com/", ua)
 
-for record in api.snapshots():
-    print(record.urlkey, record.timestamp, record.statuscode)
+oldest = cdx.oldest()
+print(oldest.timestamp, oldest.archive_url)
 
-# Или использовать CDXJ-формат (JSON)
-import json
-records_json = api.snapshots_json()
-print(json.dumps(records_json[:3], indent=2))
+newest = cdx.newest()
+near = cdx.near(year=2022, month=3, day=1)
+print(near.archive_url, near.statuscode)
 ```
 
-### Memento
+У объекта снимка (`CDXSnapshot`) есть поля `urlkey`, `timestamp`, `datetime_timestamp`, `original`, `mimetype`, `statuscode`, `digest`, `length`, `archive_url`.
+
+Метод `near()` принимает `year`, `month`, `day`, `hour`, `minute`, либо `unix_timestamp`, либо `wayback_machine_timestamp` (например, `2008080808`).
+
+### Список снимков с фильтрами
 
 ```python
-import waybackpy
+from waybackpy import WaybackMachineCDXServerAPI
 
-memento = waybackpy.Memento("https://example.com/", time="2026-06-15")
-print(memento.url, memento.status_code)
+cdx = WaybackMachineCDXServerAPI(
+    "example.com",
+    "MyArchiveBot/1.0 (+mailto:me@example.org)",
+    start_timestamp="2022",
+    end_timestamp="2023",
+    match_type="prefix",          # exact (по умолчанию), prefix, host, domain
+    filters=["statuscode:200", "mimetype:text/html"],
+    collapses=["urlkey"],         # по одной записи на URL
+)
+
+for snap in cdx.snapshots():
+    print(snap.timestamp, snap.original)
+```
+
+Параметры конструктора: `start_timestamp`, `end_timestamp`, `filters`, `match_type`, `sort`, `collapses`, `limit`, `use_pagination`, `closest`, `max_tries`. Они соответствуют параметрам CDX Server API.
+
+### Availability API
+
+```python
+from waybackpy import WaybackMachineAvailabilityAPI
+
+api = WaybackMachineAvailabilityAPI("https://example.com/", "MyArchiveBot/1.0")
+print(api.near(year=2020, month=1))
+```
+
+Автор библиотеки **не рекомендует** Availability API из-за проблем с производительностью: все его методы есть и в `WaybackMachineCDXServerAPI`.
+
+### Исключения
+
+Из `waybackpy.exceptions`: `NoCDXRecordFound` (снимков нет), `TooManyRequestsError` (HTTP 429), `BlockedSiteError` (сайт исключён из Wayback Machine), `MaximumSaveRetriesExceeded`, `MaximumRetriesExceeded`, `ArchiveNotInAvailabilityAPIResponse`, базовое `WaybackError`.
+
+```python
+import time
+from waybackpy import WaybackMachineCDXServerAPI
+from waybackpy.exceptions import NoCDXRecordFound, TooManyRequestsError
+
+def first_snapshot(url, ua="MyArchiveBot/1.0", tries=3):
+    for attempt in range(tries):
+        try:
+            return WaybackMachineCDXServerAPI(url, ua).oldest().archive_url
+        except NoCDXRecordFound:
+            return None
+        except TooManyRequestsError:
+            time.sleep(30 * (attempt + 1))
+    return None
 ```
 
 ## CLI
 
+Консольная команда — `waybackpy` (вызов `python -m waybackpy` не работает: в пакете нет `__main__.py`).
+
 ```bash
-# Посмотреть ближайший снимок
-python -m waybackpy --url "https://example.com/"
+# сохранить страницу
+waybackpy --url "https://example.com/" --user-agent "MyArchiveBot/1.0" --save
 
-# С конкретной датой
-python -m waybackpy --url "https://example.com/" --near "2026-06-15"
+# самый старый и самый новый снимок
+waybackpy --url "https://example.com/" --oldest
+waybackpy --url "https://example.com/" --newest
 
-# Посмотреть CDX
-python -m waybackpy --url "https://example.com/" --cdx
+# снимок, ближайший к дате: --near и отдельные флаги даты
+waybackpy --url "https://example.com/" --near --year 2022 --month 3 --day 1
 
-# Сохранить страницу
-python -m waybackpy --url "https://example.com/" --save
+# известные URL домена (через CDX), с поддоменами, с записью в файл
+waybackpy --url "example.com" --known-urls --subdomain --file
+
+# сырой запрос к CDX
+waybackpy --url "example.com" --cdx --match-type prefix \
+  --cdx-filter "statuscode:200" --collapse urlkey --limit 100
 ```
 
-## Асинхронный режим
-
-Для массовой обработки (сотни URL):
-
-```python
-import asyncio
-from waybackpy import WaybackMachineSession
-
-async def check_urls(urls):
-    async with WaybackMachineSession() as session:
-        tasks = [
-            session.near(url)
-            for url in urls
-        ]
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        for url, snap in zip(urls, results):
-            if isinstance(snap, Exception):
-                print(f"{url}: error {snap}")
-            else:
-                print(f"{url}: {snap.url}")
-
-asyncio.run(check_urls([
-    "https://example.com/",
-    "https://example.org/",
-    "https://example.gov/",
-]))
-```
-
-## Реальные сценарии
-
-### Сценарий 1. Найти «исчезнувшую» страницу
-
-```python
-def find_lost(page_url: str) -> str | None:
-    from waybackpy import WaybackMachine
-    try:
-        snap = WaybackMachine(page_url).near()
-        return snap.url if snap.status_code == 200 else None
-    except Exception:
-        return None
-
-# Использование в исследовании
-original = "https://mysite.ru/article-old"
-fallback = find_lost(original)
-print(fallback or "—")
-```
-
-### Сценарий 2. Цитирование в научной работе
-
-```python
-def citation_link(url: str) -> str:
-    """Вернуть Wayback-ссылку для цитирования."""
-    from waybackpy import WaybackMachine
-    import datetime
-    snap = WaybackMachine(url).near()
-    if snap:
-        return f"{snap.url} (accessed {datetime.date.today()})"
-    return f"{url} (not archived)"
-```
-
-### Сценарий 3. Массовая проверка списка ссылок на «link rot»
-
-```python
-from waybackpy import WaybackMachine
-import csv
-
-with open("external-links.csv") as f, open("report.csv", "w", newline="") as out:
-    reader = csv.DictReader(f)
-    writer = csv.DictWriter(out, fieldnames=["url", "first_archived", "snapshots"])
-    writer.writeheader()
-    for row in reader:
-        try:
-            wm = WaybackMachine(row["url"])
-            snapshots = list(wm.snapshots())
-            if snapshots:
-                writer.writerow({
-                    "url": row["url"],
-                    "first_archived": snapshots[0].timestamp,
-                    "snapshots": len(snapshots),
-                })
-        except Exception as e:
-            print(f"err {row['url']}: {e}")
-```
-
-### Сценарий 4. Автоматическое сохранение RSS-ленты
-
-```python
-import feedparser
-from waybackpy import WaybackMachine
-
-feed = feedparser.parse("https://example.com/rss")
-for entry in feed.entries[:10]:
-    try:
-        result = WaybackMachine(entry.link).save()
-        print(f"Saved: {result.url}")
-    except Exception as e:
-        print(f"Failed {entry.link}: {e}")
-```
-
-## Best practices
-
-### Кэшируйте ответы
-
-```python
-import requests_cache
-
-requests_cache.install_cache("wayback_cache", expire_after=86400)  # 24 часа
-```
-
-Кэш экономит запросы к IA и ускоряет повторные прогоны.
-
-### Обрабатывайте ошибки
-
-Wayback Machine API иногда возвращает 429 (rate limit). Используйте backoff:
-
-```python
-import time
-from waybackpy.exceptions import WaybackMachineNoSnapshotError
-
-def with_retry(func, url, max_retries=3):
-    for attempt in range(max_retries):
-        try:
-            return func(url)
-        except WaybackMachineNoSnapshotError:
-            return None
-        except Exception as e:
-            if "429" in str(e):
-                time.sleep(2 ** attempt)
-                continue
-            raise
-```
-
-### Параллельность
-
-Для десятков тысяч URL — параллельные запросы + задержка:
-
-```python
-import asyncio
-
-async def batch_check(urls, max_concurrent=5):
-    sem = asyncio.Semaphore(max_concurrent)
-
-    async def fetch_one(url):
-        async with sem:
-            await asyncio.sleep(0.5)
-            from waybackpy import WaybackMachineSession
-            async with WaybackMachineSession() as session:
-                try:
-                    snap = await session.near(url)
-                    return (url, snap.url if snap else None)
-                except Exception:
-                    return (url, None)
-
-    return await asyncio.gather(*[fetch_one(u) for u in urls])
-```
+Используйте длинные имена флагов: в версии 3.0.6 короткие `-f`, `-l` и `-st` объявлены дважды (например, `-f` означает и `--file`, и `--cdx-filter`), и новые версии Click выводят предупреждения. Документация CLI — в [wiki](https://github.com/akamhy/waybackpy/wiki/CLI-docs).
 
 ## Когда использовать
 
 ✅ Подходит:
 
-- **Скрипты автоматизации** на Python (бэкапы RSS, link-rot отчёты).
-- **Научные инструменты** для проверки цитирования.
-- **OSINT-пайплайны** для быстрой проверки существования материала в архиве.
-- **CI/CD-скрипты** для архивации документов.
-- **Быстрое прототипирование** Wayback Machine-интеграций.
+- для скриптов автоматизации на Python: проверки битых ссылок, точечного сохранения страниц;
+- для научных и OSINT-задач: проверить, есть ли материал в архиве и с какой даты.
 
 ❌ Не подходит:
 
-- **Массовое сохранение** (сотни URL за минуту) — есть лимит, лучше Bulk Save API.
-- **Real-time мониторинг** — синхронный режим, нет streaming.
-- **Другие архивы** кроме Internet Archive — для Perma.cc, Common Crawl свои библиотеки.
-- **Языки кроме Python** — для JS есть `wayback-machine-sdk`.
-
-## Сравнение с прямым HTTP
-
-| Задача | Прямой HTTP-запрос | waybackpy |
-|:---|:---|:---|
-| Ближайший снимок URL | Вручную формировать URL, обработать редирект | `WaybackMachine(url).near()` |
-| Список всех снимков | Парсить CDX-формат вручную | `wm.snapshots()` |
-| Сохранение в Wayback | POST на /save/, обработка JSON | `wm.save()` |
-| Memento | Ручные HTTP-заголовки | `Memento(url, time)` |
-| CDX-запросы | Query string с параметрами | Dataclass API |
-| Тестирование | Mock-объекты для requests | Mock-объекты для waybackpy |
-| Документация | Свои docstring'и | Встроенная |
+- для массового сохранения: у SavePageNow есть ограничения на число запросов, при больших объёмах вы получите `TooManyRequestsError`;
+- для асинхронной или высоконагруженной обработки: библиотека синхронная;
+- для других архивов: для Common Crawl и IA одновременно есть [cdx_toolkit](https://github.com/commoncrawl/cdx_toolkit).
 
 ## Ресурсы
 
 - [GitHub](https://github.com/akamhy/waybackpy)
 - [PyPI](https://pypi.org/project/waybackpy/)
-- [Документация](https://github.com/akamhy/waybackpy/wiki)
-- [Changelog](https://github.com/akamhy/waybackpy/releases)
+- [Документация Python-пакета](https://github.com/akamhy/waybackpy/wiki/Python-package-docs)
+- [Документация CLI](https://github.com/akamhy/waybackpy/wiki/CLI-docs)
 
 ## Связанные материалы
 
 - [Wayback Machine API](/kb/instruments/tools/wayback-api) — низкоуровневый справочник.
 - [Memento](/kb/instruments/replay/memento) — стандарт TimeGate/TimeMap.
 - [Internet Archive CLI (ia)](/kb/instruments/tools/internet-archive-cli) — для каталога archive.org.
-- [cdx_toolkit](https://github.com/commoncrawl/cdx_toolkit) — для IA + Common Crawl.
-- [Ландшафт 2026](/kb/instruments/landscape-2026) — где waybackpy в общей картине.
+- [Ландшафт 2026](/kb/instruments/landscape-2026)

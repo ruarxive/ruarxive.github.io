@@ -1,17 +1,18 @@
 ---
 title: Ландшафтная карта веб-архивации 2026
 sidebar_label: Ландшафт 2026
-description: "Полная карта инструментов и инициатив в области веб-архивации по состоянию на 2026 год. 4 столпа: capture, storage, access, analysis. Что в активной разработке, что в архиве."
-last_updated: 2026-11-09
+description: "Карта инструментов и инициатив веб-архивации по состоянию на октябрь 2026 года: сбор, хранение, доступ и анализ; что активно развивается, а что ушло в архив."
+last_update:
+  date: 2026-10-12
 ---
 
 # Ландшафтная карта веб-архивации 2026
 
-Состояние области на конец 2026 года. Ниже — попытка дать единую картину: какие инструменты существуют, кто их разрабатывает, что в активной разработке, что уходит в историю. Этот материал помогает выбрать правильный инструмент под конкретную задачу и не тратить время на легаси.
+Состояние области на октябрь 2026 года. Ниже — попытка дать единую картину: какие инструменты существуют, кто их разрабатывает, что активно развивается, а что уходит в историю. Материал помогает выбрать инструмент под задачу и не тратить время на заброшенные проекты. Статусы проверены по репозиториям в октябре 2026 года.
 
-> **Принцип:** один инструмент закрывает одну задачу хорошо. Хороший архивный пайплайн — это **композиция** из 4–6 инструментов.
+> **Принцип:** один инструмент хорошо решает одну задачу. Хороший архивный конвейер — это **композиция** из нескольких инструментов.
 
-## Четыре столпа архивации
+## Четыре опоры архивации
 
 Любая архивная система делает четыре вещи:
 
@@ -19,85 +20,88 @@ last_updated: 2026-11-09
 flowchart LR
     subgraph Capture["CAPTURE · сбор"]
         direction TB
-        C1["Browsertrix ⭐"]
+        C1["Browsertrix"]
         C2["wget · Heritrix"]
         C3["wparc ⭐"]
         C4["yt-dlp"]
     end
     subgraph Storage["STORAGE · хранение"]
         direction TB
-        S1["pywb"]
-        S2["S3 · R2"]
-        S3["Backblaze"]
-        S4["+ Internet Archive ⭐"]
+        S1["WARC / WACZ"]
+        S2["S3-совместимые хранилища"]
+        S3["Локальные и офлайн-копии"]
+        S4["Internet Archive (items)"]
     end
     subgraph Access["ACCESS · доступ"]
         direction TB
-        A1["ReplayWeb.page ⭐"]
-        A2["Wayback Machine"]
-        A3["Perma.cc"]
+        A1["ReplayWeb.page"]
+        A2["pywb"]
+        A3["Wayback Machine"]
         A4["Memento"]
     end
     subgraph Analysis["ANALYSIS · анализ"]
         direction TB
         N1["SolrWayback"]
         N2["metawarc ⭐"]
-        N3["warc-gpt"]
-        N4["DuckDB-warc"]
+        N3["WARC-GPT"]
+        N4["DuckDB-WARC"]
     end
     Capture --> Storage --> Access --> Analysis
 ```
 
-Команда Ruarxive использует **Ruarxive-стек** (отмечен ⭐), остальное — стороннее.
+Звёздочкой (⭐) отмечены собственные инструменты Ruarxive, остальное — сторонние проекты.
 
 ## 1. CAPTURE — сбор контента
 
 ### Браузерные кроулеры (полная поддержка JavaScript)
 
-| Инструмент | Язык | Хостинг | Особенности | Статус |
+| Инструмент | Язык | Установка | Особенности | Статус |
 |:---|:---|:---|:---|:---|
-| ⭐ [Browsertrix](/kb/instruments/tools/browsertrix) | Node.js + Chromium | Docker / Cloud | WACZ из коробки, поведения (autoscroll, autoplay) | **Стабильный** |
-| [Squidwarc](/kb/instruments/tools/squidwarc) | Node.js + CDP | npm | Точное управление через DevTools Protocol | Стабильный |
-| [Brozzler](/kb/instruments/tools/brozzler) | Python | Docker | Распределённый через Redis | Стабильный |
-| [Warcworker](/kb/instruments/tools/warcworker) | Node.js | Docker | Squidwarc + очередь + UI | Стабильный |
-| [Crocoite](https://github.com/crocoite/crocoite) | Python | pip | Скриншоты + DOM + WARC | Экспериментальный |
-| [WAIL](https://github.com/machawk1/wail) | Python | GUI | One-click Heritrix + pywb | Нишевый |
+| [Browsertrix](/kb/instruments/tools/browsertrix) | Node.js + Chromium | Docker / облако / self-hosted | WACZ, поведения на странице (autoscroll, autoplay) | **Активен** |
+| [Brozzler](/kb/instruments/tools/brozzler) | Python + Chromium | pip | Распределённый обход, состояние в RethinkDB, запись через warcprox | **Активен** |
+| [Squidwarc](/kb/instruments/tools/squidwarc) | Node.js + Chrome | из исходников (npm-пакета нет) | Скриптуемый обход по JSON-конфигу | Не развивается с 2020 |
+| [Warcworker](/kb/instruments/tools/warcworker) | Python + Squidwarc | Docker Compose | Очередь (RabbitMQ) и веб-интерфейс для отдельных URL | В архиве |
+| [Crocoite](https://github.com/crocoite/crocoite) | Python + Chrome | pip | Скриншоты + DOM + WARC | Не развивается с 2019 |
+| [WAIL](https://github.com/machawk1/wail) | Python | GUI | Heritrix + pywb «в один клик» | Обновляется редко (релиз 2025) |
 
 ### HTTP-кроулеры (без JavaScript)
 
 | Инструмент | Язык | Формат | Статус |
 |:---|:---|:---|:---|
-| [Wget](/kb/instruments/tools/wget) | C | Файлы + WARC (1.14+) | **Стабильный** |
-| ⭐ [Wpull](/kb/instruments/tools/wpull) | Python | Файлы + WARC | Стабильный |
-| [Heritrix](/kb/instruments/tools/heritrix) | Java | WARC | **Стабильный** |
-| [HTTrack](/kb/instruments/tools/httrack) | C++ | Зеркало | Стабильный |
-| [grab-site](/kb/instruments/tools/grab-site) | Python | WARC | Стабильный |
+| [Wget](/kb/instruments/tools/wget) | C | Файлы + WARC (1.14+) | **Активен** |
+| [Heritrix](/kb/instruments/tools/heritrix) | Java | WARC | **Активен** |
+| [grab-site](/kb/instruments/tools/grab-site) | Python (форк Wpull) | WARC | Поддерживается (изменения в 2025) |
+| [Wpull](/kb/instruments/tools/wpull) | Python | Файлы + WARC | Последний релиз 2016 |
+| [HTTrack](/kb/instruments/tools/httrack) | C | Зеркало | Активен |
 
 ### Специализированные загрузчики
 
 | Инструмент | Для чего | Статус |
 |:---|:---|:---|
-| [yt-dlp](/kb/instruments/tools/yt-dlp) | Видео (1800+ сайтов) | **Стабильный** |
-| [gallery-dl](/kb/instruments/tools/gallery-dl) | Изображения (200+ платформ) | **Стабильный** |
-| [tdl](/kb/instruments/tools/tdl) | Telegram | Стабильный |
-| ⭐ [tgarc](https://github.com/ruarxive/tgarc) | Telegram с метаданными | Стабильный |
-| ⭐ [wparc](/kb/instruments/ruarxive-tools/wparc) | WordPress через REST API | Стабильный |
-| ⭐ [ydiskarc](https://github.com/ruarxive/ydiskarc) | Яндекс.Диск | Стабильный |
-| ⭐ [filegetter](/kb/instruments/ruarxive-tools/filegetter) | Массовое скачивание файлов | Стабильный |
-| [Auto-Archiver (Bellingcat)](https://github.com/bellingcat/auto-archiver) | Workflow OSINT | Активно развивается |
-| [twarc](/kb/instruments/social-media/twarc) | Twitter JSON | Только legacy v2 API |
-| [fbarc](/kb/instruments/social-media/fbarc) | Facebook | Ограниченно (API заблокирован) |
-| [Social Feed Manager](https://github.com/gwu-libraries/social-feed-manager) | Multiple platforms | Нишевый |
+| [yt-dlp](/kb/instruments/tools/yt-dlp) | Видео (более 1700 сайтов) | **Активен** |
+| [gallery-dl](/kb/instruments/tools/gallery-dl) | Изображения | **Активен** |
+| [tdl](/kb/instruments/tools/tdl) | Telegram | Активен |
+| ⭐ [tgarc](/kb/instruments/ruarxive-tools/tgarc) | Telegram с метаданными | Не развивается с 2023 |
+| ⭐ [wparc](/kb/instruments/ruarxive-tools/wparc) | WordPress через REST API | Активен |
+| ⭐ [ydiskarc](/kb/instruments/ruarxive-tools/ydiskarc) | Яндекс Диск | Активен |
+| ⭐ [filegetter](/kb/instruments/ruarxive-tools/filegetter) | Массовое скачивание файлов | Активен |
+| [WikiTeam (wikiteam3)](/kb/instruments/tools/wikiteam) | Вики на MediaWiki | Активен |
+| [Auto-Archiver (Bellingcat)](/kb/instruments/tools/auto-archiver) | Конвейер для OSINT | Активен |
+| [twarc](/kb/instruments/social-media/twarc) | X/Twitter, JSON (`twarc2` для API v2) | Работает только с платным доступом к X API |
+| [fbarc](/kb/instruments/social-media/fbarc) | Facebook | В архиве с 2018 |
+| [Social Feed Manager](https://github.com/gwu-libraries/sfm-ui) | Несколько платформ | Не развивается (последние изменения — 2024) |
 
 ### Моментальное сохранение
 
 | Инструмент | Для чего | Статус |
 |:---|:---|:---|
-| ⭐ [Archive.ph](https://archive.ph/) | URL → snapshot за 30 с | **Стабильный** |
-| [SingleFile](/kb/instruments/tools/singlefile) | Страница → один HTML (Chrome ext + CLI) | Стабильный |
-| [WebScrapBook](/kb/instruments/tools/webscrapbook) | Browser tree + экспорт WARC | Стабильный |
-| [monolith](/kb/instruments/tools/monolith) | CLI one-HTML | Стабильный |
-| [Obelisk](/kb/instruments/tools/obelisk) | Go CLI + REST API | Стабильный |
+| [Archive.ph](/kb/instruments/tools/archive-ph) | URL → снимок | Работает |
+| [SavePageNow](/kb/instruments/tools/wayback-api) | URL → снимок в Wayback Machine | Работает |
+| [SingleFile](/kb/instruments/tools/singlefile) | Страница → один HTML (расширение + CLI) | **Активен** |
+| [ArchiveWeb.page](https://archiveweb.page/) | Запись WARC/WACZ из браузера | Активен |
+| [WebScrapBook](/kb/instruments/tools/webscrapbook) | Коллекция в браузере (Folder, HTZ, MAFF, Single HTML; без WARC) | Активен |
+| [monolith](/kb/instruments/tools/monolith) | Страница → один HTML, CLI на Rust | Активен |
+| [Obelisk](/kb/instruments/tools/obelisk) | Страница → один HTML, Go-библиотека и CLI | Развивается медленно |
 
 ## 2. STORAGE — хранение
 
@@ -105,39 +109,38 @@ flowchart LR
 
 | Формат | Назначение | Инструменты | Статус |
 |:---|:---|:---|:---|
-| ⭐ [WARC](/kb/instruments/file-formats/warc) | Стандарт ISO 28500 / WARC 1.1 | Многие | **Стандарт** |
-| ⭐ [WACZ](/kb/instruments/file-formats/wacz) | ZIP + CDXJ + метаданные | Browsertrix, ReplayWeb.page | **Стандарт 2024+** |
-| [ARC](https://iipc.github.io/warc-specifications/) | Legacy предшественник WARC | warctools | Legacy |
-| ⭐ [CDX/CDXJ](/kb/instruments/file-formats/cdx) | Индекс | pywb, cdxj-indexer | **Стандарт** |
-| [ZIM](https://wiki.openzim.org/) | Офлайн-чтение через Kiwix | warc2zim, zimit | **Стандарт для Kiwix** |
-| [BagIt](https://tools.ietf.org/html/rfc8493) | Упаковка для передачи | bagit-python | **Стандарт** |
-| ⭐ [PREMIS](/kb/instruments/file-formats/premis) | Метаданные сохранности | metawarc, mediainfo | **Стандарт** |
-| [METS](https://www.loc.gov/standards/mets/) | Структурные метаданные | Goobi, mets-reader | Нишевый |
-| [IIIF](/kb/instruments/file-formats/iiif) | Изображения высокого разрешения | Mirador, cantaloupe | Нишевый |
+| [WARC](/kb/instruments/file-formats/warc) | Стандарт ISO 28500 (WARC 1.1) | Многие | **Стандарт** |
+| [WACZ](/kb/instruments/file-formats/wacz) | ZIP + WARC + CDXJ + метаданные | Browsertrix, ArchiveWeb.page, ReplayWeb.page | Спецификация Webrecorder |
+| ARC | Предшественник WARC | warctools, JWAT, warchaeology (`warc convert arc`) | Устаревший |
+| [CDX/CDXJ](/kb/instruments/file-formats/cdx) | Индекс | pywb, cdxj-indexer | **Стандарт де-факто** |
+| [ZIM](https://wiki.openzim.org/) | Офлайн-чтение через Kiwix | warc2zim, zimit | Формат openZIM |
+| [BagIt](https://www.rfc-editor.org/rfc/rfc8493) | Упаковка для передачи | bagit-python | **Стандарт (RFC 8493)** |
+| [PREMIS](/kb/instruments/file-formats/premis) | Метаданные сохранности | Системы цифрового хранения | **Стандарт** |
+| [METS](/kb/instruments/file-formats/mets) | Структурные метаданные | Системы цифровых библиотек | Нишевый |
+| [IIIF](/kb/instruments/file-formats/iiif) | Изображения высокого разрешения | Mirador, Cantaloupe | Нишевый |
 | [PDF/A](/kb/instruments/file-formats/pdfa) | Долгосрочное хранение PDF | veraPDF | **Стандарт** |
-| [SIARD](/kb/instruments/file-formats/siard) | Базы данных | dbptk | Нишевый |
-| [MBOX](/kb/instruments/file-formats/mbox) | Email-архивы | Thunderbird, archivematica | **Стандарт** |
-| [JP2](/kb/instruments/file-formats/jp2) | Изображения высокого разрешения | kakadu, OpenJPEG | Нишевый |
+| [SIARD](/kb/instruments/file-formats/siard) | Базы данных | DBPTK | Нишевый |
+| [MBOX](/kb/instruments/file-formats/mbox) | Почтовые архивы | Thunderbird | **Стандарт де-факто** |
+| [JP2](/kb/instruments/file-formats/jp2) | Изображения высокого разрешения | Kakadu, OpenJPEG | Нишевый |
 
 ### Хранилища
 
-| Решение | Когда использовать | Стоимость |
-|:---|:---|:---|
-| Локальный диск | Личный архив | $ |
-| AWS S3 Standard | Горячий архив (частое чтение) | $23/TB/мес |
-| Cloudflare R2 | Публичный архив (анлим egress) | $15/TB/мес |
-| Backblaze B2 | Бюджетное хранение | $6/TB/мес |
-| Selectel / Yandex Cloud | Хранение в РФ | от 990 ₽/мес/ТБ |
-| Internet Archive | Дополнительная копия | Бесплатно (для некоммерческих) |
-| ⭐ Ruarxive (Backblaze + offline) | Главное хранилище Ruarxive | Грантовое финансирование |
+| Решение | Когда использовать |
+|:---|:---|
+| Локальный диск и офлайн-носители | Личный архив, резервная копия |
+| S3-совместимые облака (AWS S3, Cloudflare R2, Backblaze B2 и др.) | Горячие и публичные копии |
+| Российские облака (Selectel, Yandex Cloud и др.) | Хранение в РФ |
+| Internet Archive (items) | Дополнительная публичная копия для некоммерческих проектов |
+
+Цены облачных хранилищ меняются: сверяйтесь с актуальными тарифами провайдера (учитывайте и стоимость исходящего трафика).
 
 ### Правило 3-2-1
 
 Любой важный архив должен иметь:
 
-- **3 копии** (две полные + одна удалённая);
-- **2 разных носителя** (диск + облако, или два облака);
-- **1 копия вне офиса** (offline-бэкап или удалённый облачный регион).
+- **3 копии** данных;
+- **2 разных типа носителей** (например, диск и облако);
+- **1 копию в другом месте** (офлайн-бэкап или удалённый регион).
 
 ## 3. ACCESS — доступ
 
@@ -145,30 +148,31 @@ flowchart LR
 
 | Инструмент | Тип | Когда | Статус |
 |:---|:---|:---|:---|
-| ⭐ [ReplayWeb.page](/kb/instruments/replay/replayweb-page) | Клиентский | Разовое открытие | **Стабильный** |
-| ⭐ [pywb](/kb/instruments/replay/pywb) | Серверный | Публичный архив | **Стабильный** |
-| [OpenWayback](/kb/instruments/replay/openwayback) | Серверный (Java) | Существующая JVM-инфра | Стабильный |
+| [ReplayWeb.page](/kb/instruments/replay/replayweb-page) | В браузере | Открыть WARC/WACZ без сервера | **Активен** |
+| [pywb](/kb/instruments/replay/pywb) | Серверный | Публичный архив | **Активен** |
+| [OpenWayback](/kb/instruments/replay/openwayback) | Серверный (Java) | Существующие установки; IIPC рекомендует переход на pywb | Последний релиз 2019 |
 | [IPWB](/kb/instruments/replay/ipwb) | Распределённый (IPFS) | P2P-доступ | Экспериментальный |
-| [warc2html](/kb/instruments/replay/warc2html) | Конвертер | Для публикаций | Нишевый |
-| ⭐ [Memento](/kb/instruments/replay/memento) | Стандарт RFC 7089 | Универсальный API | **Стандарт** |
-| [Wayback Machine](https://web.archive.org/) | Публичный сервис | Глобальный доступ | **Стабильный** |
+| [warc2html](/kb/instruments/replay/warc2html) | Конвертер | Статическая публикация | Нишевый |
+| [Memento](/kb/instruments/replay/memento) | Протокол RFC 7089 | Универсальный доступ к версиям | **Стандарт** |
+| [Wayback Machine](https://web.archive.org/) | Публичный сервис | Глобальный доступ | Работает |
 
-### Discovery и поиск
+### Поиск по архивам
 
 | Инструмент | Когда | Статус |
 |:---|:---|:---|
-| [Shine](/kb/instruments/tools/shine) | Полнотекстовый поиск, до 100 ГБ | **Стабильный** |
-| [SolrWayback](/kb/instruments/tools/solrwayback) | Полнотекстовый поиск, от 100 ГБ | **Стабильный** |
-| [ArchiveSpark](https://github.com/helgeho/ArchiveSpark) | Spark-кластер | Нишевый |
-| [Warclight](https://github.com/archivesunleashed/warclight) | Blacklight-фронтенд | Нишевый |
+| [SolrWayback](/kb/instruments/tools/solrwayback) | Полнотекстовый поиск и аналитика по своим WARC | **Активен** (5.5.0, сентябрь 2026) |
+| [Shine](/kb/instruments/tools/shine) | Прототип исследовательского интерфейса UK Web Archive | В архиве с 2020 |
+| [ArchiveSpark](https://github.com/helgeho/ArchiveSpark) | Обработка на Spark-кластере | Нишевый |
+| [Warclight](https://github.com/archivesunleashed/warclight) | Фронтенд на Blacklight | В архиве с 2023 |
 
-### Постоянные ссылки
+### Постоянные ссылки и поиск снимков
 
 | Сервис | Когда | Статус |
 |:---|:---|:---|
-| [Perma.cc](/kb/similar/perma-cc) | Научное цитирование | **Стабильный** |
-| [Wayback Machine](https://web.archive.org/save/) | Все случаи | **Стабильный** |
-| [Archive.ph](https://archive.ph/) | Моментальное сохранение | **Стабильный** |
+| [Perma.cc](/kb/similar/perma-cc) | Научное и юридическое цитирование | Работает |
+| [Wayback Machine (SavePageNow)](/kb/instruments/tools/wayback-api) | Разовое сохранение | Работает |
+| [Archive.ph](/kb/instruments/tools/archive-ph) | Моментальное сохранение | Работает |
+| [PastPage](/kb/instruments/tools/pastpage) | Поиск снимка сразу в нескольких архивах (расширение браузера) | Активен (с 2026) |
 
 ## 4. ANALYSIS — анализ
 
@@ -176,78 +180,84 @@ flowchart LR
 
 | Инструмент | Что делает | Статус |
 |:---|:---|:---|
-| ⭐ [metawarc](/kb/instruments/ruarxive-tools/metawarc) | DuckDB-индекс + метаданные | **Стабильный** |
-| ⭐ [metawarc-mcp](/kb/instruments/ruarxive-tools/metawarc-mcp) | MCP-сервер для LLM | **Стабильный** |
-| [warc-processing](/kb/instruments/tools/warc-processing) | Библиотеки (warcio, jwarc) | **Стабильный** |
-| [Warchaeology](/kb/instruments/tools/warchaeology) | Валидация, дедупликация | Стабильный |
-| [Warcbench](https://github.com/harvard-lil/warcbench) | Исследование, трансформация | Экспериментальный |
-| [DuckDB-warc](https://github.com/harvard-lil/duckdb-warc) | SQL к WARC | Активно развивается |
-| [duckdb-web-archive-cdx](/kb/instruments/tools/duckdb-warc) | SQL к CDX IA/CC | Активно развивается |
+| ⭐ [metawarc](/kb/instruments/ruarxive-tools/metawarc) | Каталог и метаданные WARC-коллекций | **Активен** (2.0 — август 2026) |
+| ⭐ [metawarc MCP](/kb/instruments/ruarxive-tools/metawarc-mcp) | MCP-сервер для LLM-агентов в составе metawarc | Развивается |
+| [Обработка WARC](/kb/instruments/tools/warc-processing) | Библиотеки warcio, FastWARC, jwarc, gowarc и др. | **Активны** |
+| [Warchaeology](/kb/instruments/tools/warchaeology) | Просмотр, валидация, дедупликация (Go) | **Активен** (5.0.0, март 2026) |
+| [warcbench](https://github.com/harvard-lil/warcbench) | Исследование и преобразование WARC (Harvard LIL) | Развивается |
+| [DuckDB-WARC](/kb/instruments/tools/duckdb-warc) | SQL-запросы к WARC (Harvard LIL) | Развивается |
 
 ### Защита и контроль качества
 
 | Инструмент | Что делает | Статус |
 |:---|:---|:---|
-| [WARC-Safe](https://web.archive.org/web/2026/https://digital.library.unt.edu/ark:/67531/metadc2472470/) | Антивирус + NSFW | Стабильный |
-| [warcvalid](https://github.com/iipc/jwarc) | Валидация WARC 1.1 | **Стабильный** |
+| [WARC-Safe](/kb/instruments/tools/warc-safe) | Проверка на вирусы (ClamAV) и NSFW, Национальная библиотека Люксембурга | Активен |
+| `jwarc validate`, `warc validate`, `warcvalid` (warctools), JWAT-Tools `test` | Валидация WARC | Активны / стабильны |
 
-### AI и RAG
-
-| Инструмент | Что делает | Статус |
-|:---|:---|:---|
-| [WARC-GPT](https://github.com/harvard-lil/warc-gpt) | RAG по коллекции | Экспериментальный |
-| [metawarc-mcp](/kb/instruments/ruarxive-tools/metawarc-mcp) | Интерфейс для LLM | Экспериментальный |
-| [WARC-Bench](https://sanjari-orb.github.io/warc-bench/) | Бенчмарк для AI-агентов | Активно развивается |
-
-### Link-graph анализ
+### ИИ и RAG
 
 | Инструмент | Что делает | Статус |
 |:---|:---|:---|
-| [Hyphe](https://github.com/medialab/hyphe) | Корпус-краулер с UI | Стабильный |
-| [WebGraph](https://github.com/vigna/webgraph) | Графовый фреймворк | Нишевый |
-| [Gephi](https://gephi.org/) | Визуализация графов | Стабильный |
+| [WARC-GPT](/kb/instruments/tools/warc-gpt) | RAG по коллекции WARC (Harvard LIL) | Экспериментальный, малоактивен с 2025 |
+| ⭐ [metawarc MCP](/kb/instruments/ruarxive-tools/metawarc-mcp) | Доступ LLM-агентов к каталогу коллекции | Развивается |
+| [WARC-Bench](https://sanjari-orb.github.io/warc-bench/) | Бенчмарк ИИ-агентов на архивных копиях сайтов (ICLR 2026) | Исследовательский проект |
 
-## Что уходит в архив (Deprecated / Sunset)
+### Анализ графа ссылок
 
-| Инструмент | Что заменило | Примечание |
+| Инструмент | Что делает | Статус |
 |:---|:---|:---|
-| ArchiveTeam Warrior | Docker-сетапы | Сложно поддерживать |
-| WAIL | Heritrix + pywb напрямую | Нет активной разработки |
-| Shockwave Flash | HTML5 video | Не нужен с 2020 |
-| Wayback Machine (старый) | pywb | IA перешёл на pywb к 2018 |
-| Chromebot (ArchiveTeam) | ArchiveBot | Закрыт в 2020 |
-| `ia wayback` (SavePageNow CLI) | Direct HTTP | Плохо поддерживается |
+| [Hyphe](/kb/instruments/tools/hyphe) | Кроулер для корпусов с веб-интерфейсом | Активен |
+| [WebGraph](https://github.com/vigna/webgraph) | Сжатое представление больших графов | Нишевый |
+| [Gephi](https://gephi.org/) | Визуализация графов | Активен |
+
+## Что ушло или уходит в архив
+
+| Инструмент | Чем заменить | Примечание |
+|:---|:---|:---|
+| Conifer (Rhizome) | [ArchiveWeb.page](https://archiveweb.page/), [Browsertrix](/kb/instruments/tools/browsertrix) | Закрыт в июне 2026 года; создание коллекций отключили заранее |
+| [Shine](/kb/instruments/tools/shine) | [SolrWayback](/kb/instruments/tools/solrwayback) | Репозиторий в архиве с 2020 |
+| [Squidwarc](/kb/instruments/tools/squidwarc), [Warcworker](/kb/instruments/tools/warcworker) | Browsertrix | Не развиваются / в архиве |
+| Crocoite | Browsertrix | Не развивается с 2019 |
+| [fbarc](/kb/instruments/social-media/fbarc) | — (API Facebook закрыт для такого сбора) | В архиве с 2018 |
+| OpenWayback | [pywb](/kb/instruments/replay/pywb) | Последний релиз 2019 |
+| Webrecorder Player | ReplayWeb.page (в браузере или настольное приложение) | Репозиторий в архиве |
+| Adobe Flash | Эмулятор [Ruffle](https://ruffle.rs/) для просмотра сохранённых SWF | Поддержка браузерами прекращена в конце 2020 года |
+
+ArchiveTeam Warrior не устарел: это действующий клиент распределённых проектов ArchiveTeam, который распространяется в том числе как Docker-образ ([warrior-dockerfile](https://github.com/ArchiveTeam/warrior-dockerfile)).
 
 ## Инициативы и сообщества
 
 | Организация | Что делает |
 |:---|:---|
-| [IIPC](https://netpreserve.org/) | Стандарты (WARC, CDX), конференции, обучение |
-| [Webrecorder](https://webrecorder.io/) | Browsertrix, ReplayWeb.page, pywb, WACZ-стандарт |
-| [Internet Archive](https://archive.org/) | Wayback Machine, S3 API |
+| [IIPC](https://netpreserve.org/) | Стандарты (WARC), конференции, обучение, jwarc |
+| [Webrecorder](https://webrecorder.net/) | Browsertrix, ReplayWeb.page, ArchiveWeb.page, pywb, спецификация WACZ |
+| [Internet Archive](https://archive.org/) | Wayback Machine, Heritrix, Brozzler, warcprox |
 | [Bellingcat](https://www.bellingcat.com/) | OSINT-инструменты, Auto-Archiver |
-| [Archive Team](http://www.archiveteam.org/) | Экстренные волонтёрские архивы |
-| [Harvard Library Innovation Lab](https://lil.law.harvard.edu/) | WARC-GPT, Scoop, Perma.cc |
-| [Royal Danish Library](https://www.kb.dk/en) | SolrWayback |
-| [Common Crawl Foundation](https://commoncrawl.org/) | Открытые веб-краулы |
-| [Rhizome](https://rhizome.org/) | Conifer, Web-арт сохранение |
-| ⭐ [Ruarxive](https://ruarxive.org/) | Российские независимые СМИ + гос. сайты |
+| [ArchiveTeam](https://wiki.archiveteam.org/) | Экстренные волонтёрские архивы, WikiTeam, grab-site |
+| [Harvard Library Innovation Lab](https://lil.law.harvard.edu/) | Perma.cc, Scoop, WARC-GPT, warcbench, DuckDB-WARC |
+| [Королевская библиотека Дании](https://www.kb.dk/en) | SolrWayback, NetarchiveSuite |
+| Национальная библиотека Норвегии | Warchaeology, gowarc |
+| Национальная библиотека Люксембурга | WARC-Safe |
+| [Common Crawl Foundation](https://commoncrawl.org/) | Открытые веб-краулы, [cc-pyspark](https://github.com/commoncrawl/cc-pyspark) |
+| [Rhizome](https://rhizome.org/) | Сохранение цифрового искусства; сервис Conifer закрыт в 2026 |
+| ⭐ [Ruarxive](https://ruarxive.org/) | Архивация исчезающих российских сайтов и цифровых ресурсов (проект АНО «Инфокультура») |
 
-## Что добавили в 2024–2026
+## Что появилось в 2024–2026
 
-- **WACZ Signing Spec** — криптографическая подпись архивов (Scoop, wacz-signer).
-- **DuckDB-warc** — SQL к WARC (Common Crawl, 2025).
-- **duckdb-web-archive-cdx** — SQL к CDX IA/CC (2025).
-- **WARC-GPT** — RAG к WARC-коллекциям (Harvard, 2025).
-- **WARC-Safe** — антивирусная проверка (UNT, 2025).
-- **Auto-Archiver** — workflow-оркестратор (Bellingcat, развивается).
-- **Warchaeology** — набор утилит валидации (IIPC, 2025).
+- **Подпись WACZ** — [спецификация WACZ Signing and Verification](https://specs.webrecorder.net/wacz-auth/latest/); подписывает, например, Scoop от Harvard LIL.
+- **WARC-GPT** — RAG по коллекциям WARC (Harvard LIL, анонс в феврале 2024).
+- **WARC-Safe** — проверка на вирусы и NSFW (Национальная библиотека Люксембурга, репозиторий с мая 2024; совместимость с warc-indexer — с июня 2026).
+- **DuckDB-WARC** — SQL к WARC (Harvard LIL, репозиторий с декабря 2025).
+- **WARC-Bench** — бенчмарк ИИ-агентов на архивных копиях сайтов (2025–2026).
+- **Warchaeology 5.0** — новая версия утилиты `warc` (Национальная библиотека Норвегии, март 2026; проект существует с 2021 года).
+- **PastPage** — расширение для поиска снимков в нескольких архивах (2026).
+- ⭐ **metawarc 2.0** — август 2026.
 
 ## Что ушло в 2024–2026
 
-- **Conifer хостинг** (Rhizome) — закрыт в июне 2026 (legacy-самохостинг сохранён).
-- **Wayback Machine свободный доступ** — ужесточение rate-limits с 2024.
-- **Twitter v1.1 API** — окончательно сломан, twarc перешёл на v2.
+- **Conifer** (Rhizome) — закрыт в июне 2026 года.
+- **Pocket** (Mozilla, июль 2025) и **Omnivore** (ноябрь 2024) — закрыты; для миграции закладок подходит [wallabag](/kb/instruments/tools/wallabag).
+- **Hitomi Downloader** — репозиторий заблокирован на GitHub по DMCA с 30.03.2026 (см. [GUI-оболочки](/kb/instruments/tools/youtube-dl-gui)).
 
 ## Как выбрать инструмент
 
@@ -255,42 +265,42 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Archive.ph"] --> B["SingleFile"] --> C["ReplayWeb.page"]
+    A["Archive.ph / SingleFile"] --> B["ArchiveWeb.page"] --> C["ReplayWeb.page"]
 ```
 
 ### Для активиста (один сайт, регулярный сбор)
 
 ```mermaid
 flowchart LR
-    A["Browsertrix"] --> B["S3"] --> C["ReplayWeb.page"]
+    A["Browsertrix"] --> B["S3-хранилище + офлайн-копия"] --> C["ReplayWeb.page"]
 ```
 
 ### Для университетской библиотеки
 
 ```mermaid
 flowchart LR
-    A["Web Curator Tool"] --> B["Heritrix"] --> C["pywb + SolrWayback"] --> D["Backblaze B2"]
+    A["Web Curator Tool"] --> B["Heritrix"] --> C["pywb + SolrWayback"] --> D["Цифровое хранилище"]
 ```
 
 ### Для OSINT-журналиста
 
 ```mermaid
 flowchart LR
-    A["Auto-Archiver + yt-dlp"] --> B["metawarc"] --> C["warc-gpt"]
+    A["Auto-Archiver + yt-dlp"] --> B["metawarc"] --> C["WARC-GPT (эксперимент)"]
 ```
 
 ### Для национального архива
 
 ```mermaid
 flowchart LR
-    A["Distributed Brozzler + Warcprox"] --> B["pywb + SolrWayback"] --> C["S3 Standard + IA"]
+    A["Heritrix / Brozzler + warcprox"] --> B["pywb + SolrWayback"] --> C["Несколько копий в разных хранилищах"]
 ```
 
 ### Для Ruarxive
 
 ```mermaid
 flowchart LR
-    A["Wget / wparc / Browsertrix / tgarc"] --> B["metawarc"] --> C["S3 + IA + offline"]
+    A["Wget / wparc / Browsertrix / tgarc"] --> B["metawarc"] --> C["Хранилище + Internet Archive + офлайн"]
 ```
 
 ## См. также

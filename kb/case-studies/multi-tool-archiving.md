@@ -1,293 +1,152 @@
 ---
 sidebar_position: 5
-last_updated: 2026-10-07
 title: "Архивация комплексных ресурсов: использование нескольких инструментов"
-description: Реальный пример архивации государственного веб-ресурса, который использует несколько технологий и требует комбинации различных инструментов Ruarxive.
+description: "Учебный пример: как сохранить ресурс, состоящий из сайта на WordPress, публичного портала SharePoint, API и файлов, комбинируя wparc, spcrawler, apibackuper и filegetter."
+last_update:
+  date: 2026-10-12
 ---
 
 # Архивация комплексных ресурсов: использование нескольких инструментов
 
-Реальный пример архивации государственного веб-ресурса, который использует несколько технологий и требует комбинации различных инструментов Ruarxive.
+:::note
+Это **учебный пример** на условном адресе `example.gov.ru`, а не отчёт о реальной кампании. Цифр объёма и времени здесь нет: они сильно зависят от конкретного ресурса. Команды сверены с `--help` и README инструментов (октябрь 2026), версии указаны в каждом разделе.
+:::
 
-## Задача
+Многие ресурсы организаций состоят из нескольких частей, и для каждой нужен свой инструмент:
 
-Необходимо было заархивировать комплексный веб-ресурс государственного органа, который состоял из:
+| Часть ресурса | Инструмент | Что получаем |
+|---|---|---|
+| Сайт на WordPress | [wparc](/kb/instruments/ruarxive-tools/wparc) | JSON через REST API WordPress, медиафайлы, WARC |
+| Публичный портал на SharePoint | [spcrawler](/kb/instruments/downloaded-data/spcrawler) | списки и данные SharePoint в JSON Lines, файлы |
+| REST API с данными | [apibackuper](/kb/instruments/downloaded-data/apibackuper) | все записи API, экспорт в JSON Lines |
+| Файлы по списку ссылок | [filegetter](/kb/instruments/ruarxive-tools/filegetter) | файлы в ZIP с отчётом и контрольными суммами |
+| HTML-страницы целиком | [wget](/kb/instruments/tools/wget) или [Browsertrix](/kb/instruments/tools/browsertrix) | WARC для просмотра «как было» |
 
-*   **Основной сайт на WordPress** — публичные страницы и статьи
-*   **SharePoint портал** — внутренние документы и файлы
-*   **REST API** — структурированные данные и датасеты
-*   **Статические файлы** — PDF документы, отчёты, медиа-файлы
+:::warning
+Архивируйте только **общедоступные** части ресурса. Не используйте чужие учётные данные и не обходите авторизацию и другие технические средства защиты: это может нарушать закон (в том числе ст. 272 УК РФ). Если нужен доступ к закрытым разделам, договаривайтесь с владельцем ресурса.
+:::
 
-Каждый компонент требовал своего подхода к архивации.
+## Этап 1. Разведка
 
-## Вызовы
-
-### Технические сложности
-
-1. **Разные технологии**: Каждый компонент использовал свою технологию
-2. **Разные форматы данных**: HTML, JSON, файлы, базы данных
-3. **Связи между компонентами**: Нужно было сохранить связи между данными
-4. **Объём данных**: Несколько десятков гигабайт информации
-5. **Ограничения API**: Rate limiting и ограничения доступа
-
-### Временные ограничения
-
-*   Ресурс планировалось закрыть через месяц
-*   Необходимо было успеть заархивировать всё до закрытия
-*   Некоторые компоненты становились недоступными раньше других
-
-## Решение: комбинированный подход
-
-### Этап 1: Анализ структуры
-
-Сначала был проведён анализ структуры ресурса:
+Сначала выясните, из чего состоит ресурс и какие API у него открыты:
 
 ```bash
-# Проверка доступности WordPress API
-curl https://example.gov.ru/wp-json/wp/v2/
+# Открыт ли REST API WordPress
+wparc ping example.gov.ru
 
-# Проверка SharePoint API
-spcrawler ping --url https://example.gov.ru
+# Есть ли публичный API SharePoint (проверяется адрес /_api/web)
+spcrawler ping --url https://portal.example.gov.ru
 
-# Анализ доступных эндпоинтов API
-curl https://api.example.gov.ru/v1/endpoints
+# Что отдаёт API данных
+curl -s "https://api.example.gov.ru/v1/datasets?page=1" | head
 ```
 
-### Этап 2: Архивация WordPress контента
-
-Использовали **wparc** для получения структурированных данных:
+## Этап 2. Сайт на WordPress — wparc
 
 ```bash
-# Архивация WordPress через API
-wparc https://example.gov.ru/ --output ./wordpress-archive
+# Версия с командой warc пока ставится из GitHub (в PyPI 1.0.8 её нет)
+pip install git+https://github.com/ruarxive/wparc
 
-# Результат:
-# - posts.json - все статьи
-# - pages.json - все страницы
-# - media/ - изображения и медиа-файлы
-# - comments.json - комментарии
+wparc dump example.gov.ru --verbose        # данные REST API → example.gov.ru/data/*.jsonl
+wparc getfiles example.gov.ru --verbose    # медиафайлы из wp_v2_media.jsonl
+wparc warc example.gov.ru -o example.gov.ru.warc.gz   # упаковать дамп в WARC
 ```
 
-**Преимущества wparc**:
-*   Чистые данные без HTML-разметки
-*   Сохранение метаданных (даты, авторы, теги)
-*   Быстрая загрузка через API
+`dump` сохраняет данные в каталог `<домен>/data/` — по файлу JSON Lines на маршрут API (`wp_v2_posts.jsonl`, `wp_v2_pages.jsonl`, `wp_v2_media.jsonl` и т. д.).
 
-### Этап 3: Архивация SharePoint
+> Команды сверены с `--help` wparc 1.0.9 (GitHub, октябрь 2026).
 
-Использовали **spcrawler** для дампа SharePoint:
+## Этап 3. Публичный портал SharePoint — spcrawler
 
 ```bash
-# Сначала проверили структуру
-spcrawler walk --url https://example.gov.ru
+pip install spcrawler
 
-# Затем создали полный дамп
-spcrawler dump --url https://example.gov.ru --output ./sharepoint-archive
-
-# Результат:
-# - Метаданные всех списков и библиотек
-# - Все файлы из документных библиотек
-# - Структурированные данные в JSON
+spcrawler walk --url https://portal.example.gov.ru       # список объектов
+spcrawler dump --url https://portal.example.gov.ru       # данные в portal.example.gov.ru/data
+spcrawler getfiles --url https://portal.example.gov.ru   # файлы из библиотек документов
 ```
 
-**Особенности**:
-*   SharePoint API требует аутентификации
-*   Большие файлы скачивались отдельно
-*   Сохранялась структура папок
+spcrawler работает с публичным API SharePoint (`/_api/web`), доступным без авторизации.
 
-### Этап 4: Архивация REST API
+> Команды сверены с `--help` spcrawler 1.0.1 (PyPI, октябрь 2026).
 
-Использовали **apibackuper** для структурированных данных:
+## Этап 4. API с данными — apibackuper
 
-```yaml
-# config.yaml для apibackuper
-project:
-  name: example-gov-api
+```bash
+pip install apibackuper
 
-request:
-  url: "https://api.example.gov.ru/v1/datasets"
-  method: GET
-  params:
-    page: 1
-    per_page: 100
-  iterator:
-    param: page
-    start: 1
-    step: 1
+apibackuper create example-gov-api
+cd example-gov-api
+# заполнить конфигурацию: URL, параметры пагинации, ключ с данными
+apibackuper estimate full
+apibackuper run full
+apibackuper export example-gov-api.jsonl
+cd ..
+```
 
-rate_limit:
-  enabled: true
-  requests_per_second: 5
+Реальный пример конфигурации (отчёты Счётной палаты) и пояснения — в кейсе [«Архивация через API»](/kb/case-studies/api-archiving-scale).
 
-storage:
-  type: zip
-  file: api_data.zip
+> Команды сверены с `--help` apibackuper 1.0.13 (PyPI, октябрь 2026).
+
+## Этап 5. Файлы по списку ссылок — filegetter
+
+Если ссылки на документы уже собраны (например, из выгрузки API), их удобно скачать filegetter. Проект — это каталог с файлом `filegetter.cfg` в формате INI и исходным списком ссылок:
+
+```ini
+[project]
+name = example-reports
+source = reports.csv
+source_type = csv
+
+[data]
+data_key = url
+
+[files]
+fetch_mode = prefix
+root_url =
+keys = url
+delay = 1
+retries = 3
+
+[storage]
+compression = True
+write_warc = True
 ```
 
 ```bash
-# Оценка объёма
-apibackuper estimate full -p example-gov-api
+pip install "filegetter[warc]"
 
-# Запуск архивации
-apibackuper run full -p example-gov-api
+cd example-reports
+filegetter run --dry-run   # показать, что будет скачано
+filegetter run             # скачать
 ```
 
-**Результат**:
-*   Все датасеты из API
-*   Метаданные и структура данных
-*   Экспорт в JSONL для дальнейшей обработки
+Файлы сохраняются в `storage/files.zip`, отчёт по каждому файлу (статус, MIME-тип, размер, SHA-256) — в `storage/processed.csv`, а при `write_warc = True` ответы дополнительно пишутся в `storage/files.warc.gz`.
 
-### Этап 5: Скачивание статических файлов
+> Команды и ключи сверены с README и `--help` filegetter 1.1.0 (PyPI, октябрь 2026).
 
-Использовали **filegetter** для массового скачивания файлов:
+## Этап 6. Сборка и проверка
 
-```yaml
-# config.yaml для filegetter
-patterns:
-  - url: "https://example.gov.ru/reports/{year}/report_{id:04d}.pdf"
-    range:
-      year: [2020, 2021, 2022, 2023]
-      id:
-        start: 1
-        end: 100
-
-output:
-  directory: "./static-files"
-  create_subdirs: true
-
-download:
-  threads: 5
-  retries: 3
-```
+Соберите результаты в один каталог и посчитайте контрольные суммы всех файлов:
 
 ```bash
-filegetter --config config.yaml
+find archive-example-gov -type f -exec sha256sum {} + > MANIFEST.sha256
 ```
 
-**Результат**:
-*   Все PDF отчёты за несколько лет
-*   Организованная структура папок
-*   Проверка целостности файлов
+Опишите в README архива: что сохранено, когда, какими инструментами и версиями, что не удалось сохранить.
 
-### Этап 6: Объединение и верификация
+## Рекомендации
 
-После архивации всех компонентов:
-
-```bash
-# Создание единого архива
-tar -czf example-gov-complete-archive.tar.gz \
-  wordpress-archive/ \
-  sharepoint-archive/ \
-  api_data.zip \
-  static-files/
-
-# Проверка целостности
-sha256sum example-gov-complete-archive.tar.gz > checksum.txt
-```
-
-## Workflow автоматизации
-
-Для координации всех этапов был создан скрипт:
-
-```bash
-#!/bin/bash
-# archive-complex-resource.sh
-
-SITE_URL="https://example.gov.ru"
-OUTPUT_DIR="./archive-$(date +%Y%m%d)"
-
-mkdir -p "$OUTPUT_DIR"
-
-echo "Этап 1: WordPress архивация"
-wparc "$SITE_URL" --output "$OUTPUT_DIR/wordpress"
-
-echo "Этап 2: SharePoint архивация"
-spcrawler dump --url "$SITE_URL" --output "$OUTPUT_DIR/sharepoint"
-
-echo "Этап 3: API архивация"
-apibackuper run full -p example-gov-api
-mv example-gov-api/data.zip "$OUTPUT_DIR/api_data.zip"
-
-echo "Этап 4: Статические файлы"
-filegetter --config filegetter-config.yaml --output "$OUTPUT_DIR/static"
-
-echo "Этап 5: Создание финального архива"
-tar -czf "example-gov-archive-$(date +%Y%m%d).tar.gz" "$OUTPUT_DIR"
-
-echo "Архивация завершена"
-```
-
-## Результаты
-
-### Объёмы данных
-
-*   **WordPress**: 2.3 GB (статьи, страницы, медиа)
-*   **SharePoint**: 15.7 GB (документы, файлы)
-*   **API данные**: 1.1 GB (структурированные датасеты)
-*   **Статические файлы**: 3.2 GB (PDF, документы)
-*   **Итого**: ~22.3 GB
-
-### Качество архивации
-
-*   ✅ **Полнота**: Все компоненты заархивированы
-*   ✅ **Структура**: Сохранена организация данных
-*   ✅ **Метаданные**: Все метаданные сохранены
-*   ✅ **Целостность**: Проверены контрольные суммы
-*   ✅ **Доступность**: Данные можно использовать для исследований
-
-### Время выполнения
-
-*   **WordPress**: 2 часа
-*   **SharePoint**: 8 часов
-*   **API**: 4 часа
-*   **Статические файлы**: 3 часа
-*   **Обработка и упаковка**: 2 часа
-*   **Итого**: ~19 часов
-
-## Уроки и выводы
-
-### Что сработало хорошо
-
-1. **Разделение на этапы**: Каждый компонент архивировался отдельно
-2. **Параллельная работа**: Некоторые этапы можно было выполнять параллельно
-3. **Автоматизация**: Скрипт координировал весь процесс
-4. **Проверка на каждом этапе**: Проблемы выявлялись сразу
-
-### Проблемы и решения
-
-1. **Rate limiting API**
-   - **Проблема**: API ограничивал количество запросов
-   - **Решение**: Настроили rate limiting в apibackuper
-
-2. **Большие файлы в SharePoint**
-   - **Проблема**: Некоторые файлы были очень большими
-   - **Решение**: Использовали резюме загрузки в spcrawler
-
-3. **Связи между данными**
-   - **Проблема**: Нужно было сохранить связи между компонентами
-   - **Решение**: Создали индексный файл с перекрёстными ссылками
-
-### Рекомендации
-
-1. **Начинайте с анализа**: Изучите структуру ресурса перед архивацией
-2. **Используйте правильный инструмент**: Каждый тип данных требует своего подхода
-3. **Автоматизируйте процесс**: Создавайте скрипты для координации
-4. **Проверяйте на каждом этапе**: Не ждите окончания всей архивации
-5. **Документируйте процесс**: Записывайте, что и как было заархивировано
-
-## Применение подхода
-
-Этот подход можно применять для архивации:
-
-*   Комплексных государственных порталов
-*   Корпоративных сайтов с несколькими компонентами
-*   Образовательных платформ
-*   Медиа-ресурсов с разными типами контента
+1. **Начинайте с разведки.** Открытый API почти всегда даёт более полные и чистые данные, чем выкачка HTML.
+2. **Сохраняйте и HTML.** Данные API не показывают, как ресурс выглядел для посетителя; для этого нужен WARC.
+3. **Проверяйте каждый этап** сразу, а не в конце: части ресурса могут исчезнуть в разное время.
+4. **Документируйте процесс** — какие команды и версии инструментов использовались.
 
 ## Связанные материалы
 
+- [Пайплайн wparc → metawarc](/kb/case-studies/wparc-to-metawarc-pipeline)
 - [Создание кастомных workflow](/kb/guides/custom-workflows)
-- [wparc документация](/kb/instruments/ruarxive-tools/wparc)
-- [spcrawler документация](/kb/instruments/downloaded-data/spcrawler)
-- [apibackuper документация](/kb/instruments/downloaded-data/apibackuper)
-- [filegetter документация](/kb/instruments/ruarxive-tools/filegetter)
+- [wparc](/kb/instruments/ruarxive-tools/wparc)
+- [spcrawler](/kb/instruments/downloaded-data/spcrawler)
+- [apibackuper](/kb/instruments/downloaded-data/apibackuper)
+- [filegetter](/kb/instruments/ruarxive-tools/filegetter)

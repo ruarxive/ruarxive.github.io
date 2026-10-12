@@ -2,7 +2,8 @@
 title: Стратегии сбора архивов сайтов
 sidebar_label: Стратегии сбора
 description: "Как выбирать scope, глубину, rate-limit и режим работы кроулера под разные классы сайтов. Детальный разбор стратегий с примерами команд и метрик."
-last_updated: 2026-11-09
+last_update:
+  date: 2026-10-12
 keywords: [collection, scope, crawl, strategy, archiving, depth, rate-limit]
 ---
 
@@ -82,7 +83,7 @@ example.com example.org example.ru
 
 Глубина — максимальное число «кликов» от seed-страницы.
 
-| Depth | Что получим | Типичное число страниц |
+| Depth | Что получим | Число страниц (очень приблизительно) |
 |:---:|:---|:---:|
 | 0 | Только seed-URL | 1 |
 | 1 | Seed + прямые ссылки | 10–50 |
@@ -92,8 +93,8 @@ example.com example.org example.ru
 
 ### Правила выбора глубины
 
-- **Новостной сайт** — обычно `depth=3` даёт все новости за текущий год; `depth=5` — за 5 лет.
-- **Корпоративный сайт** — `depth=2` или `depth=3` покрывает 90 % страниц.
+- **Новостной сайт** — глубина зависит от того, как устроены архив и пагинация: материалы за прошлые годы часто доступны только через многостраничные списки, поэтому нужна большая глубина или обход по sitemap.
+- **Корпоративный сайт** — небольшой глубины (`depth=2`–`3`) часто достаточно, но проверяйте покрытие по sitemap.
 - **Форум** — часто требует `depth=∞` с фильтром по дате (т. к. темы ссылаются друг на друга).
 - **SPA** — кроулер не идёт «глубиной», потому что JS рендерит всё с одной страницы; используйте **behaviors** (autoscroll).
 
@@ -144,42 +145,36 @@ example.com example.org example.ru
 | Сайт в РФ, не уверены в нагрузке | 0.1 запроса/сек — осторожно |
 | У сайта есть API с документацией | Используйте rate из их доков |
 | Сервер отвечает 503 / 429 | Снизить rate в 2–3 раза |
-| Используем bot — мы «гость» | Соблюдайте robots.txt Crawl-delay |
+| Используем бота — мы «гость» | Соблюдайте `Crawl-delay` из robots.txt |
 
 ### Реализация rate
 
-В Wget:
+В wget — пауза между запросами и ограничение скорости:
 
 ```bash
-wget --wait=1 --random-wait --limit-rate=500k https://example.com/
+wget --wait=1 --random-wait --limit-rate=500k \
+     --warc-file=example --recursive https://example.com/
 ```
 
-В Browsertrix:
-
-```yaml
-behaviorOptions:
-  - name: limit
-    rate: 1   # запрос/сек на хост
-  - name: overrideBehavior
-    url: https://example.com/
-    rate: 0.5
-```
-
-В Wpull:
+В Browsertrix Crawler отдельного параметра «запросов в секунду» нет; темп регулируется числом параллельных браузеров и паузами между страницами:
 
 ```bash
-wpull --wait=1 --random-wait https://example.com/
+docker run -v $PWD/crawls:/crawls/ webrecorder/browsertrix-crawler crawl \
+  --url https://example.com/ --workers 1 --pageExtraDelay 2 \
+  --generateWACZ --collection example
 ```
+
+Ответы 403, 429 и 503 Browsertrix Crawler по умолчанию считает признаком ограничения и не записывает такие страницы в архив, а откладывает для повторной попытки (см. [документацию](https://crawler.docs.browsertrix.com/user-guide/rate-limits/)).
 
 ### Соблюдение Crawl-delay
 
-`robots.txt` иногда содержит `Crawl-delay: 5` — означает «не чаще 1 запроса в 5 секунд». **Соблюдайте** это, если архивируете с одобрения владельца. Для экстренных архивов — задокументируйте решение.
+`robots.txt` иногда содержит `Crawl-delay: 5` — «не чаще 1 запроса в 5 секунд». **По умолчанию соблюдайте** это указание. Исключения возможны только осознанно, по позиции проекта (см. [Условия использования сервисов](/kb/legal/terms-of-service)), и решение нужно задокументировать.
 
 ## Параметр 5: Mode (режим)
 
 | Режим | Когда | Инструменты |
 |:---|:---|:---|
-| **HTTP** | Статические сайты без JS | [wget](/kb/instruments/tools/wget), [Wpull](/kb/instruments/tools/wpull) |
+| **HTTP** | Статические сайты без JS | [wget](/kb/guides/wget), [Heritrix](/kb/instruments/tools/heritrix) |
 | **Browser (HTML rendering)** | Современные сайты, SPA | [Browsertrix](/kb/instruments/tools/browsertrix), [Squidwarc](/kb/instruments/tools/squidwarc) |
 | **API** | Структурированные данные | [wparc](/kb/instruments/ruarxive-tools/wparc) (WordPress), custom scripts с [curl](/kb/instruments/tools/curl) |
 | **Hybrid** | Static + JS + API | Комбинация: wparc + Browsertrix + curl |
@@ -192,7 +187,7 @@ wpull --wait=1 --random-wait https://example.com/
 
 **WordPress / Drupal / Joomla (есть REST API)?** → API через wparc или curl.
 
-**Сайт с ограничениями (Cloudflare anti-bot)?** → Лучше сразу browser + cookies. Или **отказаться от сбора**, если это нарушает ToS.
+**Сайт с антибот-защитой или капчей?** → Не обходите защиту. Попробуйте официальные каналы (API, выгрузки), обратитесь к владельцу сайта или **откажитесь от сбора**.
 
 **Видео-сайт?** → yt-dlp.
 
@@ -205,8 +200,9 @@ wpull --wait=1 --random-wait https://example.com/
 | **Login** | Учётка + cookies | Закрытые сообщества, личные кабинеты |
 | **OAuth/API** | Токен | С GitHub API, Telegram, Google APIs |
 
-> [!WARNING]
-> Авторизованная архивация — **отдельная правовая зона**. Используйте только для публично доступного контента в авторизованной зоне. Не публикуйте чужие cookies.
+:::warning
+Архивация закрытой части сайта требует **отдельной правовой оценки**. Используйте только собственные учётные записи с законным доступом, не обходите авторизацию и не публикуйте cookie-файлы и профили браузера. См. [Условия использования сервисов](/kb/legal/terms-of-service).
+:::
 
 ## Параметр 7: Schedule (расписание)
 
@@ -217,14 +213,14 @@ wpull --wait=1 --random-wait https://example.com/
 | **Change-triggered** | По событию (sitemap изменился) | Редко обновляемые CMS |
 | **Cluster** | Серия из нескольких прогонов в течение дня | Большие сайты (распределение нагрузки) |
 
-### Cron-пример для Ruarxive
+### Пример расписания cron
 
 ```cron
-# Каждое воскресенье в 02:00 — перезапуск сбора еженедельника
-0 2 * * 0  /opt/ruarxive/weekly-archive.sh
+# Каждое воскресенье в 02:00 — полный сбор еженедельного издания
+0 2 * * 0  /opt/archive/weekly-archive.sh
 
 # Каждый день в 03:00 — минимальный сбор «только новые материалы»
-0 3 * * *  /opt/ruarxive/daily-diff-archive.sh
+0 3 * * *  /opt/archive/daily-diff-archive.sh
 ```
 
 ### Change-triggered
@@ -237,7 +233,7 @@ prev_count=$(cat /tmp/example.com.url_count)
 curl -s https://example.com/sitemap.xml | grep -c "<loc>" > /tmp/example.com.url_count
 new_count=$(cat /tmp/example.com.url_count)
 if [ "$new_count" -gt "$prev_count" ]; then
-  /opt/ruarxive/archive.sh
+  /opt/archive/archive.sh
 fi
 ```
 
@@ -292,7 +288,7 @@ Mode:         Browser (Browsertrix), behavior autoscroll
 Auth:         Public
 Schedule:     Cron: еженедельно
 Trigger:      5 000 страниц или 50 часов
-Use case:     Архив «Медузы», «Дождя», «Новой»
+Use case:     Архив раздела новостного издания
 ```
 
 ### Стратегия D: «Научная коллекция»
@@ -338,7 +334,7 @@ Use case:     Один исследователь, одна страница
 
 ❌ **Не собирайте «до бесконечности».** Любой сбор должен иметь жёсткий лимит (страниц, размера, времени).
 
-❌ **Не игнорируйте robots.txt без причины.** Если сайт просит Crawl-delay — соблюдайте. Если раздел закрыт — обходите только в экстренных случаях.
+❌ **Не игнорируйте robots.txt без причины.** Если сайт просит Crawl-delay — соблюдайте. Исключения для закрытых разделов — только осознанно, по позиции проекта и с документированием решения.
 
 ❌ **Не запускайте кроулер с rate=10 на маленький сайт.** Это видно в логах и приведёт к бану.
 

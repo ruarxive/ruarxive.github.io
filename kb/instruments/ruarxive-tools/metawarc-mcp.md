@@ -2,49 +2,51 @@
 title: metawarc MCP-сервер
 sidebar_label: metawarc MCP
 sidebar_position: 5
-description: "Read-only MCP-сервер metawarc для AI-агентов: 7 типизированных инструментов для поиска, каталога и метаданных без доступа к сырому SQL и файловой системе"
+description: "MCP-сервер metawarc только для чтения: семь типизированных инструментов для ИИ-агентов — каталог архивов, записи, заголовки, поиск и сводки без сырого SQL и доступа к файловой системе."
+last_update:
+  date: 2026-10-12
 ---
 
-# metawarc MCP-интеграция
+# metawarc MCP-сервер
 
-[metawarc](/kb/instruments/ruarxive-tools/metawarc) экспонирует **MCP-сервер** ([Model Context Protocol](https://modelcontextprotocol.io/)) для AI-агентов: Claude Desktop, Cursor, Continue, Cline, Cody и любых других MCP-совместимых клиентов. Сервер предоставляет read-only доступ к индексированной WARC-коллекции через 7 типизированных инструментов.
+[metawarc](/kb/instruments/ruarxive-tools/metawarc) включает **MCP-сервер** ([Model Context Protocol](https://modelcontextprotocol.io/)) для ИИ-агентов и MCP-совместимых клиентов: Claude Desktop, Cursor и других. Сервер даёт доступ к проиндексированной WARC-коллекции только на чтение через семь инструментов.
 
-- Требуется: `metawarc[mcp]` (дополнительно `metawarc[api]` если нужен REST параллельно).
-- Полная документация: [ruarxive.org/metawarc/integrations/mcp](https://ruarxive.org/metawarc/integrations/mcp).
-- Раздел «Агенты и MCP» в cookbook: [ruarxive.org/metawarc/use-cases/agents-and-mcp](https://ruarxive.org/metawarc/use-cases/agents-and-mcp).
+- Требуется дополнение `metawarc[mcp]` (библиотека FastMCP).
+- Документация: [ruarxive.org/metawarc/integrations/mcp](https://ruarxive.org/metawarc/integrations/mcp), сценарии — [агенты и MCP](https://ruarxive.org/metawarc/use-cases/agents-and-mcp).
 
-## Зачем нужен MCP-сервер
+> Список инструментов и их параметры сверены с `metawarc/mcp_server.py` версии 2.0.3 и проверены вызовами через клиент FastMCP на тестовом каталоге (октябрь 2026).
 
-WARC-коллекция в DuckDB-каталоге — это «сокровищница», в которой часто нельзя просто SQL-запросом ковыряться, особенно если коллекция лежит на общем диске, у неё несколько владельцев или нужна аудит-трасса. MCP-сервер metawarc решает это:
+## Чем он безопаснее прямого доступа
 
-- **Allowlist инструментов** — агент видит только то, что явно разрешено.
-- **Без сырого SQL** — нет инструмента «выполнить произвольный запрос».
-- **Без файловой системы** — агент не может попросить «прочитай файл по пути `/var/data/raw.warc.gz`».
-- **Bound-параметры** — все фильтры прогоняются через типизированные Pydantic-модели, невалидные значения отвергаются.
-- **Пагинация и лимиты** — `list_records` имеет `limit` (по умолчанию 50, максимум 100) и `page` (максимум 100). Агент не сможет за раз выгрузить всю коллекцию.
-- **Read-only by design** — нет ни одного инструмента для записи, удаления, модификации.
+- **Только перечисленные инструменты** — других действий у агента нет.
+- **Нет сырого SQL** и **нет путей файловой системы** в параметрах.
+- **Нет содержимого записей** — только метаданные и заголовки.
+- **Нет изменяющих операций** — каталог открывается только на чтение (кроме поиска, которому нужен доступ к сайдкару текстов).
+- **Ограниченные выборки** — `list_records` отдаёт не больше 100 записей за вызов, листание — через `offset`.
+- Неверные значения (неизвестное измерение, `limit` вне диапазона) возвращаются агенту как ошибка инструмента.
 
 ## Установка и запуск
 
 ```bash
-# Установка с поддержкой MCP
 pip install 'metawarc[mcp]'
 
-# Запуск по stdio (типичный режим для локальных IDE)
+# stdio — обычный режим для локальных клиентов
 metawarc mcp --dbfile collection.db
 
-# Запуск по HTTP на loopback (для удалённых IDE)
-metawarc mcp --dbfile collection.db --transport http --port 8765
+# HTTP на локальном адресе: http://127.0.0.1:8191/mcp
+metawarc mcp --dbfile collection.db --transport http
 
-# Транспорт по HTTP вне loopback требует явного флага
-metawarc mcp --dbfile collection.db --transport http --allow-insecure
+# Другой порт
+metawarc mcp --dbfile collection.db --transport http --port 8765
 ```
 
-## Подключение к AI-клиентам
+Опции: `-d/--dbfile`, `--data-dir`, `--transport stdio|http|sse` (по умолчанию `stdio`), `--host` (по умолчанию `127.0.0.1`), `--port` (по умолчанию 8191), `--allow-insecure`. Запуск HTTP или SSE на нелокальном адресе без `--allow-insecure` завершится ошибкой. Авторизации у MCP-сервера нет, поэтому сетевой транспорт стоит держать на `127.0.0.1`.
+
+## Подключение к клиентам
 
 ### Claude Desktop
 
-`~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) или `%APPDATA%/Claude/claude_desktop_config.json` (Windows):
+`~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) или `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
 ```json
 {
@@ -59,7 +61,7 @@ metawarc mcp --dbfile collection.db --transport http --allow-insecure
 
 ### Cursor
 
-В `~/.cursor/mcp.json`:
+Файл `~/.cursor/mcp.json` (или `.cursor/mcp.json` в проекте):
 
 ```json
 {
@@ -72,141 +74,89 @@ metawarc mcp --dbfile collection.db --transport http --allow-insecure
 }
 ```
 
-### Continue
+Если `metawarc` установлен в виртуальное окружение, укажите в `command` полный путь к исполняемому файлу. Формат настроек других клиентов смотрите в их документации.
 
-В `~/.continue/config.json`:
+### HTTP-транспорт
 
-```json
-{
-  "experimental": {
-    "modelContextProtocolServers": [
-      {
-        "name": "ruarxive-metawarc",
-        "command": "metawarc",
-        "args": ["mcp", "--dbfile", "/path/to/collection.db"]
-      }
-    ]
-  }
-}
-```
+Для клиентов, которые подключаются по URL, запустите `metawarc mcp --transport http` и укажите адрес `http://127.0.0.1:8191/mcp`.
 
-### HTTP-транспорт (удалённый агент)
+## Инструменты
 
-```json
-{
-  "mcpServers": {
-    "ruarxive-metawarc": {
-      "url": "http://127.0.0.1:8765/mcp"
-    }
-  }
-}
-```
-
-## Доступные инструменты
-
-Сервер экспонирует ровно 7 типизированных инструментов. Все параметры валидируются Pydantic-моделями; недопустимые значения возвращают ошибку `ValidationError`, а не молча подставляются.
-
-| Инструмент | Назначение | Ключевые параметры |
+| Инструмент | Назначение | Параметры |
 | :--- | :--- | :--- |
-| `list_archives` | Список всех проиндексированных WARC-файлов в каталоге. | — |
-| `list_records` | Пагинированный список записей. | `mime`, `host`, `status`, `from_date`, `to_date`, `limit` (≤100), `page` (≤100) |
-| `get_record_metadata` | Метаданные одной записи (WARC-заголовки + HTTP-заголовки). | `record_id` |
-| `get_record_headers` | Только HTTP-заголовки записи. | `record_id` |
-| `search_records` | Полнотекстовый поиск по фразе в извлечённых текстах. Требует `metawarc index-content --text`. | `query`, `limit` |
-| `collection_stats` | Сводная статистика по коллекции. | `dimension`: `mime` \| `ext` \| `status` \| `host` \| `date` \| `size_bucket` |
-| `metadata_summary` | Сводка по извлечённым метаданным. | `kind`: `pdfs` \| `images` \| `ooxmldocs` \| `oledocs` \| `videos` \| `audio` \| `fonts` \| `all` |
+| `list_archives` | Список архивов в каталоге и их статус | — |
+| `list_records` | Записи с фильтрами | `archive_ids`, `mimes`, `exts`, `url_pattern`, `host_pattern`, `status_min`, `status_max`, `size_min`, `size_max`, `offset` (по умолчанию 0), `limit` (по умолчанию 50, максимум 100) |
+| `get_record_metadata` | Одна запись по архиву и ID записи WARC | `archive_id`, `record_id` |
+| `get_record_headers` | Сохранённые HTTP-заголовки записи | `archive_id`, `record_id` |
+| `search_records` | Поиск фразы в сайдкаре `texts` | `phrase`, `limit` (по умолчанию 50) |
+| `collection_stats` | Сводка по измерениям | `archive_ids`, `dimensions` (через запятую из `mime`, `ext`, `status`, `host`, `date`, `size_bucket`; пусто — все), `top` (1–100 000, по умолчанию 10) |
+| `metadata_summary` | Сводка по извлечённым метаданным | `metadata_types` (через запятую из `pdfs`, `images`, `ooxmldocs`, `oledocs`, `videos`, `audio`, `fonts` или `all`), `archive_ids`, `top` (по умолчанию 10) |
 
-### Что инструменты НЕ делают
+Списки (`archive_ids`, `mimes`, `exts`, `dimensions`, `metadata_types`) передаются строкой через запятую. `list_records` возвращает `{total, offset, limit, revision, items}`, `search_records` — `{phrase, limit, total, hits}`, где у каждого результата есть `archive_id`, `warc_id`, `source`, `url`, `snippet`.
 
-- ❌ Не выполняют сырой SQL.
-- ❌ Не открывают произвольные файлы на диске.
-- ❌ Не возвращают payload (содержимое файла) — только метаданные и заголовки.
-- ❌ Не пишут, не удаляют, не модифицируют.
-- ❌ Не стартуют долгие batch-задачи (для экспорта данных используйте [REST API + jobs](https://ruarxive.org/metawarc/integrations/rest-api)).
+### Чего инструменты не делают
 
-## Примеры использования с агентом
+- не выполняют SQL;
+- не открывают файлы по пути;
+- не отдают содержимое записей (для этого есть `metawarc dump` и [REST API](/kb/instruments/ruarxive-tools/metawarc-rest));
+- не ставят фоновые задачи и ничего не изменяют.
 
-### 1. Исследователь просит «найди PDF по экологии»
+## Примеры работы агента
 
-```
-User: Найди все PDF в коллекции про экологию.
-Agent: вызывает search_records(query="экология", limit=20)
-       фильтрует по mime=application/pdf
-       возвращает 12 ссылок с заголовками и SHA-256
+```text
+Пользователь: Что вообще есть в этой коллекции?
+Агент: collection_stats(dimensions="mime,host", top=10)
+       → самые частые MIME-типы и хосты с числом записей и объёмом
 ```
 
-### 2. Журналист спрашивает «что вообще есть в архиве»
-
-```
-User: Что в этой коллекции?
-Agent: вызывает collection_stats(dimension="mime")
-       → application/pdf: 412
-       → image/jpeg: 2 980
-       → text/html: 1 380
-       затем collection_stats(dimension="host")
-       → 14 разных хостов
+```text
+Пользователь: Найди страницы, где упоминается «бюджет».
+Агент: search_records(phrase="бюджет", limit=20)
+       → список URL с фрагментами текста
 ```
 
-### 3. Архивист проверяет полноту
-
-```
-User: Сколько постов мы сняли?
-Agent: вызывает list_archives() — получает список WARC
-       вызывает list_records(host="example.gov.ru", mime="application/json",
-                             from_date="2024-01-01", to_date="2024-12-31")
-       → 1 200 записей
-       сравнивает с ожидаемым числом, отчитывается о расхождении
+```text
+Пользователь: Сколько PDF с сайта example.gov.ru?
+Агент: list_records(host_pattern="example.gov.ru", mimes="application/pdf", limit=100)
+       → total и первые 100 записей; следующие — с offset=100, 200, ...
 ```
 
-### 4. Исследователь хочет метаданные PDF
+```text
+Пользователь: Что известно о PDF в коллекции?
+Агент: metadata_summary(metadata_types="pdfs", top=20)
+       → сводка по извлечённым метаданным PDF
+```
 
-```
-User: Покажи метаданные всех PDF.
-Agent: вызывает metadata_summary(kind="pdfs")
-       → 412 PDF, среднее число страниц 14, общий объём 1.2 ГБ
-       вызывает list_records(mime="application/pdf", limit=100)
-       возвращает первые 100 с авторами, датами, числом страниц
-```
+Поиск работает только после `metawarc index-content --text`, сводка по метаданным — после `index-content --type …` для нужных типов.
 
 ## Безопасность
 
-MCP-сервер metawarc спроектирован с учётом принципа «агент — недоверенный клиент»:
-
 | Угроза | Защита |
 | :--- | :--- |
-| Сырой SQL → эксфильтрация / DoS | Нет инструмента, выполняющего произвольный SQL |
-| Чтение произвольных файлов | Нет доступа к файловой системе |
-| Случайный «дам всего» | Жёсткие лимиты `limit ≤ 100`, `page ≤ 100` |
-| Запись/удаление | Нет ни одного мутирующего инструмента |
-| Подмена payload | Выходные данные — только метаданные, payload не возвращается |
-| Удалённый доступ по сети | По умолчанию слушает только loopback (`127.0.0.1`) |
-| Перехват трафика по HTTP | Loopback-only по умолчанию; для внешнего HTTP нужен `--allow-insecure` (флаг) |
+| SQL-инъекция, выгрузка всего каталога | Нет инструмента с произвольным SQL; фильтры типизированы |
+| Чтение произвольных файлов | Пути не принимаются |
+| Выгрузка больших объёмов | `limit` ≤ 100 у `list_records` |
+| Изменение данных | Изменяющих инструментов нет |
+| Доступ по сети | По умолчанию только `127.0.0.1`; для другого адреса нужен явный `--allow-insecure` |
 
-### Для production-развёртывания
-
-1. Запускайте MCP-сервер через **stdio** там, где это возможно (не сетевой транспорт).
-2. Если нужен HTTP — **reverse proxy с TLS и аутентификацией** (Caddy / nginx + mTLS).
-3. Не передавайте путь к БД как «доверенный»: инструменты оперируют внутри уже открытого каталога, и путь не виден агенту.
-4. Ограничьте `--allow-insecure` политикой: используйте его только за reverse proxy.
+Рекомендации: используйте stdio, где это возможно; если нужен HTTP, оставляйте его на локальном адресе. Подробнее — в [SECURITY.md](https://github.com/ruarxive/metawarc/blob/master/SECURITY.md) и [разделе о безопасности](https://ruarxive.org/metawarc/architecture/security).
 
 ## Ограничения
 
-- **Read-only** — нельзя через MCP добавлять новые архивы, удалять записи или экспортировать файлы. Для экспорта используйте [metawarc dump](https://ruarxive.org/metawarc/commands/dump) или [REST API + jobs](https://ruarxive.org/metawarc/integrations/rest-api).
-- **Поиск работает только после `index-content --text`**. Без этой команды `search_records` вернёт пустой результат.
-- **Пагинация ограничена**: `page ≤ 100`, `limit ≤ 100` — всего до 10 000 записей за один «обход» через `list_records`. Для полного экспорта используйте REST/jobs.
-- **HTTP-транспорт** — loopback-only по умолчанию, не предназначен для прямого выхода в интернет.
-- **Каждый запуск сервера = одно подключение к каталогу** — каталог должен быть доступен по тому пути, что указан в `--dbfile`.
+- Только чтение: добавлять архивы, удалять записи и выгружать файлы через MCP нельзя.
+- Пустой результат `search_records`, если не строился сайдкар `texts`.
+- Для полного перебора большой коллекции через `list_records` нужно много вызовов; для выгрузок удобнее [REST API и фоновые задачи](/kb/instruments/ruarxive-tools/metawarc-rest#фоновые-задачи).
+- Сервер работает с одним каталогом, указанным в `--dbfile`.
 
 ## Альтернативы
 
-- **[REST API](https://ruarxive.org/metawarc/integrations/rest-api)** — для интеграций с дашбордами, веб-приложениями, ETL-процессами. Те же данные, но через HTTP, с поддержкой batch-задач.
-- **[metawarc CLI](https://ruarxive.org/metawarc/commands)** — для скриптов и CI/CD.
-- **Прямой SQL через DuckDB** — для ad-hoc-анализа в ноутбуке, когда ограничения MCP мешают.
+- [REST API](/kb/instruments/ruarxive-tools/metawarc-rest) — для интеграций, содержимого записей и выгрузок.
+- [CLI metawarc](https://ruarxive.org/metawarc/commands) — для скриптов.
+- SQL в DuckDB поверх Parquet-сайдкаров — для разового анализа, см. [рецепты](/kb/instruments/ruarxive-tools/metawarc-cookbook).
 
 ## Связанные материалы
 
-- [metawarc (обзор)](/kb/instruments/ruarxive-tools/metawarc) — основная страница инструмента
-- [Model Context Protocol](https://modelcontextprotocol.io/) — спецификация протокола
-- [WARC-формат](/kb/instruments/file-formats/warc) — структура данных, с которыми работает сервер
-- [Кейс: пайплайн wparc → metawarc](/kb/case-studies/wparc-to-metawarc-pipeline) — практический пример индексируемого архива
-- [БЗ по безопасности metawarc (SECURITY.md)](https://github.com/ruarxive/metawarc/blob/master/SECURITY.md) — модель угроз
+- [metawarc (обзор)](/kb/instruments/ruarxive-tools/metawarc)
+- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [Формат WARC](/kb/instruments/file-formats/warc)
+- [Кейс: wparc → metawarc](/kb/case-studies/wparc-to-metawarc-pipeline)

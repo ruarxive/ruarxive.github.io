@@ -1,6 +1,9 @@
 ---
+title: База знаний Ruarxive
+description: "Путеводитель по цифровой и веб-архивации на русском языке: инструкции, инструменты, форматы, правовые вопросы и проекты Ruarxive."
 sidebar_position: 1
-last_updated: 2026-11-09
+last_update:
+  date: 2026-10-12
 ---
 
 # База знаний Ruarxive
@@ -30,14 +33,14 @@ last_updated: 2026-11-09
 1. **[Quick start за 5 минут](/kb/guides/quick-start-5min)** — первый запуск.
 2. **[Стратегии сбора](/kb/guides/collection-strategies)** — 8 параметров стратегии.
 3. **[Preflight-чеклист](/kb/guides/preflight-checklist)** — что проверить до запуска.
-4. **[Wget-гайд](/kb/guides/wget)** — базовый кроулер.
+4. **[Wget: сайт в WARC](/kb/guides/wget)** — сценарии сбора сайта консольным инструментом с записью WARC.
 5. **[WARC-файл: от сырого архива до публикации](/kb/guides/warc-workflow)** — полный пайплайн.
 
 ### 📚 «Хочу загрузить в Internet Archive»
 
 1. **[Wayback Machine API](/kb/instruments/tools/wayback-api)** — программный доступ.
 2. **[Internet Archive CLI (ia)](/kb/instruments/tools/internet-archive-cli)** — загрузка WARC.
-3. **[Internet Archive — обзор](/kb/similar/internet-archive)** — RIMA, блокировки, S3 API.
+3. **[Internet Archive — обзор](/kb/similar/internet-archive)** — коллекции, загрузка, API.
 
 ### 💬 «Хочу сохранить соцсети»
 
@@ -50,7 +53,7 @@ last_updated: 2026-11-09
 
 1. **[DuckDB-WARC](/kb/instruments/tools/duckdb-warc)** — SQL-запросы.
 2. **[WARC-GPT](/kb/instruments/tools/warc-gpt)** — RAG к коллекции.
-3. **[Warchaeology](/kb/instruments/tools/warchaeology)** — статистика, валидация.
+3. **[Warchaeology](/kb/instruments/tools/warchaeology)** — просмотр, валидация и дедупликация WARC.
 4. **[Работа с большими WARC](/kb/users/large-warc)** — потоковая обработка.
 
 ### 🔗 «Хочу найти страницу в архиве»
@@ -58,7 +61,7 @@ last_updated: 2026-11-09
 1. **[Wayback Machine API](/kb/instruments/tools/wayback-api)** — программно.
 2. **[Waybackpy](/kb/instruments/tools/waybackpy)** — Python-обёртка.
 3. **[PastPage](/kb/instruments/tools/pastpage)** — расширение браузера.
-4. **[Memento Aggregator](https://timetravel.mementoweb.org/)** — по всем архивам мира.
+4. **[Memento](/kb/instruments/replay/memento)** — стандарт поиска снимков сразу в нескольких архивах.
 
 ### 📖 «Хочу понять, что такое WARC, WACZ, CDX»
 
@@ -93,7 +96,7 @@ last_updated: 2026-11-09
 | **[Как пользоваться архивами](/kb/users)** | Инструкции для конечных пользователей | Читатели |
 | **[Правовые и этические вопросы](/kb/legal)** | Copyright, ToS, персональные данные | Все |
 | **[Справочник](/kb/glossary)** | Термины | Все |
-| **[Похожие проекты](/kb/similar)** | IA, Common Crawl, Perma.cc, RIMA | Исследователи |
+| **[Похожие проекты](/kb/similar)** | IA, Common Crawl, Perma.cc | Исследователи |
 | **[Кейсы и истории](/kb/case-studies)** | Реальные примеры архивации | Все |
 | **[Курс](/kb/course)** | Лекции DH.1–DH.4 | Студенты, начинающие |
 | **[Волонтёрам](/kb/volunteers/volunteers-tasks)** | Задачи и контакты | Потенциальные помощники |
@@ -104,15 +107,15 @@ last_updated: 2026-11-09
 
 ### WARC (Web ARChive)
 
-Стандарт ISO 28500. Файл содержит HTTP-запросы и ответы — сырой слепок взаимодействия браузера с сервером. Подробнее: [WARC-формат](/kb/instruments/file-formats/warc).
+Стандарт ISO 28500 (актуальная редакция — ISO 28500:2017, WARC 1.1). Файл состоит из записей: HTTP-запросы и ответы, ресурсы, метаданные о сборе. Подробнее: [WARC-формат](/kb/instruments/file-formats/warc).
 
 ### WACZ (Web Archive Collection Zipped)
 
-ZIP-обёртка с WARC + CDXJ-индекс + метаданные. Открывается в [ReplayWeb.page](https://replayweb.page/). Подробнее: [WACZ-формат](/kb/instruments/file-formats/wacz).
+ZIP-пакет, в котором лежат WARC-файлы, индекс CDXJ, список страниц и метаданные (`datapackage.json`). Открывается в [ReplayWeb.page](https://replayweb.page/). Подробнее: [WACZ-формат](/kb/instruments/file-formats/wacz).
 
 ### CDX / CDXJ
 
-Индекс всех URL в WARC-коллекции. Используется для быстрого поиска. Подробнее: [CDX-формат](/kb/instruments/file-formats/cdx).
+Индекс записей WARC-файлов: для каждого захвата — URL, время, тип, статус, файл и смещение записи. Позволяет быстро найти нужную запись без чтения всего архива. Подробнее: [CDX-формат](/kb/instruments/file-formats/cdx).
 
 ### ZIM
 
@@ -126,7 +129,7 @@ ZIP-обёртка с WARC + CDXJ-индекс + метаданные. Откр�
 
 ## Как помочь Ruarxive
 
-Ruarxive — независимый проект Инфокультуры с 2016 года.
+Ruarxive (Национальный цифровой архив) — инициатива АНО «Инфокультура». Архивация сайтов госорганов ведётся с начала 2010-х годов, с 2016 года архивы публикуются группами данных на hubofdata.ru, с 2017 года работает сайт ruarxive.org, а в марте 2022 года проект перезапущен вместе с Telegram-каналом [@ruarxive](https://t.me/ruarxive). Подробнее — в [истории проекта](/kb/about/project-history); цифры по отдельным коллекциям — в [сводке статистики](/kb/resources/stats-snapshot), а реестр исчезающих ресурсов — в кейсе [«Исчезающие российские ресурсы»](/kb/case-studies/russia-resources-disappearing).
 
 1. **Сообщить о ресурсе под угрозой** — [форма](https://airtable.com/shriiNZvNhcgaStm6) или [Telegram-чат](https://t.me/ruarxivechat).
 2. **Передать архив** — если ресурс уже исчез, но есть дамп.
@@ -136,7 +139,7 @@ Ruarxive — независимый проект Инфокультуры с 201
 
 ## Юридическое
 
-База знаний публикуется под открытой лицензией. Все технические инструкции даны с учётом правовых ограничений. Подробнее — раздел [Правовые вопросы](/kb/legal/copyright).
+Тексты базы знаний публикуются под лицензией CC BY 4.0. Перед сбором и публикацией архивов прочитайте раздел [Правовые и этические вопросы](/kb/legal): открытость материала в интернете не означает разрешения на его копирование и распространение.
 
 ## Связаться
 

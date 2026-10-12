@@ -1,5 +1,9 @@
 ---
+title: WARC
+description: "Формат WARC (ISO 28500) — основной стандарт хранения веб-архивов: типы записей, сжатие, отличия от ARC, валидация и примеры обработки на Python."
 sidebar_position: 3
+last_update:
+  date: 2026-10-12
 ---
 
 # WARC
@@ -18,43 +22,50 @@ sidebar_position: 3
 
 ## Стандарт WARC
 
-WARC формализован как **ISO 28500** стандарт. Текущая версия спецификации — **WARC 1.1**, которая поддерживается сообществом через [warc-specifications](https://iipc.github.io/warc-specifications/) на GitHub. Это открытый процесс, где можно предложить улучшения и новые функции формата.
+WARC формализован как международный стандарт **ISO 28500**. Текущая версия спецификации — **WARC 1.1**; её текст и комментарии сообщества поддерживаются IIPC в репозитории [warc-specifications](https://iipc.github.io/warc-specifications/) на GitHub. Это открытый процесс, где можно предложить улучшения и новые функции формата.
 
 ### Версии формата
 
-- **WARC 1.0** — первоначальная версия стандарта
-- **WARC 1.1** — текущая версия с улучшениями и расширениями
-- Спецификация доступна на [warc-specifications community](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/)
+- **WARC 1.0** — первоначальная версия стандарта, **ISO 28500:2009**.
+- **WARC 1.1** — текущая версия, **ISO 28500:2017**.
+- Спецификация доступна на сайте [warc-specifications](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/).
+
+В реестре форматов PRONOM WARC имеет идентификаторы `fmt/289` (WARC без указания версии), `fmt/1355` (WARC 1.0) и `fmt/1281` (WARC 1.1).
 
 ### Типы WARC-записей
 
-Каждый WARC-файл состоит из последовательности записей. Тип записи определяется полем `WARC-Type` в её заголовке:
+Каждый WARC-файл состоит из последовательности записей. Тип записи определяется полем `WARC-Type` в её заголовке. Спецификация WARC 1.1 определяет восемь типов:
 
 | Тип | Назначение |
 | :--- | :--- |
 | `warcinfo` | Метаинформация о самом WARC-файле (программа-сборщик, параметры краулинга). Обычно первая запись файла. |
-| `request` | HTTP-запрос, отправленный краулером. |
-| `response` | HTTP-ответ сервера (тело страницы и заголовки). Это самый массовый тип записей. |
-| `metadata` | Произвольные метаданные о других записях (например, извлечённый язык, MIME-тип, классификатор). |
-| `revisit` | Ссылка на ранее заархивированный ресурс (используется для дедупликации: содержит только дату и хеш оригинала). |
-| `conversion` | Запись производного контента (например, скриншот страницы или WARC писался поверх существующего архива). |
-| `continuation` | Продолжение записи, разбитой на несколько блоков (для очень больших ответов). |
+| `response` | Полный ответ сервера, например HTTP-ответ с заголовками и телом. Самый массовый тип записей. |
+| `resource` | Ресурс без протокольной обёртки: файл, полученный не по HTTP, скриншот, извлечённый объект. |
+| `request` | Запрос, отправленный краулером (например, HTTP-запрос). |
+| `metadata` | Метаданные о другой записи (например, извлечённый язык, классификатор, список ссылок). |
+| `revisit` | Повторное посещение уже сохранённого ресурса (используется для дедупликации). Обязательно содержит поле `WARC-Profile`; WARC 1.1 рекомендует указывать `WARC-Refers-To-Target-URI` и `WARC-Refers-To-Date`. Обычно хранит HTTP-заголовки нового ответа, но не тело. |
+| `conversion` | Альтернативная версия содержимого другой записи, созданная в ходе архивного процесса, например при миграции формата. |
+| `continuation` | Продолжение записи, разбитой на сегменты, если она не помещается в один WARC-файл заданного максимального размера. |
 
-Полный список и точные определения полей см. в [WARC 1.1 §Record Types](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#record-types).
+Полный список и точные определения полей см. в [WARC 1.1 §Record Types](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#warc-record-types).
 
-WARC-файлы часто упаковываются в архивы `.gz` или `.zip` — итоговый архив может достигать сотен гигабайт. Такие контейнеры можно открыть любым архиватором с поддержкой ZIP и GZ.
+### Сжатие: `.warc.gz`
+
+Файлы `.warc.gz` сжимаются **по записям**: каждая запись WARC — отдельный gzip-поток (member), а файл — их конкатенация. Благодаря этому индексы CDX/CDXJ хранят смещение и длину сжатой записи, и инструменты воспроизведения читают нужную запись напрямую, не распаковывая весь файл.
+
+Распаковка `.warc.gz` через `gunzip` формально даёт корректный несжатый WARC, но смещения из существующих индексов перестают совпадать, а файл занимает в несколько раз больше места. Поэтому храните WARC в исходном виде. WARC не упаковывают в `.zip`; исключение — формат [WACZ](/kb/instruments/file-formats/wacz), где WARC-файлы лежат внутри ZIP без повторного сжатия.
 
 Подробнее об индексации: [Формат CDX](/kb/instruments/file-formats/cdx).
 
 ## ARC: предшественник WARC
 
-Формат `ARC` (Archive-It / Internet Archive ARC, иногда пишется `ARC_IA`) — непосредственный предшественник WARC, использовавшийся [Internet Archive](https://archive.org/) с 1990-х годов. Многие старые архивы (до ~2008 года) до сих пор хранятся в `.arc.gz`.
+Формат `ARC` (иногда пишется `ARC_IA`) — непосредственный предшественник WARC, разработанный и использовавшийся [Internet Archive](https://archive.org/) с 1990-х годов. Многие старые архивы до сих пор хранятся в `.arc.gz`.
 
 ### Отличия от WARC
 
-- ARC хранит только HTTP-ответы (нет отдельных `request`-записей, нет `metadata`, `revisit`, `continuation`).
-- Заголовок ARC проще — это URL, IP-адрес, дата, MIME-тип, длина, смещение.
-- Размер файлов ARC обычно меньше, но они не подходят для современных задач (SPA, динамический контент).
+- ARC хранит только ответы (нет отдельных `request`-записей, нет `metadata`, `revisit`, `continuation`).
+- Заголовок ARC проще — это URL, IP-адрес, дата, MIME-тип, длина.
+- В ARC нет встроенных полей для контрольных сумм и связей между записями.
 
 ### Конвертация ARC → WARC
 
@@ -62,17 +73,15 @@ WARC-файлы часто упаковываются в архивы `.gz` ил
 # warctools автоматически определяет формат
 warcdump archive.arc.gz | head -20
 
-# Конвертация в WARC
+# Конвертация в WARC (результат пишется в stdout)
 arc2warc archive.arc.gz > archive.warc
 ```
 
 Для работы со смешанными коллекциями (ARC + WARC) используется библиотека `warcio` — она умеет читать оба формата через единый `ArchiveIterator`.
 
-
 ## ReplayWeb.page. Как открыть файл в формате WARC
 
-Файлы в формате WARC можно открыть и просмотреть с помощью программы [ReplayWeb.page](https://github.com/webrecorder/replayweb.page) оффлайн.
-
+Файлы в формате WARC можно открыть и просмотреть с помощью программы [ReplayWeb.page](https://github.com/webrecorder/replayweb.page) офлайн.
 
 ## metawarc: Как обрабатывать файлы в формате WARC
 
@@ -82,25 +91,22 @@ arc2warc archive.arc.gz > archive.warc
 - Полная документация: [ruarxive.org/metawarc](https://ruarxive.org/metawarc/)
 - Краткий обзор в БЗ Ruarxive: [metawarc (WARC)](/kb/instruments/ruarxive-tools/metawarc)
 
-
 ## Другие инструменты для работы с WARC файлами
 
-Пакет инструментов для работы с файлами WARC (Web ARChive). Основан на Python. Некоторые команды:
+[warctools](https://github.com/internetarchive/warctools) — пакет инструментов Internet Archive для работы с файлами WARC и ARC на Python. Некоторые команды:
 
-- warcvalid — возвращает 0, если все аргументы являются действительными файлами WARC, ненулевое значение при ошибке.
-- warcdump — пишет человекочитаемое резюме warcfiles. Автоопределяет формат входных данных при передаче имен файлов, т.е. recordgzip vs plaintext, WARC vs ARC.
-- warcfilter — поиск всех заголовков по шаблону регулярных выражений (regex).
-- и другие возможности.
-
-Документация: https://github.com/internetarchive/warctools
+- `warcvalid` — возвращает 0, если все аргументы являются действительными файлами WARC, ненулевое значение при ошибке.
+- `warcdump` — пишет человекочитаемое резюме файлов. Автоопределяет формат входных данных (сжатые по записям или несжатые, WARC или ARC).
+- `warcfilter` — отбирает записи, заголовки которых соответствуют регулярному выражению.
+- `arc2warc` — конвертирует ARC в WARC.
 
 ## Валидация и контроль целостности
 
 Помимо `warcvalid` (см. выше), для проверки WARC-файлов используются:
 
-- **JHOVE** — модуль `WARC-module` от Open Preservation Foundation, поддерживает форматный профиль WARC.
-- **warcio** — Python-библиотека, проверяющая корректность парсинга; используется `ArchiveIterator` (см. примеры ниже).
-- **Сравнение хеша payload** — для `revisit`-запейсей WARC хранит `WARC-Payload-Digest` (SHA-1 или SHA-256); для контроля целостности значение должно совпадать с хешем тела ответа.
+- **warcio check** — проверяет дайджесты записей (`WARC-Block-Digest`, `WARC-Payload-Digest`), если они есть в заголовках.
+- **JHOVE** — модуль `WARC-kb` (вклад Королевской библиотеки Дании), запуск: `jhove -m WARC-kb archive.warc.gz`. Документация: [jhove.openpreservation.org/modules/warc](https://jhove.openpreservation.org/modules/warc/).
+- **Дайджесты записей.** `WARC-Block-Digest` — хеш всего блока записи (вместе с HTTP-заголовками), по нему проверяют целостность самой записи. `WARC-Payload-Digest` — хеш полезной нагрузки (тела ответа); у `revisit`-записи тела нет, и её `WARC-Payload-Digest` сравнивают с дайджестом **исходной** записи, на которую она ссылается.
 
 ## Практические примеры обработки WARC
 
@@ -110,9 +116,12 @@ arc2warc archive.arc.gz > archive.warc
 # Используя warcvalid из warctools
 warcvalid archive.warc.gz
 
-# Используя warcio (Python)
-python -c "from warcio.archiveiterator import ArchiveIterator; list(ArchiveIterator(open('archive.warc.gz', 'rb')))"
+# Используя warcio: проверка дайджестов всех записей
+pip install warcio
+warcio check -v archive.warc.gz
 ```
+
+> Команды `warcio` сверены с `--help` версии 1.8.1 (октябрь 2026).
 
 ### Просмотр содержимого WARC
 
@@ -152,7 +161,7 @@ matching_records = []
 
 with open('archive.warc.gz', 'rb') as stream:
     for record in ArchiveIterator(stream):
-        if record.rec_type == 'response':
+        if record.rec_type == 'response' and record.http_headers:
             url = record.rec_headers.get_header('WARC-Target-URI', '')
             if target_domain in url:
                 matching_records.append({
@@ -166,6 +175,8 @@ print(f"Найдено {len(matching_records)} записей для {target_dom
 
 ### Подсчет размеров по типам контента
 
+Поле `Content-Length` в заголовке WARC-записи — это длина всего блока, включая HTTP-заголовки, а не только тела ответа. Для обзорной статистики этого приближения достаточно.
+
 ```python
 from warcio.archiveiterator import ArchiveIterator
 from collections import defaultdict
@@ -175,7 +186,7 @@ counts = defaultdict(int)
 
 with open('archive.warc.gz', 'rb') as stream:
     for record in ArchiveIterator(stream):
-        if record.rec_type == 'response':
+        if record.rec_type == 'response' and record.http_headers:
             content_type = record.http_headers.get_header('Content-Type', 'unknown')
             # Упрощаем тип контента
             main_type = content_type.split(';')[0].split('/')[0] if '/' in content_type else 'unknown'

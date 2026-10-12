@@ -1,53 +1,42 @@
 ---
 title: Wget
 sidebar_label: Wget
-description: Универсальный консольный загрузчик файлов и простой HTTP-кроулер с поддержкой WARC начиная с версии 1.14
+description: "GNU Wget — справочник для архивистов: установка, рекурсивная загрузка, запись WARC, основные флаги, ограничения и типичные ошибки сочетания опций."
+last_update:
+  date: 2026-10-12
 ---
 
 # Wget
 
-**GNU Wget** — неинтерактивный консольный загрузчик файлов по HTTP, HTTPS и FTP. Предустановлен почти в каждом дистрибутиве Linux, доступен для macOS и Windows. С версии 1.14 умеет писать результат сразу в WARC, что делает его самым доступным инструментом для базовой веб-архивации.
+**GNU Wget** — неинтерактивный консольный загрузчик файлов по HTTP, HTTPS и FTP и простой рекурсивный кроулер. С версии 1.14 умеет сразу записывать результат в WARC, поэтому это самый доступный инструмент для базовой веб-архивации.
 
 Сайт: [www.gnu.org/software/wget](https://www.gnu.org/software/wget/)
 
+Эта страница — справочник по флагам и поведению Wget. Пошаговые сценарии (как скачать сайт, как собрать список страниц) — в гайде [Wget: сценарии](/kb/guides/wget).
+
 ## Зачем нужен
 
-Wget — это **первый инструмент**, к которому обращаются при необходимости быстро скачать сайт целиком, отдельную страницу с ресурсами или набор ссылок из списка. Он не требует Docker, Python, JVM или Node.js — работает везде, где есть bash.
+Wget не требует Docker, Python, JVM или Node.js: он есть в большинстве дистрибутивов Linux и легко ставится в macOS и Windows.
 
-Типичные сценарии:
-- **Разовое скачивание сайта** для офлайн-копии.
-- **Регулярный сбор** фиксированного списка URL (например, ежедневная выгрузка ленты).
-- **Запись WARC** без дополнительных зависимостей (с версии 1.14+).
-- **Базовый скрапинг** для последующей обработки в Python.
+Типичные задачи:
 
-## Возможности
-
-- **Рекурсивная загрузка** с настраиваемой глубиной и ограничениями.
-- **Конвертация ссылок** для офлайн-просмотра (`--convert-links`).
-- **Докачка** прерванных загрузок (`-c`).
-- **Зеркалирование** с удалением лишнего (`--mirror`).
-- **WARC-вывод** (`--warc-file=archive.warc`) — стандарт архивирования.
-- **Фильтрация** по расширению, домену, регулярному выражению.
-- **Поддержка прокси, cookies, HTTP Basic Auth**.
-- **Возобновление работы** после обрыва без потери прогресса.
-- **Толерантность к нестабильной сети**: автоматические повторы.
+- скачать отдельную страницу со всеми ресурсами или небольшой статический сайт;
+- регулярно собирать фиксированный список URL;
+- записать WARC без дополнительных инструментов.
 
 ## Когда использовать
 
 ✅ Подходит для:
 
-- **Простых статических сайтов** (HTML + CSS + изображения, без JS).
-- **Списка URL** из файла или stdin.
-- **Быстрого прототипирования** — синтаксис минимальный.
-- **Сред без Python/Docker** (только bash и базовая утилита).
-- **WARC-вывода** без установки дополнительных библиотек.
+- статических сайтов (HTML, CSS, изображения без обязательного JavaScript);
+- списков URL из файла;
+- окружений без Python и Docker.
 
 ❌ Не подходит для:
 
-- **Современных SPA** (React, Vue, Angular) — Wget не выполняет JS.
-- **Сайтов с авторизацией** — поддержка ограничена.
-- **Сложных сценариев** (ротация, очереди, мониторинг) — используйте Browsertrix, Heritrix.
-- **Больших краулингов** без чёткого списка URL.
+- современных SPA (React, Vue, Angular): Wget не выполняет JavaScript, используйте [Browsertrix](browsertrix);
+- сайтов со сложной авторизацией и защитой от ботов;
+- больших обходов с очередями, мониторингом и дедупликацией между сессиями: используйте [Heritrix](heritrix), [Brozzler](brozzler) или [grab-site](grab-site).
 
 ## Установка
 
@@ -66,17 +55,17 @@ sudo pacman -S wget
 
 ### macOS
 
+В macOS Wget не входит в систему (предустановлен `curl`). Установка через Homebrew:
+
 ```bash
-# Уже установлен, либо:
 brew install wget
 ```
 
 ### Windows
 
-Доступен через:
-- [Chocolatey](https://chocolatey.org/): `choco install wget`
-- [MSYS2](https://www.msys2.org/) / Cygwin
-- WSL (рекомендуется — нативная среда Linux)
+- [Chocolatey](https://chocolatey.org/): `choco install wget`;
+- [MSYS2](https://www.msys2.org/) или Cygwin;
+- WSL (обычный Linux-пакет).
 
 ### Проверка версии
 
@@ -84,28 +73,28 @@ brew install wget
 wget --version
 ```
 
-> [!IMPORTANT]
-> Для **WARC-вывода** нужна версия **≥ 1.14**. В большинстве современных дистрибутивов это так по умолчанию, но в старых системах может быть 1.13.x без поддержки WARC.
+Для записи WARC нужна версия **1.14 или новее**.
+
+> Команды на этой странице сверены с `wget --help` и реальными запусками GNU Wget 1.25.0 (октябрь 2026).
 
 ## Использование
 
-### Скачать одну страницу со всеми ресурсами
+### Скачать одну страницу со всеми ресурсами (для офлайн-просмотра)
 
 ```bash
 wget --page-requisites --adjust-extension --convert-links \
-     --no-clobber --no-parent \
+     --span-hosts --domains=example.com,cdn.example.com \
      https://example.com/article/
 ```
 
 | Флаг | Что делает |
 | :--- | :--- |
-| `--page-requisites` | Скачивает CSS, изображения, JS |
-| `--adjust-extension` | Добавляет `.html`, `.css` и т.д. по MIME-типу |
-| `--convert-links` | Переписывает ссылки для офлайн-просмотра |
-| `--no-clobber` | Не перезаписывает уже скачанные файлы |
-| `--no-parent` | Не поднимается выше указанного пути |
+| `-p, --page-requisites` | Скачивает CSS, изображения, скрипты, нужные для показа страницы |
+| `-E, --adjust-extension` | Добавляет `.html`, `.css` по MIME-типу |
+| `-k, --convert-links` | После загрузки переписывает ссылки на локальные файлы |
+| `-H, --span-hosts` + `-D, --domains` | Разрешает ресурсы с перечисленных доменов (например, CDN) |
 
-### Зеркалирование сайта целиком
+### Зеркалирование сайта
 
 ```bash
 wget --mirror \
@@ -114,29 +103,50 @@ wget --mirror \
      --page-requisites \
      --no-parent \
      --restrict-file-names=windows \
-     --domains example.com \
-     --no-clobber \
+     --wait=1 --random-wait \
      -P ./archive \
      https://example.com/
 ```
 
+`--mirror` — сокращение для `-N -r -l inf --no-remove-listing`: рекурсия без ограничения глубины и режим timestamping (повторный запуск скачивает только изменившиеся файлы).
+
 ### Запись WARC
 
 ```bash
-wget --warc-file=archive \
-     --recursive --level=2 \
+wget --recursive --level=2 --no-parent \
      --page-requisites --adjust-extension \
-     --warc-cdx \
-     --no-parent \
+     --warc-file=archive --warc-cdx \
+     --wait=1 --random-wait \
      https://example.com/
 ```
 
-После выполнения рядом появится `archive.warc.gz` и `archive.cdx` (CDX-индекс).
+Результат: `archive.warc.gz` и `archive.cdx` (CDX-индекс). Файлы сайта тоже сохраняются на диск; если они не нужны, их можно удалить после сбора.
+
+Флаги WARC:
+
+| Флаг | Что делает |
+| :--- | :--- |
+| `--warc-file=ИМЯ` | Писать запросы и ответы в `ИМЯ.warc.gz` |
+| `--warc-cdx` | Создать CDX-индекс рядом с WARC |
+| `--warc-max-size=1G` | Делить WARC на части; файлы получат имена `ИМЯ-00000.warc.gz`, …, плюс `ИМЯ-meta.warc.gz` |
+| `--warc-header="ключ: значение"` | Добавить строку в запись `warcinfo` (например, описание коллекции) |
+| `--warc-dedup=файл.cdx` | Не сохранять повторно ответы, перечисленные в CDX прошлого сбора (пишутся `revisit`-записи) |
+| `--no-warc-compression` | Не сжимать WARC |
+| `--no-warc-keep-log` | Не сохранять журнал Wget внутрь WARC |
+| `--warc-tempdir=КАТАЛОГ` | Каталог для временных файлов |
+
+Особенности:
+
+- с `--warc-file` Wget отключает `--no-clobber` и предупреждает об этом;
+- `--convert-links` меняет только файлы на диске; в WARC остаются исходные ответы сервера;
+- Wget 1.x записывает `WARC-Target-URI` в угловых скобках. Строгие валидаторы, например [warchaeology](warchaeology), считают это ошибкой (проверяйте с `--lenient`), а инструменты воспроизведения такие файлы обычно читают.
+
+Готовый WARC можно посмотреть в [ReplayWeb.page](/kb/instruments/replay/replayweb-page) или [pywb](/kb/instruments/replay/pywb).
 
 ### Скачивание списка URL из файла
 
 ```bash
-# urls.txt: один URL на строку
+# urls.txt: по одному URL на строку
 wget --input-file=urls.txt \
      --directory-prefix=./archive \
      --wait=1 --random-wait
@@ -145,156 +155,154 @@ wget --input-file=urls.txt \
 ### Докачка после обрыва
 
 ```bash
-wget --continue --timestamping --no-clobber \
-     --directory-prefix=./archive \
-     --input-file=urls.txt
+# докачать недокачанные файлы
+wget --continue --input-file=urls.txt --directory-prefix=./archive
+
+# или: пропустить уже скачанные файлы целиком
+wget --no-clobber --input-file=urls.txt --directory-prefix=./archive
 ```
 
 ### Ограничение по типу файлов
 
 ```bash
-# Только HTML и CSS
-wget --recursive --level=3 \
-     --accept='*.html,*.css' \
-     --reject='*.jpg,*.png,*.gif' \
+# только HTML и PDF
+wget --recursive --level=3 --no-parent \
+     --accept='html,htm,pdf' \
      https://example.com/
 ```
 
+`--accept` и `--reject` принимают суффиксы или шаблоны имён файлов. Регулярные выражения задаются через `--accept-regex` и `--reject-regex` и применяются к полному URL.
+
+## Несовместимые и конфликтующие флаги
+
+| Сочетание | Что произойдёт |
+| :--- | :--- |
+| `--mirror` или `-N` вместе с `--no-clobber` | Ошибка: «Can't timestamp and not clobber old files at the same time», Wget не запустится |
+| `--no-clobber` вместе с `--convert-links` | Предупреждение, `--no-clobber` игнорируется |
+| `--no-clobber` вместе с `--warc-file` | Предупреждение, `--no-clobber` отключается |
+| `-o/--output-file` и `-a/--append-output` | Это альтернативы: `-o` перезаписывает журнал, `-a` дописывает в него. Указывайте один из них |
+
+## robots.txt
+
+При рекурсивной загрузке Wget **по умолчанию соблюдает** robots.txt (Robot Exclusion Standard), то есть по умолчанию действует `robots = on`. Отключить можно через `-e robots=off`. Это решение под вашу ответственность: учитывайте правила сайта и нагрузку на сервер. Подробнее — в [руководстве](https://www.gnu.org/software/wget/manual/html_node/Robot-Exclusion.html).
+
 ## Конфигурация
 
-### `.wgetrc` (домашний каталог)
+### `~/.wgetrc`
 
 ```ini
-# User agent (помогает избежать блокировок)
+# осмысленный User-Agent с контактом
 user_agent = Mozilla/5.0 (compatible; ArchiveBot/1.0; +https://example.com/bot)
 
-# Задержка между запросами
+# задержка между запросами
 wait = 1
 random_wait = on
 
-# Таймауты
+# таймауты (секунды)
 connect_timeout = 30
 read_timeout = 60
 
-# Повторы
+# повторы
 tries = 5
 retry_connrefused = on
 ```
 
-### Переменные окружения
+Путь к другому файлу настроек задаётся переменной окружения `WGETRC`:
 
 ```bash
-# Прокси
-export http_proxy=http://proxy:8080
-export https_proxy=http://proxy:8080
-
-# Cookies
 export WGETRC=/path/to/wgetrc
 ```
 
+Cookies передаются флагами `--load-cookies=cookies.txt` (формат Netscape) и `--save-cookies`.
+
 ## Сравнение с другими инструментами
 
-| Инструмент | WARC | JS | Сложность | Лучший для |
+| Инструмент | WARC | JavaScript | Сложность | Лучше всего для |
 | :--- | :---: | :---: | :--- | :--- |
 | **Wget** | ✅ (1.14+) | ❌ | Очень низкая | Быстрые разовые загрузки |
-| **[Wpull](wpull)** | ✅ | ⚠️ | Низкая | WARC + HTTP/2 + плагины |
-| **[HTTrack](httrack)** | ⚠️ через конвертацию | ❌ | Низкая | GUI, офлайн-копия |
+| **[Wget2](https://gitlab.com/gnuwget/wget2)** | ❌ | ❌ | Низкая | Параллельная загрузка, HTTP/2 (без WARC) |
+| **[Wget-AT](https://github.com/ArchiveTeam/wget-lua)** | ✅ (в т. ч. zstd) | ❌ | Средняя | Проекты ArchiveTeam, Lua-хуки, дедупликация |
+| **[Wpull](wpull) / [grab-site](grab-site)** | ✅ | ❌ | Средняя | Большие обходы с WARC, требует старый Python |
+| **[HTTrack](httrack)** | ⚠️ через [httrack2warc](https://github.com/nla/httrack2warc) | ❌ | Низкая | Офлайн-копия, GUI |
 | **[Heritrix](heritrix)** | ✅ | ❌ | Высокая | Большие проекты архивирования |
-| **[Browsertrix](browsertrix)** | ✅ WACZ | ✅ | Средняя | Современные сайты с JS |
-| **[SingleFile](singlefile)** | ❌ | ⚠️ | Низкая | Одна страница в HTML |
+| **[Browsertrix](browsertrix)** | ✅ WACZ | ✅ | Средняя | Современные сайты с JavaScript |
+| **[SingleFile](singlefile)** | ❌ | ✅ | Низкая | Одна страница в HTML |
 
-### Когда Wget лучше всех
+GNU Wget 1.x не поддерживает HTTP/2 ни в одной версии. HTTP/2 есть в Wget2, но Wget2 не пишет WARC.
 
-- Нужно **максимально быстро** начать без изучения сложного инструмента.
-- Целевой сайт — **простая статика** (документация, блог на старом CMS).
-- Нет **Python/Docker** в окружении.
-- Нужен **WARC** без установки дополнительных пакетов.
+## Рекомендации
 
-### Когда лучше использовать Wpull или Heritrix
-
-- Нужна **HTTP/2** (Wget ≤ 1.19 не поддерживает нативно).
-- Требуются **Python-плагины** для кастомной логики.
-- Архивирование **сложного и большого** проекта.
-
-## Best practices
-
-### 1. Всегда ставьте осмысленный User-Agent
+### 1. Ставьте осмысленный User-Agent
 
 ```bash
-wget --user-agent="Ruarxive/1.0 (https://ruarxive.org)" \
-     https://example.com/
+wget --user-agent="Ruarxive/1.0 (https://ruarxive.org)" https://example.com/
 ```
 
-Это помогает администраторам сайта понять, кто и зачем скачивает.
+Так администраторы сайта поймут, кто и зачем скачивает.
 
-### 2. Используйте задержки для вежливого краулинга
+### 2. Делайте паузы между запросами
 
 ```bash
 wget --wait=1 --random-wait --recursive --level=2 https://example.com/
 ```
 
-`--random-wait` добавляет случайный разброс 0.5–1.5× от базовой задержки — выглядит естественнее и не нагружает сервер.
+`--random-wait` варьирует паузу от 0,5 до 1,5 значения `--wait`.
 
-### 3. Ограничивайте домен
+### 3. Ограничивайте домены
 
 ```bash
-wget --span-hosts --domains=example.com,cdn.example.com https://example.com/
+wget --recursive --span-hosts --domains=example.com,cdn.example.com https://example.com/
 ```
 
-Не даёт кроулеру уйти на чужие домены (CDN можно разрешить явно).
+Без `--span-hosts` Wget и так не выходит за пределы стартового хоста. С ним `--domains` задаёт разрешённый список.
 
-### 4. Сохраняйте логи
+### 4. Сохраняйте журнал
 
 ```bash
-wget --output-file=wget.log --append-output=wget.log ...
+wget --output-file=wget.log ...      # новый журнал
+wget --append-output=wget.log ...    # дописать в существующий
 ```
 
-### 5. Для регулярных сборов — cron
+### 5. Регулярные сборы через cron
 
 ```bash
-# Ежедневно в 3:00 — собрать список URL с логированием
+# ежедневно в 3:00 — собрать список URL в WARC с датой в имени
 0 3 * * * cd /opt/collector && \
   wget --input-file=urls.txt \
-       --directory-prefix=$(date +%F) \
+       --directory-prefix="$(date +\%F)" \
        --wait=2 --random-wait \
-       --warc-file=$(date +%F)/archive \
-       >> /var/log/wget-collector.log 2>&1
+       --warc-file="$(date +\%F)/archive" \
+       --append-output=/var/log/wget-collector.log
 ```
 
-### 6. Не забывайте о robots.txt
-
-Wget поддерживает `--robots=user-agent`, но не делает это по умолчанию. Для вежливого краулинга — добавьте вручную:
-
-```bash
-wget --execute robots=on https://example.com/
-```
+В crontab символ `%` нужно экранировать (`\%`). Для повторных сборов того же списка можно передать CDX прошлого запуска в `--warc-dedup`.
 
 ## Ограничения
 
-- **Не выполняет JavaScript** — динамический контент не сохранится.
-- **Однопоточный** по умолчанию (есть `--max-connection-per-server=8`, но это всё равно не Browsertrix).
-- **Нет HTTP/2** в большинстве сборок.
-- **Плохо работает со сложной авторизацией** (нет полноценного браузерного движка).
-- **WARC-вывод ограничен** — нет CDXJ, нет ZIM, нет deduplication на лету.
-- **Большие проекты** (>100k URL) лучше отдавать Heritrix или Brozzler.
+- Не выполняет JavaScript: динамический контент не сохранится.
+- Загружает файлы последовательно, в один поток. Для параллельности запускайте несколько процессов на разные списки URL.
+- Нет HTTP/2.
+- Плохо работает со сложной авторизацией: нет браузерного движка.
+- WARC-вывод базовый: нет WACZ и CDXJ. Дедупликация только по CDX прошлого сбора (`--warc-dedup`).
+- Большие проекты (сотни тысяч URL) лучше отдавать Heritrix, Brozzler или grab-site.
 
 ## Ресурсы
 
-- [Официальный сайт GNU Wget](https://www.gnu.org/software/wget/) — документация и FAQ.
-- [Wget Manual](https://www.gnu.org/software/wget/manual/wget.html) — полное руководство.
-- [Wget examples](https://www.gnu.org/software/wget/manual/html_node/Advanced-Usage.html) — примеры.
-- [Wget Wikipedia](https://en.wikipedia.org/wiki/Wget) — история и применения.
-- [httrack2warc](https://github.com/iipc/httrack2warc) — конвертация вывода Wget/HTTrack в WARC.
+- [Официальный сайт GNU Wget](https://www.gnu.org/software/wget/)
+- [Руководство Wget](https://www.gnu.org/software/wget/manual/wget.html)
+- [Примеры из руководства](https://www.gnu.org/software/wget/manual/html_node/Advanced-Usage.html)
+- [GNU Wget2](https://gitlab.com/gnuwget/wget2)
+- [Wget-AT (ArchiveTeam)](https://github.com/ArchiveTeam/wget-lua)
 
 ## Связанные материалы
 
-- **[Wpull](wpull)** — форк Wget с нативной поддержкой WARC, HTTP/2 и Python-плагинов.
-- **[HTTrack](httrack)** — GUI-альтернатива для зеркалирования сайтов.
-- **[Обработка WARC](warc-processing)** — что делать с полученным WARC (валидация, извлечение URL).
-- **[Heritrix](heritrix)** — для серьёзных проектов архивирования.
-- **[Wget в гайдах](/kb/guides/wget)** — пошаговые сценарии использования.
-- **[Как создать цифровой архив сайта](/kb/instruments/howto-collect/make-copy-website)** — полный workflow.
-- **[Экстренная архивация](/kb/guides/emergency-archiving)** — Wget как один из первых инструментов.
-- **[Формат WARC](/kb/instruments/file-formats/warc)** — что внутри `.warc.gz`.
-- **[Формат CDX](/kb/instruments/file-formats/cdx)** — индекс WARC.
-- **[Воспроизведение через pywb](/kb/instruments/replay/pywb)** — как смотреть заархивированный WARC.
+- **[Wget: сценарии](/kb/guides/wget)** — пошаговые инструкции.
+- **[Wpull](wpull)** — Wget-совместимый загрузчик на Python с WARC.
+- **[HTTrack](httrack)** — GUI-альтернатива для зеркалирования.
+- **[Обработка WARC](warc-processing)** — что делать с полученным WARC.
+- **[Heritrix](heritrix)** — для крупных проектов архивирования.
+- **[Как создать цифровой архив сайта](/kb/instruments/howto-collect/make-copy-website)**
+- **[Экстренная архивация](/kb/guides/emergency-archiving)**
+- **[Формат WARC](/kb/instruments/file-formats/warc)**
+- **[Формат CDX](/kb/instruments/file-formats/cdx)**
+- **[Воспроизведение через pywb](/kb/instruments/replay/pywb)**

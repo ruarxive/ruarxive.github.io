@@ -2,208 +2,225 @@
 title: filegetter
 sidebar_label: filegetter
 sidebar_position: 4
-description: "Массовое скачивание публичных файлов по URL-паттернам и расписаниям: YAML-конфиг, параллельная загрузка, контрольные суммы, инкрементальный режим"
+description: "Массовое скачивание файлов по ссылкам из CSV, JSONL или списка: конфигурация в INI-файле filegetter.cfg, докачка, отчёт с SHA-256, хранение в ZIP или каталоге, опциональная запись WARC."
+last_update:
+  date: 2026-10-12
 ---
 
 # filegetter
 
-[filegetter](https://github.com/ruarxive/filegetter) — это инструмент командной строки для сбора файлов из публичных источников данных с использованием URL-паттернов и конфигурационных файлов.
+[filegetter](https://github.com/ruarxive/filegetter) — инструмент командной строки и Python-библиотека для массового скачивания файлов, ссылки на которые перечислены в наборе данных: CSV-таблице, файле JSON Lines или простом списке. Типичная задача — собрать PDF, DOC или изображения, на которые ссылается набор данных, и сохранить их рядом с ним. Утилиту представили в [посте #75 от 05.10.2022](https://t.me/ruarxive/75); она сделана на основе [apibackuper](/kb/instruments/downloaded-data/apibackuper).
 
-Он полезен для массового скачивания файлов по заданным шаблонам URL, что часто требуется при архивации датасетов, документов или медиа-файлов с публичных ресурсов.
+- Репозиторий: [github.com/ruarxive/filegetter](https://github.com/ruarxive/filegetter) · Лицензия: MIT · Язык: Python
 
 ## Когда использовать
 
-✅ Подходит, если нужно:
+Подходит, если нужно:
 
-- скачать много однотипных файлов с предсказуемыми URL (`/files/{id}.pdf`, `/data/{year}/{month}/report.pdf`);
-- автоматизировать ежедневную/еженедельную загрузку по расписанию (cron);
-- собрать данные с API, у которого есть `/index` со списком URL, через интеграцию с [apibackuper](https://github.com/ruarxive/apibackuper);
-- ограничить скорость, чтобы не нагружать источник, и обеспечить проверку SHA-256.
+- скачать файлы по ссылкам из колонки CSV или поля JSONL (например, из выгрузки [apibackuper](/kb/instruments/downloaded-data/apibackuper));
+- скачать файлы с предсказуемыми адресами вида `https://example.org/files/{}.pdf`, подставляя идентификаторы из списка;
+- докачивать недостающее при повторных запусках и получить отчёт с HTTP-статусом и SHA-256 каждого файла;
+- сразу записать ответы сервера в WARC.
 
-❌ Не подходит, если:
+Не подходит, если:
 
-- сайт динамически рендерится через JavaScript — используйте [Browsertrix Crawler](/kb/instruments/tools/browsertrix);
-- нужен стандартный WARC на выходе — сначала скачайте через `filegetter`, затем оберните в WARC и проиндексируйте через [metawarc](./metawarc);
-- источник требует авторизации с многоступенчатыми редиректами — используйте [apibackuper](https://github.com/ruarxive/apibackuper).
-
-## Основные возможности
-
-*   **Паттерны URL**: Поддержка шаблонов для генерации списка URL файлов
-*   **Конфигурационные файлы**: Настройка через YAML или JSON
-*   **Параллельная загрузка**: Поддержка многопоточной загрузки
-*   **Повторные попытки**: Автоматический retry при ошибках
-*   **Проверка целостности**: Опциональная проверка контрольных сумм
-*   **Гибкая фильтрация**: Фильтрация по расширениям, размерам и другим параметрам
+- сайт отрисовывается JavaScript и ссылок на файлы нет в данных — используйте [Browsertrix Crawler](/kb/instruments/tools/browsertrix);
+- нужно обойти сайт целиком по ссылкам — это задача краулера ([wget](/kb/instruments/tools/wget), [grab-site](/kb/instruments/tools/grab-site));
+- файлы доступны только после авторизации: настроек входа и заголовков авторизации в конфигурации нет.
 
 ## Установка
 
-Требуется Python 3.6+.
-
 ```bash
-pip install filegetter
+pip install --upgrade filegetter
+
+# с поддержкой записи WARC
+pip install --upgrade "filegetter[warc]"
 ```
+
+Требуется Python 3.9 или новее.
+
+> Команды сверены с README и `--help` версии 1.1.0 (октябрь 2026).
 
 ## Быстрый старт
 
-### 1. Создание конфигурации
+Каждый проект — отдельный каталог с файлом `filegetter.cfg` (формат INI) и исходным файлом данных. Пример из README: файлы законопроекта о бюджете с сайта Госдумы.
 
-Создайте файл `config.yaml`:
+```ini
+[project]
+name = budget2023
+source = dataset.csv
+source_type = csv
+delimiter = ,
 
-```yaml
-patterns:
-  - url: "https://example.com/files/{id}.pdf"
-    range:
-      start: 1
-      end: 100
-      step: 1
-  
-  - url: "https://archive.example.org/data/{year}/{month:02d}/report.pdf"
-    range:
-      year: [2020, 2021, 2022]
-      month: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+[data]
+data_key = href
 
-output:
-  directory: "./downloads"
-  create_subdirs: true
+[files]
+fetch_mode = prefix
+root_url = https://sozd.duma.gov.ru
+keys = href
+storage_mode = filepath
+transfer_ext = True
 
-download:
-  threads: 5
-  retries: 3
-  timeout: 30
+[storage]
+storage_type = zip
+compression = True
 ```
-
-### 2. Запуск загрузки
 
 ```bash
-filegetter --config config.yaml
+cd budget2023
+filegetter run
 ```
 
-### 3. Использование с URL-паттернами напрямую
+Файлы попадут в `storage/files.zip`, отчёт по каждому файлу — в `storage/processed.csv`, кэш списка идентификаторов — в `storage/allfiles.csv`.
 
-Для простых случаев можно указать паттерн прямо в командной строке:
+## Команда `run`
+
+Единственная команда — `filegetter run`.
+
+| Опция | Описание |
+| :--- | :--- |
+| `-p, --projectpath PATH` | Каталог проекта (по умолчанию текущий) |
+| `--dry-run` | Показать, что будет скачано, без обращения к сети |
+| `--limit N` | Скачать не больше N файлов за запуск |
+| `--refresh` | Перечитать исходный файл вместо кэша `allfiles.csv` |
+| `-v, --verbose` | Подробный журнал |
+
+Код выхода `0` — все файлы обработаны или пропущены, `1` — ошибка конфигурации или часть файлов не скачалась. Неудачные файлы записываются в отчёт и повторяются при следующем запуске.
+
+## Конфигурация `filegetter.cfg`
+
+### `[project]`
+
+| Ключ | Описание |
+| :--- | :--- |
+| `name` | Короткое имя проекта (обязательно) |
+| `source` | Путь к исходному файлу относительно каталога проекта (обязательно) |
+| `source_type` | `csv`, `jsonl` или `list` (обязательно) |
+| `delimiter` | Разделитель CSV; `tab` означает табуляцию, по умолчанию `,` |
+
+### `[data]`
+
+| Ключ | Описание |
+| :--- | :--- |
+| `data_key` | Для `csv` — имя колонки со ссылками или идентификаторами. Для `jsonl` — путь (через точку) к объекту или массиву объектов внутри каждой строки, из которых берутся поля `keys`. Обязателен для `csv` и `jsonl` |
+
+### `[files]`
+
+| Ключ | Описание |
+| :--- | :--- |
+| `fetch_mode` | `prefix` — дописать идентификатор к `root_url`; `pattern` — подставить его вместо `{}` в `root_url` (обязательно) |
+| `root_url` | Базовый адрес; может быть пустым, если в данных уже полные ссылки (обязательно) |
+| `keys` | Поля со ссылками через запятую (обязательно; используется для JSONL) |
+| `storage_mode` | `filepath` — повторить путь из URL (по умолчанию), `id` — назвать файл по идентификатору |
+| `transfer_ext` | `True` — добавить расширение файлам без него (из `Content-Disposition` или `default_ext`) |
+| `default_ext` | Расширение по умолчанию |
+| `file_storage_type` | `zip` (по умолчанию) или `filesystem` |
+| `delay` | Пауза между запросами, секунды (по умолчанию 0) |
+| `retries` | Повторы при 429, 5xx и ошибках соединения (по умолчанию 2) |
+| `timeout` | Таймаут запроса, секунды (по умолчанию 30) |
+| `workers` | Число параллельных потоков (по умолчанию 1) |
+| `max_filesize` | Пропускать файлы больше указанного размера в байтах (по умолчанию 270000000) |
+| `user_agent` | Заголовок User-Agent |
+| `verify_ssl` | Проверять TLS-сертификаты (по умолчанию `True`) |
+
+### `[storage]`
+
+| Ключ | Описание |
+| :--- | :--- |
+| `storage_path` | Каталог для результатов (по умолчанию `storage`) |
+| `compression` | Сжимать ZIP (`True` по умолчанию) |
+| `storage_type` | Устаревший синоним `file_storage_type` из конфигов версии 1.0.x |
+| `write_warc` | `True` — дополнительно записывать каждый успешный ответ (HTTP-заголовки и тело) в `storage/files.warc.gz` в формате WARC/1.0; нужен `filegetter[warc]` |
+
+## Примеры
+
+### Файлы по шаблону адреса
+
+Диапазоны filegetter сам не генерирует: идентификаторы берутся из исходного файла. Список можно подготовить заранее.
 
 ```bash
-filegetter --pattern "https://example.com/files/{id}.pdf" --range 1-100 --output ./files
+mkdir reports && cd reports
+seq 1 500 > ids.txt
 ```
 
-## Примеры использования
+```ini
+[project]
+name = reports
+source = ids.txt
+source_type = list
 
-### Скачивание последовательных файлов
+[files]
+fetch_mode = pattern
+root_url = https://example.org/files/{}.pdf
+keys = id
+file_storage_type = filesystem
+delay = 1
 
-```yaml
-patterns:
-  - url: "https://data.gov.ru/files/dataset_{id:04d}.csv"
-    range:
-      start: 1
-      end: 500
+[storage]
+write_warc = True
 ```
-
-### Скачивание файлов по датам
-
-```yaml
-patterns:
-  - url: "https://archive.example.com/{year}/{month:02d}/{day:02d}/report.pdf"
-    range:
-      year: 2023
-      month: [1, 2, 3]
-      day: range(1, 32)
-```
-
-### Фильтрация по типам файлов
-
-```yaml
-patterns:
-  - url: "https://example.com/{filename}"
-    files: ["doc1.pdf", "doc2.pdf", "doc3.xlsx"]
-
-filters:
-  extensions: [".pdf", ".doc", ".docx"]
-  min_size: 1024  # минимум 1KB
-  max_size: 10485760  # максимум 10MB
-```
-
-## Интеграция с другими инструментами
-
-### Использование с apibackuper
-
-filegetter можно использовать для получения списка URL из API, а затем скачивать файлы:
 
 ```bash
-# Получаем список URL через API
-apibackuper export urls.jsonl -p myproject
-
-# Извлекаем URL и скачиваем файлы
-filegetter --from-jsonl urls.jsonl --field url --output ./files
+filegetter run --dry-run --limit 5   # проверить, какие адреса получатся
+filegetter run
 ```
 
-### Использование в скриптах
+Файлы окажутся в `storage/files/`, копия ответов в WARC — в `storage/files.warc.gz`.
+
+### Ссылки из выгрузки apibackuper
+
+Если API отдаёт записи, в которых ссылки на файлы лежат во вложенном объекте или массиве, экспортируйте данные в JSONL и укажите путь к нему в `data_key`, а имена полей со ссылками — в `keys`:
+
+```bash
+apibackuper export items.jsonl -p myproject
+```
+
+```ini
+[project]
+name = attachments
+source = items.jsonl
+source_type = jsonl
+
+[data]
+data_key = doc
+
+[files]
+fetch_mode = prefix
+root_url =
+keys = url
+```
+
+Для строк вида `{"id": 1, "doc": {"url": "https://example.org/a.pdf"}}` будет скачан файл по адресу из `doc.url`. Если ссылка лежит в поле верхнего уровня, проще сохранить ссылки списком (по одной в строке) и использовать `source_type = list`.
+
+## Использование из Python
 
 ```python
-from filegetter import FileGetter
+from filegetter.cmds.project import ConfigError, FilegetterBuilder
 
-config = {
-    "patterns": [{
-        "url": "https://example.com/{id}.pdf",
-        "range": {"start": 1, "end": 100}
-    }],
-    "output": {"directory": "./downloads"}
-}
+try:
+    builder = FilegetterBuilder("/path/to/project")
+except ConfigError as e:
+    raise SystemExit(f"Ошибка конфигурации: {e}")
 
-getter = FileGetter(config)
-getter.download_all()
+stats = builder.run()  # те же параметры, что у CLI: dry_run=, limit=, refresh=
+print(stats)           # {'total': 42, 'skipped': 40, 'downloaded': 2, 'failed': 0}
 ```
 
-## Продвинутые функции
+## Отчёт `processed.csv`
 
-### Проверка контрольных сумм
-
-```yaml
-verification:
-  checksums: true
-  algorithm: sha256
-  checksum_file: "checksums.txt"
-```
-
-### Прокси и аутентификация
-
-```yaml
-network:
-  proxy: "http://proxy.example.com:8080"
-  auth:
-    type: basic
-    username: "user"
-    password: "pass"
-```
-
-### Ограничение скорости
-
-```yaml
-rate_limit:
-  enabled: true
-  requests_per_second: 10
-```
+Колонки: `url`, `filename`, `mime`, `ext`, `disp_name`, `filesize`, `status` (HTTP-код или `error`), `sha256`. Строка записывается сразу после обработки файла, поэтому прерванный запуск можно просто повторить: файлы со статусом 200 будут пропущены.
 
 ## Ограничения
 
-*   Работает только с публично доступными файлами.
-*   Не обходит защиту от скачивания (CAPTCHA, авторизация).
-*   Требует стабильного интернет-соединения для больших объемов.
-*   Не выполняет JavaScript — работает только с прямой отдачей файлов.
-*   Параллельность ограничена `threads: N` в конфиге; для десятков тысяч файлов потребуется тщательно подбирать `requests_per_second`, чтобы не нагружать источник.
-*   Не строит WARC автоматически — если нужен WARC-совместимый архив, после `filegetter` оберните файлы через [warc-tools](https://github.com/internetarchive/warc-tools) или сразу используйте [metawarc](./metawarc) с пользовательским провайдером источника.
-
-## Что дальше
-
-- Если скачанные файлы — это документы, которые нужно индексировать и искать по тексту, подключите [metawarc](./metawarc) (`index-content --text`).
-- Если нужна верификация контрольных сумм с эталонным `checksums.txt`, filegetter это умеет из коробки (`verification.checksums: true`).
-- Список URL можно сгенерировать заранее через [apibackuper](https://github.com/ruarxive/apibackuper) и передать в `filegetter` через `--from-jsonl`.
+- Работает только с общедоступными файлами; авторизации нет.
+- JavaScript не выполняется: нужны прямые ссылки на файлы.
+- Встроенного планировщика нет; для регулярных запусков используйте cron или CI.
 
 ## Связанные материалы
 
 - [Все инструменты Ruarxive](/kb/instruments/ruarxive-tools)
-- [ydiskarc](./ydiskarc) — аналогичный инструмент, но заточенный под Яндекс.Диск
-- [wparc](./wparc) — для архивации WordPress-сайтов
-- [metawarc](./metawarc) — для индексации и поиска по собранным файлам
-- [apibackuper](https://github.com/ruarxive/apibackuper) — извлечение списка URL из API
+- [apibackuper](/kb/instruments/downloaded-data/apibackuper) — выгрузка данных из API, откуда часто берутся списки ссылок
+- [ydiskarc](./ydiskarc) — публичные папки Яндекс.Диска
+- [metawarc](./metawarc) — индексация WARC, в том числе созданного с `write_warc = True`
 - [Руководства по архивации](/kb/guides)
-- [Создание кастомных workflow](/kb/guides/custom-workflows)
