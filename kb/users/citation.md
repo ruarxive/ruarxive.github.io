@@ -78,7 +78,9 @@ WARC: https://f001.backblazeb2.com/file/IKPUBLIC/webcollect2022/echomskru2022/ec
 CDX-индекс: https://f001.backblazeb2.com/file/IKPUBLIC/webcollect2022/echomskru2022/echo.msk.ru/echo.msk.ru.cdx.zip
 ```
 
-Найти страницу и дату снимка можно по CDX-индексу, не скачивая весь архив, — см. [«Вскрытие» WARC](/kb/users/inspect-warc). Если страница доступна и в Wayback Machine, можно дополнительно дать ссылку на снимок там.
+Найти страницу и дату снимка можно по CDX-индексу, не скачивая весь архив, — см. [поиск по CDX](/kb/users/cdx-howto). Если страница доступна и в Wayback Machine, можно дополнительно дать ссылку на снимок там.
+
+Другие коллекции с прямыми URL файлов: [Большая российская энциклопедия](/kb/projects/bigenc) (наборы на hubofdata), [порталы открытых данных](/kb/projects/open-data), [отчёты Счётной палаты](/kb/projects/government-campaigns-2022). В ссылку подставляют тот URL, который реально открывает файл, и дату обращения.
 
 ## Контрольная сумма
 

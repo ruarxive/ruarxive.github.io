@@ -65,6 +65,8 @@ instaloader --fast-update profile_name
 
 ## См. также
 
+- [Выгрузка своих данных](/kb/instruments/data-take-out/dto-instagram) — архив владельца аккаунта, не чужого профиля.
+- [Площадки, у которых API уже нет](/kb/instruments/social-media/dead-platforms) — Basic Display API отключён 4 декабря 2024 года.
 - [Архивация других платформ](/kb/instruments/social-media)
 - [Browsertrix Crawler для JS-сайтов](/kb/guides/dynamic-ajax-sites)
 - [Кейс ликвидации банков](/kb/case-studies/bank-closures) — аналогичный класс задач массовой архивации.

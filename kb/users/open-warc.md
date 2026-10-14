@@ -103,3 +103,10 @@ warcfilter -U 'echo\.msk\.ru/programs/' archive.warc.gz > subset.warc
 - **Упаковка в WACZ** — тогда ReplayWeb.page не будет читать файл целиком.
 
 Подробнее — [Работа с большими WARC-файлами](/kb/users/large-warc).
+
+Дальше, когда файл уже открыт или когда скачивать его целиком не нужно:
+
+- [найти страницу по CDX](/kb/users/cdx-howto);
+- [искать фразу в тексте](/kb/users/search-inside-warc);
+- [выгрузить картинки и PDF](/kb/users/extract-media-from-warc);
+- [снять опись заголовков](/kb/users/warc-headers-only).

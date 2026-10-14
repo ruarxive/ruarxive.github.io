@@ -49,7 +49,7 @@ description: "Инструкция по запросу и загрузке ар�
 
 *   [Wayback Machine](/kb/instruments/tools/wayback-api) и [archive.ph](/kb/instruments/tools/archive-ph) — если посты ранее были сохранены в веб-архивах.
 *   [Браузерная архивация](/kb/instruments/tools/browsertrix) с авторизованным профилем — для публичных аккаунтов, пока они доступны.
-*   [twarc](/kb/instruments/social-media/twarc) — сбор через платный API X (бесплатная программа Academic Research закрыта в 2023 году).
+*   [twarc](/kb/instruments/social-media/twarc) — сбор через платный API X (бесплатная программа Academic Research закрыта в 2023 году). Чем ещё заменяют закрытые API — на странице [«Площадки, у которых API уже нет»](/kb/instruments/social-media/dead-platforms).
 
 ## Связанные материалы
 

@@ -67,7 +67,9 @@ last_update:
 Используют реальный Chrome/Chromium — лучший способ сохранить современные сайты с JavaScript, SPA и динамической подгрузкой.
 
 - **[Browsertrix](/kb/instruments/tools/browsertrix)** — Browsertrix Crawler (Docker) и облачный/self-hosted сервис от Webrecorder; WACZ, поведения на странице (`autoscroll`, `autoplay`).
+- **[Scoop](/kb/instruments/tools/scoop)** — одностраничный захват Harvard LIL в WARC или WACZ, со сводкой о происхождении снимка.
 - **[Brozzler](/kb/instruments/tools/brozzler)** — распределённый кроулер Internet Archive; состояние обхода в RethinkDB, запись через warcprox.
+- **[Crocoite](/kb/instruments/tools/crocoite)** — headless Chrome и WARC; репозиторий архивирован в 2021 году.
 - **[Squidwarc](/kb/instruments/tools/squidwarc)** — скриптуемый кроулер на Node.js и Chrome; не развивается с 2020 года.
 - **[Warcworker](/kb/instruments/tools/warcworker)** — очередь (RabbitMQ) и веб-интерфейс поверх Squidwarc для отдельных URL; проект в архиве.
 
@@ -116,6 +118,7 @@ last_update:
 Системы с процессами, ролями и интеграцией с архивами.
 
 - **[Web Curator Tool](/kb/instruments/tools/web-curator-tool)** — система для библиотек: разрешения на сбор, цели и расписание, сбор через Heritrix, проверка качества, передача в цифровое хранилище.
+- **[WAIL](/kb/instruments/tools/wail)** — настольная оболочка вокруг Heritrix и OpenWayback; для новых коллекций не рекомендуется.
 - **[Internet Archive CLI (ia)](/kb/instruments/tools/internet-archive-cli)** — официальный инструмент для загрузки, скачивания и управления items на archive.org (не Wayback Machine).
 - **[Wayback Machine API](/kb/instruments/tools/wayback-api)** — SavePageNow 2, CDX, Availability, Memento.
 - **[waybackpy](/kb/instruments/tools/waybackpy)** — Python-обёртка и CLI для API Wayback Machine.

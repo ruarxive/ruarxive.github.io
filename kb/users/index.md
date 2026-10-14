@@ -3,7 +3,7 @@ title: Как пользоваться архивами
 description: "Раздел для читателей архивов Ruarxive: как найти нужную коллекцию, открыть WARC/WACZ без программирования, достать отдельные страницы и корректно процитировать архив."
 sidebar_position: 1
 last_update:
-  date: 2026-10-12
+  date: 2026-10-14
 ---
 
 # Как пользоваться архивами
@@ -22,6 +22,12 @@ last_update:
 - **Архив очень большой (десятки и сотни ГБ)** — [Работа с большими WARC-файлами](/kb/users/large-warc).
 - **Готовлю научную работу и нужна ссылка на архив** —
   [Как цитировать архив Ruarxive](/kb/users/citation).
+- **Хочу понять, есть ли страница, не скачивая огромный WARC** —
+  [поиск по CDX](/kb/users/cdx-howto).
+- **Ищу фразу в тексте страниц** — [поиск внутри WARC](/kb/users/search-inside-warc).
+- **Нужны сами картинки, PDF или записи** — [медиа из WARC](/kb/users/extract-media-from-warc).
+- **Нужен список ссылок** — [карта сайта из архива](/kb/users/extract-links-from-warc).
+- **Сначала хочу опись без тел записей** — [только заголовки](/kb/users/warc-headers-only).
 - **Хочу поделиться ссылкой на архив с коллегами** — в каталоге проектов
   ([Проекты](/kb/projects)) для каждой коллекции указаны прямые ссылки на скачивание.
 
@@ -47,3 +53,8 @@ last_update:
 - [«Вскрытие» WARC — извлечение содержимого](/kb/users/inspect-warc)
 - [Работа с большими WARC-файлами](/kb/users/large-warc)
 - [Как цитировать архивы в научных работах](/kb/users/citation)
+- [Как найти страницу по CDX](/kb/users/cdx-howto)
+- [Поиск по содержимому WARC](/kb/users/search-inside-warc)
+- [Медиафайлы из WARC](/kb/users/extract-media-from-warc)
+- [Ссылки из WARC](/kb/users/extract-links-from-warc)
+- [Заголовки без тел записей](/kb/users/warc-headers-only)

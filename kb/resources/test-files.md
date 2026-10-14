@@ -20,6 +20,8 @@ last_update:
 - **Сайт Минспорта, 2019 год** — [minsport.gov.ru-2019-04-08-d8919777-00000.warc.gz](https://cdn.ruarxive.org/public/webcollect2019/gov2019/minsport.gov.ru-2019-04-08-d8919777/minsport.gov.ru-2019-04-08-d8919777-00000.warc.gz), около 1,1 ГБ. На нём удобно проверять индексацию и извлечение документов (PDF, Word) — пример из публикации о metawarc ([#160](https://t.me/ruarxive/160)).
 - Полный перечень файлов хранилища — в реестре [`allarchives.csv`](https://cdn.ruarxive.org/public/allarchives.csv).
 
+Отдельного крошечного WARC или WACZ проекта Ruarxive для юнит-тестов в хранилище не выложено. Для проверки парсера берут файл из ExampleArcAndWarcFiles выше. Минспорт удобен для индексации и извлечения PDF, но для первого запуска инструмента он слишком большой. Как вырезать из большого WARC новый файл из целых записей — в гайде [«Фильтрация WARC»](/kb/guides/warc-filtering). Обрезать `.warc.gz` командой `head` нельзя: последняя запись окажется битой.
+
 ### Спецификации
 
 [iipc/warc-specifications](https://github.com/iipc/warc-specifications) — спецификации WARC, CDX и связанных форматов, с примерами записей.

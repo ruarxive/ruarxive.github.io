@@ -66,7 +66,9 @@ Ruarxive — не единственный проект в области веб
 - [ArchiveTeam](/kb/similar/archiveteam) — волонтёрские экстренные архивы.
 - [Национальные веб-архивы](/kb/similar/international-archives) — программы разных стран.
 - [Архивы независимых российских СМИ](/kb/similar/russian-independent-media-archives) — где искать материалы закрытых изданий.
-- [End-of-Term Web Archive](/kb/similar/eot-archive), [DataRefuge](/kb/similar/datarefuge), [Climate Mirror](/kb/similar/climate-mirror), [SUCHO](/kb/similar/sucho) — общественные инициативы по спасению данных.
+- [SUCHO](/kb/similar/sucho) — сайты украинских учреждений культуры.
+- [Украина и Беларусь](/kb/similar/post-soviet-archives) — SUCHO, archive.org.ua и где искать белорусские сайты.
+- [End-of-Term Web Archive](/kb/similar/eot-archive), [DataRefuge](/kb/similar/datarefuge), [Climate Mirror](/kb/similar/climate-mirror) — общественные инициативы по спасению данных в США.
 - [Каталоги «Awesome…»](/kb/similar/awesome-catalogs) — тематические списки ресурсов.
 
 ## Принципы выбора

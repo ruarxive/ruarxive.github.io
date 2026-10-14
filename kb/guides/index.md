@@ -3,7 +3,7 @@ title: Гайды по архивации
 sidebar_label: Обзор гайдов
 sidebar_position: 1
 last_update:
-  date: 2026-10-12
+  date: 2026-10-14
 description: "Пошаговые руководства по архивации: быстрый старт, экстренные сценарии, сбор сайта в WARC, стратегии сбора, подготовка и автоматизация."
 keywords: [гайды, архивация, быстрый старт, экстренная архивация, wget, warc, workflow]
 ---
@@ -28,6 +28,11 @@ keywords: [гайды, архивация, быстрый старт, экстр
 | Сохранить сайт на JavaScript (SPA, Ajax) | [Архивация динамических сайтов](/kb/guides/dynamic-ajax-sites) | часы |
 | Объединить несколько инструментов в процесс | [Кастомные workflow](/kb/guides/custom-workflows) | 1–2 часа |
 | Довести WARC-файл до публикации (проверка, индекс, WACZ, плеер) | [WARC: от архива до публикации](/kb/guides/warc-workflow) | 30 минут – 2 часа |
+| Сохранить раздел, который виден после входа | [Вход на сайт](/kb/guides/authenticated-crawling) | 15–30 минут |
+| Прочитать robots.txt до обхода | [robots.txt](/kb/guides/robots-txt-for-archiving) | 10 минут |
+| Сайт отвечает капчей или 403 | [Антибот-защита](/kb/guides/anti-bot-and-archiving) | 10 минут |
+| Оставить в WARC только нужные записи | [Фильтрация WARC](/kb/guides/warc-filtering) | 15–30 минут |
+| Достать текст статей | [Текст из WARC](/kb/guides/text-extraction-from-warc) | 15–30 минут |
 
 ## Гайды по уровню подготовки
 
@@ -43,6 +48,9 @@ keywords: [гайды, архивация, быстрый старт, экстр
 
 - **[Preflight-чеклист](/kb/guides/preflight-checklist)** — цели, охват, правовые вопросы, хранилище, тестовый прогон.
 - **[Стратегии сбора](/kb/guides/collection-strategies)** — охват, глубина, темп запросов, режимы сбора и условия остановки.
+- **[Вход на сайт](/kb/guides/authenticated-crawling)** — профиль Browsertrix и cookies Wget для страниц, которые ваша учётная запись и так вправе открыть.
+- **[robots.txt](/kb/guides/robots-txt-for-archiving)** — как прочитать файл правил до обхода.
+- **[Антибот-защита](/kb/guides/anti-bot-and-archiving)** — что делать при капче и ответе 403 и чего не делать.
 
 ### Умеете работать в командной строке
 
@@ -53,6 +61,8 @@ keywords: [гайды, архивация, быстрый старт, экстр
 
 - **[Кастомные workflow](/kb/guides/custom-workflows)** — bash- и Python-скрипты, объединяющие несколько инструментов в один процесс.
 - **[WARC: от архива до публикации](/kb/guides/warc-workflow)** — проверка, индексация, обогащение метаданными, упаковка в WACZ и публикация.
+- **[Фильтрация WARC](/kb/guides/warc-filtering)** — оставить HTML, ответы 200 или один домен.
+- **[Текст из WARC](/kb/guides/text-extraction-from-warc)** — основной текст страниц через trafilatura или metawarc.
 
 ## Связанные разделы
 

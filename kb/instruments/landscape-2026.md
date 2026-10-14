@@ -61,8 +61,8 @@ flowchart LR
 | [Brozzler](/kb/instruments/tools/brozzler) | Python + Chromium | pip | Распределённый обход, состояние в RethinkDB, запись через warcprox | **Активен** |
 | [Squidwarc](/kb/instruments/tools/squidwarc) | Node.js + Chrome | из исходников (npm-пакета нет) | Скриптуемый обход по JSON-конфигу | Не развивается с 2020 |
 | [Warcworker](/kb/instruments/tools/warcworker) | Python + Squidwarc | Docker Compose | Очередь (RabbitMQ) и веб-интерфейс для отдельных URL | В архиве |
-| [Crocoite](https://github.com/crocoite/crocoite) | Python + Chrome | pip | Скриншоты + DOM + WARC | Не развивается с 2019 |
-| [WAIL](https://github.com/machawk1/wail) | Python | GUI | Heritrix + pywb «в один клик» | Обновляется редко (релиз 2025) |
+| [Crocoite](/kb/instruments/tools/crocoite) | Python + Chrome | pip | Скриншоты + DOM + WARC | Репозиторий архивирован в 2021 |
+| [WAIL](/kb/instruments/tools/wail) | Python | GUI | Heritrix + OpenWayback «в один клик» | Для новых коллекций не рекомендуется |
 
 ### HTTP-кроулеры (без JavaScript)
 
@@ -217,7 +217,7 @@ flowchart LR
 | Conifer (Rhizome) | [ArchiveWeb.page](https://archiveweb.page/), [Browsertrix](/kb/instruments/tools/browsertrix) | Закрыт в июне 2026 года; создание коллекций отключили заранее |
 | [Shine](/kb/instruments/tools/shine) | [SolrWayback](/kb/instruments/tools/solrwayback) | Репозиторий в архиве с 2020 |
 | [Squidwarc](/kb/instruments/tools/squidwarc), [Warcworker](/kb/instruments/tools/warcworker) | Browsertrix | Не развиваются / в архиве |
-| Crocoite | Browsertrix | Не развивается с 2019 |
+| Crocoite | Browsertrix | Репозиторий архивирован в 2021 году |
 | [fbarc](/kb/instruments/social-media/fbarc) | — (API Facebook закрыт для такого сбора) | В архиве с 2018 |
 | OpenWayback | [pywb](/kb/instruments/replay/pywb) | Последний релиз 2019 |
 | Webrecorder Player | ReplayWeb.page (в браузере или настольное приложение) | Репозиторий в архиве |

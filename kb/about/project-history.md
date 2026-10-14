@@ -3,7 +3,7 @@ sidebar_position: 2
 title: История проекта Ruarxive
 description: "Хронология Национального цифрового архива (Ruarxive) — от архивации госсайтов в начале 2010-х до перезапуска проекта в 2022 году и событий 2026 года, по публикациям в Telegram."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-14
 ---
 
 # История проекта Ruarxive
@@ -59,7 +59,7 @@ last_update:
 
 ## 2021: кампании Роснано и «Мемориала»
 
-К моменту перезапуска проекта в 2022 году уже были проведены две архивационные кампании — сайтов Роснано и сайтов «Мемориала» ([#5](https://t.me/ruarxive/5)). Архив сайтов Роснано 2021 года в формате WARC лежит в [`cdn.ruarxive.org/public/webcollect2021/rusnano2021/`](https://cdn.ruarxive.org/public/webcollect2021/rusnano2021/) ([#110](https://t.me/ruarxive/110)).
+К моменту перезапуска проекта в 2022 году уже были проведены две архивационные кампании — сайтов Роснано и сайтов «Мемориала» ([#5](https://t.me/ruarxive/5)). Архив сайтов Роснано 2021 года в формате WARC лежит в [`cdn.ruarxive.org/public/webcollect2021/rusnano2021/`](https://cdn.ruarxive.org/public/webcollect2021/rusnano2021/) ([#110](https://t.me/ruarxive/110)). Состав обеих папок — на странице [«Мемориал» и Роснано, кампании 2021 года](/kb/case-studies/memorial-rusnano-2021).
 
 ## 2022: перезапуск проекта
 
@@ -77,6 +77,7 @@ last_update:
   Подробнее — на странице [«Эхо Москвы»](/kb/projects/echomsk).
 - **«Новая газета»** — 05.03.2022 загружен архив Telegram-канала (20 ГБ); сайт и спецпроекты заархивированы 3 марта, архивация самого сайта перезапущена в конце марта и закончена к 05.04.2022 ([#7](https://t.me/ruarxive/7), [#31](https://t.me/ruarxive/31), [#39](https://t.me/ruarxive/39)).
 - **Заблокированные СМИ** — к 23.03.2022 сохранены colta.ru, theins.ru, paperpaper.ru, agentura.ru, news.doxajournal.ru, общий объём около 100 ГБ ([#23](https://t.me/ruarxive/23)).
+- **Coub** — 15.03.2022 начата архивация после объявления о закрытии сервиса 1 апреля. К 17.03 выгружены 1 952 ролика раздела Hot, 55 ГБ. 18.03 опубликован репозиторий с метаданными API ([#17](https://t.me/ruarxive/17), [#18](https://t.me/ruarxive/18), [#20](https://t.me/ruarxive/20)). Подробнее — [Coub](/kb/projects/coub).
 - **Instagram** — 28.03.2022 закончена архивация 171 аккаунта официальных лиц и политиков РФ: архив 1,4 ГБ, инструмент instaloader, код и список аккаунтов в репозитории [ruarxive/rugovinstagrams](https://github.com/ruarxive/rugovinstagrams) ([#27](https://t.me/ruarxive/27)). Работа велась вместе с проектом «Декларатор» ([#34](https://t.me/ruarxive/34)).
 - **31.03.2022** — бета-версия утилиты [wparc](/kb/instruments/ruarxive-tools/wparc) для архивации сайтов на WordPress ([#32](https://t.me/ruarxive/32)).
 

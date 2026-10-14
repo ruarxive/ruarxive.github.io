@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 last_update:
-  date: 2026-10-12
+  date: 2026-10-14
 title: Архивация социальных сетей
 description: "Обзор способов архивации социальных сетей и мессенджеров на 2026 год: какие API ещё доступны, какие инструменты устарели и чем их заменить."
 ---
@@ -21,7 +21,8 @@ description: "Обзор способов архивации социальны�
 | YouTube, Rutube, VK Видео | yt-dlp | [Видео](/kb/instruments/social-media/youtube-video), [Rutube](/kb/instruments/social-media/rutube) |
 | TikTok | yt-dlp, Research API (только для одобренных исследователей) | [TikTok](/kb/instruments/social-media/tiktok) |
 | Mastodon, Bluesky, Threads | Открытые API Mastodon и Bluesky, официальный Threads API | [Mastodon, Bluesky, Threads](/kb/instruments/social-media/mastodon) |
-| Telegram | Экспорт в Telegram Desktop, MTProto-клиенты | [Telegram](/kb/instruments/data-take-out/dto-telegram) |
+| Telegram | Экспорт Desktop, tdl, публичная веб-версия канала | [Telegram](/kb/instruments/social-media/telegram) |
+| Одноклассники | Запрос архива своих данных в поддержку | [Одноклассники](/kb/instruments/data-take-out/dto-ok) |
 | MAX | Нет публичного просмотра каналов и экспорта данных; есть только Bot API | [MAX](/kb/instruments/social-media/max) |
 
 ## Устаревшие инструменты
@@ -31,6 +32,8 @@ description: "Обзор способов архивации социальны�
 - **[F(b)arc](/kb/instruments/social-media/fbarc)** — репозиторий в архиве с 2018 года, после ужесточения Graph API практически неработоспособен.
 - **[Social Feed Manager](/kb/instruments/social-media/social-feed-manager)** — Университет Джорджа Вашингтона (GWU) в 2024 году прекратил развитие и закрыл свой хостинг SFM.
 - **Academic Research API Twitter** — закрыт в 2023 году; [twarc](/kb/instruments/social-media/twarc) работает только с платным доступом к API.
+
+Сводка закрытых интерфейсов и чем их заменить — на странице [«Площадки, у которых API уже нет»](/kb/instruments/social-media/dead-platforms).
 
 ## Выбор метода
 
