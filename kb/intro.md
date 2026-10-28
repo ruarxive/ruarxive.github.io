@@ -3,7 +3,7 @@ title: База знаний Ruarxive
 description: "Путеводитель по цифровой и веб-архивации на русском языке: инструкции, инструменты, форматы, правовые вопросы и проекты Ruarxive."
 sidebar_position: 1
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 ---
 
 # База знаний Ruarxive
@@ -17,7 +17,7 @@ last_update:
 Времени мало, сайт ценный. Прямо сейчас:
 
 1. **[Экстренная архивация](/kb/guides/emergency-archiving)** — быстрые методы.
-2. **[Archive.ph](https://archive.ph/)** — моментальное сохранение URL (30 секунд).
+2. **[Save Page Now](https://web.archive.org/save)** — моментальное сохранение URL в Wayback Machine (около минуты).
 3. **[Browsertrix](/kb/instruments/tools/browsertrix)** — для современных сайтов (SPA).
 4. Напишите в [Telegram-чат @ruarxivechat](https://t.me/ruarxivechat) — поможем.
 

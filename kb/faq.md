@@ -3,7 +3,7 @@ title: Часто задаваемые вопросы (FAQ)
 description: "Ответы на частые вопросы о проекте Ruarxive, архивах, инструментах архивации, правовых вопросах и волонтёрстве."
 sidebar_position: 2
 last_update:
-  date: 2026-10-14
+  date: 2026-10-28
 ---
 
 # Часто задаваемые вопросы (FAQ)
@@ -54,8 +54,8 @@ HTTP-запросами, ответами и метаданными. **WACZ** �
 ## Об архивации
 
 ### Какой инструмент выбрать новичку?
-Для одной страницы — [Archive.ph](https://archive.ph/) или
-[Save Page Now](https://web.archive.org/save) Internet Archive. Для копии сайта в
+Для одной страницы — [Save Page Now](https://web.archive.org/save) Internet Archive;
+[Archive.ph](/kb/instruments/tools/archive-ph) — только как дополнительная копия. Для копии сайта в
 формате WARC — [wget](/kb/guides/wget) или [Browsertrix](/kb/instruments/tools/browsertrix).
 Подробнее: [Быстрый старт](/kb/guides/quick-start-5min).
 

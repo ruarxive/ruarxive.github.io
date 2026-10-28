@@ -3,7 +3,7 @@ title: Стратегии сбора архивов сайтов
 sidebar_label: Стратегии сбора
 description: "Как выбирать scope, глубину, rate-limit и режим работы кроулера под разные классы сайтов. Детальный разбор стратегий с примерами команд и метрик."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 keywords: [collection, scope, crawl, strategy, archiving, depth, rate-limit]
 ---
 
@@ -161,8 +161,10 @@ wget --wait=1 --random-wait --limit-rate=500k \
 ```bash
 docker run -v $PWD/crawls:/crawls/ webrecorder/browsertrix-crawler crawl \
   --url https://example.com/ --workers 1 --pageExtraDelay 2 \
-  --generateWACZ --collection example
+  --robots --generateWACZ --collection example
 ```
+
+`--robots` нужен потому, что Browsertrix Crawler по умолчанию `robots.txt` не читает (подробнее — в [robots.txt для архивиста](/kb/guides/robots-txt-for-archiving)).
 
 Ответы 403, 429 и 503 Browsertrix Crawler по умолчанию считает признаком ограничения и не записывает такие страницы в архив, а откладывает для повторной попытки (см. [документацию](https://crawler.docs.browsertrix.com/user-guide/rate-limits/)).
 
@@ -310,7 +312,7 @@ Use case:     Сбор научных датасетов
 Scope:        1 URL (конкретная статья)
 Depth:        0
 Rate:         мгновенно
-Mode:         SingleFile или Archive.ph
+Mode:         SingleFile или Save Page Now
 Auth:         Public
 Schedule:     По запросу
 Trigger:      1 страница собрана

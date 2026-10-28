@@ -3,7 +3,7 @@ title: Browsertrix
 sidebar_label: Browsertrix Crawler
 description: "Browsertrix Crawler — краулер Webrecorder на реальном браузере в Docker-контейнере для архивации JavaScript-сайтов и SPA с созданием WARC и WACZ."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 ---
 
 # Browsertrix
@@ -35,6 +35,7 @@ Browsertrix Crawler запускает браузер в изолированн�
 docker run --rm -v $PWD/crawls:/crawls/ \
     webrecorder/browsertrix-crawler crawl \
     --url https://example.com \
+    --robots \
     --generateWACZ \
     --text \
     --collection my-crawl
@@ -57,6 +58,7 @@ docker run --rm -v $PWD/crawls:/crawls/ \
 *   `--sizeLimit` (байты), `--timeLimit` (секунды) — остановить обход по размеру или времени.
 *   `--saveState always` — регулярно сохранять состояние обхода, чтобы продолжить его после прерывания.
 *   `--behaviors` — набор поведений (см. ниже).
+*   `--robots` (`--useRobots`) — соблюдать `robots.txt`. **По умолчанию краулер его не читает**; для заданий Ruarxive флаг нужно указывать явно. `--reportSkipped` записывает отсечённые адреса в `reports/skippedPages.jsonl`. Подробнее — в [robots.txt для архивиста](/kb/guides/robots-txt-for-archiving).
 
 Полный список — в [документации](https://crawler.docs.browsertrix.com/user-guide/cli-options/).
 

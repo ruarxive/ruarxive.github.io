@@ -3,7 +3,7 @@ title: "WARC-файл: от сырого архива до публикации"
 sidebar_label: "WARC: от архива до публикации"
 sidebar_position: 5
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 description: "Пошаговый путь WARC-файла от скачивания до публикации: проверка целостности, индексация CDXJ, каталог метаданных в metawarc, упаковка в WACZ и публикация через ReplayWeb.page или pywb."
 keywords: [warc, wacz, валидация, индексация, метаданные, warcio, cdxj, публикация, replay]
 ---
@@ -40,9 +40,11 @@ Browsertrix Crawler сразу собирает WACZ. Результат пиш�
 
 ```bash
 docker run -v "$PWD/crawls:/crawls/" -it webrecorder/browsertrix-crawler crawl \
-  --url https://example.com/ --generateWACZ --text --collection example
+  --url https://example.com/ --robots --generateWACZ --text --collection example
 # готовый файл: crawls/collections/example/example.wacz
 ```
+
+Без `--robots` Browsertrix Crawler не читает `robots.txt` ([подробнее](/kb/guides/robots-txt-for-archiving)).
 
 :::tip Совет
 При сохранении через Browsertrix сразу получается WACZ. С wget и wpull получается WARC — его упаковывают в WACZ командой `wacz create` (шаг 5).

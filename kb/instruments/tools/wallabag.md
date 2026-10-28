@@ -3,7 +3,7 @@ title: wallabag
 sidebar_label: wallabag
 description: "wallabag — открытое self-hosted приложение «прочитать позже»: сохраняет очищенный текст статей, теги, аннотации, мобильные приложения, экспорт в EPUB/PDF/JSON."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 ---
 
 # wallabag
@@ -45,7 +45,7 @@ last_update:
 - архивации сайтов целиком или по расписанию: используйте [Wget](wget), [Browsertrix](browsertrix), [Heritrix](heritrix);
 - точной копии страницы с оформлением и скриптами: используйте [SingleFile](singlefile) или WARC;
 - изображений и видео: используйте [gallery-dl](gallery-dl), [yt-dlp](yt-dlp);
-- быстрой публичной ссылки на снимок: используйте [Archive.ph](archive-ph).
+- быстрой публичной ссылки на снимок: используйте [Save Page Now](wayback-api) (archive.ph — только как дополнительная копия, см. [Archive.ph](archive-ph)).
 
 ## Установка
 

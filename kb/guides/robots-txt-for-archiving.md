@@ -1,10 +1,10 @@
 ---
 title: robots.txt для архивиста
 sidebar_label: robots.txt
-description: "Как читать robots.txt перед сбором сайта: группы правил RFC 9309, Sitemap, чем Crawl-delay отличается от стандарта и как это соблюдает Wget."
+description: "Как читать robots.txt перед сбором сайта: группы правил RFC 9309, Sitemap, чем Crawl-delay отличается от стандарта и как его соблюдают Wget и Browsertrix (у Browsertrix — только с флагом --robots)."
 last_update:
-  date: 2026-10-14
-keywords: [robots.txt, rfc 9309, wget, краулер]
+  date: 2026-10-28
+keywords: [robots.txt, rfc 9309, wget, browsertrix, краулер]
 ---
 
 # robots.txt для архивиста
@@ -43,13 +43,30 @@ curl -fsSL https://example.com/robots.txt
 
 Дальше сверьте стартовые адреса сбора с `Disallow`. Если нужный раздел запрещён, сначала ищите другой законный путь: открытый API, карту сайта для разрешённых адресов, выгрузку владельца, уже существующий архив.
 
+### Wget
+
 При рекурсивной загрузке Wget соблюдает `robots.txt` по умолчанию (`robots = on`). Отключение — флаг `-e robots=off`. На странице [Wget](/kb/instruments/tools/wget) он описан как решение под ответственность того, кто запускает сбор. Для заданий Ruarxive этот флаг не является обычным режимом.
+
+### Browsertrix Crawler
+
+У Browsertrix Crawler обратное поведение: **по умолчанию `robots.txt` не читается**. Чтобы краулер соблюдал запреты, добавьте флаг `--useRobots` (короткий вариант — `--robots`). Флаг появился в версии 1.10 (декабрь 2025). `--robotsAgent` задаёт имя, для которого краулер дополнительно ищет группу правил помимо `*` (по умолчанию `Browsertrix/1.x`).
+
+```bash
+docker run -v "$PWD/crawls:/crawls/" webrecorder/browsertrix-crawler crawl \
+  --url https://example.com/ \
+  --robots \
+  --reportSkipped \
+  --collection example
+```
+
+`--reportSkipped` записывает найденные, но не поставленные в очередь адреса в `reports/skippedPages.jsonl`. По этому файлу видно, что именно отсёк `robots.txt`. Для заданий Ruarxive запускайте Browsertrix с `--robots`. Если вы его не ставите, это такое же решение под вашу ответственность, как `-e robots=off` у Wget.
 
 ## Что проверить в журнале
 
 После пробного прогона на 5–10 страницах посмотрите, не упёрся ли краулер в запрет:
 
-- в журнале Wget строки `Robot.txt` и пропущенные URL;
+- у Wget — файл, заданный флагом `--rejected-log=FILE`: в нём для каждого отброшенного URL указана причина, для запретов `robots.txt` — `ROBOTS`. В обычном журнале Wget такие отказы не видны;
+- у Browsertrix — `reports/skippedPages.jsonl` (флаг `--reportSkipped`) и сообщения контекста `robots` (флаг `--logContext robots`);
 - в WARC неожиданно мало HTML при большом числе отказов;
 - код ответа 403 может быть и запретом `robots.txt`, и антибот-защитой. Второе разобрано отдельно: [граница с антибот-защитой](/kb/guides/anti-bot-and-archiving).
 
@@ -60,4 +77,6 @@ curl -fsSL https://example.com/robots.txt
 - [Условия использования сервисов](/kb/legal/terms-of-service)
 - [Preflight-чеклист](/kb/guides/preflight-checklist)
 - [Wget](/kb/guides/wget)
+- [Browsertrix](/kb/instruments/tools/browsertrix)
+- [Параметры Browsertrix Crawler](https://crawler.docs.browsertrix.com/user-guide/cli-options/)
 - [RFC 9309](https://www.rfc-editor.org/rfc/rfc9309)

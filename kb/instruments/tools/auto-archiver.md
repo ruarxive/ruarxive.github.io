@@ -3,7 +3,7 @@ title: Auto-Archiver (Bellingcat) — оркестратор архивации 
 sidebar_label: Auto-Archiver
 description: "Auto-Archiver — открытый инструмент Bellingcat для автоматической архивации ссылок из Google Sheets, CSV, командной строки и Atlos: подбирает модуль под тип ссылки, сохраняет медиа, метаданные и хеши локально, в S3 или Google Drive."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 keywords: [auto-archiver, bellingcat, osint, archiving, workflow, google-sheets]
 ---
 
@@ -239,7 +239,7 @@ WantedBy=timers.target
 
 ❌ Не подходит:
 
-- **Один URL** — проще [archive.today](/kb/instruments/tools/archive-ph) или Save Page Now.
+- **Один URL** — проще [Save Page Now](/kb/instruments/tools/wayback-api); [archive.today](/kb/instruments/tools/archive-ph) — только как дополнительная копия.
 - **Полная архивация большого сайта** — нужен [Browsertrix Crawler](/kb/instruments/tools/browsertrix), [wget](/kb/instruments/tools/wget) или [wparc](/kb/instruments/ruarxive-tools/wparc) (для WordPress).
 - **Непрерывный мониторинг в реальном времени** — Auto-Archiver работает пакетно.
 

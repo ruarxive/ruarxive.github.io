@@ -3,7 +3,7 @@ sidebar_position: 6
 title: "Архивация через API: опыт работы с государственными системами"
 description: "Как Ruarxive архивирует данные государственных систем через API утилитой apibackuper — на примере отчётов Счётной палаты и кампании по порталам открытых данных."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 ---
 
 # Архивация через API: опыт работы с государственными системами
@@ -73,7 +73,7 @@ compression = True
 
 ## Как устроена работа с apibackuper
 
-Порядок работы по README и `--help` apibackuper 1.0.13:
+Порядок работы по README и `--help` apibackuper 2.0.0:
 
 ```bash
 pip install apibackuper
@@ -92,7 +92,7 @@ apibackuper update                    # позже — дозагрузить и
 
 Вне каталога проекта путь к нему передаётся параметром `-p` (`--projectpath`), например `apibackuper run full -p achgov-checks`. Для формата экспорта есть ключ `-f` (`jsonl`, `gzip`, `zstd`, `parquet`; для Parquet нужна установка `apibackuper[recommended]`).
 
-> Команды сверены с README и `--help` apibackuper 1.0.13 (PyPI, октябрь 2026). В этой версии `apibackuper create` создаёт конфигурацию в формате INI; README описывает YAML как основной формат. Полное описание параметров — в [документации apibackuper](https://ruarxive.org/apibackuper/).
+> Команды сверены с README и `--help` apibackuper 2.0.0 (PyPI, октябрь 2026). В этой версии `apibackuper create` создаёт конфигурацию в формате INI; README описывает YAML как основной формат. Полное описание параметров — в [документации apibackuper](https://ruarxive.org/apibackuper/).
 
 ## Практические советы
 

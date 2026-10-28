@@ -3,7 +3,7 @@ title: Конфигурации apibackuper
 description: "Готовые проекты apibackuper для российских госсистем: репозиторий apibackuper-dataarchive с шестью INI-конфигурациями и примеры в репозитории apibackuper — как ими пользоваться и как написать свою конфигурацию."
 sidebar_position: 3
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 ---
 
 # Конфигурации apibackuper
@@ -47,7 +47,7 @@ apibackuper export etrust.jsonl
 apibackuper getfiles
 ```
 
-Конфигурации в формате INI apibackuper 1.0.13 читает с предупреждением об устаревшем формате. Для `etrust` в каталоге `examples` репозитория apibackuper есть и YAML-версия той же конфигурации.
+Конфигурации в формате INI apibackuper 2.0.0 читает с предупреждением об устаревшем формате. Для `etrust` в каталоге `examples` репозитория apibackuper есть и YAML-версия той же конфигурации.
 
 ### Пример: INI-конфигурация с файлами
 

@@ -3,7 +3,7 @@ title: Ландшафтная карта веб-архивации 2026
 sidebar_label: Ландшафт 2026
 description: "Карта инструментов и инициатив веб-архивации по состоянию на октябрь 2026 года: сбор, хранение, доступ и анализ; что активно развивается, а что ушло в архив."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 ---
 
 # Ландшафтная карта веб-архивации 2026
@@ -95,7 +95,7 @@ flowchart LR
 
 | Инструмент | Для чего | Статус |
 |:---|:---|:---|
-| [Archive.ph](/kb/instruments/tools/archive-ph) | URL → снимок | Работает |
+| [Archive.ph](/kb/instruments/tools/archive-ph) | URL → снимок | Работает, но не годится как доказательство: оператор менял снимки (2026) |
 | [SavePageNow](/kb/instruments/tools/wayback-api) | URL → снимок в Wayback Machine | Работает |
 | [SingleFile](/kb/instruments/tools/singlefile) | Страница → один HTML (расширение + CLI) | **Активен** |
 | [ArchiveWeb.page](https://archiveweb.page/) | Запись WARC/WACZ из браузера | Активен |
@@ -171,7 +171,7 @@ flowchart LR
 |:---|:---|:---|
 | [Perma.cc](/kb/similar/perma-cc) | Научное и юридическое цитирование | Работает |
 | [Wayback Machine (SavePageNow)](/kb/instruments/tools/wayback-api) | Разовое сохранение | Работает |
-| [Archive.ph](/kb/instruments/tools/archive-ph) | Моментальное сохранение | Работает |
+| [Archive.ph](/kb/instruments/tools/archive-ph) | Моментальное сохранение | Работает; исключён из Википедии в 2026 году, только дополнительная копия |
 | [PastPage](/kb/instruments/tools/pastpage) | Поиск снимка сразу в нескольких архивах (расширение браузера) | Активен (с 2026) |
 
 ## 4. ANALYSIS — анализ
@@ -258,6 +258,8 @@ ArchiveTeam Warrior не устарел: это действующий клие�
 - **Conifer** (Rhizome) — закрыт в июне 2026 года.
 - **Pocket** (Mozilla, июль 2025) и **Omnivore** (ноябрь 2024) — закрыты; для миграции закладок подходит [wallabag](/kb/instruments/tools/wallabag).
 - **Hitomi Downloader** — репозиторий заблокирован на GitHub по DMCA с 30.03.2026 (см. [GUI-оболочки](/kb/instruments/tools/youtube-dl-gui)).
+- **Доверие к archive.today** — в феврале 2026 года английская Википедия признала сервис ненадёжным: его CAPTCHA-страница участвовала в DDoS-атаке, а оператор менял сохранённые снимки. Сервис работает, но годится только как дополнительная копия (см. [Archive.ph](/kb/instruments/tools/archive-ph)).
+- **Memento Time Travel** (`timetravel.mementoweb.org`) — публичный агрегатор не отвечает в 2026 году (см. [Memento](/kb/instruments/replay/memento)).
 
 ## Как выбрать инструмент
 

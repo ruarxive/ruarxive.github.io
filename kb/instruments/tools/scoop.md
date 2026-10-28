@@ -3,7 +3,7 @@ title: Scoop
 sidebar_label: Scoop
 description: "Scoop — одностраничный браузерный захват Harvard Library Innovation Lab: WARC или подписанный WACZ, скриншот и сведения о происхождении снимка."
 last_update:
-  date: 2026-10-14
+  date: 2026-10-28
 keywords: [scoop, wacz, harvard, подпись]
 ---
 
@@ -15,7 +15,7 @@ Scoop пишет `.warc`, `.warc.gz` или `.wacz`. Умеет приложит
 
 ## Установка и снимок
 
-По README пакету нужен Node.js. В разделе требований указан Node.js 18+, в подсказке по установке CLI — Node.js 20–23. Перед первым запуском ставят зависимости браузера Playwright.
+С версии 0.7.0 (сентябрь 2026) нужен Node.js 22 или новее; до этого поддерживались версии 20–23. Перед первым запуском ставят зависимости браузера Playwright.
 
 ```bash
 npm install -g @harvard-lil/scoop
@@ -31,9 +31,21 @@ scoop "https://example.com/" -o my-collection/page.wacz
 scoop "https://example.com/" -f warc -o my-collection/page.warc
 ```
 
-Флаги `-o` / `--output` и `-f` / `--format` (`warc`, `warc-gzipped`, `wacz`, `wacz-with-raw`) взяты из `scoop --help` в README пакета 0.6.59 (страница npm, август 2025). Полный список — `scoop --help`.
+Флаги `-o` / `--output` и `-f` / `--format` (`warc`, `warc-gzipped`, `wacz`, `wacz-with-raw`) сверены с `scoop --help` в README версии 0.7.0 (октябрь 2026). Полный список — `scoop --help`.
 
 Программа рассчитана на Linux, macOS и WSL. Для сложной страницы README называет ориентир от 4 ГБ оперативной памяти.
+
+### Запуск в контейнере
+
+С версии 0.7.0 песочница Chromium включена по умолчанию (`--chromium-sandbox true`). Если хост её не поддерживает, браузер не запускается, и Scoop не повторяет попытку без песочницы. Типичный случай — запуск от root в контейнере без пространств имён пользователей. По README лучше запускать Scoop в контейнере от обычного пользователя с совместимым профилем seccomp ([рекомендации Playwright для Docker](https://playwright.dev/docs/docker#crawling-and-scraping)). Если это невозможно, песочницу отключают явно:
+
+```bash
+scoop "https://example.com/" --chromium-sandbox false
+```
+
+Отключение песочницы снижает защиту хоста от вредоносных страниц. Используйте его только в изолированном окружении.
+
+Ещё одно изменение 0.7.0: список блокировки адресов теперь применяется ко всему трафику снимка, включая редиректы и вспомогательные программы curl и yt-dlp. Запрос к заблокированному адресу любым из этих путей завершается ошибкой.
 
 ## Когда брать Scoop, а когда Browsertrix
 

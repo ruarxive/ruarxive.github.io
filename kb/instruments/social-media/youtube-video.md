@@ -2,7 +2,7 @@
 title: Архивация видео (YouTube и др.)
 description: "Краткий обзор архивации видео с YouTube, Rutube, VK Видео и других платформ: основной инструмент — yt-dlp, подробности — на отдельных страницах."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 ---
 
 # Архивация видео (YouTube и др.)
@@ -12,7 +12,9 @@ last_update:
 ## Минимальный пример
 
 ```bash
-pip install yt-dlp
+python3 -m pip install -U "yt-dlp[default]"
+# для YouTube нужна ещё JavaScript-среда Deno (https://deno.com) и ffmpeg,
+# например: brew install deno ffmpeg
 
 # Видео с описанием, метаданными в JSON, субтитрами и обложкой
 yt-dlp --write-description --write-info-json --write-subs --write-thumbnail URL
@@ -22,6 +24,10 @@ yt-dlp --download-archive archive.txt "https://www.youtube.com/@ChannelHandle/vi
 ```
 
 Опция `--download-archive` запоминает скачанные видео и пропускает их при повторном запуске. Комментарии сохраняются в `*.info.json` при указании `--write-comments`.
+
+С конца 2025 года yt-dlp без внешней JavaScript-среды (по умолчанию Deno) и компонента EJS работает с YouTube неполно. Установка через `yt-dlp[default]` или официальный бинарник уже включает EJS, Deno ставится отдельно. Некоторым клиентам YouTube нужен PO Token. Подробнее — в разделе «Зависимости» на странице [yt-dlp](/kb/instruments/tools/yt-dlp#зависимости).
+
+В России YouTube с 2024 года работает с сильным замедлением: закладывайте на большие выгрузки больше времени и используйте `--download-archive`, чтобы прерванную загрузку можно было продолжить.
 
 ## Где подробнее
 

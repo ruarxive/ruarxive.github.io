@@ -3,7 +3,7 @@ title: Архивация страниц, которые видны после �
 sidebar_label: Вход на сайт
 description: "Как сохранить страницы, доступные вашей собственной учётной записи: профиль Browsertrix и cookies Wget. Чужие сессии и обход входа не используются."
 last_update:
-  date: 2026-10-14
+  date: 2026-10-28
 keywords: [browsertrix, cookies, wget, авторизация]
 ---
 
@@ -40,6 +40,7 @@ docker run --rm -v $PWD/crawls:/crawls/ \
     webrecorder/browsertrix-crawler crawl \
     --url https://example.com/private/ \
     --profile /crawls/profiles/profile.tar.gz \
+    --robots \
     --generateWACZ \
     --collection private-site
 ```
