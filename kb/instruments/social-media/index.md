@@ -1,9 +1,9 @@
 ---
-sidebar_position: 1
 last_update:
-  date: 2026-10-14
+  date: 2026-10-28
 title: Архивация социальных сетей
 description: "Обзор способов архивации социальных сетей и мессенджеров на 2026 год: какие API ещё доступны, какие инструменты устарели и чем их заменить."
+keywords: [социальные сети, мессенджеры, api, yt-dlp, data-take-out]
 ---
 
 # Архивация социальных сетей
@@ -18,7 +18,7 @@ description: "Обзор способов архивации социальны�
 | Facebook | Выгрузка собственных данных, браузерная архивация, Meta Content Library для исследователей | [Facebook](/kb/instruments/social-media/facebook) |
 | Instagram | Instaloader, gallery-dl, браузерная архивация, выгрузка собственных данных | [Instagram](/kb/instruments/social-media/instagram) |
 | ВКонтакте | Официальный VK API (ключ пользователя или сервисный ключ), выгрузка собственных данных | [ВКонтакте](/kb/instruments/social-media/vk) |
-| YouTube, Rutube, VK Видео | yt-dlp | [Видео](/kb/instruments/social-media/youtube-video), [Rutube](/kb/instruments/social-media/rutube) |
+| YouTube, Rutube, VK Видео | yt-dlp | [YouTube](/kb/instruments/social-media/youtube-video), [Rutube](/kb/instruments/social-media/rutube) |
 | TikTok | yt-dlp, Research API (только для одобренных исследователей) | [TikTok](/kb/instruments/social-media/tiktok) |
 | Mastodon, Bluesky, Threads | Открытые API Mastodon и Bluesky, официальный Threads API | [Mastodon, Bluesky, Threads](/kb/instruments/social-media/mastodon) |
 | Telegram | Экспорт Desktop, tdl, публичная веб-версия канала | [Telegram](/kb/instruments/social-media/telegram) |

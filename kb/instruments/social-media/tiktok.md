@@ -152,7 +152,7 @@ Research API даёт метаданные, но не видеофайлы, по
 
 ## Связанные материалы
 
-- [Архивация видео — общая страница](/kb/instruments/social-media/youtube-video)
+- [Архивация YouTube](/kb/instruments/social-media/youtube-video) — те же приёмы yt-dlp
 - [yt-dlp — детальная страница](/kb/instruments/tools/yt-dlp)
 - [gallery-dl](/kb/instruments/tools/gallery-dl)
 - [Социальные сети — обзор](/kb/instruments/social-media)

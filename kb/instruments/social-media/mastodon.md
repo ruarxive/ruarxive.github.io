@@ -1,6 +1,6 @@
 ---
 title: Архивация Mastodon, Bluesky, Threads
-sidebar_label: Mastodon и другие Fediverse
+sidebar_label: Mastodon, Bluesky, Threads
 description: "Архивация открытых платформ: Mastodon (ActivityPub), Bluesky (AT Protocol) и Threads. Публичные API без авторизации, выгрузка репозитория Bluesky, официальный Threads API, лимиты и этика."
 last_update:
   date: 2026-10-28

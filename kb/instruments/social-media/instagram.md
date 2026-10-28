@@ -3,6 +3,7 @@ title: Instagram
 description: "Архивация Instagram: Instaloader, gallery-dl, браузерная архивация и выгрузка собственных данных. Ограничения API и опыт Ruarxive по сохранению 171 аккаунта в 2022 году."
 last_update:
   date: 2026-10-12
+keywords: [instagram, instaloader, gallery-dl, meta, browsertrix]
 ---
 
 # Instagram

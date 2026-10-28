@@ -1,9 +1,9 @@
 ---
-sidebar_position: 3
 last_update:
   date: 2026-10-14
 title: ВКонтакте
 description: "Публичные стены ВКонтакте через VK API: ключ, лимиты с сентября 2026, комментарии, фото и видео."
+keywords: [вконтакте, vk, vk-api, wall.get, gallery-dl, yt-dlp]
 ---
 
 # ВКонтакте

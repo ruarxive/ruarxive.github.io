@@ -1,9 +1,9 @@
 ---
-sidebar_position: 5
 last_update:
   date: 2026-10-12
 title: Rutube
 description: "Архивация видео и каналов Rutube с помощью yt-dlp: отдельные видео, каналы целиком, субтитры и метаданные, ограничения."
+keywords: [rutube, видео, yt-dlp]
 ---
 
 # Rutube

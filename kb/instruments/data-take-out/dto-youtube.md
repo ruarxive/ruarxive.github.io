@@ -31,7 +31,7 @@ yt-dlp --write-info-json --write-subs --write-thumbnail \
 
 С конца 2025 года без Deno и компонента EJS (входит в `yt-dlp[default]` и официальные бинарники) yt-dlp работает с YouTube неполно. В России YouTube с 2024 года работает с сильным замедлением: закладывайте на большие выгрузки больше времени, а `--download-archive` позволит продолжить прерванную загрузку.
 
-Подробнее — на странице [yt-dlp](/kb/instruments/tools/yt-dlp) и в обзоре [Архивация видео](/kb/instruments/social-media/youtube-video).
+Подробнее — на странице [yt-dlp](/kb/instruments/tools/yt-dlp) и на странице [Архивация YouTube](/kb/instruments/social-media/youtube-video).
 
 ### youtube-dl
 

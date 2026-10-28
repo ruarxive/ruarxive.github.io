@@ -1,11 +1,13 @@
 ---
-title: Архивация видео (YouTube и др.)
-description: "Краткий обзор архивации видео с YouTube, Rutube, VK Видео и других платформ: основной инструмент — yt-dlp, подробности — на отдельных страницах."
+title: Архивация YouTube
+sidebar_label: YouTube
+description: "Архивация видео и каналов YouTube через yt-dlp: метаданные, субтитры, журнал скачанного, зависимости Deno и EJS, замедление в РФ."
 last_update:
   date: 2026-10-28
+keywords: [youtube, видео, yt-dlp, deno, po-token]
 ---
 
-# Архивация видео (YouTube и др.)
+# Архивация YouTube
 
 Для сохранения видеоконтента стандартом де-факто является **[yt-dlp](/kb/instruments/tools/yt-dlp)** — активно развивающийся форк youtube-dl, который поддерживает YouTube, Rutube, VK Видео, TikTok, Vimeo и тысячи других сайтов.
 

@@ -1,9 +1,9 @@
 ---
-sidebar_position: 4
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 title: Facebook
 description: "Архивация Facebook: выгрузка собственных данных, браузерная архивация публичных страниц, Meta Content Library для исследователей вместо закрытого CrowdTangle."
+keywords: [facebook, meta, crowdtangle, meta-content-library, browsertrix]
 ---
 
 # Facebook
@@ -81,3 +81,23 @@ Graph API отдаёт комментарии только к публикаци
 - **Персональные данные.** Публикации и комментарии пользователей Facebook содержат персональные данные; их сбор и распространение регулируются законодательством (в России — 152-ФЗ, в ЕС — GDPR). Публичная доступность не равна согласию на распространение — см. [Персональные данные](/kb/legal/personal-data).
 - **Авторское право.** Публичная доступность контента не означает разрешения на его копирование и публикацию — см. [Авторское право](/kb/legal/copyright).
 - **Правила платформы.** Условия использования Meta запрещают автоматический сбор данных без разрешения; перед проектом стоит проконсультироваться с юристом.
+
+## Ресурсы
+
+- [Как скачать копию своих данных Facebook](https://www.facebook.com/help/212802592074644) — справка Meta
+- [Meta Content Library и Content Library API](https://transparency.meta.com/researchtools/meta-content-library)
+- [CrowdTangle](https://transparency.meta.com/researchtools/other-data-catalogue/crowdtangle/) — страница Meta о закрытии 14 августа 2024 года
+- [Facebook Graph API](https://developers.facebook.com/docs/graph-api)
+- [Документация Browsertrix Crawler](https://crawler.docs.browsertrix.com/)
+- [ArchiveWeb.page](https://archiveweb.page/)
+
+## Связанные материалы
+
+- [Как сохранить данные из Facebook](/kb/instruments/data-take-out/dto-facebook) — архив своего аккаунта
+- [Instagram](/kb/instruments/social-media/instagram) — другая площадка Meta с теми же ограничениями
+- [Mastodon, Bluesky, Threads](/kb/instruments/social-media/mastodon) — Threads API
+- [Browsertrix](/kb/instruments/tools/browsertrix) — копия страницы в WARC/WACZ
+- [Архивация страниц, которые видны после входа](/kb/guides/authenticated-crawling) — профиль браузера и cookies
+- [F(b)arc](/kb/instruments/social-media/fbarc) — архивный инструмент для Graph API
+- [Площадки, у которых API уже нет](/kb/instruments/social-media/dead-platforms) — CrowdTangle и другие закрытые интерфейсы
+- [Архивация социальных сетей](/kb/instruments/social-media)

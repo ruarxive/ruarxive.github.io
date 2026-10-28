@@ -214,7 +214,7 @@ flowchart LR
 
 | Инструмент | Чем заменить | Примечание |
 |:---|:---|:---|
-| Conifer (Rhizome) | [ArchiveWeb.page](https://archiveweb.page/), [Browsertrix](/kb/instruments/tools/browsertrix) | Закрыт в июне 2026 года; создание коллекций отключили заранее |
+| Conifer (Rhizome) | [ArchiveWeb.page](https://archiveweb.page/), [Browsertrix](/kb/instruments/tools/browsertrix) | С мая 2026 года только чтение, новые коллекции не создаются; переход в архивный режим перенесён с июня на конец 2026 года |
 | [Shine](/kb/instruments/tools/shine) | [SolrWayback](/kb/instruments/tools/solrwayback) | Репозиторий в архиве с 2020 |
 | [Squidwarc](/kb/instruments/tools/squidwarc), [Warcworker](/kb/instruments/tools/warcworker) | Browsertrix | Не развиваются / в архиве |
 | Crocoite | Browsertrix | Репозиторий архивирован в 2021 году |
@@ -239,7 +239,7 @@ ArchiveTeam Warrior не устарел: это действующий клие�
 | Национальная библиотека Норвегии | Warchaeology, gowarc |
 | Национальная библиотека Люксембурга | WARC-Safe |
 | [Common Crawl Foundation](https://commoncrawl.org/) | Открытые веб-краулы, [cc-pyspark](https://github.com/commoncrawl/cc-pyspark) |
-| [Rhizome](https://rhizome.org/) | Сохранение цифрового искусства; сервис Conifer закрыт в 2026 |
+| [Rhizome](https://rhizome.org/) | Сохранение цифрового искусства; сервис Conifer с мая 2026 года работает только на чтение |
 | ⭐ [Ruarxive](https://ruarxive.org/) | Архивация исчезающих российских сайтов и цифровых ресурсов (проект АНО «Инфокультура») |
 
 ## Что появилось в 2024–2026
@@ -255,7 +255,7 @@ ArchiveTeam Warrior не устарел: это действующий клие�
 
 ## Что ушло в 2024–2026
 
-- **Conifer** (Rhizome) — закрыт в июне 2026 года.
+- **Conifer** (Rhizome) — с мая 2026 года работает только на чтение, новые захваты не принимаются.
 - **Pocket** (Mozilla, июль 2025) и **Omnivore** (ноябрь 2024) — закрыты; для миграции закладок подходит [wallabag](/kb/instruments/tools/wallabag).
 - **Hitomi Downloader** — репозиторий заблокирован на GitHub по DMCA с 30.03.2026 (см. [GUI-оболочки](/kb/instruments/tools/youtube-dl-gui)).
 - **Доверие к archive.today** — в феврале 2026 года английская Википедия признала сервис ненадёжным: его CAPTCHA-страница участвовала в DDoS-атаке, а оператор менял сохранённые снимки. Сервис работает, но годится только как дополнительная копия (см. [Archive.ph](/kb/instruments/tools/archive-ph)).

@@ -5,6 +5,22 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [Unreleased] — 2026-10-28: структура раздела «Социальные сети»
+
+Пакет SM-1 из ревизии `temp/social-media-review-2026-10-28.md`.
+
+### Изменено
+
+- **Сайдбар раздела** разбит на группы «Российские платформы» (VK, Telegram, MAX, Rutube), «Международные платформы» (YouTube, twarc, Facebook, Instagram, TikTok, Mastodon/Bluesky/Threads) и «Закрытое и устаревшее» (закрытые API, F(b)arc, Social Feed Manager). Раньше страницы шли без порядка.
+- **Подписи**: страница видео переименована в «Архивация YouTube» (адрес `youtube-video` не менялся), подпись «Mastodon и другие Fediverse» заменена на «Mastodon, Bluesky, Threads»: Bluesky к Fediverse не относится.
+- **Frontmatter**: убран `sidebar_position`, который при явном сайдбаре ни на что не влиял (index, vk, facebook, rutube); добавлены `keywords` на 8 страницах.
+- **`social-media/facebook`**: добавлены разделы «Ресурсы» и «Связанные материалы».
+- **`social-media/dead-platforms`**: у каждой строки появилась колонка «Источник» (TechCrunch для API Twitter 2023 года, Meta Transparency Center и Meta for Developers, блог Conifer, репозитории GitHub).
+
+### Исправлено
+
+- **Conifer**: сервис не «закрыт в июне 2026 года». С мая 2026 года он работает только на чтение, а переход в архивный режим Rhizome 16.10.2026 перенесла на конец года. Исправлено в `dead-platforms`, `glossary`, `landscape-2026`, `similar/index`, `resources/curated-lists`, `tools/archive-ph`, `replay/memento`, `guides/emergency-archiving`.
+
 ## [Unreleased] — 2026-10-28: срочные исправления по анализу актуальности
 
 Пакет PR-A из анализа `temp/kb-actualization-2026-10-28.md`: исправлены страницы, которые после ревизии 12.10 вводили читателя в заблуждение.
