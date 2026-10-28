@@ -4,7 +4,7 @@ sidebar_label: Ajax-сайты
 sidebar_position: 8
 description: "Почему обычные краулеры не видят контент Ajax-сайтов и что с этим делать: браузерные краулеры Browsertrix и Brozzler, сбор JSON-эндпоинтов через filegetter, разбор кейса zapovednik.space."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 keywords: [ajax, javascript, spa, browsertrix, brozzler, wpull, filegetter, динамические сайты]
 ---
 
@@ -56,6 +56,7 @@ keywords: [ajax, javascript, spa, browsertrix, brozzler, wpull, filegetter, ди
 docker run -v "$PWD/crawls:/crawls/" -it webrecorder/browsertrix-crawler crawl \
   --url https://zapovednik.space/ \
   --scopeType prefix \
+  --robots \
   --generateWACZ \
   --collection zapovednik \
   --behaviors autoscroll,autoplay,autofetch,siteSpecific \
@@ -65,6 +66,7 @@ docker run -v "$PWD/crawls:/crawls/" -it webrecorder/browsertrix-crawler crawl \
 
 - `-v "$PWD/crawls:/crawls/"` — краулер пишет результат в `/crawls`; готовый файл появится в `crawls/collections/zapovednik/zapovednik.wacz`.
 - `--scopeType prefix` (значение по умолчанию) — обходить страницы в том же «каталоге», что и стартовый URL; для `https://zapovednik.space/` это весь сайт. Для всего хоста — `host`. Значение `page` означает «только стартовая страница», а `page-spa` — только эта страница, но с загрузкой её вариантов с разными `#`-якорями (для одностраничных приложений).
+- `--robots` (синоним `--useRobots`) — соблюдать `robots.txt`; по умолчанию Browsertrix Crawler его не читает ([подробнее](/kb/guides/robots-txt-for-archiving)).
 - `--behaviors` — действия на странице; список выше совпадает со значением по умолчанию, `autoclick` добавляет клики по ссылкам и кнопкам.
 - `--pageLoadTimeout` (синоним `--timeout`) — сколько секунд ждать загрузки страницы.
 - `--postLoadDelay` — пауза после загрузки страницы перед запуском поведения; `--pageExtraDelay` (синоним `--delay`) — пауза **после** поведений перед переходом к следующей странице.

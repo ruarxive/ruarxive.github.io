@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 title: DH.3. Архивация специализированных ресурсов
 description: "Лекция курса по цифровой архивации: контент, который не поддаётся классической веб-архивации, — соцсети, API, файловые хранилища, базы данных — и инструменты для него."
 ---
@@ -167,7 +167,7 @@ apibackuper run full           # выгрузить все данные
 apibackuper export data.jsonl  # экспорт в JSON Lines
 ```
 
-> Команды сверены с `--help` apibackuper 1.0.13 (октябрь 2026); подробнее — [apibackuper](/kb/instruments/downloaded-data/apibackuper).
+> Команды сверены с `--help` apibackuper 2.0.0 (октябрь 2026); подробнее — [apibackuper](/kb/instruments/downloaded-data/apibackuper).
 
 **Особенности:**
 - Архивирует данные из открытых API

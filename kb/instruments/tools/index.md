@@ -3,7 +3,7 @@ sidebar_position: 1
 title: Программы и утилиты
 description: "Обзор сторонних инструментов для веб-архивации: кроулеры, утилиты моментального сохранения, обработка WARC, прокси для записи трафика, поиск по архивам и офлайн-форматы."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 ---
 
 # Программы и утилиты
@@ -20,7 +20,7 @@ last_update:
 
 | Сценарий | Рекомендуемый инструмент | Почему |
 | :--- | :--- | :--- |
-| **Один URL за 30 секунд** (статья, пост) | [Archive.ph](/kb/instruments/tools/archive-ph) | Мгновенный снимок, не требует установки |
+| **Один URL за минуту** (статья, пост) | [Save Page Now](/kb/instruments/tools/wayback-api) | Снимок в Wayback Machine, не требует установки. [Archive.ph](/kb/instruments/tools/archive-ph) — только как дополнительная копия: в 2026 году оператор менял снимки |
 | **Одна страница со всеми ресурсами в одном HTML** | [SingleFile](/kb/instruments/tools/singlefile) или [monolith](/kb/instruments/tools/monolith) | SingleFile — в браузере, monolith — из командной строки |
 | **Одна страница без браузера** | [monolith](/kb/instruments/tools/monolith) или [Obelisk](/kb/instruments/tools/obelisk) | Один бинарник на Rust или Go, без JavaScript |
 | **Сайт целиком (статика, без JS)** | [Wget](/kb/instruments/tools/wget), [grab-site](/kb/instruments/tools/grab-site) или [HTTrack](/kb/instruments/tools/httrack) | Wget — проще всего и пишет WARC, grab-site — для больших обходов |
@@ -56,7 +56,7 @@ last_update:
 | **ZIM** (офлайн-чтение через Kiwix) | [warc2zim и zimit](/kb/instruments/tools/warc2zim) |
 | **HTML-файл со встроенными ресурсами** | [SingleFile](/kb/instruments/tools/singlefile), [monolith](/kb/instruments/tools/monolith), [Obelisk](/kb/instruments/tools/obelisk) |
 | **Зеркало или коллекция на диске** (для офлайн-просмотра) | HTTrack, ArchiveBox, WebScrapBook (Folder, HTZ, MAFF) |
-| **Моментальный веб-снимок с постоянной ссылкой** | Archive.ph, Wayback Machine (SavePageNow) |
+| **Моментальный веб-снимок с постоянной ссылкой** | Wayback Machine (SavePageNow), Perma.cc; Archive.ph — только дополнительно |
 | **Видеофайл** (MP4, MKV, WEBM) | [yt-dlp](/kb/instruments/tools/yt-dlp) |
 | **Изображения с метаданными** | [gallery-dl](/kb/instruments/tools/gallery-dl) |
 | **Очищенный текст статей с тегами** | [wallabag](/kb/instruments/tools/wallabag) |
@@ -150,7 +150,7 @@ last_update:
 | **SingleFile** | ✅ | ❌ (HTML) | ❌ | ❌ | Активен |
 | **monolith** | ❌ | ❌ (HTML) | ❌ | ❌ | Активен |
 | **Obelisk** | ❌ | ❌ (HTML) | ❌ | ❌ | Развивается медленно |
-| **Archive.ph** | ⚠️ | ❌ (снимок) | — | ✅ (внешний сервис) | — |
+| **Archive.ph** | ⚠️ | ❌ (снимок) | — | ✅ (внешний сервис) | Работает, но ненадёжен: оператор менял снимки (2026) |
 | **WebScrapBook** | ✅ (через браузер) | ❌ | ❌ | ✅ (сервер PyWebScrapBook) | Активен |
 | **ArchiveBox** | ✅ | ✅ (через wget) | ❌ | ✅ | Активен |
 | **wallabag** | ❌ | ❌ (текст) | ❌ | ✅ | Активен |
@@ -168,7 +168,7 @@ last_update:
 
 В реальных проектах мы комбинируем несколько инструментов:
 
-- **Быстро сохранить отдельную страницу** → [Archive.ph](/kb/instruments/tools/archive-ph), [SavePageNow](/kb/instruments/tools/wayback-api) или [SingleFile](/kb/instruments/tools/singlefile).
+- **Быстро сохранить отдельную страницу** → [SavePageNow](/kb/instruments/tools/wayback-api) или [SingleFile](/kb/instruments/tools/singlefile); [Archive.ph](/kb/instruments/tools/archive-ph) — только как дополнительная копия.
 - **Серьёзная веб-архивация** → [Browsertrix](/kb/instruments/tools/browsertrix) + [ReplayWeb.page](/kb/instruments/replay/replayweb-page) для воспроизведения.
 - **Библиотечный проект** → [Web Curator Tool](/kb/instruments/tools/web-curator-tool) поверх [Heritrix](/kb/instruments/tools/heritrix), [pywb](/kb/instruments/replay/pywb) для воспроизведения.
 - **Сбор и анализ WARC** → [Wget](/kb/instruments/tools/wget) или [grab-site](/kb/instruments/tools/grab-site) для записи + [warcio](/kb/instruments/tools/warc-processing) для анализа в Python + [warchaeology](/kb/instruments/tools/warchaeology) для проверки.

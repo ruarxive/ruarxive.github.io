@@ -3,7 +3,7 @@ title: Создание кастомных workflow для архивации
 sidebar_label: Кастомные workflow
 sidebar_position: 4
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 description: "Как объединить wget, wparc, apibackuper, filegetter и tgarc в автоматизированные процессы архивации на bash и Python: примеры с проверенными командами, расписание, обработка ошибок."
 keywords: [workflow, автоматизация, bash, python, расписание, retry, логирование, wparc, apibackuper, tgarc]
 ---
@@ -47,7 +47,7 @@ flowchart TB
 | [filegetter](/kb/instruments/ruarxive-tools/filegetter) | Массовое скачивание файлов по списку | `pip install "filegetter[warc]"` | `filegetter run` |
 | [tgarc](/kb/instruments/ruarxive-tools/tgarc) | Telegram-каналы в JSONL с медиа | `pip install git+https://github.com/ruarxive/tgarc.git` | `tgarc configure`, `tgarc save` |
 
-> Команды сверены с `--help` версий wget 1.25.0, apibackuper 1.0.13, filegetter 1.1.0, tgarc 0.1.4, wparc 1.0.8 (октябрь 2026). Команды `wparc index` и `wparc warc` (экспорт выгрузки в WARC) есть в версии из [репозитория на GitHub](https://github.com/ruarxive/wparc), но отсутствуют в релизе 1.0.8 на PyPI.
+> Команды сверены с `--help` версий wget 1.25.0, apibackuper 2.0.0, filegetter 1.1.0, tgarc 0.1.4, wparc 1.0.8 (октябрь 2026). Команды `wparc index` и `wparc warc` (экспорт выгрузки в WARC) есть в версии из [репозитория на GitHub](https://github.com/ruarxive/wparc), но отсутствуют в релизе 1.0.8 на PyPI.
 
 ## Примеры workflow
 
@@ -259,11 +259,15 @@ tgarc save --update --no-video channel1 channel2 channel3 -o "$OUT" \
   >> /data/telegram/tgarc.log 2>&1
 ```
 
-**API — добавление новых записей.** У apibackuper есть режим `incremental`: он добавляет записи, которых ещё нет в хранилище. Для этого в конфигурации проекта нужны список режимов и уникальный ключ записи:
+**API — новые и изменившиеся записи.** Для регулярной дозагрузки у apibackuper есть команда `update`. Она запрашивает у API только записи новее прошлого запуска, поэтому API должен уметь фильтровать по дате или по полю изменения. Пример для API с параметром `updated_after`:
 
 ```yaml
 project:
-  work_modes: full,incremental
+  work_modes: full,update
+  update_mode: by_timestamp
+
+params:
+  update_since_param: updated_after   # имя параметра фильтра в API
 
 data:
   item_key: id
@@ -272,11 +276,13 @@ data:
 ```bash
 #!/bin/bash
 # api-weekly.sh
-apibackuper run incremental -p /data/api/my-api >> /data/api/my-api.log 2>&1 \
+apibackuper update -p /data/api/my-api >> /data/api/my-api.log 2>&1 \
   && apibackuper export "/data/api/my-api-$(date +%Y-%m-%d).jsonl" -p /data/api/my-api
 ```
 
-Для обновления изменившихся записей есть команда `apibackuper update` (нужны `item_key` и `change_key`), для продолжения прерванного запуска — `apibackuper run full --resume`. Подробнее — в [документации apibackuper](https://ruarxive.org/apibackuper/).
+Если API фильтрует по значению поля записи (например, по номеру версии), вместо `by_timestamp` укажите `update_mode: by_change_key`, поле `data.change_key` и параметр `params.change_key_param`. Каждый запуск `update` хранится отдельным поколением в `runs/<id>/`, а экспорт содержит все версии записей: повторы по `item_key` удаляйте после экспорта.
+
+В apibackuper 2.0 режим `run incremental` — псевдоним `run continue`. Он не сравнивает записи, а догружает страницы, которых ещё нет в хранилище. Для продолжения прерванного запуска — `apibackuper run full --resume`. Подробнее — на странице [apibackuper](/kb/instruments/downloaded-data/apibackuper#обновление-update).
 
 **Расписание (`crontab -e`):**
 

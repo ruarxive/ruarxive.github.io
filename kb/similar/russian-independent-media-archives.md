@@ -3,7 +3,7 @@ title: Архивы закрытых и заблокированных росс�
 sidebar_label: Архивы российских СМИ
 description: "Где искать архивные копии сайтов закрытых и заблокированных российских СМИ: коллекции Ruarxive, Wayback Machine, другие веб-архивы, а также правовые ограничения."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 keywords: [медиа, архивы сми, эхо москвы, новая газета, wayback machine]
 ---
 
@@ -47,7 +47,7 @@ curl 'https://web.archive.org/cdx/search/cdx?url=example.ru/*&filter=mimetype:te
 
 ### Другие веб-архивы
 
-- **archive.today** (archive.ph) — отдельные снимки страниц, часто есть то, чего нет в Wayback Machine.
+- **archive.today** (archive.ph) — отдельные снимки страниц, часто есть то, чего нет в Wayback Machine. Сверяйте их с другими копиями: в 2026 году оператор сервиса менял сохранённые снимки ([подробнее](/kb/instruments/tools/archive-ph)).
 - **Национальные веб-архивы** — см. [обзор](/kb/similar/international-archives).
 - **Поиск сразу в нескольких архивах** — протокол [Memento](/kb/instruments/replay/memento) (например, через самостоятельно запущенный агрегатор MemGator) и расширение браузера [PastPage](/kb/instruments/tools/pastpage).
 

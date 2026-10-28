@@ -3,7 +3,7 @@ title: Фильтрация WARC
 sidebar_label: Фильтрация WARC
 description: "Как оставить в WARC только нужные записи: HTML, ответы 200, один домен. Команды warcfilter и отбор скриптом на warcio."
 last_update:
-  date: 2026-10-14
+  date: 2026-10-28
 keywords: [warc, warcfilter, warcio, фильтрация]
 ---
 
@@ -40,7 +40,16 @@ warcfilter -T response -H 'text/html' -U 'https://example\.com/' archive.warc.gz
 
 `-U` и `-H` — регулярные выражения. Точку в домене экранируют: `example\.com`.
 
-Сжать результат можно отдельно, тем же gzip, которым вы пользуетесь для других WARC. Имя файла лучше заканчивать на `.warc.gz` только после сжатия.
+`warcfilter` пишет несжатый WARC. Не сжимайте его обычной командой `gzip`: она упакует файл одним потоком. Такой `.warc.gz` не открывается по смещениям из CDX, и с ним не работают pywb, `warcio index` и другие инструменты, которые читают записи по отдельности. WARC сжимают по записям — каждая запись отдельным gzip-блоком. Это делает `warcio recompress`:
+
+```bash
+pip install warcio
+
+warcio recompress pages.warc pages.warc.gz
+warcio index pages.warc.gz | head   # проверка: индекс строится без ошибок
+```
+
+`warcio recompress` исправляет и файл, который уже сжали целиком обычным `gzip`.
 
 ## Код ответа и свой список доменов
 

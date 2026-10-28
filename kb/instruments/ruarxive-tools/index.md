@@ -3,7 +3,7 @@ title: Инструменты Ruarxive
 description: "Обзор инструментов с открытым кодом, которые разрабатывает команда Ruarxive: сборщики данных (wparc, ydiskarc, filegetter, apibackuper, spcrawler, tgarc) и metawarc для анализа WARC."
 sidebar_position: 1
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 ---
 
 # Инструменты Ruarxive
@@ -21,7 +21,7 @@ last_update:
 | **[wparc](/kb/instruments/ruarxive-tools/wparc)** | Данные сайтов на WordPress через REST API `/wp-json/` | PyPI 1.0.8, в GitHub 1.0.9 |
 | **[ydiskarc](/kb/instruments/ruarxive-tools/ydiskarc)** | Публичные файлы и папки Яндекс.Диска | PyPI 1.1.0 |
 | **[filegetter](/kb/instruments/ruarxive-tools/filegetter)** | Файлы по ссылкам из CSV, JSONL или списка | PyPI 1.1.0 |
-| **[apibackuper](/kb/instruments/downloaded-data/apibackuper)** | Данные из постраничных REST API | PyPI 1.0.13 |
+| **[apibackuper](/kb/instruments/downloaded-data/apibackuper)** | Данные из постраничных REST API | PyPI 2.0.0 (Python 3.10+) |
 | **[spcrawler](/kb/instruments/downloaded-data/spcrawler)** | Метаданные публичных сайтов на SharePoint через `/_api/web` | PyPI 1.0.1 (2022), не развивается |
 | **[tgarc](/kb/instruments/ruarxive-tools/tgarc)** | Сообщения и медиа каналов и чатов Telegram (JSONL) | Нет на PyPI, не развивается с 2023 года |
 
