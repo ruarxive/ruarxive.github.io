@@ -5,6 +5,21 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [Unreleased] — 2026-10-29: мелкие правки раздела «Инструменты Ruarxive»
+
+Пакет RT-5 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.
+
+### Добавлено
+
+- **`ruarxive-tools/filegetter`**: опция `filegetter --version` (она относится к утилите, а не к команде `run`). Раздел «Готовые проекты в репозитории»: `budget2023`, `goskatalog`, `rupolitparties` с числом файлов. Все три проверены командой `filegetter run --dry-run` в версии 1.1.0 29.10.2026. Переменные прокси из README не добавлены: `CONTRIBUTING.md` запрещает советы про прокси.
+- **`downloaded-data/apibackuper-configs`**: раздел о двух ранних репозиториях с примерами — `apibackuper-example-spbbudget` (29 162 записи) и `apibackuper-berlin-airport-example` (226 записей). Обе конфигурации проходят `apibackuper validate-config` в версии 2.0.0. При проверке 29.10.2026 API аэропорта ответило `403`, API «Твоего бюджета» не ответило.
+- **`landscape-2026`**: apibackuper и spcrawler в таблице сборщиков; apibackuper 2.0 и filegetter 1.1 в списке новинок 2024–2026 годов.
+
+### Исправлено
+
+- **`landscape-2026`**: схема «Для Ruarxive» ставила tgarc перед metawarc, хотя tgarc пишет JSONL, а не WARC. Теперь в начале цепочки Wget, Browsertrix, `wparc warc` и filegetter.
+- **`ruarxive-tools/metawarc`**: второй заголовок H1 «Расширенные разделы» стал H2, а разделы под ним — H3. Адреса якорей не изменились.
+
 ## [Unreleased] — 2026-10-29: сайдбар раздела «Инструменты Ruarxive»
 
 Пакет RT-1 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.
