@@ -5,6 +5,95 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [Unreleased] — 2026-10-29: оставшиеся пункты ревизии «Инструменты Ruarxive»
+
+Мелкие пункты из `temp/ruarxive-tools-review-2026-10-29.md`, не вошедшие в пакеты RT-1…RT-5.
+
+### Добавлено
+
+- **`ruarxive-tools/wparc`**: переменная `WPARC_DEBUG=1` выводит полную трассировку ошибки. Она есть только в 1.0.9: в исходниках 1.0.8 с PyPI её нет.
+- **`projects/echomsk`**: репозиторий `echomskru-archive` — списки ссылок на mp3, `metadata.csv` (24 887 файлов), `programlist.csv` (470 кодов, колонка названий пустая), скрипты кампании.
+- **`projects/government-campaigns-2022`**: репозиторий `ikmo-archive`. В нём только README, это указано.
+- **`projects/preserved-government`**: ссылка на russia-blocked.
+
+## [Unreleased] — 2026-10-29: мониторинг госсайтов russia-blocked
+
+Пакет RT-3 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.
+
+### Добавлено
+
+- **`ruarxive-tools/russia-blocked`** — ежемесячный мониторинг 2 254 госсайтов (проект запущен 19.10.2026). На странице:
+  - главные цифры октября 2026 года: 68 % работающих госсайтов не открываются из-за рубежа, 65 % из них открываются из России; у 51 % сайтов когорты 2021 года нет успешного снимка Wayback за 12 месяцев;
+  - что и как часто измеряется, состав реестра по категориям, определение когорты;
+  - открытые данные с примером запроса в DuckDB, сборка сайта из данных репозитория, ограничения.
+
+  Цифры сняты с сайта мониторинга и сверены с `domains.csv.gz`. Сайт собран командой `rublocked build` 29.10.2026. Настройку проверки из России (VPN-туннель) страница не описывает.
+- **Сайдбар** и **`ruarxive-tools/index`**: russia-blocked в «Мониторинге и данных», строка в «Что когда использовать», ссылки на репозиторий и Issues, лицензия данных CC BY 4.0.
+- **`case-studies/russia-resources-disappearing`**, **`case-studies/government-websites-disappearing`**: цифры мониторинга за октябрь 2026 года и ссылки на страницу.
+
+## [Unreleased] — 2026-10-29: каталог хранилища ruarxive-db
+
+Пакет RT-4 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.
+
+### Добавлено
+
+- **`ruarxive-tools/ruarxive-db`** — открытый каталог хранилища. На странице:
+  - состав: 88 коллекций и 2 641 запись в YAML, наборы в JSONL, Parquet и DuckDB, экспорт для сайта;
+  - проверка домена по `archive-domains.json` (jq) и запросы DuckDB к Parquet прямо с GitHub;
+  - сборка наборов (`builder.py build`) и проверка экспорта (`site_export.py --check`);
+  - цифры `summary.json` от 12.10.2026, путь данных до сайта, ограничения.
+
+  Все команды проверены запуском 29.10.2026. По полю `tools` из инструментов Ruarxive в каталоге отмечен только apibackuper (Coub).
+- **Сайдбар**: категория «Мониторинг и данные» в «Инструментах Ruarxive».
+- **`ruarxive-tools/index`**: раздел «3. Мониторинг и данные», строка «Проверить, не сохранён ли ресурс раньше», ссылки на репозиторий и Issues.
+- **`projects/preserved-government`**: ссылка на страницу каталога.
+
+### Замечено
+
+- В репозитории ruarxive-db наборы `data/datasets/` отстают от YAML: в `records.parquet` 2 601 строка, а пересборка даёт 2 641 запись. README упоминает каталог `scripts/`, которого в репозитории нет.
+
+## [Unreleased] — 2026-10-29: обзорная страница «Инструменты Ruarxive»
+
+Пакет RT-2 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.
+
+### Добавлено
+
+- **`ruarxive-tools/index`**:
+  - таблица «Что получается на выходе»: формат результата, запись WARC и версия Python для каждого инструмента;
+  - схема «Как инструменты стыкуются» (Mermaid) и ссылки на три кейса-конвейера;
+  - раздел «Где применялись»: apibackuper в кампаниях Coub и «Отчёты Счётной палаты», metawarc в архивах Regnum и Росбалта. Отдельно сказано, что сайты СМИ 2022 года собраны wpull, Telegram — экспортом Telegram Desktop, порталы открытых данных — скриптами rudatarchive;
+  - раздел «Ошибки и предложения»: Issues, `CONTRIBUTING.md`, `SECURITY.md`, запрос на архивацию;
+  - ссылка на awesome-digital-preservation.
+- **Принципы**: `ydiskarc sync --update`, `apibackuper run continue` и `--resume`; новый пункт про хранилище `.partial` в apibackuper 2.0.
+
+### Исправлено
+
+- **`case-studies/multi-tool-archiving`**: убрана команда `spcrawler getfiles`. В версии 1.0.1 это заглушка (`spapi/crawler.py:49`, тело `pass`), файлы она не скачивает. Теперь ссылки на документы из JSONL передаются filegetter.
+
+## [Unreleased] — 2026-10-29: мелкие правки раздела «Инструменты Ruarxive»
+
+Пакет RT-5 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.
+
+### Добавлено
+
+- **`ruarxive-tools/filegetter`**: опция `filegetter --version` (она относится к утилите, а не к команде `run`). Раздел «Готовые проекты в репозитории»: `budget2023`, `goskatalog`, `rupolitparties` с числом файлов. Все три проверены командой `filegetter run --dry-run` в версии 1.1.0 29.10.2026. Переменные прокси из README не добавлены: `CONTRIBUTING.md` запрещает советы про прокси.
+- **`downloaded-data/apibackuper-configs`**: раздел о двух ранних репозиториях с примерами — `apibackuper-example-spbbudget` (29 162 записи) и `apibackuper-berlin-airport-example` (226 записей). Обе конфигурации проходят `apibackuper validate-config` в версии 2.0.0. При проверке 29.10.2026 API аэропорта ответило `403`, API «Твоего бюджета» не ответило.
+- **`landscape-2026`**: apibackuper и spcrawler в таблице сборщиков; apibackuper 2.0 и filegetter 1.1 в списке новинок 2024–2026 годов.
+
+### Исправлено
+
+- **`landscape-2026`**: схема «Для Ruarxive» ставила tgarc перед metawarc, хотя tgarc пишет JSONL, а не WARC. Теперь в начале цепочки Wget, Browsertrix, `wparc warc` и filegetter.
+- **`ruarxive-tools/metawarc`**: второй заголовок H1 «Расширенные разделы» стал H2, а разделы под ним — H3. Адреса якорей не изменились.
+
+## [Unreleased] — 2026-10-29: сайдбар раздела «Инструменты Ruarxive»
+
+Пакет RT-1 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.
+
+### Изменено
+
+- **Сайдбар «Инструменты Ruarxive» → «Сбор данных»**: добавлены ссылки на apibackuper и spcrawler (элементы `ref`: страницы остаются в «Загружаемых данных», адреса прежние). tgarc перенесён в конец списка как неразвиваемый. Порядок теперь совпадает с таблицей на обзорной странице.
+- **`downloaded-data/spcrawler`**: подпись в сайдбаре «spcrawler (SharePoint)», как у остальных сборщиков. `sidebar_label` во frontmatter перекрывает `label` у элемента `ref`, поэтому подпись задана в самой странице.
+
 ## [Unreleased] — 2026-10-29: мелкие правки раздела «Социальные сети»
 
 Пакет SM-6, последний из ревизии `temp/social-media-review-2026-10-28.md`.

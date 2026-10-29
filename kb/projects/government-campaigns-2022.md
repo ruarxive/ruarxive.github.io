@@ -3,7 +3,7 @@ title: "Госсайты 2022–2025: ИКМО, Ростуризм, фонды, 
 sidebar_label: "Госсайты, 2022–2025"
 description: "Что известно по постам канала о кампаниях ИКМО, Ростуризма, ПФР и ФСС, отчётов Счётной палаты и сбора Росстата 2025 года."
 last_update:
-  date: 2026-10-14
+  date: 2026-10-29
 keywords: [икмо, ростуризм, пфр, счётная палата, емисс]
 ---
 
@@ -15,7 +15,7 @@ keywords: [икмо, ростуризм, пфр, счётная палата, е
 
 ## Избирательные комиссии муниципальных образований
 
-5 июля 2022 года опубликован стартовый список из 144 ресурсов. Его собрал Константин Косенков ([#63](https://t.me/ruarxive/63)): [таблица](https://docs.google.com/spreadsheets/d/1KVYPhjOaYqDVzANYnNsnH-qV6w9kZ0Swu2jYdnBGsrw/edit?usp=sharing).
+5 июля 2022 года опубликован стартовый список из 144 ресурсов. Его собрал Константин Косенков ([#63](https://t.me/ruarxive/63)): [таблица](https://docs.google.com/spreadsheets/d/1KVYPhjOaYqDVzANYnNsnH-qV6w9kZ0Swu2jYdnBGsrw/edit?usp=sharing). В тот же день создан репозиторий кампании [ruarxive/ikmo-archive](https://github.com/ruarxive/ikmo-archive), но в нём только README с названием: списка сайтов и кода там нет.
 
 В снимке хранилища коллекция `ikmo` — 19 хостов, 113 файлов, 582 ГБ, даты файлов 14 марта – 19 апреля 2023 года: [webcollect2023/ikmo](https://cdn.ruarxive.org/public/webcollect2023/ikmo/). По имени хоста к избирательным комиссиям относятся izbirkom.sochi.ru (0,80 ГБ) и izbirkom.admkrsk.ru (0,30 ГБ). Основной объём — сайты муниципальных образований: amursk.ru (391 ГБ), dumast.ru (128 ГБ), vgmik.ru (20,5 ГБ), minusinsk.info (14,9 ГБ).
 

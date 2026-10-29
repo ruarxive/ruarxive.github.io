@@ -3,7 +3,7 @@ title: Ландшафтная карта веб-архивации 2026
 sidebar_label: Ландшафт 2026
 description: "Карта инструментов и инициатив веб-архивации по состоянию на октябрь 2026 года: сбор, хранение, доступ и анализ; что активно развивается, а что ушло в архив."
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 ---
 
 # Ландшафтная карта веб-архивации 2026
@@ -85,6 +85,8 @@ flowchart LR
 | ⭐ [wparc](/kb/instruments/ruarxive-tools/wparc) | WordPress через REST API | Активен |
 | ⭐ [ydiskarc](/kb/instruments/ruarxive-tools/ydiskarc) | Яндекс Диск | Активен |
 | ⭐ [filegetter](/kb/instruments/ruarxive-tools/filegetter) | Массовое скачивание файлов | Активен |
+| ⭐ [apibackuper](/kb/instruments/downloaded-data/apibackuper) | Данные из постраничных REST API | Активен |
+| ⭐ [spcrawler](/kb/instruments/downloaded-data/spcrawler) | Публичные сайты на SharePoint | Не развивается с 2022 |
 | [WikiTeam (wikiteam3)](/kb/instruments/tools/wikiteam) | Вики на MediaWiki | Активен |
 | [Auto-Archiver (Bellingcat)](/kb/instruments/tools/auto-archiver) | Конвейер для OSINT | Активен |
 | [twarc](/kb/instruments/social-media/twarc) | X/Twitter, JSON (`twarc2` для API v2) | Работает только с платным доступом к X API |
@@ -252,6 +254,7 @@ ArchiveTeam Warrior не устарел: это действующий клие�
 - **Warchaeology 5.0** — новая версия утилиты `warc` (Национальная библиотека Норвегии, март 2026; проект существует с 2021 года).
 - **PastPage** — расширение для поиска снимков в нескольких архивах (2026).
 - ⭐ **metawarc 2.0** — август 2026.
+- ⭐ **apibackuper 2.0** и **filegetter 1.1** — октябрь 2026; filegetter теперь может записывать скачанное в WARC.
 
 ## Что ушло в 2024–2026
 
@@ -302,7 +305,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Wget / wparc / Browsertrix / tgarc"] --> B["metawarc"] --> C["Хранилище + Internet Archive + офлайн"]
+    A["Wget / Browsertrix / wparc warc / filegetter"] --> B["metawarc"] --> C["Хранилище + Internet Archive + офлайн"]
 ```
 
 ## См. также

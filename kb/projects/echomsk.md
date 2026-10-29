@@ -3,7 +3,7 @@ sidebar_position: 1
 title: Эхо Москвы
 description: "Архив радиостанции «Эхо Москвы» (echo.msk.ru), март–апрель 2022 года: сайт в WARC, медиаархив mp3, Telegram, ВКонтакте и коллекция Internet Archive — состав, хронология и ссылки на файлы."
 last_update:
-  date: 2026-10-14
+  date: 2026-10-29
 ---
 
 # Эхо Москвы
@@ -82,6 +82,13 @@ last_update:
 
 Имена файлов содержат код программы. Пример записи [echomskru-12tango](https://archive.org/details/echomskru-12tango): `2010-08-29-12tango-1405.mp3`. В публикации #28 такие коды и предлагалось сопоставить с названиями передач.
 
+Списки ссылок и код кампании лежат в репозитории [ruarxive/echomskru-archive](https://github.com/ruarxive/echomskru-archive) (CC0, последние изменения — 05.04.2022). В каталоге `data/` — те же `echomskru_mp3_urls.zip`, `echomskru_lists.zip` и `archived_list.zip`, а также:
+
+- `metadata.csv` — метаданные 24 887 mp3: код программы, дата, длительность, размер, SHA-256 и имя файла;
+- `programlist.csv` — 470 кодов программ; колонка названий пустая, их собирали волонтёры (см. задачу 14.04.2022 выше).
+
+В каталоге `scripts/` — черновые скрипты загрузки, сбора метаданных из тегов mp3 и подготовки таблицы для загрузки в Internet Archive (`buildia.py`).
+
 ## Коллекция в Internet Archive
 
 - С 29 марта 2022 года медиаархив загружается в аккаунт [@ruarxive](https://archive.org/details/@ruarxive) ([#28](https://t.me/ruarxive/28)).
@@ -111,4 +118,5 @@ last_update:
 - [Цитирование архива](/kb/users/citation)
 - [Уроки проекта](/kb/about/lessons-learned) — что из этой кампании вошло в практику архивации
 - [Архивы контента российских СМИ](/kb/projects/russian-smi)
+- [echomskru-archive](https://github.com/ruarxive/echomskru-archive) — списки ссылок, метаданные mp3 и скрипты кампании
 - [Статистика: снимок](/kb/resources/stats-snapshot)

@@ -3,7 +3,7 @@ sidebar_position: 5
 title: "Архивация комплексных ресурсов: использование нескольких инструментов"
 description: "Учебный пример: как сохранить ресурс, состоящий из сайта на WordPress, публичного портала SharePoint, API и файлов, комбинируя wparc, spcrawler, apibackuper и filegetter."
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 ---
 
 # Архивация комплексных ресурсов: использование нескольких инструментов
@@ -17,7 +17,7 @@ last_update:
 | Часть ресурса | Инструмент | Что получаем |
 |---|---|---|
 | Сайт на WordPress | [wparc](/kb/instruments/ruarxive-tools/wparc) | JSON через REST API WordPress, медиафайлы, WARC |
-| Публичный портал на SharePoint | [spcrawler](/kb/instruments/downloaded-data/spcrawler) | списки и данные SharePoint в JSON Lines, файлы |
+| Публичный портал на SharePoint | [spcrawler](/kb/instruments/downloaded-data/spcrawler) | списки и данные SharePoint в JSON Lines (файлы — через filegetter) |
 | REST API с данными | [apibackuper](/kb/instruments/downloaded-data/apibackuper) | все записи API, экспорт в JSON Lines |
 | Файлы по списку ссылок | [filegetter](/kb/instruments/ruarxive-tools/filegetter) | файлы в ZIP с отчётом и контрольными суммами |
 | HTML-страницы целиком | [wget](/kb/instruments/tools/wget) или [Browsertrix](/kb/instruments/tools/browsertrix) | WARC для просмотра «как было» |
@@ -63,10 +63,9 @@ pip install spcrawler
 
 spcrawler walk --url https://portal.example.gov.ru       # список объектов
 spcrawler dump --url https://portal.example.gov.ru       # данные в portal.example.gov.ru/data
-spcrawler getfiles --url https://portal.example.gov.ru   # файлы из библиотек документов
 ```
 
-spcrawler работает с публичным API SharePoint (`/_api/web`), доступным без авторизации.
+spcrawler работает с публичным API SharePoint (`/_api/web`), доступным без авторизации. Сами файлы из библиотек документов он не скачивает: команда `getfiles` в версии 1.0.1 — заглушка и ничего не делает. Ссылки на документы из выгруженных JSONL передайте filegetter (этап 5).
 
 > Команды сверены с `--help` spcrawler 1.0.1 (PyPI, октябрь 2026).
 

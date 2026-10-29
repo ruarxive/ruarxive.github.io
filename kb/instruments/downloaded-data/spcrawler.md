@@ -1,6 +1,6 @@
 ---
 title: "spcrawler: выгрузка данных сайтов на SharePoint"
-sidebar_label: spcrawler
+sidebar_label: spcrawler (SharePoint)
 description: "Утилита командной строки для выгрузки объектов и списков публичных сайтов на Microsoft SharePoint через REST API /_api/web в JSON Lines. Не развивается с 2022 года."
 sidebar_position: 2
 last_update:

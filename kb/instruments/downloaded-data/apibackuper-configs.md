@@ -3,12 +3,12 @@ title: Конфигурации apibackuper
 description: "Готовые проекты apibackuper для российских госсистем: репозиторий apibackuper-dataarchive с шестью INI-конфигурациями и примеры в репозитории apibackuper — как ими пользоваться и как написать свою конфигурацию."
 sidebar_position: 3
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 ---
 
 # Конфигурации apibackuper
 
-Готовые конфигурации для [apibackuper](/kb/instruments/downloaded-data/apibackuper) лежат в двух местах:
+Готовые конфигурации для [apibackuper](/kb/instruments/downloaded-data/apibackuper) лежат в двух основных местах (ещё два ранних примера — в [отдельных репозиториях](#отдельные-репозитории-с-примерами-2022)):
 
 - **[apibackuper-dataarchive](https://github.com/ruarxive/apibackuper-dataarchive)** — проекты, по которым Ruarxive архивировал данные госсистем (репозиторий создан в декабре 2022 года и с тех пор не обновлялся);
 - **[examples](https://github.com/ruarxive/apibackuper/tree/master/examples)** в репозитории apibackuper — шаблоны, примеры отдельных возможностей и рабочие проекты в формате YAML.
@@ -87,6 +87,17 @@ storage_mode = filepath
 storage_type = zip
 compression = True
 ```
+
+## Отдельные репозитории с примерами (2022)
+
+Два ранних примера лежат в отдельных репозиториях вместе с результатом запуска. По ним видно, что apibackuper сохраняет на диск: `storage/storage.zip` с сырыми ответами API и экспорт в JSON Lines.
+
+| Репозиторий | Источник | API | Результат в репозитории |
+| :--- | :--- | :--- | :--- |
+| [apibackuper-example-spbbudget](https://github.com/ruarxive/apibackuper-example-spbbudget) (февраль 2022) | «Твой бюджет» Санкт-Петербурга; конфигурация совпадает с `spb-budget-initiatives` выше | GET, со смещением (`limit`/`offset`, по 200) | `storage/storage.zip` (4,8 МБ), `data/data.jsonl.gz` — 29 162 записи |
+| [apibackuper-berlin-airport-example](https://github.com/ruarxive/apibackuper-berlin-airport-example) (апрель 2022) | Недокументированное API рейсов аэропорта Берлин-Бранденбург (ber.berlin-airport.de) | GET, по страницам (по 20) | `params.json` с фильтром (прилёты за 28.04.2022), `storage/storage.zip`, `data.jsonl` — 226 записей, журнал запуска `apibackuper.log` |
+
+Обе конфигурации в формате INI проходят `apibackuper validate-config` в версии 2.0.0 с предупреждением об устаревшем формате. При проверке 29.10.2026 API аэропорта ответило `403`, а API «Твоего бюджета» не ответило за 20 секунд. Используйте эти репозитории как образец результата, а не как рабочие проекты.
 
 ## Примеры в репозитории apibackuper
 

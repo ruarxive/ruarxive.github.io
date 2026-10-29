@@ -3,7 +3,7 @@ title: metawarc
 sidebar_label: metawarc
 description: "Индексация, поиск, извлечение метаданных и анализ WARC-коллекций на DuckDB и Parquet; REST API, MCP-сервер и локальный просмотр сохранённых сайтов."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-29
 ---
 
 # metawarc (WARC)
@@ -140,11 +140,9 @@ metawarc serve --dbfile collection.db
 - Встроенный просмотр переписывает только HTML и CSS; JavaScript не переписывается. Для сложных сайтов экспортируйте CDXJ и используйте [pywb](/kb/instruments/replay/pywb).
 - Поиск — последовательный просмотр столбца текстов в DuckDB, а не полнотекстовый индекс; на больших коллекциях он медленный.
 
----
+## Расширенные разделы
 
-# Расширенные разделы
-
-## Переменные окружения
+### Переменные окружения
 
 Переменные читаются в `metawarc/settings.py` и действуют на `serve` (REST API и просмотр):
 
@@ -168,7 +166,7 @@ export METAWARC_JOB_TIMEOUT=1800
 metawarc serve --dbfile collection.db
 ```
 
-## Опция `--unsafe-where`
+### Опция `--unsafe-where`
 
 Обычные фильтры (`--mimes`, `--exts`, `--url-pattern`, `--host-pattern`, `--status-min/--status-max`, `--date-from/--date-to`, `--size-min/--size-max`) передаются в запрос как параметры. Для разового анализа на своей машине у `list-files` и `dump` есть опция `--unsafe-where` с сырым SQL-условием:
 
@@ -182,7 +180,7 @@ metawarc list-files --dbfile collection.db --unsafe-where "status_code >= 400"
 
 Через REST и MCP эта опция недоступна.
 
-## Выгрузка содержимого: `dump` и `get`
+### Выгрузка содержимого: `dump` и `get`
 
 `dump` сохраняет содержимое выбранных записей в отдельные файлы и пишет рядом `manifest.jsonl` (архив, ID записи, URL, тип, путь к файлу, размер, SHA-256). Существующие файлы не перезаписываются.
 
@@ -195,7 +193,7 @@ metawarc get 'urn:uuid:<id записи>' --dbfile collection.db --output page.h
 
 Табличные выгрузки списка записей делают `list-files -o records.csv --output-format csv` (или `jsonl`; не больше 1000 строк за вызов, дальше — через `--offset`) и фоновые задачи `jobs` (JSON, CSV, Parquet).
 
-## Просмотр сохранённых сайтов
+### Просмотр сохранённых сайтов
 
 `metawarc serve` (или его синоним `metawarc replay`) поднимает просмотр по адресам:
 
@@ -221,7 +219,7 @@ metawarc export-cdxj --dbfile collection.db -o collection.cdxj --path-index path
 
 Сохранённые скрипты могут быть небезопасны: без токена держите сервер на `127.0.0.1`.
 
-## Фоновые задачи (`jobs`)
+### Фоновые задачи (`jobs`)
 
 Задачи нужны для выгрузок, которые не укладываются в таймаут HTTP-запроса. Зарегистрирован один вид задачи — **`export-records`**: выгрузка списка записей (как у `list-files`) в JSON, CSV или Parquet в каталог `<имя базы>.data/jobs/<id задачи>/`.
 
@@ -242,7 +240,7 @@ metawarc jobs --dbfile collection.db cancel <job_id>
 
 Ограничение версии 2.0.3: хотя `--limit` принимает значения до 100 000, при выполнении задача проверяет лимит запроса к каталогу и с `limit` больше 1000 завершается статусом `failed` («limit must be between 1 and 1000»). Задачи через REST описаны на странице [metawarc REST API](./metawarc-rest#фоновые-задачи).
 
-## Как выбрать интерфейс
+### Как выбрать интерфейс
 
 | Критерий | CLI | REST | MCP | SQL в DuckDB |
 | :--- | :-: | :-: | :-: | :-: |
@@ -251,7 +249,7 @@ metawarc jobs --dbfile collection.db cancel <job_id>
 | Содержимое записей | `dump`, `get` | `/records/get/.../data/...` | Нет | Через WARC |
 | Долгие выгрузки | `jobs` (выполняет `serve`) | `/jobs` | Нет | Свои скрипты |
 
-## Совместимость и обслуживание каталога
+### Совместимость и обслуживание каталога
 
 Рабочее пространство 2.0 использует схему версии 2. Каталоги версий 1.2/1.3 (с таблицами `files`/`tables`) распознаются: перед переносом путей в новый каталог делается резервная копия. Если перенос неоднозначен, `doctor` выдаёт рекомендации по пересборке и не трогает исходные WARC.
 

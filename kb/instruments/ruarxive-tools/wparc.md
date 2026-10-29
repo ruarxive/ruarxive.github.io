@@ -3,7 +3,7 @@ title: wparc
 sidebar_label: wparc (WordPress)
 description: "Выгрузка открытых данных сайтов на WordPress через REST API (/wp-json/): записи, страницы, метаданные медиа, комментарии в JSONL и скачивание медиафайлов."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-29
 ---
 
 # wparc (WordPress)
@@ -97,6 +97,7 @@ example.com/
 - Выгружается только опубликованный и публично доступный контент. Маршруты, отвечающие 401/403, пропускаются.
 - Вёрстка, CSS и JavaScript не сохраняются. Если важно, как сайт выглядел, дополнительно снимите его краулером с записью в WARC: [Browsertrix Crawler](/kb/instruments/tools/browsertrix), [wget](/kb/instruments/tools/wget) с `--warc-file` или [grab-site](/kb/instruments/tools/grab-site).
 - Маршруты плагинов выгружаются, если они видны в `/wp-json/` и не требуют авторизации; `analyze` помогает их найти.
+- При непредвиденной ошибке wparc печатает только её текст. Полную трассировку для отчёта об ошибке даёт переменная окружения `WPARC_DEBUG=1`, например `WPARC_DEBUG=1 wparc dump example.com`. Она есть только в версии 1.0.9.
 
 ## Когда выбрать другой инструмент
 

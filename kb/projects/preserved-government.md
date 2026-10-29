@@ -3,7 +3,7 @@ sidebar_position: 3
 title: Консервированное государство
 description: "Состав архива сайтов и аккаунтов органов власти РФ: коллекции хранилища Ruarxive, крупнейшие сайты, повторные сборы 2014–2023 годов и кампании по публикациям канала."
 last_update:
-  date: 2026-10-14
+  date: 2026-10-29
 ---
 
 # Консервированное государство
@@ -247,5 +247,7 @@ last_update:
 - [Госсайты, 2022–2025](/kb/projects/government-campaigns-2022)
 - [Большая российская энциклопедия](/kb/projects/bigenc)
 - [Статистика: снимок](/kb/resources/stats-snapshot)
+- [ruarxive-db](/kb/instruments/ruarxive-tools/ruarxive-db) — каталог хранилища, по которому посчитаны цифры на этой странице
+- [russia-blocked](/kb/instruments/ruarxive-tools/russia-blocked) — ежемесячный мониторинг: какие госсайты закрыты для зарубежных посетителей и есть ли они в Wayback Machine
 - [История проекта](/kb/about/project-history)
 - [Таблица сохранённых проектов](/kb/preserved-projects-table)
