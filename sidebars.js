@@ -122,6 +122,13 @@ const sidebars = {
                 'instruments/ruarxive-tools/metawarc-extractors',
               ],
             },
+            {
+              type: 'category',
+              label: 'Мониторинг и данные',
+              items: [
+                'instruments/ruarxive-tools/ruarxive-db',
+              ],
+            },
           ],
         },
         {

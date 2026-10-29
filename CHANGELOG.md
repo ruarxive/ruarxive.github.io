@@ -5,6 +5,27 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [Unreleased] — 2026-10-29: каталог хранилища ruarxive-db
+
+Пакет RT-4 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.
+
+### Добавлено
+
+- **`ruarxive-tools/ruarxive-db`** — открытый каталог хранилища. На странице:
+  - состав: 88 коллекций и 2 641 запись в YAML, наборы в JSONL, Parquet и DuckDB, экспорт для сайта;
+  - проверка домена по `archive-domains.json` (jq) и запросы DuckDB к Parquet прямо с GitHub;
+  - сборка наборов (`builder.py build`) и проверка экспорта (`site_export.py --check`);
+  - цифры `summary.json` от 12.10.2026, путь данных до сайта, ограничения.
+
+  Все команды проверены запуском 29.10.2026. По полю `tools` из инструментов Ruarxive в каталоге отмечен только apibackuper (Coub).
+- **Сайдбар**: категория «Мониторинг и данные» в «Инструментах Ruarxive».
+- **`ruarxive-tools/index`**: раздел «3. Мониторинг и данные», строка «Проверить, не сохранён ли ресурс раньше», ссылки на репозиторий и Issues.
+- **`projects/preserved-government`**: ссылка на страницу каталога.
+
+### Замечено
+
+- В репозитории ruarxive-db наборы `data/datasets/` отстают от YAML: в `records.parquet` 2 601 строка, а пересборка даёт 2 641 запись. README упоминает каталог `scripts/`, которого в репозитории нет.
+
 ## [Unreleased] — 2026-10-29: обзорная страница «Инструменты Ruarxive»
 
 Пакет RT-2 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.

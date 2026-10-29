@@ -182,7 +182,7 @@ flowchart LR
 | RT-1 ✅ сделано 2026-10-29 | Сайдбар: `ref` на apibackuper и spcrawler, tgarc в конец. Категорию «Мониторинг и данные» добавить вместе со страницами в RT-3 и RT-4 | `sidebars.js` |
 | RT-2 ✅ сделано 2026-10-29 | `index.md`: отдельная таблица «Что получается на выходе» (результат, WARC, Python; основная таблица не расширялась), схема конвейера и ссылки на кейсы, «Где применялись» (только подтверждённые случаи: wparc, ydiskarc и tgarc в кампаниях не найдены, rudatarchive — свои скрипты), «Ошибки и предложения», ссылка на awesome-список. Попутно исправлен `case-studies/multi-tool-archiving`: `spcrawler getfiles` — заглушка | `ruarxive-tools/index.md`, `case-studies/multi-tool-archiving.md` |
 | RT-3 | Страница `russia-blocked` и ссылки на неё из кейсов | новая страница, 2–3 страницы кейсов и проектов |
-| RT-4 | Страница или раздел `ruarxive-db` | новая страница или `index.md` |
+| RT-4 ✅ сделано 2026-10-29 | Отдельная страница `ruarxive-db`, категория «Мониторинг и данные» в сайдбаре. Попутно найдено: в каталоге поле `tools` заполнено у 173 записей из 2 641 (wpull — 161, Telegram Desktop — 9), из инструментов Ruarxive — только apibackuper (Coub). Это подтверждает §3.3 | `ruarxive-tools/ruarxive-db.md`, `sidebars.js`, `index.md`, `projects/preserved-government.md` |
 | RT-5 ✅ сделано 2026-10-29 | Мелкие правки: filegetter (`--version`, examples; прокси не добавлен — см. §6), H1 в metawarc, landscape-2026, примеры apibackuper. Примеры filegetter проверены `filegetter run --dry-run` (1.1.0), конфигурации apibackuper — `apibackuper validate-config` (2.0.0) | 4 файла |
 
 Порядок: сначала RT-1 и RT-5 (быстро, без новых фактов), затем RT-2, затем RT-3 и RT-4 после сверки цифр.
