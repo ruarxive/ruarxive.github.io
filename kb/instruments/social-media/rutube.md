@@ -1,6 +1,6 @@
 ---
 last_update:
-  date: 2026-10-12
+  date: 2026-10-29
 title: Rutube
 description: "Архивация видео и каналов Rutube с помощью yt-dlp: отдельные видео, каналы целиком, субтитры и метаданные, ограничения."
 keywords: [rutube, видео, yt-dlp]
@@ -61,3 +61,10 @@ yt-dlp --write-subs --sub-langs ru --embed-subs \
 ## Rutube в практике Ruarxive
 
 В публикациях Ruarxive о поиске записей предвыборных теледебатов ([#122](https://t.me/ruarxive/122), март 2024; [#191](https://t.me/ruarxive/191), август 2026) Rutube упоминается среди площадок, где федеральные телеканалы не выложили записи эфиров. Подробнее о сохранении материалов СМИ — в разделе [Архивы контента российских СМИ](/kb/projects/russian-smi).
+
+## Связанные материалы
+
+- [yt-dlp](/kb/instruments/tools/yt-dlp) — установка, качество, конфигурация
+- [Архивация YouTube](/kb/instruments/social-media/youtube-video) — те же приёмы yt-dlp, комментарии и чат трансляций
+- [ВКонтакте](/kb/instruments/social-media/vk) — VK Видео и API стены
+- [Методика архивации соцсетей](/kb/instruments/social-media/methodology) — паспорт сбора, темп, хранение

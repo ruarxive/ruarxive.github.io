@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 title: Как сохранить видео файлы с Youtube
 description: "Как сохранить видео с YouTube: yt-dlp как основной инструмент, графические программы на его основе, статус старых программ из подборки 2022 года и выгрузка собственного канала через Google Takeout."
 ---
@@ -25,11 +25,12 @@ description: "Как сохранить видео с YouTube: yt-dlp как о�
 ```bash
 python3 -m pip install -U "yt-dlp[default]"
 # для YouTube нужна ещё JavaScript-среда Deno (https://deno.com) и ffmpeg
+# адрес канала без /videos: так попадут и Shorts, и записи трансляций
 yt-dlp --write-info-json --write-subs --write-thumbnail \
-       --download-archive archive.txt "https://www.youtube.com/@ChannelHandle/videos"
+       --download-archive archive.txt "https://www.youtube.com/@ChannelHandle"
 ```
 
-С конца 2025 года без Deno и компонента EJS (входит в `yt-dlp[default]` и официальные бинарники) yt-dlp работает с YouTube неполно. В России YouTube с 2024 года работает с сильным замедлением: закладывайте на большие выгрузки больше времени, а `--download-archive` позволит продолжить прерванную загрузку.
+С конца 2025 года без Deno и компонента EJS (входит в `yt-dlp[default]` и официальные бинарники) yt-dlp работает с YouTube неполно. В России YouTube замедляют с конца июля 2024 года, а в феврале 2026 года его домен пропал из НСДИ, см. [ограничения доступа в России](/kb/instruments/social-media#ограничения-доступа-в-россии). Важное выгружайте заранее, а `--download-archive` позволит продолжить прерванную загрузку.
 
 Подробнее — на странице [yt-dlp](/kb/instruments/tools/yt-dlp) и на странице [Архивация YouTube](/kb/instruments/social-media/youtube-video).
 

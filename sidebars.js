@@ -227,6 +227,7 @@ const sidebars = {
           label: 'Социальные сети',
           items: [
             'instruments/social-media/index',
+            'instruments/social-media/methodology',
             {
               type: 'category',
               label: 'Российские платформы',

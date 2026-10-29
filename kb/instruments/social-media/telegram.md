@@ -12,7 +12,7 @@ keywords: [telegram, tdl, telethon, tgarc, экспорт, t.me]
 У Telegram нет одного «правильного» архива на все случаи. Способ зависит от того, чьи сообщения вы сохраняете и какой результат нужен: JSON для обработки, HTML для чтения или снимок веб-страницы канала.
 
 :::warning Выгружайте заранее
-На фоне блокировок Telegram в России (позиция Ruarxive от 02.04.2026, [#182](https://t.me/ruarxive/182)) важный канал или чат лучше выгрузить сейчас, пока клиент у вас работает. Советов по обходу блокировок база не даёт.
+На фоне блокировок Telegram в России (позиция Ruarxive от 02.04.2026, [#182](https://t.me/ruarxive/182); хронология — в разделе [ограничения доступа в России](/kb/instruments/social-media#ограничения-доступа-в-россии)) важный канал или чат лучше выгрузить сейчас, пока клиент у вас работает. Советов по обходу блокировок база не даёт.
 :::
 
 ## Какой способ для какой задачи
@@ -205,10 +205,9 @@ async for reply in client.iter_messages(CHANNEL, reply_to=post_id):
 
 ## Хранение результата
 
-- Храните исходные JSON и JSONL без изменений, рядом — медиафайлы.
-- Запишите в README выгрузки: канал, период, дату сбора, инструмент и его версию.
-- Посчитайте SHA-256 для файлов архива.
-- Результат tdl, Telethon и tgarc — JSON, а не WARC: открыть его в pywb нельзя. Для веб-просмотра есть WARC/WACZ-снимок `t.me/s/`.
+Результат tdl, Telethon и tgarc — JSON, а не WARC: открыть его в pywb нельзя. Для веб-просмотра есть WARC/WACZ-снимок `t.me/s/`.
+
+Как хранить JSON и медиафайлы, описать выгрузку и посчитать контрольные суммы — в [методике](/kb/instruments/social-media/methodology#хранение). Там же [пример паспорта сбора](/kb/instruments/social-media/methodology#паспорт-сбора) для канала Telegram.
 
 ## Право и персональные данные
 
@@ -235,4 +234,5 @@ async for reply in client.iter_messages(CHANNEL, reply_to=post_id):
 - [tdl](/kb/instruments/tools/tdl) — все команды загрузчика
 - [tgarc](/kb/instruments/ruarxive-tools/tgarc) — формат старых выгрузок Ruarxive
 - [MAX](/kb/instruments/social-media/max) — почему его нельзя архивировать так же
+- [Методика архивации соцсетей](/kb/instruments/social-media/methodology) — паспорт сбора, аккаунт, хранение
 - [Площадки, у которых API уже нет](/kb/instruments/social-media/dead-platforms)

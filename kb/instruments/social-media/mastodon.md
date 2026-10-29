@@ -3,7 +3,7 @@ title: Архивация Mastodon, Bluesky, Threads
 sidebar_label: Mastodon, Bluesky, Threads
 description: "Архивация открытых платформ: Mastodon (ActivityPub), Bluesky (AT Protocol) и Threads. Публичные API без авторизации, выгрузка репозитория Bluesky, официальный Threads API, лимиты и этика."
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 keywords: [mastodon, bluesky, threads, activitypub, atprotocol, fediverse]
 ---
 
@@ -46,11 +46,16 @@ curl "https://mastodon.social/api/v1/accounts/1/statuses?limit=40&max_id=1174270
 # Один пост
 curl "https://mastodon.social/api/v1/statuses/117427077927293117"
 
+# Ветка: посты выше (ancestors) и ответы ниже (descendants)
+curl "https://mastodon.social/api/v1/statuses/117427077927293117/context"
+
 # Публичные посты с хэштегом
 curl "https://mastodon.social/api/v1/timelines/tag/archive?limit=40"
 ```
 
 Метод `accounts/lookup` по документации требует токен пользователя, но на многих инстансах (включая `mastodon.social`) отвечает и без него.
+
+Без токена `context` отдаёт ответы только на публичные посты и не больше 40 постов выше, 60 ниже и 20 уровней вложенности. С токеном пользователя и правом `read:statuses` — до 4096 в каждую сторону, без ограничения глубины ([документация](https://docs.joinmastodon.org/methods/statuses/#context)).
 
 ### Python: Mastodon.py
 
@@ -106,9 +111,12 @@ curl "https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=bsky.app"
 
 # Лента пользователя (до 100 записей; следующая страница — параметр cursor из ответа)
 curl "https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=bsky.app&limit=100"
+
+# Пост с ответами: uri вида at://DID/app.bsky.feed.post/ID из ленты
+curl "https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri=at://DID/app.bsky.feed.post/ID&depth=6"
 ```
 
-Поиск постов (`app.bsky.feed.searchPosts`) через публичный хост на момент проверки возвращал ошибку 403 — для поиска используйте авторизованный клиент.
+Поиск постов (`app.bsky.feed.searchPosts`) через публичный хост на момент проверки возвращал ошибку 403 — для поиска используйте авторизованный клиент. `getPostThread` и `statuses/:id/context` у Mastodon проверены запросами без авторизации в октябре 2026 года.
 
 ### Полная выгрузка репозитория
 
@@ -198,4 +206,5 @@ for item in feed.feed:
 - [twarc](/kb/instruments/social-media/twarc) — для Twitter/X
 - [Data Take-Out](/kb/instruments/data-take-out/data-take-out-main) — официальные выгрузки
 - [Bellingcat Auto-Archiver](/kb/instruments/tools/auto-archiver) — фиксация отдельных публикаций
+- [Методика архивации соцсетей](/kb/instruments/social-media/methodology) — паспорт сбора, темп, хранение
 - [Ландшафт 2026](/kb/instruments/landscape-2026)

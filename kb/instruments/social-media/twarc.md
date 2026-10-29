@@ -3,7 +3,7 @@ title: twarc — архивация Twitter/X через API v2
 sidebar_label: twarc (Twitter/X)
 description: "twarc — Python-библиотека и CLI для сбора данных Twitter/X; для API v2 используется команда twarc2. Статус доступа к API X на 2026 год, реальные команды и альтернативы."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-29
 keywords: [twarc, twarc2, twitter, x, api-v2, x.com]
 ---
 
@@ -120,8 +120,7 @@ for page in t.search_recent("query", max_results=100):
 
 ## Хранение собранных данных
 
-- Храните исходные JSONL-файлы без изменений, сжатые `gzip`.
-- Рядом сохраняйте описание: запрос, диапазон дат, дату сбора, версию twarc.
+- Храните исходные JSONL-файлы без изменений, сжатые `gzip`, с паспортом сбора: запрос, диапазон дат, дата сбора, версия twarc. Подробнее — в [методике](/kb/instruments/social-media/methodology#паспорт-сбора).
 - Перед публикацией проверьте условия X: [Developer Policy](https://docs.x.com/developer-terms/policy) разрешает передавать третьим лицам в основном только ID постов и пользователей (не более 1,5 млн ID постов одному получателю за 30 дней без письменного разрешения X).
 
 ## Если API недоступен
@@ -145,6 +144,7 @@ for page in t.search_recent("query", max_results=100):
 - [Auto-Archiver](/kb/instruments/tools/auto-archiver) — для OSINT
 - [Wayback Machine API](/kb/instruments/tools/wayback-api) — для архивных твитов
 - [Социальные сети — обзор](/kb/instruments/social-media)
+- [Методика архивации соцсетей](/kb/instruments/social-media/methodology)
 - [Data Take-Out: Twitter](/kb/instruments/data-take-out/dto-twitter)
 - [Правовые вопросы](/kb/legal/copyright)
 - [Ландшафт 2026](/kb/instruments/landscape-2026)

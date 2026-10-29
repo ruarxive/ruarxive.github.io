@@ -1,6 +1,6 @@
 ---
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 title: Facebook
 description: "Архивация Facebook: выгрузка собственных данных, браузерная архивация публичных страниц, Meta Content Library для исследователей вместо закрытого CrowdTangle."
 keywords: [facebook, meta, crowdtangle, meta-content-library, browsertrix]
@@ -100,4 +100,5 @@ Graph API отдаёт комментарии только к публикаци
 - [Архивация страниц, которые видны после входа](/kb/guides/authenticated-crawling) — профиль браузера и cookies
 - [F(b)arc](/kb/instruments/social-media/fbarc) — архивный инструмент для Graph API
 - [Площадки, у которых API уже нет](/kb/instruments/social-media/dead-platforms) — CrowdTangle и другие закрытые интерфейсы
+- [Методика архивации соцсетей](/kb/instruments/social-media/methodology) — отдельный аккаунт, паспорт сбора, хранение
 - [Архивация социальных сетей](/kb/instruments/social-media)

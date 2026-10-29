@@ -1,6 +1,6 @@
 ---
 last_update:
-  date: 2026-10-14
+  date: 2026-10-29
 title: ВКонтакте
 description: "Публичные стены ВКонтакте через VK API: ключ, лимиты с сентября 2026, комментарии, фото и видео."
 keywords: [вконтакте, vk, vk-api, wall.get, gallery-dl, yt-dlp]
@@ -319,6 +319,7 @@ yt-dlp "https://vk.com/video/@screen_name"
 
 - [Как сохранить данные из ВКонтакте](/kb/instruments/data-take-out/dto-vk) — архив своего аккаунта
 - [Архивация социальных сетей](/kb/instruments/social-media) — обзор площадок
+- [Методика архивации соцсетей](/kb/instruments/social-media/methodology) — паспорт сбора, темп, хранение
 - [yt-dlp](/kb/instruments/tools/yt-dlp) — видео
 - [gallery-dl](/kb/instruments/tools/gallery-dl) — фотографии
 - [Browsertrix](/kb/instruments/tools/browsertrix) — копия страницы в WARC/WACZ

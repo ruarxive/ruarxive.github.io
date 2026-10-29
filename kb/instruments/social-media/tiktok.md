@@ -3,7 +3,7 @@ title: Архивация TikTok
 sidebar_label: TikTok
 description: "Методы архивации видео и аккаунтов TikTok: yt-dlp, gallery-dl, неофициальная библиотека TikTokApi, браузерная архивация и официальный Research API для одобренных исследователей."
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 keywords: [tiktok, archive, video, social, bytedance, research-api]
 ---
 
@@ -140,7 +140,7 @@ Research API даёт метаданные, но не видеофайлы, по
 
 - Сохраняйте `*.info.json` рядом с каждым видео — там исходный URL, автор, дата и статистика.
 - Ведите файл `--download-archive`, чтобы повторные запуски докачивали только новое.
-- Считайте контрольные суммы (SHA-256) после скачивания.
+- Паспорт сбора и контрольные суммы — по [методике](/kb/instruments/social-media/methodology#хранение).
 
 ## Ресурсы
 
@@ -156,6 +156,7 @@ Research API даёт метаданные, но не видеофайлы, по
 - [yt-dlp — детальная страница](/kb/instruments/tools/yt-dlp)
 - [gallery-dl](/kb/instruments/tools/gallery-dl)
 - [Социальные сети — обзор](/kb/instruments/social-media)
+- [Методика архивации соцсетей](/kb/instruments/social-media/methodology)
 - [Data Take-Out: обзор](/kb/instruments/data-take-out/data-take-out-main)
 - [Правовые вопросы](/kb/legal/copyright)
 - [Ландшафт 2026](/kb/instruments/landscape-2026)

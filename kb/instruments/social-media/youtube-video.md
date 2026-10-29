@@ -1,7 +1,7 @@
 ---
 title: Архивация YouTube
 sidebar_label: YouTube
-description: "Архивация видео и каналов YouTube через yt-dlp: канал целиком вместе с Shorts и трансляциями, комментарии, субтитры, чат эфира, удалённые видео, зависимости Deno и EJS, замедление в РФ."
+description: "Архивация видео и каналов YouTube через yt-dlp: канал целиком вместе с Shorts и трансляциями, комментарии, субтитры, чат эфира, удалённые видео, зависимости Deno и EJS, ограничения в РФ."
 last_update:
   date: 2026-10-29
 keywords: [youtube, видео, yt-dlp, shorts, комментарии, live-chat, deno, po-token]
@@ -11,7 +11,7 @@ keywords: [youtube, видео, yt-dlp, shorts, комментарии, live-cha
 
 Основной инструмент для YouTube — **[yt-dlp](/kb/instruments/tools/yt-dlp)**. На этой странице — что и как сохранять именно с YouTube. Установка, выбор качества, конфигурация и общие флаги описаны на странице yt-dlp.
 
-В России YouTube с 2024 года работает с сильным замедлением. Закладывайте на большие выгрузки больше времени и всегда ведите журнал скачанного (`--download-archive`), чтобы прерванную загрузку можно было продолжить.
+В России YouTube замедляют с конца июля 2024 года, а в феврале 2026 года его домен пропал из НСДИ, см. [ограничения доступа в России](/kb/instruments/social-media#ограничения-доступа-в-россии). Важные каналы выгружайте заранее и всегда ведите журнал скачанного (`--download-archive`), чтобы прерванную загрузку можно было продолжить.
 
 ## Какой способ для какой задачи
 
@@ -144,8 +144,7 @@ yt-dlp --wait-for-video 60 --live-from-start "https://www.youtube.com/watch?v=VI
 
 - Храните видео, `*.info.json`, описание, обложку и субтитры в одной папке: шаблон `-o` выше кладёт их рядом под одним именем.
 - Сохраняйте `archive.txt` вместе с архивом: это опись уже скачанных ID.
-- Запишите в README выгрузки адрес канала, дату сбора, версию yt-dlp и команду.
-- Посчитайте SHA-256 для файлов.
+- Паспорт сбора и контрольные суммы — по [методике](/kb/instruments/social-media/methodology#паспорт-сбора): адрес канала, дата сбора, версия yt-dlp, команда.
 
 ## YouTube в практике Ruarxive
 
@@ -170,4 +169,5 @@ yt-dlp --wait-for-video 60 --live-from-start "https://www.youtube.com/watch?v=VI
 - **[yt-dlp](/kb/instruments/tools/yt-dlp)** — установка, качество, конфигурация, регулярные выгрузки.
 - **[Как сохранить видео с YouTube](/kb/instruments/data-take-out/dto-youtube)** — графические программы и выгрузка своего канала.
 - **[Google Takeout](/kb/instruments/data-take-out/dto-google)** — оригиналы видео своего канала.
+- **[Методика архивации соцсетей](/kb/instruments/social-media/methodology)** — паспорт сбора, аккаунт, темп, хранение.
 - **[Rutube](/kb/instruments/social-media/rutube)**, **[TikTok](/kb/instruments/social-media/tiktok)**, **[ВКонтакте](/kb/instruments/social-media/vk)** — видео на других площадках.

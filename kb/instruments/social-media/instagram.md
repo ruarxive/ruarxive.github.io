@@ -2,7 +2,7 @@
 title: Instagram
 description: "Архивация Instagram: Instaloader, gallery-dl, браузерная архивация и выгрузка собственных данных. Ограничения API и опыт Ruarxive по сохранению 171 аккаунта в 2022 году."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-29
 keywords: [instagram, instaloader, gallery-dl, meta, browsertrix]
 ---
 
@@ -69,6 +69,7 @@ instaloader --fast-update profile_name
 - [Выгрузка своих данных](/kb/instruments/data-take-out/dto-instagram) — архив владельца аккаунта, не чужого профиля.
 - [Площадки, у которых API уже нет](/kb/instruments/social-media/dead-platforms) — Basic Display API отключён 4 декабря 2024 года.
 - [Архивация других платформ](/kb/instruments/social-media)
+- [Методика архивации соцсетей](/kb/instruments/social-media/methodology) — отдельный аккаунт, сессии, хранение
 - [Browsertrix Crawler для JS-сайтов](/kb/guides/dynamic-ajax-sites)
 - [Кейс ликвидации банков](/kb/case-studies/bank-closures) — аналогичный класс задач массовой архивации.
 

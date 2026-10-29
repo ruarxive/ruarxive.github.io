@@ -3,7 +3,7 @@ title: MAX (мессенджер)
 sidebar_label: MAX
 description: "Российский мессенджер MAX: каналы нельзя просматривать без авторизации, встроенного экспорта данных нет, а Bot API даёт доступ только к чатам, где бот — администратор."
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 keywords: [max, мессенджер, vk, индексация, data-take-out, bot-api]
 ---
 
@@ -73,6 +73,7 @@ keywords: [max, мессенджер, vk, индексация, data-take-out, b
 - **[Исчезающие российские ресурсы](/kb/case-studies/russia-resources-disappearing)**
 - **[Как сохранить данные из Telegram](/kb/instruments/data-take-out/dto-telegram)** — экспорт через Telegram Desktop.
 - **[Архивация ВКонтакте](/kb/instruments/social-media/vk)** — отечественная платформа с открытым API.
+- **[Методика архивации соцсетей](/kb/instruments/social-media/methodology)** — общие правила для площадок, где сбор возможен.
 - **[Исчезновение сайтов госорганов](/kb/case-studies/government-websites-disappearing)** — аналогичные риски для веб-сайтов.
 
 ## Источники
