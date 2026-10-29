@@ -235,4 +235,4 @@ async for reply in client.iter_messages(CHANNEL, reply_to=post_id):
 - [tgarc](/kb/instruments/ruarxive-tools/tgarc) — формат старых выгрузок Ruarxive
 - [MAX](/kb/instruments/social-media/max) — почему его нельзя архивировать так же
 - [Методика архивации соцсетей](/kb/instruments/social-media/methodology) — паспорт сбора, аккаунт, хранение
-- [Площадки, у которых API уже нет](/kb/instruments/social-media/dead-platforms)
+- [Закрытые API, площадки и инструменты](/kb/instruments/social-media/dead-platforms)

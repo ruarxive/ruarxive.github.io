@@ -67,7 +67,7 @@ keywords: [социальные сети, мессенджеры, api, yt-dlp, d
 - **[Social Feed Manager](/kb/instruments/social-media/social-feed-manager)** — Университет Джорджа Вашингтона (GWU) в 2024 году прекратил развитие и закрыл свой хостинг SFM.
 - **Academic Research API Twitter** — закрыт в 2023 году; [twarc](/kb/instruments/social-media/twarc) работает только с платным доступом к API.
 
-Сводка закрытых интерфейсов и чем их заменить — на странице [«Площадки, у которых API уже нет»](/kb/instruments/social-media/dead-platforms).
+Сводка закрытых интерфейсов, площадок и инструментов, чем их заменить и где искать исчезнувшее — на странице [«Закрытые API, площадки и инструменты»](/kb/instruments/social-media/dead-platforms).
 
 ## Доступ к API
 

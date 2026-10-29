@@ -5,6 +5,20 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [Unreleased] — 2026-10-29: Meta и закрытые API
+
+Пакет SM-4 из ревизии `temp/social-media-review-2026-10-28.md`: Facebook, Instagram и сводка закрытых интерфейсов.
+
+### Изменено
+
+- **`social-media/facebook`**: поведение Browsertrix для Facebook (лента страницы и группы, комментарии, фото, Reels), `--behaviorTimeout` и `--alwaysAddBehaviorLinks` — сверено с документацией Browsertrix Crawler 1.15.2 и `src/site/facebook.ts`; раздел о группах; доступ исследователей по ст. 40 DSA (делегированный регламент (ЕС) 2025/2050); Wget помечен как способ только для разовой проверки.
+- **`social-media/instagram`**: Stories, хайлайты, Reels и отметки (`--stories`, `--highlights`, `--no-posts`, `--reels`, `--tagged`), таблица частых ошибок Instaloader с сообщениями из исходного кода 4.16, поведение Browsertrix для Instagram, раздел для исследователей (Meta Content Library, DSA, Threads), раздел «Ресурсы». Версия в строке сверки — 4.16.
+- **`social-media/dead-platforms`** переименована в «Закрытые API, площадки и инструменты» (адрес прежний) и разбита на три таблицы. Добавлены: API Reddit (платный с 01.07.2023), Pushshift, кэш Google, Google+, Vine, Periscope, Coub (закрытие отменено), snscrape, Twint, Nitter (требование X Corp. от 24.08.2026). У каждой строки — источник, у закрытых площадок — где искать исчезнувшее.
+
+### Исправлено
+
+- **`guides/emergency-archiving`**: для Telegram-каналов вместо tgarc — tdl и Telethon (пропущено в SM-2).
+
 ## [Unreleased] — 2026-10-29: методика и ограничения в РФ
 
 Пакет SM-3 из ревизии `temp/social-media-review-2026-10-28.md`: общие правила вынесены на одну страницу, обзор раздела отвечает на вопрос «что можно получить».
