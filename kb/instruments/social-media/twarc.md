@@ -20,6 +20,19 @@ keywords: [twarc, twarc2, twitter, x, api-v2, x.com]
 - Массовая архивация через API стоит дорого; для отдельных постов чаще достаточно [Wayback Machine](/kb/instruments/tools/wayback-api) или браузерной архивации.
 :::
 
+## Сколько стоит выгрузка
+
+По [странице цен X API](https://docs.x.com/x-api/getting-started/pricing) на октябрь 2026 года прочитанный пост стоит $0,005, профиль пользователя — $0,010. Повторное чтение того же объекта в течение одних суток по UTC второй раз не оплачивается.
+
+| Постов | Стоимость |
+| :--- | ---: |
+| 10 000 | $50 |
+| 100 000 | $500 |
+| 1 000 000 | $5 000 |
+| 3 000 000 — потолок в месяц | $15 000 |
+
+В таблице — только посты. Профили авторов и другие объекты оплачиваются по своим ценам. Большую выгрузку сначала проверьте на малом объёме: `--limit 100`.
+
 ## Возможности
 
 - **Полный JSON** — каждый ответ API сохраняется со всеми полями, по умолчанию с метаданными о том, когда и как собраны данные (отключается `--no-metadata`).
@@ -125,11 +138,7 @@ for page in t.search_recent("query", max_results=100):
 
 ## Если API недоступен
 
-1. **Wayback Machine** — проверить, есть ли сохранённая копия поста. См. [Wayback Machine API](/kb/instruments/tools/wayback-api) и [waybackpy](/kb/instruments/tools/waybackpy).
-2. **[archive.ph](/kb/instruments/tools/archive-ph)** — сохранить или найти снимок отдельного поста.
-3. **[Auto-Archiver](/kb/instruments/tools/auto-archiver)** — фиксация отдельных постов со скриншотами и хешами (есть модуль `twitter_api_extractor`).
-4. **[Browsertrix](/kb/instruments/tools/browsertrix)** — браузерная копия страницы в WARC/WACZ.
-5. **Выгрузка собственного архива** — [Как сохранить данные из Twitter (X)](/kb/instruments/data-take-out/dto-twitter).
+Без платного доступа остаются архив своего аккаунта, снимки отдельных постов в Wayback Machine и Auto-Archiver, медиа по ссылке на пост и браузерный снимок. Все способы и история API X 2023–2026 годов — на странице [Архивация Twitter/X](/kb/instruments/social-media/twitter-x).
 
 ## Ресурсы
 

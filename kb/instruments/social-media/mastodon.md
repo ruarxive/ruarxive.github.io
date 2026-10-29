@@ -154,6 +154,47 @@ for item in feed.feed:
 
 > Примеры проверены с atproto 0.0.72 (октябрь 2026).
 
+### Поток новых записей: Jetstream
+
+Чтобы собирать новые посты по мере появления, не опрашивая ленты, подключитесь к [Jetstream](https://bsky.network/docs/jetstream/). Это поток событий всей сети Bluesky в JSON через WebSocket, без авторизации. Фильтры задают параметрами адреса:
+
+- `collections` — тип записей, например `app.bsky.feed.post`; до 100 значений;
+- `dids` — конкретные аккаунты; до 10 000 значений;
+- `kinds=commit` — только создание, правка и удаление записей;
+- `cursor` — номер события (`seq`), с которого продолжить после обрыва.
+
+```bash
+pip install websockets
+```
+
+```python
+import asyncio
+
+import websockets
+
+URL = (
+    "wss://jetstream.us-east.bsky.network/xrpc/network.bsky.jetstream.subscribeEvents"
+    "?kinds=commit&collections=app.bsky.feed.post&dids=did:plc:z72i7hdynmk6r22z27h6tvur"
+)
+
+
+async def main():
+    async with websockets.connect(URL) as ws:
+        with open("stream.jsonl", "a", encoding="utf-8") as out:
+            async for message in ws:
+                out.write(message + "\n")
+                out.flush()
+
+
+asyncio.run(main())
+```
+
+- Событие может прийти повторно: при обработке убирайте дубли по адресу записи `at://DID/коллекция/ключ`.
+- В потоке видны и удаления (`"operation": "delete"`). Решите заранее, что архив делает с удалёнными записями, см. [этические аспекты](#этические-аспекты).
+- Медиафайлов в потоке нет, только ссылки на них. Файлы скачивают через `getBlob`, см. [Как сохранить данные из Bluesky](/kb/instruments/data-take-out/dto-bluesky#медиафайлы).
+
+> Адрес и параметры сверены с [документацией Jetstream](https://bsky.network/docs/jetstream/) (Jetstream v0.4.4) и проверены подключением к `jetstream.us-east.bsky.network` с websockets 17.3 (октябрь 2026).
+
 ## Threads
 
 У Threads (Meta) есть официальный [Threads API](https://developers.facebook.com/docs/threads). Он рассчитан в первую очередь на публикацию и управление собственным аккаунтом, но включает и поиск публичных публикаций по ключевым словам и тегам (не более 2200 запросов за скользящие 24 часа на пользователя). Нужны приложение Meta и токен доступа, расширенные разрешения выдаются после проверки приложения.
