@@ -5,6 +5,17 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [Unreleased] — 2026-10-29: оставшиеся пункты ревизии «Инструменты Ruarxive»
+
+Мелкие пункты из `temp/ruarxive-tools-review-2026-10-29.md`, не вошедшие в пакеты RT-1…RT-5.
+
+### Добавлено
+
+- **`ruarxive-tools/wparc`**: переменная `WPARC_DEBUG=1` выводит полную трассировку ошибки. Она есть только в 1.0.9: в исходниках 1.0.8 с PyPI её нет.
+- **`projects/echomsk`**: репозиторий `echomskru-archive` — списки ссылок на mp3, `metadata.csv` (24 887 файлов), `programlist.csv` (470 кодов, колонка названий пустая), скрипты кампании.
+- **`projects/government-campaigns-2022`**: репозиторий `ikmo-archive`. В нём только README, это указано.
+- **`projects/preserved-government`**: ссылка на russia-blocked.
+
 ## [Unreleased] — 2026-10-29: мониторинг госсайтов russia-blocked
 
 Пакет RT-3 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.

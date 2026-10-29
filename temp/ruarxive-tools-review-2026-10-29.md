@@ -186,3 +186,5 @@ flowchart LR
 | RT-5 ✅ сделано 2026-10-29 | Мелкие правки: filegetter (`--version`, examples; прокси не добавлен — см. §6), H1 в metawarc, landscape-2026, примеры apibackuper. Примеры filegetter проверены `filegetter run --dry-run` (1.1.0), конфигурации apibackuper — `apibackuper validate-config` (2.0.0) | 4 файла |
 
 Порядок: сначала RT-1 и RT-5 (быстро, без новых фактов), затем RT-2, затем RT-3 и RT-4 после сверки цифр.
+
+Доделано 2026-10-29 сверх пакетов: ссылка на russia-blocked из `projects/preserved-government.md`, `WPARC_DEBUG` в `wparc.md` (только 1.0.9), репозитории `echomskru-archive` и `ikmo-archive` на страницах проектов. Не сделано и не планируется: упоминание `undatum` (не инструмент Ruarxive), правки в репозитории ruarxive-db (отставание `data/datasets/` от YAML, несуществующий каталог `scripts/` в README).

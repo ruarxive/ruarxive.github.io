@@ -248,5 +248,6 @@ last_update:
 - [Большая российская энциклопедия](/kb/projects/bigenc)
 - [Статистика: снимок](/kb/resources/stats-snapshot)
 - [ruarxive-db](/kb/instruments/ruarxive-tools/ruarxive-db) — каталог хранилища, по которому посчитаны цифры на этой странице
+- [russia-blocked](/kb/instruments/ruarxive-tools/russia-blocked) — ежемесячный мониторинг: какие госсайты закрыты для зарубежных посетителей и есть ли они в Wayback Machine
 - [История проекта](/kb/about/project-history)
 - [Таблица сохранённых проектов](/kb/preserved-projects-table)
