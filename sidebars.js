@@ -126,6 +126,7 @@ const sidebars = {
               type: 'category',
               label: 'Мониторинг и данные',
               items: [
+                'instruments/ruarxive-tools/russia-blocked',
                 'instruments/ruarxive-tools/ruarxive-db',
               ],
             },

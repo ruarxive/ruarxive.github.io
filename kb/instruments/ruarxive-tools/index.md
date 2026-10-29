@@ -1,6 +1,6 @@
 ---
 title: Инструменты Ruarxive
-description: "Обзор инструментов с открытым кодом, которые разрабатывает команда Ruarxive: сборщики данных (wparc, ydiskarc, filegetter, apibackuper, spcrawler, tgarc), metawarc для анализа WARC и каталог хранилища ruarxive-db."
+description: "Обзор инструментов с открытым кодом, которые разрабатывает команда Ruarxive: сборщики данных (wparc, ydiskarc, filegetter, apibackuper, spcrawler, tgarc), metawarc для анализа WARC, мониторинг госсайтов russia-blocked и каталог хранилища ruarxive-db."
 sidebar_position: 1
 last_update:
   date: 2026-10-29
@@ -8,7 +8,7 @@ last_update:
 
 # Инструменты Ruarxive
 
-Инструменты с открытым кодом, которые разрабатывает и поддерживает команда Ruarxive. Все они опубликованы на [github.com/ruarxive](https://github.com/ruarxive) под свободными лицензиями (MIT, Apache-2.0, у tgarc — CC0).
+Инструменты с открытым кодом, которые разрабатывает и поддерживает команда Ruarxive. Все они опубликованы на [github.com/ruarxive](https://github.com/ruarxive) под свободными лицензиями (MIT, Apache-2.0, у tgarc — CC0; данные russia-blocked — CC BY 4.0).
 
 ## Обзор по стадиям архивации
 
@@ -37,6 +37,7 @@ last_update:
 
 | Инструмент | Что делает |
 | :--- | :--- |
+| **[russia-blocked](/kb/instruments/ruarxive-tools/russia-blocked)** | Ежемесячно проверяет около 2 250 госсайтов: открываются ли они из-за рубежа и из России, есть ли они в Wayback Machine и Common Crawl. Результаты — на [ruarxive.org/russia-blocked](https://ruarxive.org/russia-blocked/), данные открыты |
 | **[ruarxive-db](/kb/instruments/ruarxive-tools/ruarxive-db)** | Открытый каталог хранилища: коллекции, записи о ресурсах и ссылки на файлы в YAML, JSONL, Parquet и DuckDB. Из него строятся статистика и поиск «Есть ли сайт в архиве?» на главной странице |
 
 ## Что получается на выходе
@@ -78,6 +79,7 @@ WARC из сборщиков Ruarxive пишут только `wparc warc` и fi
 | Задача | Инструмент |
 | :--- | :--- |
 | Проверить, не сохранён ли ресурс раньше | Поиск на [главной странице](https://ruarxive.org/) или **[ruarxive-db](/kb/instruments/ruarxive-tools/ruarxive-db)** |
+| Узнать, открывается ли госсайт из-за рубежа и есть ли он в Wayback Machine | **[russia-blocked](/kb/instruments/ruarxive-tools/russia-blocked)** |
 | Выгрузить записи, страницы и медиа сайта на WordPress | **[wparc](/kb/instruments/ruarxive-tools/wparc)** |
 | Скачать публичную папку с Яндекс.Диска | **[ydiskarc](/kb/instruments/ruarxive-tools/ydiskarc)** |
 | Скачать файлы, ссылки на которые есть в наборе данных | **[filegetter](/kb/instruments/ruarxive-tools/filegetter)** |
@@ -128,6 +130,7 @@ pip install 'metawarc[all]'
 - [github.com/ruarxive/tgarc](https://github.com/ruarxive/tgarc)
 - [github.com/ruarxive/metawarc](https://github.com/ruarxive/metawarc)
 - [github.com/ruarxive/ruarxive-db](https://github.com/ruarxive/ruarxive-db)
+- [github.com/ruarxive/russia-blocked](https://github.com/ruarxive/russia-blocked)
 
 ## Как устроены страницы раздела
 
@@ -149,7 +152,7 @@ pip install 'metawarc[all]'
 
 ## Ошибки и предложения
 
-- **Ошибки и пожелания** — в Issues репозитория: [wparc](https://github.com/ruarxive/wparc/issues), [ydiskarc](https://github.com/ruarxive/ydiskarc/issues), [filegetter](https://github.com/ruarxive/filegetter/issues), [apibackuper](https://github.com/ruarxive/apibackuper/issues), [spcrawler](https://github.com/ruarxive/spcrawler/issues), [metawarc](https://github.com/ruarxive/metawarc/issues), [ruarxive-db](https://github.com/ruarxive/ruarxive-db/issues).
+- **Ошибки и пожелания** — в Issues репозитория: [wparc](https://github.com/ruarxive/wparc/issues), [ydiskarc](https://github.com/ruarxive/ydiskarc/issues), [filegetter](https://github.com/ruarxive/filegetter/issues), [apibackuper](https://github.com/ruarxive/apibackuper/issues), [spcrawler](https://github.com/ruarxive/spcrawler/issues), [metawarc](https://github.com/ruarxive/metawarc/issues), [ruarxive-db](https://github.com/ruarxive/ruarxive-db/issues), [russia-blocked](https://github.com/ruarxive/russia-blocked/issues).
 - **Правила участия** описаны в `CONTRIBUTING.md` у [metawarc](https://github.com/ruarxive/metawarc/blob/master/CONTRIBUTING.md), [wparc](https://github.com/ruarxive/wparc/blob/main/CONTRIBUTING.md) и [filegetter](https://github.com/ruarxive/filegetter/blob/main/CONTRIBUTING.md).
 - **Уязвимости** не публикуйте в открытых Issues. Как о них сообщить, написано в `SECURITY.md` у [metawarc](https://github.com/ruarxive/metawarc/blob/master/SECURITY.md) (через приватный GitHub Security Advisory), [wparc](https://github.com/ruarxive/wparc/blob/main/SECURITY.md) и [apibackuper](https://github.com/ruarxive/apibackuper/blob/master/SECURITY.md).
 - **Сайт, который может исчезнуть**, предложите через [запрос на архивацию](/kb/preserved-projects-form).
