@@ -102,10 +102,13 @@ const sidebars = {
               type: 'category',
               label: 'Сбор данных',
               items: [
-                'instruments/ruarxive-tools/tgarc',
                 'instruments/ruarxive-tools/wparc',
                 'instruments/ruarxive-tools/ydiskarc',
                 'instruments/ruarxive-tools/filegetter',
+                // Страницы живут в «Загружаемых данных»; здесь — только ссылки
+                { type: 'ref', id: 'instruments/downloaded-data/apibackuper', label: 'apibackuper (API)' },
+                { type: 'ref', id: 'instruments/downloaded-data/spcrawler' },
+                'instruments/ruarxive-tools/tgarc',
               ],
             },
             {

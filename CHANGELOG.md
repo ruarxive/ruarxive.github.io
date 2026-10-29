@@ -5,6 +5,15 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [Unreleased] — 2026-10-29: сайдбар раздела «Инструменты Ruarxive»
+
+Пакет RT-1 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.
+
+### Изменено
+
+- **Сайдбар «Инструменты Ruarxive» → «Сбор данных»**: добавлены ссылки на apibackuper и spcrawler (элементы `ref`: страницы остаются в «Загружаемых данных», адреса прежние). tgarc перенесён в конец списка как неразвиваемый. Порядок теперь совпадает с таблицей на обзорной странице.
+- **`downloaded-data/spcrawler`**: подпись в сайдбаре «spcrawler (SharePoint)», как у остальных сборщиков. `sidebar_label` во frontmatter перекрывает `label` у элемента `ref`, поэтому подпись задана в самой странице.
+
 ## [Unreleased] — 2026-10-29: мелкие правки раздела «Социальные сети»
 
 Пакет SM-6, последний из ревизии `temp/social-media-review-2026-10-28.md`.
