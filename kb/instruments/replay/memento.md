@@ -3,7 +3,7 @@ title: Memento — стандарт «time travel» для веб-архивов
 sidebar_label: Memento
 description: "Memento (RFC 7089) — протокол доступа к прошлым версиям веб-страниц: TimeGate, TimeMap, агрегаторы. Реализации: Wayback Machine, pywb, OpenWayback, IPWB, MemGator."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-28
 keywords: [memento, rfc7089, timegate, timemap, aggregator, wayback, memgator]
 ---
 
@@ -217,7 +217,7 @@ for snap in cdx.snapshots():
 | [SolrWayback](/kb/instruments/tools/solrwayback) | ✅ (в коде есть модуль Memento) | см. документацию проекта |
 | MemGator (агрегатор) | ✅ | `/timegate/<url>` |
 
-Conifer (Rhizome), который раньше часто упоминали в этом ряду, с июня 2026 года прекратил работу как сервис записи: создание и изменение коллекций отключено. Для новых записей используйте ArchiveWeb.page или [Browsertrix](/kb/instruments/tools/browsertrix).
+Conifer (Rhizome), который раньше часто упоминали в этом ряду, с мая 2026 года прекратил работу как сервис записи: создание и изменение коллекций отключено. Для новых записей используйте ArchiveWeb.page или [Browsertrix](/kb/instruments/tools/browsertrix).
 
 Настройка Memento на своём сервере — в статье [pywb](/kb/instruments/replay/pywb) (раздел «Memento API»).
 

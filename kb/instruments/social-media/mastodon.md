@@ -1,9 +1,9 @@
 ---
 title: Архивация Mastodon, Bluesky, Threads
-sidebar_label: Mastodon и другие Fediverse
+sidebar_label: Mastodon, Bluesky, Threads
 description: "Архивация открытых платформ: Mastodon (ActivityPub), Bluesky (AT Protocol) и Threads. Публичные API без авторизации, выгрузка репозитория Bluesky, официальный Threads API, лимиты и этика."
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 keywords: [mastodon, bluesky, threads, activitypub, atprotocol, fediverse]
 ---
 
@@ -46,11 +46,16 @@ curl "https://mastodon.social/api/v1/accounts/1/statuses?limit=40&max_id=1174270
 # Один пост
 curl "https://mastodon.social/api/v1/statuses/117427077927293117"
 
+# Ветка: посты выше (ancestors) и ответы ниже (descendants)
+curl "https://mastodon.social/api/v1/statuses/117427077927293117/context"
+
 # Публичные посты с хэштегом
 curl "https://mastodon.social/api/v1/timelines/tag/archive?limit=40"
 ```
 
 Метод `accounts/lookup` по документации требует токен пользователя, но на многих инстансах (включая `mastodon.social`) отвечает и без него.
+
+Без токена `context` отдаёт ответы только на публичные посты и не больше 40 постов выше, 60 ниже и 20 уровней вложенности. С токеном пользователя и правом `read:statuses` — до 4096 в каждую сторону, без ограничения глубины ([документация](https://docs.joinmastodon.org/methods/statuses/#context)).
 
 ### Python: Mastodon.py
 
@@ -106,13 +111,16 @@ curl "https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=bsky.app"
 
 # Лента пользователя (до 100 записей; следующая страница — параметр cursor из ответа)
 curl "https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=bsky.app&limit=100"
+
+# Пост с ответами: uri вида at://DID/app.bsky.feed.post/ID из ленты
+curl "https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri=at://DID/app.bsky.feed.post/ID&depth=6"
 ```
 
-Поиск постов (`app.bsky.feed.searchPosts`) через публичный хост на момент проверки возвращал ошибку 403 — для поиска используйте авторизованный клиент.
+Поиск постов (`app.bsky.feed.searchPosts`) через публичный хост на момент проверки возвращал ошибку 403 — для поиска используйте авторизованный клиент. `getPostThread` и `statuses/:id/context` у Mastodon проверены запросами без авторизации в октябре 2026 года.
 
 ### Полная выгрузка репозитория
 
-Для архивации аккаунта целиком удобнее скачать весь его репозиторий одним файлом в формате CAR. Запрос делается к PDS пользователя, адрес которого указан в DID-документе:
+Для архивации аккаунта целиком удобнее скачать весь его репозиторий одним файлом в формате CAR. Как выгрузить свой аккаунт из приложения и разобрать CAR — на странице [Как сохранить данные из Bluesky](/kb/instruments/data-take-out/dto-bluesky). Запрос делается к PDS пользователя, адрес которого указан в DID-документе:
 
 ```bash
 DID="did:plc:z72i7hdynmk6r22z27h6tvur"
@@ -145,6 +153,47 @@ for item in feed.feed:
 По умолчанию `Client()` обращается к `bsky.social` и для большинства методов требует входа: `client.login("user.bsky.social", "app_password")` (используйте пароль приложения, а не основной).
 
 > Примеры проверены с atproto 0.0.72 (октябрь 2026).
+
+### Поток новых записей: Jetstream
+
+Чтобы собирать новые посты по мере появления, не опрашивая ленты, подключитесь к [Jetstream](https://bsky.network/docs/jetstream/). Это поток событий всей сети Bluesky в JSON через WebSocket, без авторизации. Фильтры задают параметрами адреса:
+
+- `collections` — тип записей, например `app.bsky.feed.post`; до 100 значений;
+- `dids` — конкретные аккаунты; до 10 000 значений;
+- `kinds=commit` — только создание, правка и удаление записей;
+- `cursor` — номер события (`seq`), с которого продолжить после обрыва.
+
+```bash
+pip install websockets
+```
+
+```python
+import asyncio
+
+import websockets
+
+URL = (
+    "wss://jetstream.us-east.bsky.network/xrpc/network.bsky.jetstream.subscribeEvents"
+    "?kinds=commit&collections=app.bsky.feed.post&dids=did:plc:z72i7hdynmk6r22z27h6tvur"
+)
+
+
+async def main():
+    async with websockets.connect(URL) as ws:
+        with open("stream.jsonl", "a", encoding="utf-8") as out:
+            async for message in ws:
+                out.write(message + "\n")
+                out.flush()
+
+
+asyncio.run(main())
+```
+
+- Событие может прийти повторно: при обработке убирайте дубли по адресу записи `at://DID/коллекция/ключ`.
+- В потоке видны и удаления (`"operation": "delete"`). Решите заранее, что архив делает с удалёнными записями, см. [этические аспекты](#этические-аспекты).
+- Медиафайлов в потоке нет, только ссылки на них. Файлы скачивают через `getBlob`, см. [Как сохранить данные из Bluesky](/kb/instruments/data-take-out/dto-bluesky#медиафайлы).
+
+> Адрес и параметры сверены с [документацией Jetstream](https://bsky.network/docs/jetstream/) (Jetstream v0.4.4) и проверены подключением к `jetstream.us-east.bsky.network` с websockets 17.3 (октябрь 2026).
 
 ## Threads
 
@@ -198,4 +247,5 @@ for item in feed.feed:
 - [twarc](/kb/instruments/social-media/twarc) — для Twitter/X
 - [Data Take-Out](/kb/instruments/data-take-out/data-take-out-main) — официальные выгрузки
 - [Bellingcat Auto-Archiver](/kb/instruments/tools/auto-archiver) — фиксация отдельных публикаций
+- [Методика архивации соцсетей](/kb/instruments/social-media/methodology) — паспорт сбора, темп, хранение
 - [Ландшафт 2026](/kb/instruments/landscape-2026)

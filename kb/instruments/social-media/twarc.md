@@ -3,7 +3,7 @@ title: twarc — архивация Twitter/X через API v2
 sidebar_label: twarc (Twitter/X)
 description: "twarc — Python-библиотека и CLI для сбора данных Twitter/X; для API v2 используется команда twarc2. Статус доступа к API X на 2026 год, реальные команды и альтернативы."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-29
 keywords: [twarc, twarc2, twitter, x, api-v2, x.com]
 ---
 
@@ -19,6 +19,19 @@ keywords: [twarc, twarc2, twitter, x, api-v2, x.com]
 - На октябрь 2026 года API X работает по модели **оплаты за использование**: кредиты покупаются заранее, стоимость списывается за каждый полученный объект (например, $0,005 за прочитанный пост), действует потолок в 3 млн прочитанных постов в месяц. Актуальные цены — на странице [X API pricing](https://docs.x.com/x-api/getting-started/pricing).
 - Массовая архивация через API стоит дорого; для отдельных постов чаще достаточно [Wayback Machine](/kb/instruments/tools/wayback-api) или браузерной архивации.
 :::
+
+## Сколько стоит выгрузка
+
+По [странице цен X API](https://docs.x.com/x-api/getting-started/pricing) на октябрь 2026 года прочитанный пост стоит $0,005, профиль пользователя — $0,010. Повторное чтение того же объекта в течение одних суток по UTC второй раз не оплачивается.
+
+| Постов | Стоимость |
+| :--- | ---: |
+| 10 000 | $50 |
+| 100 000 | $500 |
+| 1 000 000 | $5 000 |
+| 3 000 000 — потолок в месяц | $15 000 |
+
+В таблице — только посты. Профили авторов и другие объекты оплачиваются по своим ценам. Большую выгрузку сначала проверьте на малом объёме: `--limit 100`.
 
 ## Возможности
 
@@ -120,17 +133,12 @@ for page in t.search_recent("query", max_results=100):
 
 ## Хранение собранных данных
 
-- Храните исходные JSONL-файлы без изменений, сжатые `gzip`.
-- Рядом сохраняйте описание: запрос, диапазон дат, дату сбора, версию twarc.
+- Храните исходные JSONL-файлы без изменений, сжатые `gzip`, с паспортом сбора: запрос, диапазон дат, дата сбора, версия twarc. Подробнее — в [методике](/kb/instruments/social-media/methodology#паспорт-сбора).
 - Перед публикацией проверьте условия X: [Developer Policy](https://docs.x.com/developer-terms/policy) разрешает передавать третьим лицам в основном только ID постов и пользователей (не более 1,5 млн ID постов одному получателю за 30 дней без письменного разрешения X).
 
 ## Если API недоступен
 
-1. **Wayback Machine** — проверить, есть ли сохранённая копия поста. См. [Wayback Machine API](/kb/instruments/tools/wayback-api) и [waybackpy](/kb/instruments/tools/waybackpy).
-2. **[archive.ph](/kb/instruments/tools/archive-ph)** — сохранить или найти снимок отдельного поста.
-3. **[Auto-Archiver](/kb/instruments/tools/auto-archiver)** — фиксация отдельных постов со скриншотами и хешами (есть модуль `twitter_api_extractor`).
-4. **[Browsertrix](/kb/instruments/tools/browsertrix)** — браузерная копия страницы в WARC/WACZ.
-5. **Выгрузка собственного архива** — [Как сохранить данные из Twitter (X)](/kb/instruments/data-take-out/dto-twitter).
+Без платного доступа остаются архив своего аккаунта, снимки отдельных постов в Wayback Machine и Auto-Archiver, медиа по ссылке на пост и браузерный снимок. Все способы и история API X 2023–2026 годов — на странице [Архивация Twitter/X](/kb/instruments/social-media/twitter-x).
 
 ## Ресурсы
 
@@ -141,10 +149,12 @@ for page in t.search_recent("query", max_results=100):
 
 ## Связанные материалы
 
+- [Архивация Twitter/X](/kb/instruments/social-media/twitter-x) — всё о площадке: API, снимки, медиа, Community Notes
 - [Mastodon, Bluesky, Threads](/kb/instruments/social-media/mastodon) — открытые альтернативы
 - [Auto-Archiver](/kb/instruments/tools/auto-archiver) — для OSINT
 - [Wayback Machine API](/kb/instruments/tools/wayback-api) — для архивных твитов
 - [Социальные сети — обзор](/kb/instruments/social-media)
+- [Методика архивации соцсетей](/kb/instruments/social-media/methodology)
 - [Data Take-Out: Twitter](/kb/instruments/data-take-out/dto-twitter)
 - [Правовые вопросы](/kb/legal/copyright)
 - [Ландшафт 2026](/kb/instruments/landscape-2026)

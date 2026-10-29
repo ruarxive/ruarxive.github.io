@@ -1,9 +1,9 @@
 ---
 sidebar_position: 2
 last_update:
-  date: 2026-10-12
+  date: 2026-10-29
 title: Как сохранить данные из Telegram
-description: "Экспорт истории чатов, каналов и данных аккаунта Telegram через Telegram Desktop и утилиту tgarc: порядок действий, форматы, ограничения."
+description: "Экспорт истории чатов, каналов и данных аккаунта Telegram через Telegram Desktop, а для больших каналов — через tdl и Telethon: порядок действий, форматы, ограничения."
 ---
 
 # Как сохранить данные из Telegram
@@ -44,43 +44,13 @@ description: "Экспорт истории чатов, каналов и дан
 *   Медиафайлы выбранных типов в пределах заданного размера.
 *   Метаданные: даты, отправители, ответы на сообщения.
 
-## Способ 3: Утилита командной строки tgarc
+## Способ 3: tdl или собственный скрипт
 
-[tgarc](https://github.com/ruarxive/tgarc) — утилита Ruarxive для архивации каналов и чатов Telegram в JSON через MTProto API (на основе библиотеки Pyrogram). Позволяет выгрузить несколько каналов одной командой и дополнять ранее сделанную выгрузку.
+Если нужен публичный канал целиком вместе с медиа, регулярная докачка или комментарии к постам, экспорта Desktop мало. Для этого есть загрузчик [tdl](/kb/instruments/tools/tdl) и библиотека [Telethon](https://docs.telethon.dev/) для собственного скрипта. Рецепты обоих, включая сбор комментариев и обработку ошибки `FLOOD_WAIT`, — на странице [Архивация Telegram](/kb/instruments/social-media/telegram).
 
-:::warning
-tgarc не развивается с декабря 2023 года, на PyPI его нет. Установка — из исходного репозитория `AduchiMergen/tgarc`, как указано в README (`ruarxive/tgarc` — его форк с тем же кодом).
+:::note tgarc
+Утилита Ruarxive [tgarc](/kb/instruments/ruarxive-tools/tgarc) собрана на Pyrogram. Она не развивается с 15 декабря 2023 года, а репозиторий Pyrogram архивирован. Для нового сбора её не используйте: страница tgarc нужна, чтобы разобраться в формате старых выгрузок.
 :::
-
-### Установка и настройка
-
-```bash
-pip install git+https://github.com/AduchiMergen/tgarc.git
-```
-
-1. Создайте приложение на [my.telegram.org/apps](https://my.telegram.org/apps) и получите `api_id` и `api_hash`.
-2. Выполните `tgarc configure`, введите `api_id`, `api_hash`, номер телефона и код подтверждения.
-
-### Использование
-
-```bash
-# Выгрузить канал в папку ./archive
-tgarc save -o ./archive channel_name
-
-# Дополнить ранее выгруженные данные
-tgarc save --update -o ./archive channel_name
-
-# Список каналов из файла, без видео, файлы не больше 50 МБ
-tgarc save --input channels.txt --no-video --max-size 50 -o ./archive
-```
-
-Если папка не указана, создаётся папка `tgarc-<дата запуска>`. Для приватных чатов и каналов есть флаг `--private`.
-
-> Команды сверены с README `ruarxive/tgarc` (октябрь 2026). Подробнее: [tgarc](/kb/instruments/ruarxive-tools/tgarc).
-
-## Способ 4: Telegram API и собственный скрипт
-
-Для интеграции в исследовательский пайплайн можно использовать библиотеки [Telethon](https://docs.telethon.dev/) или [Pyrogram](https://docs.pyrogram.org/) для прямого доступа к MTProto API, а также готовый загрузчик [tdl](/kb/instruments/tools/tdl). Потребуются собственные `api_id` / `api_hash`. При слишком частых запросах Telegram возвращает ошибку `FLOOD_WAIT` с числом секунд, которое нужно подождать, — скрипт должен её обрабатывать.
 
 ## Ограничения
 
@@ -93,13 +63,14 @@ tgarc save --input channels.txt --no-video --max-size 50 -o ./archive
 
 Для каналов с большим числом сообщений и медиафайлов удобно комбинировать подходы:
 
-1. Сначала выгрузить текстовую историю (Telegram Desktop в JSON без медиа или tgarc с `--no-video --no-pictures --no-files`).
-2. Затем скачать медиафайлы отдельно с нужными ограничениями по размеру.
+1. Сначала выгрузить текстовую историю: Telegram Desktop в JSON без медиа или `tdl chat export --all --with-content`.
+2. Затем скачать медиафайлы отдельно, например `tdl dl -f` по этому JSON. tdl умеет скачивать и по JSON-экспорту из Telegram Desktop.
 3. Хранить JSON и медиа вместе с описанием: какой канал, за какой период, когда и каким инструментом выгружен.
 
 ## Связанные материалы
 
 *   [Data Take-Out: обзор](/kb/instruments/data-take-out/data-take-out-main)
-*   [tgarc](/kb/instruments/ruarxive-tools/tgarc) — утилита Ruarxive
+*   [Архивация Telegram](/kb/instruments/social-media/telegram) — все способы, tdl и Telethon
 *   [tdl](/kb/instruments/tools/tdl) — загрузчик Telegram на Go
+*   [tgarc](/kb/instruments/ruarxive-tools/tgarc) — формат старых выгрузок Ruarxive (не развивается)
 *   [MAX](/kb/instruments/social-media/max) — почему российский мессенджер MAX не архивируется так же, как Telegram

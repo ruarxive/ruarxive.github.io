@@ -1,7 +1,7 @@
 ---
 sidebar_position: 5
 last_update:
-  date: 2026-10-12
+  date: 2026-10-29
 title: Как сохранить данные из Twitter (X)
 description: "Инструкция по запросу и загрузке архива своих данных из X (Twitter): что входит в архив, как устроены файлы, сроки подготовки и альтернативы для удалённых аккаунтов."
 ---
@@ -49,10 +49,11 @@ description: "Инструкция по запросу и загрузке ар�
 
 *   [Wayback Machine](/kb/instruments/tools/wayback-api) и [archive.ph](/kb/instruments/tools/archive-ph) — если посты ранее были сохранены в веб-архивах.
 *   [Браузерная архивация](/kb/instruments/tools/browsertrix) с авторизованным профилем — для публичных аккаунтов, пока они доступны.
-*   [twarc](/kb/instruments/social-media/twarc) — сбор через платный API X (бесплатная программа Academic Research закрыта в 2023 году). Чем ещё заменяют закрытые API — на странице [«Площадки, у которых API уже нет»](/kb/instruments/social-media/dead-platforms).
+*   [twarc](/kb/instruments/social-media/twarc) — сбор через платный API X (бесплатная программа Academic Research закрыта в 2023 году). Чем ещё заменяют закрытые API — на странице [«Закрытые API, площадки и инструменты»](/kb/instruments/social-media/dead-platforms).
 
 ## Связанные материалы
 
 *   [Data Take-Out: обзор](/kb/instruments/data-take-out/data-take-out-main) — как выгрузить данные из других платформ.
 *   [Справка X: как скачать архив](https://help.x.com/en/managing-your-account/how-to-download-your-x-archive)
+*   [Архивация Twitter/X](/kb/instruments/social-media/twitter-x) — чужие посты, медиа, снимки и Community Notes.
 *   [twarc](/kb/instruments/social-media/twarc) — сбор данных через API X.

@@ -3,7 +3,7 @@ sidebar_position: 3
 title: "Статистика Ruarxive: снимок"
 description: "Подтверждённые цифры по отдельным коллекциям Ruarxive — с источником и датой. Каноническая страница статистики проекта."
 last_update:
-  date: 2026-10-14
+  date: 2026-10-29
 ---
 
 # Статистика Ruarxive: снимок
@@ -84,7 +84,7 @@ last_update:
 
 Инструменты с открытым кодом, которые развивает проект и его участники:
 
-- [tgarc](/kb/instruments/ruarxive-tools/tgarc) — архивация Telegram-каналов;
+- [tgarc](/kb/instruments/ruarxive-tools/tgarc) — архивация Telegram-каналов (не развивается с декабря 2023 года, для нового сбора — [tdl](/kb/instruments/tools/tdl));
 - [wparc](/kb/instruments/ruarxive-tools/wparc) — сайты на WordPress через REST API;
 - [ydiskarc](/kb/instruments/ruarxive-tools/ydiskarc) — публичные папки Яндекс.Диска;
 - [filegetter](/kb/instruments/ruarxive-tools/filegetter) — массовое скачивание файлов по спискам;

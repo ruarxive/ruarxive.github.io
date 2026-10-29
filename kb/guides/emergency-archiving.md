@@ -3,7 +3,7 @@ title: Экстренная архивация
 sidebar_label: Экстренная архивация
 sidebar_position: 3
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 description: "Стратегия и тактика экстренной архивации сайтов и каналов под угрозой исчезновения: приоритеты, инструменты, координация, безопасность."
 keywords: [экстренная архивация, кризисная архивация, приоритеты, координация, безопасность архивиста]
 ---
@@ -203,11 +203,11 @@ keywords: [экстренная архивация, кризисная архи�
 
 - **[gallery-dl](/kb/instruments/tools/gallery-dl)** - галереи изображений
 - **[instaloader](/kb/instruments/social-media/instagram)** - публичные профили Instagram
-- **[tgarc](/kb/instruments/ruarxive-tools/tgarc)** - Telegram-каналы
+- **[tdl и Telethon](/kb/instruments/social-media/telegram)** - Telegram-каналы
 - **[Browsertrix Crawler](/kb/instruments/tools/browsertrix)** - сложные JS-сайты
 - **[ArchiveWeb.page](https://webrecorder.net/archivewebpage/)** - запись интерактивных страниц прямо в браузере
 
-Сервис Conifer с июня 2026 года не принимает новые захваты, а snscrape не работает с крупными соцсетями с 2023 года — не планируйте на них экстренную архивацию.
+Сервис Conifer с мая 2026 года не принимает новые захваты, а snscrape не работает с крупными соцсетями с 2023 года — не планируйте на них экстренную архивацию.
 
 Подробные гайды: [Инструменты](/kb/instruments/)
 

@@ -3,7 +3,7 @@ title: Часто задаваемые вопросы (FAQ)
 description: "Ответы на частые вопросы о проекте Ruarxive, архивах, инструментах архивации, правовых вопросах и волонтёрстве."
 sidebar_position: 2
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 ---
 
 # Часто задаваемые вопросы (FAQ)
@@ -60,8 +60,8 @@ HTTP-запросами, ответами и метаданными. **WACZ** �
 Подробнее: [Быстрый старт](/kb/guides/quick-start-5min).
 
 ### Как архивировать Telegram-канал?
-Через [tgarc](/kb/instruments/ruarxive-tools/tgarc) или экспорт Telegram Desktop.
-Подробнее: [Telegram Data Take Out](/kb/instruments/data-take-out/dto-telegram).
+Свой чат или канал — экспортом Telegram Desktop, публичный канал целиком — загрузчиком [tdl](/kb/instruments/tools/tdl).
+Все способы, включая скрипт на Telethon и снимок `t.me/s/`, — на странице [Архивация Telegram](/kb/instruments/social-media/telegram).
 
 ### Как архивировать большой сайт (десятки тысяч страниц)?
 Используйте Heritrix или Browsertrix. Для сайтов на WordPress —

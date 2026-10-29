@@ -3,7 +3,7 @@ title: gallery-dl
 sidebar_label: gallery-dl
 description: "gallery-dl — утилита командной строки для скачивания изображений и медиа из галерей и соцсетей (сотни сайтов: Instagram, Twitter/X, Pixiv, DeviantArt, Tumblr, Reddit, VK и др.) с метаданными в JSON."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-29
 ---
 
 # gallery-dl
@@ -139,7 +139,7 @@ gallery-dl "https://www.pixiv.net/users/12345"
 # Tumblr
 gallery-dl "https://username.tumblr.com"
 
-# Reddit
+# Reddit (в 2026 году без OAuth не работает, см. ниже)
 gallery-dl "https://www.reddit.com/r/subreddit"
 ```
 
@@ -262,7 +262,7 @@ gallery-dl --write-metadata --write-info-json URL
 
 ### Авторизация через OAuth
 
-OAuth обязателен для Pixiv и необязателен для DeviantArt, Flickr, Reddit, SmugMug, Tumblr и экземпляров Mastodon:
+OAuth обязателен для Pixiv и необязателен для DeviantArt, Flickr, SmugMug, Tumblr и экземпляров Mastodon. Для Reddit он в 2026 году фактически обязателен: запросы без OAuth Reddit блокирует, а доступ к API выдаёт по заявке, см. [Reddit](/kb/instruments/social-media/other-platforms#reddit):
 
 ```bash
 gallery-dl oauth:pixiv

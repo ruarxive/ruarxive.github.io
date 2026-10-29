@@ -3,7 +3,7 @@ title: Архивы закрытых и заблокированных росс�
 sidebar_label: Архивы российских СМИ
 description: "Где искать архивные копии сайтов закрытых и заблокированных российских СМИ: коллекции Ruarxive, Wayback Machine, другие веб-архивы, а также правовые ограничения."
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 keywords: [медиа, архивы сми, эхо москвы, новая газета, wayback machine]
 ---
 
@@ -68,7 +68,7 @@ Wayback Machine, archive.today, национальные веб-архивы (с
 
 Если ресурс ещё доступен и сохранение не нарушает закон:
 
-1. Соберите сайт в WARC — см. [Wget: сайт в WARC](/kb/guides/wget) или [Browsertrix](/kb/instruments/tools/browsertrix); для сайтов на WordPress — [wparc](/kb/instruments/ruarxive-tools/wparc), для Telegram-каналов — [tgarc](/kb/instruments/ruarxive-tools/tgarc).
+1. Соберите сайт в WARC — см. [Wget: сайт в WARC](/kb/guides/wget) или [Browsertrix](/kb/instruments/tools/browsertrix); для сайтов на WordPress — [wparc](/kb/instruments/ruarxive-tools/wparc), для Telegram-каналов — экспорт Telegram Desktop или [tdl](/kb/instruments/tools/tdl), см. [Архивация Telegram](/kb/instruments/social-media/telegram).
 2. Сохраните копию в нескольких местах.
 3. Сообщите о ресурсе через [запрос на архивацию](/kb/preserved-projects-form) или в [чате Ruarxive](https://t.me/ruarxivechat).
 

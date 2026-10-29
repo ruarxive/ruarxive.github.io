@@ -4,7 +4,7 @@ sidebar_label: Открытые архивные сервисы
 sidebar_position: 1
 description: "Обзор открытых архивных сервисов: Internet Archive, Common Crawl, Perma.cc, ArchiveTeam, Archive-It, национальные веб-архивы. Когда какой использовать."
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 ---
 
 # Открытые архивные сервисы — карта
@@ -24,7 +24,7 @@ Ruarxive — не единственный проект в области веб
 | **Национальные веб-архивы** (UK Web Archive, BnF, Arquivo.pt, Australian Web Archive и др.) | Государственные программы | Архивация национального сегмента веба | Через сайты национальных библиотек и архивов | Изучение конкретной страны |
 
 :::note Conifer
-Сервис Conifer (Rhizome) с июня 2026 года не принимает новые захваты: существующие коллекции доступны только для просмотра. Для новых захватов используйте [Browsertrix](/kb/instruments/tools/browsertrix) или расширение ArchiveWeb.page.
+Сервис Conifer (Rhizome) с мая 2026 года не принимает новые захваты: существующие коллекции доступны только для просмотра. Для новых захватов используйте [Browsertrix](/kb/instruments/tools/browsertrix) или расширение ArchiveWeb.page.
 :::
 
 ## Когда что использовать
@@ -53,7 +53,7 @@ Ruarxive — не единственный проект в области веб
 
 | Платформа | Где искать |
 |:---|:---|
-| Telegram | Публичные каналы — веб-версия `t.me/s/имя_канала` в Wayback Machine; собственные выгрузки — [tgarc](/kb/instruments/ruarxive-tools/tgarc) |
+| Telegram | Публичные каналы — веб-версия `t.me/s/имя_канала` в Wayback Machine; выгрузки Ruarxive 2022 года — [Архивы контента российских СМИ](/kb/projects/russian-smi); собрать канал самому — [Архивация Telegram](/kb/instruments/social-media/telegram) |
 | Twitter/X | Internet Archive, Bellingcat Auto-Archiver |
 | Государственные сайты | Национальные веб-архивы, Internet Archive |
 | Видео | yt-dlp + собственный архив |

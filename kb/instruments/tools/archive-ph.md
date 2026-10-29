@@ -287,7 +287,7 @@ https://archive.ph/?run=1&url=https://example.com
 - **[HTTrack](/kb/instruments/tools/httrack)** — офлайн-копии сайтов.
 - **[Browsertrix Crawler](/kb/instruments/tools/browsertrix)** — архивация сайтов с JavaScript в WACZ.
 
-Сервис Conifer (Rhizome), который раньше рекомендовался для интерактивных страниц, закрыт в июне 2026 года; используйте ArchiveWeb.page или Browsertrix.
+Сервис Conifer (Rhizome), который раньше рекомендовался для интерактивных страниц, с мая 2026 года не принимает новые захваты; используйте ArchiveWeb.page или Browsertrix.
 
 ---
 

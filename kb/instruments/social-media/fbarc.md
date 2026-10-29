@@ -3,6 +3,7 @@ title: F(b)arc
 description: "F(b)arc — архивный (с 2018 года) инструмент для сохранения данных Facebook через Graph API. Описание по README и актуальные альтернативы."
 last_update:
   date: 2026-10-12
+keywords: [fbarc, facebook, graph-api, устаревшие]
 ---
 
 # F(b)arc

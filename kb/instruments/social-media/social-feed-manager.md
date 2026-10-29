@@ -3,6 +3,7 @@ title: Social Feed Manager
 description: "Social Feed Manager (SFM) — открытая система Университета Джорджа Вашингтона для сбора коллекций из Twitter, Tumblr, Flickr и Sina Weibo. С 2024 года не развивается."
 last_update:
   date: 2026-10-12
+keywords: [social-feed-manager, sfm, gwu, twitter, устаревшие]
 ---
 
 # Social Feed Manager
