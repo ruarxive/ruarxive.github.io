@@ -5,6 +5,24 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [Unreleased] — 2026-10-29: обзорная страница «Инструменты Ruarxive»
+
+Пакет RT-2 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.
+
+### Добавлено
+
+- **`ruarxive-tools/index`**:
+  - таблица «Что получается на выходе»: формат результата, запись WARC и версия Python для каждого инструмента;
+  - схема «Как инструменты стыкуются» (Mermaid) и ссылки на три кейса-конвейера;
+  - раздел «Где применялись»: apibackuper в кампаниях Coub и «Отчёты Счётной палаты», metawarc в архивах Regnum и Росбалта. Отдельно сказано, что сайты СМИ 2022 года собраны wpull, Telegram — экспортом Telegram Desktop, порталы открытых данных — скриптами rudatarchive;
+  - раздел «Ошибки и предложения»: Issues, `CONTRIBUTING.md`, `SECURITY.md`, запрос на архивацию;
+  - ссылка на awesome-digital-preservation.
+- **Принципы**: `ydiskarc sync --update`, `apibackuper run continue` и `--resume`; новый пункт про хранилище `.partial` в apibackuper 2.0.
+
+### Исправлено
+
+- **`case-studies/multi-tool-archiving`**: убрана команда `spcrawler getfiles`. В версии 1.0.1 это заглушка (`spapi/crawler.py:49`, тело `pass`), файлы она не скачивает. Теперь ссылки на документы из JSONL передаются filegetter.
+
 ## [Unreleased] — 2026-10-29: мелкие правки раздела «Инструменты Ruarxive»
 
 Пакет RT-5 из ревизии `temp/ruarxive-tools-review-2026-10-29.md`.
