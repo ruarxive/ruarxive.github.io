@@ -140,6 +140,7 @@ for page in t.search_recent("query", max_results=100):
 
 ## Связанные материалы
 
+- [Архивация Twitter/X](/kb/instruments/social-media/twitter-x) — всё о площадке: API, снимки, медиа, Community Notes
 - [Mastodon, Bluesky, Threads](/kb/instruments/social-media/mastodon) — открытые альтернативы
 - [Auto-Archiver](/kb/instruments/tools/auto-archiver) — для OSINT
 - [Wayback Machine API](/kb/instruments/tools/wayback-api) — для архивных твитов

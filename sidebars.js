@@ -235,6 +235,9 @@ const sidebars = {
                 'instruments/social-media/vk',
                 'instruments/social-media/telegram',
                 'instruments/social-media/max',
+                'instruments/social-media/ok',
+                'instruments/social-media/dzen',
+                'instruments/social-media/livejournal',
                 'instruments/social-media/rutube',
               ],
             },
@@ -243,11 +246,13 @@ const sidebars = {
               label: 'Международные платформы',
               items: [
                 'instruments/social-media/youtube-video',
+                'instruments/social-media/twitter-x',
                 'instruments/social-media/twarc',
                 'instruments/social-media/facebook',
                 'instruments/social-media/instagram',
                 'instruments/social-media/tiktok',
                 'instruments/social-media/mastodon',
+                'instruments/social-media/other-platforms',
               ],
             },
             {
@@ -347,6 +352,7 @@ const sidebars = {
             'instruments/data-take-out/dto-ok',
             'instruments/data-take-out/dto-tiktok',
             'instruments/data-take-out/dto-mastodon',
+            'instruments/data-take-out/dto-bluesky',
           ],
         },
         {

@@ -17,20 +17,24 @@ keywords: [социальные сети, мессенджеры, api, yt-dlp, d
 | [ВКонтакте](/kb/instruments/social-media/vk) | VK API `wall.get` | `wall.getComments` | gallery-dl, yt-dlp | сервисный ключ приложения | [выгрузка](/kb/instruments/data-take-out/dto-vk) |
 | [Telegram](/kb/instruments/social-media/telegram) | tdl, Telethon | через группу обсуждения: tdl `--reply`, Telethon `reply_to` | tdl, Telethon | аккаунт; без него — только снимок `t.me/s/` | [экспорт Desktop](/kb/instruments/data-take-out/dto-telegram) |
 | [MAX](/kb/instruments/social-media/max) | Bot API, только канал, где ваш бот — администратор | — | — | бот; подключают только организации, ИП и самозанятые из РФ | нет выгрузки |
+| [Одноклассники](/kb/instruments/social-media/ok) | Browsertrix по адресам постов; лента группы — только начало | снимок страницы поста | yt-dlp, только отдельные видео | ничего для открытой группы | [запрос в поддержку](/kb/instruments/data-take-out/dto-ok) |
+| [Дзен](/kb/instruments/social-media/dzen) | Browsertrix по адресам статей `dzen.ru/a/…` | снимок страницы статьи | yt-dlp: длинные видео; ролики — нет | ничего | — |
+| [Живой Журнал](/kb/instruments/social-media/livejournal) | RSS и Atom (25 последних), обход wget или Browsertrix | страницы `?view=comments` и `?page=N` в составе обхода | в составе обхода | ничего | экспорт по месяцам, XML или CSV, без комментариев |
 | [Rutube](/kb/instruments/social-media/rutube) | yt-dlp | только снимок страницы | yt-dlp | ничего | — |
 | [YouTube](/kb/instruments/social-media/youtube-video) | yt-dlp | yt-dlp `--write-comments` | yt-dlp | ничего; для части видео — cookies | [Google Takeout](/kb/instruments/data-take-out/dto-google) |
-| [Twitter/X](/kb/instruments/social-media/twarc) | twarc2 | `twarc2 conversation` | — | платный API; без него — снимки отдельных постов | [архив X](/kb/instruments/data-take-out/dto-twitter) |
+| [Twitter/X](/kb/instruments/social-media/twitter-x) | twarc2 с платным API; без него — снимки постов | `twarc2 conversation` | yt-dlp и gallery-dl по ссылке на пост; лента — cookies | платный API; для лент и вкладки медиа — свой аккаунт | [архив X](/kb/instruments/data-take-out/dto-twitter) |
 | [Facebook](/kb/instruments/social-media/facebook) | Browsertrix с профилем | Browsertrix | Browsertrix | аккаунт | [экспорт информации](/kb/instruments/data-take-out/dto-facebook) |
 | [Instagram](/kb/instruments/social-media/instagram) | Instaloader, gallery-dl | Instaloader `--comments` | Instaloader, gallery-dl | аккаунт для большинства профилей | [Центр аккаунтов](/kb/instruments/data-take-out/dto-instagram) |
 | [TikTok](/kb/instruments/social-media/tiktok) | yt-dlp, gallery-dl | yt-dlp `--write-comments`, если TikTok их отдаёт | yt-dlp, gallery-dl | ничего; для части видео — cookies | [выгрузка](/kb/instruments/data-take-out/dto-tiktok) |
 | [Mastodon](/kb/instruments/social-media/mastodon#mastodon) | REST API, Mastodon.py | ответы — тоже посты: `statuses/:id/context` | gallery-dl | ничего, если инстанс не закрыл API | [архив аккаунта](/kb/instruments/data-take-out/dto-mastodon) |
-| [Bluesky](/kb/instruments/social-media/mastodon#bluesky) | публичный API, репозиторий CAR | `getPostThread` | отдельно от репозитория | ничего | тот же репозиторий CAR |
+| [Bluesky](/kb/instruments/social-media/mastodon#bluesky) | публичный API, репозиторий CAR | `getPostThread` | `listBlobs` и `getBlob`, goat | ничего | [CAR и переписка](/kb/instruments/data-take-out/dto-bluesky) |
 | [Threads](/kb/instruments/social-media/mastodon#threads) | Threads API: поиск по словам и тегам | — | — | приложение Meta и токен | — |
+| [Reddit](/kb/instruments/social-media/other-platforms#reddit) | Data API по одобренной заявке | Data API по одобренной заявке | gallery-dl с OAuth | одобренный доступ к API; без OAuth запросы блокируются | запрос данных, до 30 дней |
+| [Twitch](/kb/instruments/social-media/other-platforms#twitch) | yt-dlp: записи эфиров, клипы, эфир | чат записи: TwitchDownloader | yt-dlp | ничего; записи эфиров живут 7–60 дней | по одному видео в Video Producer |
 
 - «—» — способа в базе нет.
 - Вид любой страницы сохраняет [Browsertrix](/kb/instruments/tools/browsertrix), отдельную публикацию — [archive.ph](/kb/instruments/tools/archive-ph) и [Auto-Archiver](/kb/instruments/tools/auto-archiver).
 - Удалённое до сбора не возвращает ни один способ, см. [методику](/kb/instruments/social-media/methodology#что-теряется).
-- Для Одноклассников в базе пока описан только запрос архива своих данных: [Одноклассники](/kb/instruments/data-take-out/dto-ok).
 
 Общие правила — единица сбора, паспорт сбора, отдельный аккаунт, темп, хранение — на странице [Методика архивации соцсетей](/kb/instruments/social-media/methodology).
 
