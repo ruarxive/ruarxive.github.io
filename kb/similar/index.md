@@ -4,7 +4,7 @@ sidebar_label: Открытые архивные сервисы
 sidebar_position: 1
 description: "Обзор открытых архивных сервисов: Internet Archive, Common Crawl, Perma.cc, ArchiveTeam, Archive-It, национальные веб-архивы. Когда какой использовать."
 last_update:
-  date: 2026-10-28
+  date: 2026-10-29
 ---
 
 # Открытые архивные сервисы — карта
@@ -53,7 +53,7 @@ Ruarxive — не единственный проект в области веб
 
 | Платформа | Где искать |
 |:---|:---|
-| Telegram | Публичные каналы — веб-версия `t.me/s/имя_канала` в Wayback Machine; собственные выгрузки — [tgarc](/kb/instruments/ruarxive-tools/tgarc) |
+| Telegram | Публичные каналы — веб-версия `t.me/s/имя_канала` в Wayback Machine; выгрузки Ruarxive 2022 года — [Архивы контента российских СМИ](/kb/projects/russian-smi); собрать канал самому — [Архивация Telegram](/kb/instruments/social-media/telegram) |
 | Twitter/X | Internet Archive, Bellingcat Auto-Archiver |
 | Государственные сайты | Национальные веб-архивы, Internet Archive |
 | Видео | yt-dlp + собственный архив |

@@ -3,7 +3,7 @@ sidebar_position: 2
 title: Сравнения и лучшие практики
 description: "Сравнение государственных подходов к веб-архивации в России, США и Великобритании, подходов к архивации, инструментов и форматов, а также модель NDSA Levels."
 last_update:
-  date: 2026-10-12
+  date: 2026-10-29
 ---
 
 # Сравнения и лучшие практики
@@ -66,7 +66,7 @@ last_update:
 
 | Платформа | Как архивируется | Ограничения |
 |---|---|---|
-| Telegram | Экспорт каналов через Telegram Desktop ([#6](https://t.me/ruarxive/6)) или [tgarc](/kb/instruments/ruarxive-tools/tgarc) | Большой объём видео |
+| Telegram | Экспорт каналов через Telegram Desktop ([#6](https://t.me/ruarxive/6)) или [tdl](/kb/instruments/tools/tdl), см. [Архивация Telegram](/kb/instruments/social-media/telegram) | Большой объём видео |
 | Instagram | instaloader ([#27](https://t.me/ruarxive/27)) | Изображения и видео сохраняются ограниченно из-за ограничений платформы |
 | MAX | Нет публичного просмотра каналов и выгрузки данных ([#175](https://t.me/ruarxive/175)) | Архивация практически невозможна |
 

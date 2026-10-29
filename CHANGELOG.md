@@ -5,6 +5,21 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [Unreleased] — 2026-10-29: Telegram и YouTube
+
+Пакет SM-2 из ревизии `temp/social-media-review-2026-10-28.md`: две самые короткие из важных страниц раздела доведены до уровня страницы ВКонтакте.
+
+### Изменено
+
+- **`social-media/telegram`** переписана: таблица «задача → способ» и «что получится», экспорт Telegram Desktop с практикой Ruarxive 2022 года, рецепты tdl (экспорт, медиа, докачка, `--takeout`, комментарии `--reply`), скрипт на Telethon с записью в JSONL, докачкой по `min_id` и обработкой `FloodWaitError`, комментарии через `reply_to`, снимок `t.me/s/` с пагинацией `?before=`, хранение и право. Предупреждение: выгружать заранее на фоне блокировок 2026 года, без советов по обходу. Telethon переехал на Codeberg — ссылки обновлены.
+- **`social-media/youtube-video`** («Архивация YouTube») переписана: канал целиком, комментарии (`max_comments`, `comment_sort`), субтитры и чат трансляции (`live_chat`), эфиры и премьеры (`--live-from-start`, `--wait-for-video`), видео с ограничениями, записи сообщества, поиск удалённых видео через Wayback CDX и ArchiveTeam, хранение, каналы госорганов 2013 года в хранилище Ruarxive.
+- **`data-take-out/dto-telegram`**: вместо полной инструкции по tgarc («Способ 3») — tdl и Telethon со ссылкой на страницу Telegram; tgarc оставлен как справка о формате старых выгрузок.
+
+### Исправлено
+
+- **Адрес канала YouTube.** Пример с `/@канал/videos` скачивал только вкладку «Видео» без Shorts и трансляций. Теперь канал передаётся без вкладки — так yt-dlp забирает все загрузки (сверено с `yt_dlp/extractor/youtube/_tab.py`, yt-dlp 2026.10.26).
+- **tgarc для нового сбора** больше не советуется в `faq`, `resources/comparisons`, `resources/stats-snapshot`, `similar/index`, `similar/russian-independent-media-archives`: вместо него — экспорт Telegram Desktop и tdl.
+
 ## [Unreleased] — 2026-10-28: структура раздела «Социальные сети»
 
 Пакет SM-1 из ревизии `temp/social-media-review-2026-10-28.md`.
